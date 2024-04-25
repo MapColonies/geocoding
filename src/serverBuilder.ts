@@ -58,11 +58,13 @@ export class ServerBuilder {
     }
 
     this.serverInstance.use(bodyParser.json(this.config.get<bodyParser.Options>('server.request.payload')));
+    this.serverInstance.use(bodyParser.urlencoded({ limit: this.config.get<string>('server.request.payload.limit'), extended: true }));
     this.serverInstance.use(getTraceContexHeaderMiddleware());
 
     const ignorePathRegex = new RegExp(`^${this.config.get<string>('openapiConfig.basePath')}/.*`, 'i');
     const apiSpecPath = this.config.get<string>('openapiConfig.filePath');
     this.serverInstance.use(OpenApiMiddleware({ apiSpec: apiSpecPath, validateRequests: true, ignorePaths: ignorePathRegex }));
+    this.serverInstance.disable('x-powered-by');
   }
 
   private registerPostRoutesMiddleware(): void {
