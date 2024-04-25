@@ -8,7 +8,8 @@ import { SERVICES, SERVICE_NAME } from './common/constants';
 import { tracing } from './common/tracing';
 import { resourceNameRouterFactory, RESOURCE_NAME_ROUTER_SYMBOL } from './resourceName/routes/resourceNameRouter';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
-import { anotherResourceRouterFactory, ANOTHER_RESOURCE_ROUTER_SYMBOL } from './anotherResource/routes/anotherResourceRouter';
+import { elasticClientSymbol, initElasticsearchClient } from './common/elastic';
+import { DbConfig } from './common/interfaces';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -25,13 +26,15 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
   tracing.start();
   const tracer = trace.getTracer(SERVICE_NAME);
 
+  const dataSourceOptions = config.get<DbConfig>('db.elastic');
+  const elasticClient = await initElasticsearchClient(dataSourceOptions);
+
   const dependencies: InjectionObject<unknown>[] = [
     { token: SERVICES.CONFIG, provider: { useValue: config } },
     { token: SERVICES.LOGGER, provider: { useValue: logger } },
     { token: SERVICES.TRACER, provider: { useValue: tracer } },
     { token: SERVICES.METER, provider: { useValue: OtelMetrics.getMeterProvider().getMeter(SERVICE_NAME) } },
-    { token: RESOURCE_NAME_ROUTER_SYMBOL, provider: { useFactory: resourceNameRouterFactory } },
-    { token: ANOTHER_RESOURCE_ROUTER_SYMBOL, provider: { useFactory: anotherResourceRouterFactory } },
+    { token: elasticClientSymbol, provider: { useValue: elasticClient } },
     {
       token: 'onSignal',
       provider: {
