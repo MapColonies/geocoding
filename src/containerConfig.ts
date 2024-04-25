@@ -10,6 +10,8 @@ import { resourceNameRouterFactory, RESOURCE_NAME_ROUTER_SYMBOL } from './resour
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
 import { elasticClientSymbol, initElasticsearchClient } from './common/elastic';
 import { DbConfig } from './common/interfaces';
+import { TILE_REPOSITORY_SYMBOL, tileRepositoryFactory } from './tile/DAL/tileRepository';
+import { TILE_ROUTER_SYMBOL, tileRouterFactory } from './tile/routes/tileRouter';
 import { ITEM_REPOSITORY_SYMBOL, itemRepositoryFactory } from './item/DAL/itemRepository';
 import { ITEM_ROUTER_SYMBOL, itemRouterFactory } from './item/routes/itemRouter';
 
@@ -37,6 +39,8 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     { token: SERVICES.TRACER, provider: { useValue: tracer } },
     { token: SERVICES.METER, provider: { useValue: OtelMetrics.getMeterProvider().getMeter(SERVICE_NAME) } },
     { token: elasticClientSymbol, provider: { useValue: elasticClient } },
+    { token: TILE_REPOSITORY_SYMBOL, provider: { useFactory: tileRepositoryFactory } },
+    { token: TILE_ROUTER_SYMBOL, provider: { useFactory: tileRouterFactory } },
     { token: ITEM_REPOSITORY_SYMBOL, provider: { useFactory: itemRepositoryFactory } },
     { token: ITEM_ROUTER_SYMBOL, provider: { useFactory: itemRouterFactory } },
     {
