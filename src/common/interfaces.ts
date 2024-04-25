@@ -20,3 +20,8 @@ export interface GeoContext {
   lon?: number;
   lat?: number;
 }
+
+export interface Geometry {
+  type: string;
+  coordinates: number[][][];
+}
