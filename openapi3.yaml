@@ -1,86 +1,714 @@
-openapi: 3.0.1
+openapi: "3.0.1"
 info:
-  title: service-name
-  description: basic template for map colonies service
-  version: 1.0.0
+  version: "1.0.0"
+  title: "New Geocoding"
+  description: "Geocoding api"
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
+tags:
+  - name: Query Based Search
+  - name: Exact Searches
 paths:
-  /anotherResource:
+  /query:
     get:
-      operationId: getAnotherResource
+      operationId: searchByQuery
       tags:
-        - anotherResource
-      summary: gets the resource
+        - Query Based Search
+      summary: "Search anything by query"
+      description: "This is for general queries. If known regex is found, the server will return results as if you searched for exact search. Else, the server will search using NLP engine to find a match."
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 1000
+            description: Text to search
+            title: Query
+          description: Text to search
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            maximum: 1000
+            minimum: 0
+            description: Maximum results the service should return
+            default: 10
+            title: Limit
+          description: Maximum results the service should return
+        - name: source
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Source"
+            description: Sources to include (if not specified, all sources will be queried)
+            title: Source
+          description: Sources to include (if not specified, all sources will be queried)
+        - name: viewbox
+          in: query
+          required: false
+          schema:
+            type: string
+            description: |-
+              User's viewbox, used for biasing the results, or preferring results closer to the user
+
+                  Results close to this geometry will be preferred
+
+                  When providing a non-zero-area entity (e.g. polygon or bbox), results inside the entity will be most preferred
+
+                  Possible formats include a valid geoJSON, a valid WKT, an "x,y" point, or a "xmin,ymin,xmax,ymax" bounding box
+            title: Viewbox
+          description: |-
+            User's viewbox, used for biasing the results, or preferring results closer to the user
+
+                Results close to this geometry will be preferred
+
+                When providing a non-zero-area entity (e.g. polygon or bbox), results inside the entity will be most preferred
+
+                Possible formats include a valid geoJSON, a valid WKT, an "x,y" point, or a "xmin,ymin,xmax,ymax" bounding box
+        - name: boundary
+          in: query
+          required: false
+          schema:
+            type: string
+            description: |-
+              A filter on the results.
+
+                  Results not touching this geometry will not be returned
+
+                  Possible formats include a valid geoJSON, a valid WKT, an "x,y" point, or a "xmin,ymin,xmax,ymax" bounding box
+            title: Boundary
+          description: |-
+            A filter on the results.
+
+                Results not touching this geometry will not be returned
+
+                Possible formats include a valid geoJSON, a valid WKT, an "x,y" point, or a "xmin,ymin,xmax,ymax" bounding box
       responses:
         200:
-          description: OK
+          description: "OK (can be one of the following: tilesSchema, routesSchema, itemsSchema, subTileSchema) <br><br>WIP: Find out returned schema from nlp"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/anotherResource'
-  /resourceName:
-    get:
-      operationId: getResourceName
-      tags:
-        - resourceName
-      summary: gets the resource
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/resource'
-    post:
-      operationId: createResource
-      tags:
-        - resourceName
-      summary: creates a new record of type resource
-      responses:
-        201:
-          description: created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/resource'
+                oneOf:
+                  - $ref: "#/components/schemas/tilesSchema"
+                  - $ref: "#/components/schemas/routesSchema"
+                  - $ref: "#/components/schemas/itemsSchema"
+                  - $ref: "#/components/schemas/subTileSchema"
         400:
-          description: Bad Request
+          "$ref": "#/components/responses/BadRequest"
+        401:
+          "$ref": "#/components/responses/Unauthorized"
+        403:
+          "$ref": "#/components/responses/Forbidden"
+        500:
+          "$ref": "#/components/responses/InternalError"
+      security:
+        - X-API-Key: []
+        - X-User-ID: []
+  /search/tiles:
+    get:
+      operationId: getTilesByQueryParams
+      tags:
+        - Exact Searches
+      summary: "Search tiles and sub tiles"
+      description: "Tiles are consist of 3 characters.   <br><br> You can query and get results from 2 characters.   <br><br> If you define a tile (full name of it) you can query the sub tile associated with it."
+      parameters:
+        - name: "tile"
+          in: "query"
+          description: "Tile name"
+          schema:
+            type: "string"
+          required: true
+        - name: "sub_tile"
+          in: "query"
+          description: "Sub tile number"
+          schema:
+            type: "number"
+        - $ref: "#/components/parameters/reduce_fuzzy_match"
+        - $ref: "#/components/parameters/size"
+      responses:
+        200:
+          description: "OK"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
+                $ref: "#/components/schemas/tilesSchema"
+        400:
+          "$ref": "#/components/responses/BadRequest"
+        401:
+          "$ref": "#/components/responses/Unauthorized"
+        403:
+          "$ref": "#/components/responses/Forbidden"
+        500:
+          "$ref": "#/components/responses/InternalError"
+      security:
+        - X-API-Key: []
+        - X-User-ID: []
+  /search/items:
+    get:
+      operationId: getItemsByQueryParams
+      tags:
+        - Exact Searches
+      summary: "Search control items"
+      description: ""
+      parameters:
+        - name: "command_name"
+          in: "query"
+          description: "Object command name of the item"
+          schema:
+            type: "string"
+          required: true
+
+        - name: "tile"
+          in: "query"
+          description: "The tile the item in it (full name of it)"
+          schema:
+            type: "string"
+          required: false
+
+        - name: "sub_tile"
+          in: "query"
+          description: "The sub tile the item in it (required if tile is defined)"
+          schema:
+            type: "number"
+        - $ref: "#/components/parameters/geo_context"
+        - $ref: "#/components/parameters/reduce_fuzzy_match"
+        - $ref: "#/components/parameters/size"
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/itemsSchema"
+        400:
+          "$ref": "#/components/responses/BadRequest"
+        401:
+          "$ref": "#/components/responses/Unauthorized"
+        403:
+          "$ref": "#/components/responses/Forbidden"
+        500:
+          "$ref": "#/components/responses/InternalError"
+      security:
+        - X-API-Key: []
+        - X-User-ID: []
+  /search/routes:
+    get:
+      operationId: getRoutesByQueryParams
+      tags:
+        - Exact Searches
+      summary: "Search routes and report control points"
+      description: "You can query and get control routes.   <br><br> If you define a route (full name of it) you can query the control points associated with it.   "
+      parameters:
+        - name: "command_name"
+          in: "query"
+          description: "Object command name of the item"
+          schema:
+            type: "string"
+          required: true
+        - name: "control_point"
+          in: "query"
+          description: "The associated report control point of the route"
+          schema:
+            type: "number"
+        - $ref: "#/components/parameters/geo_context"
+        - $ref: "#/components/parameters/reduce_fuzzy_match"
+        - $ref: "#/components/parameters/size"
+      responses:
+        200:
+          description: "OK (can be routesSchema or itemsSchema)"
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/routesSchema"
+                  - $ref: "#/components/schemas/itemsSchema"
+        400:
+          "$ref": "#/components/responses/BadRequest"
+        401:
+          "$ref": "#/components/responses/Unauthorized"
+        403:
+          "$ref": "#/components/responses/Forbidden"
+        500:
+          "$ref": "#/components/responses/InternalError"
+      security:
+        - X-API-Key: []
+        - X-User-ID: []
+  /lookup/latlonToTile:
+    get:
+      operationId: convertLatlonToTile
+      tags:
+        - Exact Searches
+      summary: "Convert a WGS84 coordinate to a tile"
+      parameters:
+        - name: "lat"
+          in: "query"
+          description: "Latitude of the coordinate"
+          schema:
+            type: "number"
+            minimum: -90
+            maximum: 90
+          required: true
+        - name: "lon"
+          in: "query"
+          description: "Longitude of the coordinate"
+          schema:
+            type: "number"
+            minimum: -180
+            maximum: 180
+          required: true
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/subTileSchema"
+        400:
+          "$ref": "#/components/responses/BadRequest"
+        401:
+          "$ref": "#/components/responses/Unauthorized"
+        403:
+          "$ref": "#/components/responses/Forbidden"
+        500:
+          "$ref": "#/components/responses/InternalError"
+      security:
+        - X-API-Key: []
+        - X-User-ID: []
+  /lookup/tileToLatLon:
+    get:
+      operationId: convertTileToLatlon
+      tags:
+        - Exact Searches
+      summary: "Convert a tile to a geojson tile"
+      parameters:
+        - name: "tile"
+          in: "query"
+          description: "Tile name"
+          schema:
+            type: "string"
+          required: true
+        - name: "sub_tile_number"
+          in: "query"
+          description: "An array describing sub tile number"
+          schema:
+            type: "array"
+            items:
+              type: "number"
+              minimum: 0
+              maximum: 99
+            minItems: 3
+            maxItems: 3
+          required: true
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/tilesSchema"
+        400:
+          "$ref": "#/components/responses/BadRequest"
+        401:
+          "$ref": "#/components/responses/Unauthorized"
+        403:
+          "$ref": "#/components/responses/Forbidden"
+        500:
+          "$ref": "#/components/responses/InternalError"
+      security:
+        - X-API-Key: []
+        - X-User-ID: []
+  /lookup/latlonToMgrs:
+    get:
+      operationId: convertLatLonToMgrs
+      tags:
+        - Exact Searches
+      summary: "Convert a WGS84 coordinate to US Army MGRS"
+      parameters:
+        - name: "lat"
+          in: "query"
+          description: "Latitude of the coordinate"
+          schema:
+            type: "number"
+            minimum: -90
+            maximum: 90
+          required: true
+        - name: "lon"
+          in: "query"
+          description: "Longitude of the coordinate"
+          schema:
+            type: "number"
+            minimum: -180
+            maximum: 180
+          required: true
+        - name: "accuricy"
+          in: "query"
+          description: "Accuracy in digits (5 for 1 m, 4 for 10 m, 3 for 100 m, 2 for 1 km, 1 for 10 km or 0 for 100 km). Optional, default is 5."
+          schema:
+            type: "number"
+            minimum: 0
+            maximum: 5
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mgrs:
+                    type: string
+                    pattern: ^(\d{1,2})([C-X][A-HJ-NP-Z])([A-HJ-NP-Z]{2})(\d{1,5})\s*(\d{1,5})$
+        400:
+          "$ref": "#/components/responses/BadRequest"
+        401:
+          "$ref": "#/components/responses/Unauthorized"
+        403:
+          "$ref": "#/components/responses/Forbidden"
+        500:
+          "$ref": "#/components/responses/InternalError"
+      security:
+        - X-API-Key: []
+        - X-User-ID: []
+  /lookup/mgrsToLatLon:
+    get:
+      operationId: convertMgrsToLatLon
+      tags:
+        - Exact Searches
+      summary: "Convert a US Army MGRS to WGS84 coordinate"
+      parameters:
+        - name: "mgrs"
+          in: "query"
+          description: "MGRS string"
+          schema:
+            type: "string"
+            pattern: ^(\d{1,2})([C-X][A-HJ-NP-Z])([A-HJ-NP-Z]{2})(\d{1,5})\s*(\d{1,5})$
+          required: true
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/tilesSchema"
+        400:
+          "$ref": "#/components/responses/BadRequest"
+        401:
+          "$ref": "#/components/responses/Unauthorized"
+        403:
+          "$ref": "#/components/responses/Forbidden"
+        500:
+          "$ref": "#/components/responses/InternalError"
+      security:
+        - X-API-Key: []
+        - X-User-ID: []
 components:
+  responses:
+    BadRequest:
+      description: "Invalid Request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errorSchema"
+    Unauthorized:
+      description: "Please provide a valid token"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errorSchema"
+    Forbidden:
+      description: "Token is not valid"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errorSchema"
+    InternalError:
+      description: "Invalid Request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errorSchema"
+  parameters:
+    reduce_fuzzy_match:
+      name: "reduce_fuzzy_match"
+      in: "query"
+      description: "If an accurate result is obtained, only it will be returned (default is false)"
+      schema:
+        type: "boolean"
+
+    size:
+      name: "size"
+      in: "query"
+      description: "Maximum number of results (default is 3, range: 1-100)"
+      schema:
+        type: "number"
+
+    geo_context:
+      name: "geo_context"
+      in: "query"
+      description: 'Geo context of search. <br><br> Supported queries:<br><br> *By bounding box, object with these keys: {"bbox":[minX,minY,maxX,maxY]} <br><br> *By point and radius, object with these keys: {"lon":value,"lat":value,"radius":value}'
+      schema:
+        type: "string"
+
   schemas:
-    error:
-      type: object
+    errorSchema:
+      type: "object"
       required:
-        - message
+        - "message"
       properties:
         message:
-          type: string
-    resource:
-      type: object
+          type: "string"
+        status:
+          type: "number"
+    subTileSchema:
+      type: "object"
+      description: "An object represnting a sub tile"
       required:
-        - id
-        - name
-        - description
+        - tileName
+        - subTileNumber
       properties:
-        id:
-          type: number
-          format: int64
-        name:
-          type: string
-        description:
-          type: string
-    anotherResource:
-      type: object
+        tileName:
+          type: "string"
+        subTileNumber:
+          type: "array"
+          items:
+            type: "number"
+            minimum: 0
+            maximum: 100
+          minItems: 3
+          maxItems: 3
+    tilesSchema:
+      type: "object"
+      description: "GeoJson feature collection representing a tile (Polygon)"
       required:
-        - kind
-        - isAlive
+        - "type"
+        - "features"
       properties:
-        kind:
+        type:
+          type: "string"
+          enum:
+            - "FeatureCollection"
+        features:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              geometry:
+                $ref: "#/components/schemas/Geometry"
+              properties:
+                type: "object"
+                required:
+                  - "TYPE"
+                  - "TILE_NAME"
+                properties:
+                  TYPE:
+                    type: "string"
+                  TILE_NAME:
+                    type: "string"
+                  SUB_TILE_ID:
+                    type: "string"
+                  SUB_TILE_NUMBER:
+                    type: "array"
+                    items:
+                      type: "number"
+                      minimum: 0
+                      maximum: 100
+                    minItems: 3
+                    maxItems: 3
+    itemsSchema:
+      type: "object"
+      description: "GeoJson feature collection representing an item"
+      required:
+        - "type"
+        - "features"
+      properties:
+        type:
+          type: "string"
+          enum:
+            - "FeatureCollection"
+        features:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              geometry:
+                $ref: "#/components/schemas/Geometry"
+              properties:
+                type: "object"
+                required:
+                  - "TYPE"
+                  - "OBJECT_COMMAND_NAME"
+                  - "ENTITY_HEB"
+                  - "SUB_TILE_ID"
+                properties:
+                  TYPE:
+                    type: "string"
+                  OBJECT_COMMAND_NAME:
+                    type: "string"
+                  ENTITY_HEB:
+                    type: "string"
+                  TILE_NAME:
+                    type: "string"
+                  SUB_TILE_ID:
+                    type: "string"
+    routesSchema:
+      type: "object"
+      description: "GeoJson feature collection representing a route (Line)"
+      required:
+        - "type"
+        - "features"
+      properties:
+        type:
+          type: "string"
+          enum:
+            - "FeatureCollection"
+        features:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              geometry:
+                $ref: "#/components/schemas/Geometry"
+              properties:
+                type: "object"
+                required:
+                  - "TYPE"
+                  - "OBJECT_COMMAND_NAME"
+                  - "ENTITY_HEB"
+                properties:
+                  TYPE:
+                    type: "string"
+                  OBJECT_COMMAND_NAME:
+                    type: "string"
+                  ENTITY_HEB:
+                    type: "string"
+                  SECTION:
+                    type: "string"
+    Geometry:
+      type: object
+      description: Geojson geometry
+      discriminator:
+        propertyName: type
+      required:
+        - type
+      externalDocs:
+        url: http://geojson.org/geojson-spec.html#geometry-objects
+      properties:
+        type:
           type: string
-        isAlive:
-          type: boolean
+          enum:
+            - Point
+            - LineString
+            - Polygon
+            - MultiPoint
+            - MultiLineString
+            - MultiPolygon
+          description: the geometry type
+    Point3D:
+      type: array
+      description: Point in 3D space
+      externalDocs:
+        url: http://geojson.org/geojson-spec.html#id2
+      minItems: 2
+      maxItems: 3
+      items:
+        type: number
+    Point:
+      type: object
+      description: Geojson geometry
+      externalDocs:
+        url: http://geojson.org/geojson-spec.html#id2
+      allOf:
+        - $ref: "#/components/schemas/Geometry"
+        - properties:
+            coordinates:
+              $ref: "#/components/schemas/Point3D"
+    LineString:
+      type: object
+      description: Geojson geometry
+      externalDocs:
+        url: http://geojson.org/geojson-spec.html#id3
+      allOf:
+        - $ref: "#/components/schemas/Geometry"
+        - properties:
+            coordinates:
+              type: array
+              items:
+                $ref: "#/components/schemas/Point3D"
+    Polygon:
+      type: object
+      description: Geojson geometry
+      externalDocs:
+        url: http://geojson.org/geojson-spec.html#id4
+      allOf:
+        - $ref: "#/components/schemas/Geometry"
+        - properties:
+            coordinates:
+              type: array
+              items:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Point3D"
+    MultiPoint:
+      type: object
+      description: Geojson geometry
+      externalDocs:
+        url: http://geojson.org/geojson-spec.html#id5
+      allOf:
+        - $ref: "#/components/schemas/Geometry"
+        - properties:
+            coordinates:
+              type: array
+              items:
+                $ref: "#/components/schemas/Point3D"
+    MultiLineString:
+      type: object
+      description: Geojson geometry
+      externalDocs:
+        url: http://geojson.org/geojson-spec.html#id6
+      allOf:
+        - $ref: "#/components/schemas/Geometry"
+        - properties:
+            coordinates:
+              type: array
+              items:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Point3D"
+    MultiPolygon:
+      type: object
+      description: Geojson geometry
+      externalDocs:
+        url: http://geojson.org/geojson-spec.html#id6
+      allOf:
+        - $ref: "#/components/schemas/Geometry"
+        - properties:
+            coordinates:
+              type: array
+              items:
+                type: array
+                items:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Point3D"
+    Source:
+      type: string
+      enum:
+        - moria
+        - lasagna
+      title: Source
+  securitySchemes:
+    X-API-Key:
+      type: "apiKey"
+      name: "X-API-Key"
+      in: "header"
+    X-User-ID:
+      type: "apiKey"
+      name: "X-User-ID"
+      in: "header"
