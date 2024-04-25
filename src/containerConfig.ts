@@ -6,7 +6,6 @@ import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { Metrics } from '@map-colonies/telemetry';
 import { SERVICES, SERVICE_NAME } from './common/constants';
 import { tracing } from './common/tracing';
-import { resourceNameRouterFactory, RESOURCE_NAME_ROUTER_SYMBOL } from './resourceName/routes/resourceNameRouter';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
 import { elasticClientSymbol, initElasticsearchClient } from './common/elastic';
 import { DbConfig } from './common/interfaces';
@@ -14,6 +13,8 @@ import { TILE_REPOSITORY_SYMBOL, tileRepositoryFactory } from './tile/DAL/tileRe
 import { TILE_ROUTER_SYMBOL, tileRouterFactory } from './tile/routes/tileRouter';
 import { ITEM_REPOSITORY_SYMBOL, itemRepositoryFactory } from './item/DAL/itemRepository';
 import { ITEM_ROUTER_SYMBOL, itemRouterFactory } from './item/routes/itemRouter';
+import { ROUTE_REPOSITORY_SYMBOL, routeRepositoryFactory } from './route/DAL/routeRepository';
+import { ROUTE_ROUTER_SYMBOL, routeRouterFactory } from './route/routes/routeRouter';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -43,6 +44,8 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     { token: TILE_ROUTER_SYMBOL, provider: { useFactory: tileRouterFactory } },
     { token: ITEM_REPOSITORY_SYMBOL, provider: { useFactory: itemRepositoryFactory } },
     { token: ITEM_ROUTER_SYMBOL, provider: { useFactory: itemRouterFactory } },
+    { token: ROUTE_REPOSITORY_SYMBOL, provider: { useFactory: routeRepositoryFactory } },
+    { token: ROUTE_ROUTER_SYMBOL, provider: { useFactory: routeRouterFactory } },
     {
       token: 'onSignal',
       provider: {
