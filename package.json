@@ -1,7 +1,7 @@
 {
-  "name": "service-name",
+  "name": "geocoding",
   "version": "1.0.0",
-  "description": "This is template for map colonies typescript service",
+  "description": "Geocoding service for MapColonies",
   "main": "./src/index.ts",
   "scripts": {
     "test:unit": "jest --config=./tests/configurations/unit/jest.config.js",
@@ -40,6 +40,7 @@
     }
   },
   "dependencies": {
+    "@elastic/elasticsearch": "^8.13.1",
     "@godaddy/terminus": "^4.12.1",
     "@map-colonies/error-express-handler": "^2.1.0",
     "@map-colonies/express-access-log-middleware": "^2.0.1",

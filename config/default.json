@@ -24,5 +24,19 @@
         "options": null
       }
     }
+  },
+  "db": {
+    "elastic": {
+      "node": "http://localhost:9200",
+      "auth": {
+        "username": "elastic",
+        "password": "changeme"
+      },
+      "requestTimeout": 60000,
+      "properties": {
+        "index": "myIndex",
+        "size": 3
+      }
+    }
   }
 }
