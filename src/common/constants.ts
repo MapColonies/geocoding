@@ -18,3 +18,13 @@ export const SERVICES: Record<string, symbol> = {
 export const ON_SIGNAL = Symbol('onSignal');
 export const HEALTHCHECK = Symbol('healthcheck');
 
+export const FIELDS = [
+  'type',
+  'geometry',
+  'properties.OBJECT_COMMAND_NAME',
+  'properties.TILE_NAME',
+  'properties.TYPE',
+  'properties.ENTITY_HEB',
+  'properties.SUB_TILE_ID',
+  'properties.SECTION',
+];
