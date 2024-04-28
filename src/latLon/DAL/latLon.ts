@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { LatLon as ILatLon } from '../models/latLon';
 
-@Entity()
+@Entity({ name: 'tile_lat_lon' })
 export class LatLon implements ILatLon {
   @PrimaryColumn({ name: 'pk' })
   public primaryKey!: number;
