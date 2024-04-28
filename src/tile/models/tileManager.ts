@@ -1,4 +1,4 @@
-import config from 'config';
+import { IConfig } from 'config';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { estypes } from '@elastic/elasticsearch';
@@ -12,6 +12,7 @@ import { Tile } from './tile';
 export class TileManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
+    @inject(SERVICES.CONFIG) private readonly config: IConfig,
     @inject(TILE_REPOSITORY_SYMBOL) private readonly tileRepository: TileRepository
   ) {}
 
@@ -24,7 +25,7 @@ export class TileManager {
     features: (Tile | undefined)[];
   }> {
     let elasticResponse: estypes.SearchResponse<Tile> | undefined = undefined;
-    const numberOfResults = size ?? config.get<number>('db.elastic.properties.size');
+    const numberOfResults = size ?? this.config.get<number>('db.elastic.properties.size');
     if (tileQueryParams.subTile ?? 0) {
       elasticResponse = await this.tileRepository.getSubTiles(tileQueryParams as Required<TileQueryParams>, numberOfResults);
     } else {

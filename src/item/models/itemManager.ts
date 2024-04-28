@@ -1,4 +1,4 @@
-import config from 'config';
+import { IConfig } from 'config';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { estypes } from '@elastic/elasticsearch';
@@ -12,6 +12,7 @@ import { Item } from './item';
 export class ItemManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
+    @inject(SERVICES.CONFIG) private readonly config: IConfig,
     @inject(ITEM_REPOSITORY_SYMBOL) private readonly itemRepository: ItemRepository
   ) {}
 
@@ -24,7 +25,7 @@ export class ItemManager {
     features: (Item | undefined)[];
   }> {
     let elasticResponse: estypes.SearchResponse<Item> | undefined = undefined;
-    elasticResponse = await this.itemRepository.getItems(itemQueryParams, size ?? config.get<number>('db.elastic.properties.size'));
+    elasticResponse = await this.itemRepository.getItems(itemQueryParams, size ?? this.config.get<number>('db.elastic.properties.size'));
 
     const formattedResponse = formatResponse(elasticResponse);
 
