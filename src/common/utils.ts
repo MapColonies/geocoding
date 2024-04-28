@@ -37,6 +37,26 @@ export const additionalSearchProperties = (size: number): { size: number; index:
 });
 /* eslint-enable @typescript-eslint/naming-convention */
 
+export const validateWGS84Coordinate = (coordinate: { lon: number; lat: number }): boolean => {
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+  const [min, max] = [0, 180];
+  const exceptedKeys = ['lat', 'lon'];
+  const regex = /^([0-9]+(\.[0-9]+)?)$/;
+  exceptedKeys.forEach((key) => {
+    if (!coordinate[key as keyof typeof coordinate]) {
+      return false;
+    }
+    if (
+      !regex.test(`${coordinate[key as keyof typeof coordinate]}`) ||
+      coordinate[key as keyof typeof coordinate] < min ||
+      coordinate[key as keyof typeof coordinate] > max
+    ) {
+      return false;
+    }
+  });
+  return true;
+};
+
 export const convertWgs84ToUTM = (latitude: number, longitude: number, utmPrecision: number) => {
   const utm = new utmObj();
   return utm.ConvertLatLngToUtm(latitude, longitude, utmPrecision);
