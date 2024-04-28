@@ -57,7 +57,28 @@ export const validateWGS84Coordinate = (coordinate: { lon: number; lat: number }
   return true;
 };
 
-export const convertWgs84ToUTM = (latitude: number, longitude: number, utmPrecision: number) => {
+export const convertWgs84ToUTM = (latitude: number, longitude: number, utmPrecision: number = 0) => {
   const utm = new utmObj();
-  return utm.ConvertLatLngToUtm(latitude, longitude, utmPrecision);
+  //@ts-ignore
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
+  return utm.convertLatLngToUtm(latitude, longitude, utmPrecision);
+};
+
+export const convertUTMToWgs84 = (x: number, y: number, zone: number) => {
+  const utm = new utmObj();
+  return utm.convertUtmToLatLng(x, y, zone, 'N');
+};
+
+export const validateTile = (tile: { tileName: string; subTileNumber: number[] }): boolean => {
+  if (!tile.tileName || !Array.isArray(tile.subTileNumber) || tile.subTileNumber.length !== 3) {
+    return false;
+  }
+  //regex = /^-?d+$/;
+  const regex = /^(\d\d)$/;
+  tile.subTileNumber.forEach((subTileNumber) => {
+    if (!regex.test(`${subTileNumber}`)) {
+      return false;
+    }
+  });
+  return true;
 };
