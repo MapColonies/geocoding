@@ -57,7 +57,20 @@ export const validateWGS84Coordinate = (coordinate: { lon: number; lat: number }
   return true;
 };
 
-export const convertWgs84ToUTM = (latitude: number, longitude: number, utmPrecision: number = 0) => {
+export const convertWgs84ToUTM = (
+  latitude: number,
+  longitude: number,
+  utmPrecision: number = 0
+):
+  | string
+  | {
+      /* eslint-disable @typescript-eslint/naming-convention */
+      Easting: number;
+      Northing: number;
+      ZoneNumber: number;
+      ZoneLetter: string;
+      /* eslint-enable @typescript-eslint/naming-convention */
+    } => {
   const utm = new utmObj();
   //@ts-ignore
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
