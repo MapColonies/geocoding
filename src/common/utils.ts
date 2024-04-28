@@ -1,5 +1,6 @@
 import config from 'config';
 import { estypes } from '@elastic/elasticsearch';
+import utmObj from 'utm-latlng';
 import { Item } from '../item/models/item';
 import { Tile } from '../tile/models/tile';
 import { Route } from '../route/models/route';
@@ -35,3 +36,8 @@ export const additionalSearchProperties = (size: number): { size: number; index:
   _source: FIELDS,
 });
 /* eslint-enable @typescript-eslint/naming-convention */
+
+export const convertWgs84ToUTM = (latitude: number, longitude: number, utmPrecision: number) => {
+  const utm = new utmObj();
+  return utm.ConvertLatLngToUtm(latitude, longitude, utmPrecision);
+};
