@@ -33,7 +33,7 @@ export const isTransactionFailure = (error: unknown): boolean => {
   return false;
 };
 
-export const DB_ENTITIES = [];
+export const DB_ENTITIES = [LatLon];
 
 export const createConnectionOptions = (dbConfig: PostgresDbConfig): DataSourceOptions => {
   const { enableSslAuth, sslPaths, ...connectionOptions } = dbConfig;
