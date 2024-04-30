@@ -18,7 +18,7 @@ export class LatLonManager {
     this.dbSchema = this.config.get('db.postgresql.schema');
   }
 
-  public async getTile({ lat, lon }: { lat: number; lon: number }): Promise<{
+  public async latLonToTile({ lat, lon }: { lat: number; lon: number }): Promise<{
     tileName: string;
     subTileNumber: string[];
   }> {
@@ -59,7 +59,7 @@ export class LatLonManager {
     };
   }
 
-  public async getLonLat({ tileName, subTileNumber }: { tileName: string; subTileNumber: number[] }): Promise<{
+  public async tileToLatLon({ tileName, subTileNumber }: { tileName: string; subTileNumber: number[] }): Promise<{
     geometry: {
       coordinates: number[][];
       type: string;

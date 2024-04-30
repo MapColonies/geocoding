@@ -56,14 +56,14 @@ export class LatLonController {
   public latlonToTile: GetLatLonToTileHandler = async (req, res) => {
     const { lat, lon } = req.query;
 
-    const response = await this.manager.getTile({ lat, lon });
+    const response = await this.manager.latLonToTile({ lat, lon });
     return res.status(httpStatus.OK).json(response);
   };
 
   public tileToLatLon: GetTileToLatLonHandler = async (req, res) => {
     const { tile: tileName, sub_tile_number } = req.query;
 
-    const response = await this.manager.getLonLat({
+    const response = await this.manager.tileToLatLon({
       tileName,
       subTileNumber: sub_tile_number,
     });
