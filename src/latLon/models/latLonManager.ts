@@ -1,6 +1,7 @@
 import { IConfig } from 'config';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
+import * as mgrs from 'mgrs';
 import { SERVICES } from '../../common/constants';
 import { LATLON_CUSTOM_REPOSITORY_SYMBOL, LatLonRepository } from '../DAL/latLonRepository';
 import { convertWgs84ToUTM, validateTile, validateWGS84Coordinate } from '../../common/utils';
@@ -88,5 +89,16 @@ export class LatLonManager {
 
     const geojsonRes = getSubTileByBottomLeftUtmCoor(utmCoor, { tileName, subTileNumber });
     return geojsonRes;
+  }
+
+  public latLonToMGRS({ lat, lon, accuracy = 5 }: { lat: number; lon: number; accuracy?: number }): { mgrs: string } {
+    return {
+      mgrs: mgrs.forward([lon, lat], accuracy),
+    };
+  }
+
+  public mgrsToLatLon(mgrsStr: string): { lat: number; lon: number } {
+    const [lon, lat] = mgrs.toPoint(mgrsStr);
+    return { lat, lon };
   }
 }
