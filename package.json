@@ -57,6 +57,7 @@
     "express": "^4.19.2",
     "express-openapi-validator": "^5.0.4",
     "http-status-codes": "^2.2.0",
+    "mgrs": "^2.0.0",
     "pg": "^8.11.5",
     "reflect-metadata": "^0.1.13",
     "tsyringe": "^4.8.0",
