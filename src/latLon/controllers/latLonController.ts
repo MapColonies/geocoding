@@ -41,6 +41,27 @@ type GetTileToLatLonHandler = RequestHandler<
   }
 >;
 
+type GetLatLonToMgrsHandler = RequestHandler<
+  undefined,
+  { mgrs: string },
+  undefined,
+  {
+    lat: number;
+    lon: number;
+    accuracy?: number;
+  }
+>;
+
+type getMgrsToLatLonHandler = RequestHandler<
+  undefined,
+  {
+    lat: number;
+    lon: number;
+  },
+  undefined,
+  { mgrs: string }
+>;
+
 @injectable()
 export class LatLonController {
   private readonly createdResourceCounter: BoundCounter;
@@ -67,6 +88,22 @@ export class LatLonController {
       tileName,
       subTileNumber: sub_tile_number,
     });
+    return res.status(httpStatus.OK).json(response);
+  };
+
+  public latlonToMgrs: GetLatLonToMgrsHandler = (req, res) => {
+    const { lat, lon, accuracy } = req.query;
+
+    const response = this.manager.latLonToMGRS({ lat, lon, accuracy });
+
+    return res.status(httpStatus.OK).json(response);
+  };
+
+  public mgrsToLatlon: getMgrsToLatLonHandler = (req, res) => {
+    const { mgrs } = req.query;
+
+    const response = this.manager.mgrsToLatLon(mgrs);
+
     return res.status(httpStatus.OK).json(response);
   };
 }
