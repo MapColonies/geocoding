@@ -1,4 +1,5 @@
 import { ClientOptions } from '@elastic/elasticsearch';
+import { DataSourceOptions } from 'typeorm';
 
 export interface IConfig {
   get: <T>(setting: string) => T;
@@ -12,7 +13,12 @@ export interface OpenApiConfig {
   uiPath: string;
 }
 
-export type DbConfig = ClientOptions;
+export type ElasticDbConfig = ClientOptions;
+
+export type PostgresDbConfig = {
+  enableSslAuth: boolean;
+  sslPaths: { ca: string; cert: string; key: string };
+} & DataSourceOptions;
 
 export interface GeoContext {
   bbox?: number[];

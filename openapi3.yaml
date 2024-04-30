@@ -347,7 +347,7 @@ paths:
             minimum: -180
             maximum: 180
           required: true
-        - name: "accuricy"
+        - name: "accuracy"
           in: "query"
           description: "Accuracy in digits (5 for 1 m, 4 for 10 m, 3 for 100 m, 2 for 1 km, 1 for 10 km or 0 for 100 km). Optional, default is 5."
           schema:
@@ -364,7 +364,7 @@ paths:
                 properties:
                   mgrs:
                     type: string
-                    pattern: ^(\d{1,2})([C-X][A-HJ-NP-Z])([A-HJ-NP-Z]{2})(\d{1,5})\s*(\d{1,5})$
+                    pattern: ^\d{1,2}[^ABIOYZabioyz][A-Za-z]{2}([0-9][0-9])+$
         400:
           "$ref": "#/components/responses/BadRequest"
         401:
@@ -388,7 +388,7 @@ paths:
           description: "MGRS string"
           schema:
             type: "string"
-            pattern: ^(\d{1,2})([C-X][A-HJ-NP-Z])([A-HJ-NP-Z]{2})(\d{1,5})\s*(\d{1,5})$
+            pattern: ^\d{1,2}[^ABIOYZabioyz][A-Za-z]{2}([0-9][0-9])+$
           required: true
       responses:
         200:

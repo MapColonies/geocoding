@@ -13,6 +13,7 @@ import { IConfig } from './common/interfaces';
 import { TILE_ROUTER_SYMBOL } from './tile/routes/tileRouter';
 import { ITEM_ROUTER_SYMBOL } from './item/routes/itemRouter';
 import { ROUTE_ROUTER_SYMBOL } from './route/routes/routeRouter';
+import { LAT_LON_ROUTER_SYMBOL } from './latLon/routes/latLonRouter';
 
 @injectable()
 export class ServerBuilder {
@@ -23,7 +24,8 @@ export class ServerBuilder {
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(TILE_ROUTER_SYMBOL) private readonly tileRouter: Router,
     @inject(ITEM_ROUTER_SYMBOL) private readonly itemRouter: Router,
-    @inject(ROUTE_ROUTER_SYMBOL) private readonly routeRouter: Router
+    @inject(ROUTE_ROUTER_SYMBOL) private readonly routeRouter: Router,
+    @inject(LAT_LON_ROUTER_SYMBOL) private readonly latLonRouter: Router
   ) {
     this.serverInstance = express();
   }
@@ -49,6 +51,7 @@ export class ServerBuilder {
     this.serverInstance.use('/search/tiles', this.tileRouter);
     this.serverInstance.use('/search/items', this.itemRouter);
     this.serverInstance.use('/search/routes', this.routeRouter);
+    this.serverInstance.use('/lookup', this.latLonRouter);
     this.buildDocsRoutes();
   }
 
