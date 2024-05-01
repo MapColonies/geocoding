@@ -55,7 +55,7 @@ const createQueryRepository = (client: Client) => {
 
 export type QueryRepository = ReturnType<typeof createQueryRepository>;
 
-export const itemRepositoryFactory: FactoryFunction<QueryRepository> = (depContainer) => {
+export const queryRepositoryFactory: FactoryFunction<QueryRepository> = (depContainer) => {
   return createQueryRepository(depContainer.resolve<Client>(elasticClientSymbol));
 };
 
