@@ -34,7 +34,8 @@
       },
       "requestTimeout": 60000,
       "properties": {
-        "index": "control_gil_v5",
+        "controlIndex": "control_gil_v5",
+        "nlpIndex": "nlp_gil_v5",
         "size": 3
       }
     },
@@ -53,5 +54,9 @@
       "database": "postgres",
       "schema": "geocoder"
     }
+  },
+  "services": {
+    "placeTypeUrl": "http://example.com",
+    "tokenTypesUrl": "http://example.com"
   }
 }
