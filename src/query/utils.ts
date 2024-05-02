@@ -1,4 +1,4 @@
-import fetch from 'node-fetch-commonjs';
+import fetch, { Response } from 'node-fetch-commonjs';
 import geojsonValidator from 'geojson-validation';
 import { GeoJSON } from 'geojson';
 import { SearchHit } from '@elastic/elasticsearch/lib/api/types';
@@ -11,12 +11,22 @@ const FIND_QUOTES = /["']/g;
 const FIND_SPECIAL = /[`!@#$%^&*()_\-+=|\\/,.<>:[\]{}\n\t\r\s;؛]+/g;
 
 export const fetchNLPService = async <T>(endpoint: string, requestData: object): Promise<T[]> => {
-  const res = await fetch(endpoint, {
-    method: 'POST',
-    body: JSON.stringify(requestData),
-  });
+  let res: Response | null = null,
+    data: T[] | undefined | null = null;
 
-  const data = (await res.json()) as T[] | undefined;
+  try {
+    res = await fetch(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(requestData),
+    });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      throw new InternalServerError(err.message);
+    }
+    throw new InternalServerError('fetchNLPService: Unknown error' + JSON.stringify(err));
+  }
+
+  data = (await res.json()) as T[] | undefined;
 
   if (!res.ok || !data || data.length < 1 || !data[0]) {
     throw new InternalServerError(JSON.stringify(data));
