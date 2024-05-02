@@ -2,6 +2,7 @@ import { IConfig } from 'config';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import * as mgrs from 'mgrs';
+import { Polygon } from 'geojson';
 import { SERVICES } from '../../common/constants';
 import { LATLON_CUSTOM_REPOSITORY_SYMBOL, LatLonRepository } from '../DAL/latLonRepository';
 import { convertWgs84ToUTM, validateTile, validateWGS84Coordinate } from '../../common/utils';
@@ -62,10 +63,7 @@ export class LatLonManager {
   }
 
   public async tileToLatLon({ tileName, subTileNumber }: { tileName: string; subTileNumber: number[] }): Promise<{
-    geometry: {
-      coordinates: number[][];
-      type: string;
-    };
+    geometry: Polygon;
     type: string;
     properties: {
       /* eslint-disable @typescript-eslint/naming-convention */

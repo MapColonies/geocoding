@@ -1,13 +1,11 @@
+import { Polygon } from 'geojson';
 import { NotFoundError } from '../../common/errors';
 import { convertUTMToWgs84 } from '../../common/utils';
 import { LatLon } from '../DAL/latLon';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 const geoJsonObjectTemplate = (): {
-  geometry: {
-    coordinates: number[][];
-    type: string;
-  };
+  geometry: Polygon;
   type: string;
   properties: {
     TYPE: string;
@@ -88,7 +86,7 @@ export const getSubTileByBottomLeftUtmCoor = (
     if (typeof coordiante === 'string') {
       throw new Error('coordinate is string');
     }
-    result.geometry.coordinates[0] = [coordiante.lng, coordiante.lat];
+    result.geometry.coordinates[0].push([coordiante.lng, coordiante.lat]);
   }
 
   result.properties.TILE_NAME = tile.tileName;

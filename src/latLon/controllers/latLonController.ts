@@ -4,6 +4,7 @@ import { BoundCounter, Meter } from '@opentelemetry/api-metrics';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
+import { Polygon } from 'geojson';
 import { SERVICES } from '../../common/constants';
 import { LatLonManager } from '../models/latLonManager';
 
@@ -23,10 +24,7 @@ type GetLatLonToTileHandler = RequestHandler<
 type GetTileToLatLonHandler = RequestHandler<
   undefined,
   {
-    geometry: {
-      coordinates: number[][];
-      type: string;
-    };
+    geometry: Polygon;
     type: string;
     properties: {
       TYPE: string;
