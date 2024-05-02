@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import fetch from 'node-fetch-commonjs';
 import geojsonValidator from 'geojson-validation';
 import { GeoJSON } from 'geojson';
 import { SearchHit } from '@elastic/elasticsearch/lib/api/types';
