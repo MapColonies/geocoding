@@ -86,7 +86,7 @@ export const getSubTileByBottomLeftUtmCoor = (
     if (typeof coordiante === 'string') {
       throw new Error('coordinate is string');
     }
-    result.geometry.coordinates[0] = [coordiante.lng, coordiante.lat];
+    result.geometry.coordinates[0].push([coordiante.lng, coordiante.lat]);
   }
 
   result.properties.TILE_NAME = tile.tileName;
