@@ -1,13 +1,11 @@
+import { Polygon } from 'geojson';
 import { NotFoundError } from '../../common/errors';
 import { convertUTMToWgs84 } from '../../common/utils';
 import { LatLon } from '../DAL/latLon';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 const geoJsonObjectTemplate = (): {
-  geometry: {
-    coordinates: number[][];
-    type: string;
-  };
+  geometry: Polygon;
   type: string;
   properties: {
     TYPE: string;
