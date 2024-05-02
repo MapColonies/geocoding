@@ -1,3 +1,4 @@
+import { NotFoundError } from '../../common/errors';
 import { convertUTMToWgs84 } from '../../common/utils';
 import { LatLon } from '../DAL/latLon';
 
@@ -61,7 +62,7 @@ export const validateResult = (
   }
 ): void => {
   if (tile.extMinX > utmCoor.x || tile.extMaxX < utmCoor.x || tile.extMinY > utmCoor.y || tile.extMaxY < utmCoor.y) {
-    throw new Error("Tile is found, sub tile is not in tile's extent");
+    throw new NotFoundError("Tile is found, sub tile is not in tile's extent");
   }
 };
 

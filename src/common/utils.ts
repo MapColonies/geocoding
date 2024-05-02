@@ -32,7 +32,7 @@ export const formatResponse = <T extends Item | Tile | Route>(
 /* eslint-disable @typescript-eslint/naming-convention */
 export const additionalSearchProperties = (size: number): { size: number; index: string; _source: string[] } => ({
   size,
-  index: config.get<string>('db.elastic.properties.index'),
+  index: config.get<string>('db.elastic.properties.controlIndex'),
   _source: FIELDS,
 });
 /* eslint-enable @typescript-eslint/naming-convention */

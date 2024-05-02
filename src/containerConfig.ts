@@ -19,6 +19,8 @@ import { ROUTE_ROUTER_SYMBOL, routeRouterFactory } from './route/routes/routeRou
 import { initDataSource } from './common/postgresql';
 import { LATLON_CUSTOM_REPOSITORY_SYMBOL, latLonRepositoryFactory } from './latLon/DAL/latLonRepository';
 import { LAT_LON_ROUTER_SYMBOL, latLonRouterFactory } from './latLon/routes/latLonRouter';
+import { QUERY_REPOSITORY_SYMBOL, queryRepositoryFactory } from './query/DAL/queryRepository';
+import { QUERY_ROUTER_SYMBOL, queryRouterFactory } from './query/routes/queryRouter';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -55,6 +57,8 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     { token: ROUTE_ROUTER_SYMBOL, provider: { useFactory: routeRouterFactory } },
     { token: LATLON_CUSTOM_REPOSITORY_SYMBOL, provider: { useFactory: latLonRepositoryFactory } },
     { token: LAT_LON_ROUTER_SYMBOL, provider: { useFactory: latLonRouterFactory } },
+    { token: QUERY_REPOSITORY_SYMBOL, provider: { useFactory: queryRepositoryFactory } },
+    { token: QUERY_ROUTER_SYMBOL, provider: { useFactory: queryRouterFactory } },
     {
       token: 'onSignal',
       provider: {
