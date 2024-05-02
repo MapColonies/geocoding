@@ -6,7 +6,6 @@ import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
 import { QueryManager } from '../models/queryManager';
 import { GetQueryQueryParams, QueryResult } from '../interfaces';
-import { DataFetchError, InvalidGeoJSONError } from '../../common/errors';
 
 type GetQueryHandler = RequestHandler<
   unknown,
@@ -27,28 +26,7 @@ export class QueryController {
   }
 
   public getQuery: GetQueryHandler = async (req, res) => {
-    try {
-      const response = await this.manager.query(req.query);
-      return res.status(httpStatus.OK).json(response);
-    } catch (error: unknown) {
-      if (error instanceof InvalidGeoJSONError) {
-        return res.status(httpStatus.BAD_REQUEST).json({
-          message: 'Invalid GeoJSON provided',
-          error: error.message,
-        });
-      }
-      if (error instanceof DataFetchError) {
-        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-          message: 'Internal server error: DataFetchError',
-          error: error.message,
-        });
-      }
-      if (error instanceof Error) {
-        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-          message: 'Internal server error',
-          error: error.message,
-        });
-      }
-    }
+    const response = await this.manager.query(req.query);
+    return res.status(httpStatus.OK).json(response);
   };
 }

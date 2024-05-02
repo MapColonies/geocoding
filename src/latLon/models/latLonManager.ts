@@ -6,6 +6,7 @@ import { SERVICES } from '../../common/constants';
 import { LATLON_CUSTOM_REPOSITORY_SYMBOL, LatLonRepository } from '../DAL/latLonRepository';
 import { convertWgs84ToUTM, validateTile, validateWGS84Coordinate } from '../../common/utils';
 import { convertTilesToUTM, getSubTileByBottomLeftUtmCoor, validateResult } from '../utlis';
+import { BadRequestError, NotFoundError } from '../../common/errors';
 
 @injectable()
 export class LatLonManager {
@@ -24,13 +25,13 @@ export class LatLonManager {
     subTileNumber: string[];
   }> {
     if (!validateWGS84Coordinate({ lat, lon })) {
-      throw new Error("Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal");
+      throw new BadRequestError("Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal");
     }
 
     const utm = convertWgs84ToUTM(lat, lon);
 
     if (typeof utm === 'string') {
-      throw new Error('utm is string');
+      throw new BadRequestError('utm is string');
     }
 
     const coordinatesUTM = {
@@ -42,7 +43,7 @@ export class LatLonManager {
     const tileCoordinateData = await this.latLonRepository.latLonToTile({ x: coordinatesUTM.x, y: coordinatesUTM.y, zone: coordinatesUTM.zone });
 
     if (!tileCoordinateData) {
-      throw new Error('The coordinate is outside the grid extent');
+      throw new BadRequestError('The coordinate is outside the grid extent');
     }
 
     const xNumber = Math.abs(Math.trunc((coordinatesUTM.x % 10000) / 10) * 10)
@@ -75,13 +76,15 @@ export class LatLonManager {
     };
   }> {
     if (!validateTile({ tileName, subTileNumber })) {
-      throw new Error("Invalid tile, check that 'tileName' and 'subTileNumber' exists and subTileNumber is array of size 3 with positive integers");
+      throw new BadRequestError(
+        "Invalid tile, check that 'tileName' and 'subTileNumber' exists and subTileNumber is array of size 3 with positive integers"
+      );
     }
 
     const tile = await this.latLonRepository.tileToLatLon(tileName);
 
     if (!tile) {
-      throw new Error('Tile not found');
+      throw new NotFoundError('Tile not found');
     }
 
     const utmCoor = convertTilesToUTM({ tileName, subTileNumber }, tile);

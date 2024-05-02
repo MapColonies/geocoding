@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 import geojsonValidator from 'geojson-validation';
 import { GeoJSON } from 'geojson';
 import { SearchHit } from '@elastic/elasticsearch/lib/api/types';
-import { DataFetchError, InvalidGeoJSONError } from '../common/errors';
+import { InternalServerError, BadRequestError } from '../common/errors';
 import { BBOX_LENGTH, INDEX_NOT_FOUND, POINT_LENGTH, QueryResult, TextSearchParams } from './interfaces';
 import { TextSearchHit } from './models/textSearchHit';
 
@@ -19,7 +19,7 @@ export const fetchNLPService = async <T>(endpoint: string, requestData: object):
   const data = (await res.json()) as T[] | undefined;
 
   if (!res.ok || !data || data.length < 1 || !data[0]) {
-    throw new DataFetchError(JSON.stringify(data));
+    throw new InternalServerError(JSON.stringify(data));
   }
   return data;
 };
@@ -62,7 +62,7 @@ export const parseGeo = (input: string): GeoJSON => {
   const fromString: GeoJSON | unknown = JSON.parse(input) as unknown;
   const trace = geojsonValidator.valid(fromString, true);
   if (trace.length > 0) {
-    throw new InvalidGeoJSONError(trace.toString());
+    throw new BadRequestError(trace.toString());
   }
 
   return fromString as GeoJSON;

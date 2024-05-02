@@ -5,6 +5,7 @@ import { elasticClientSymbol } from '../../common/elastic';
 import { cleanQuery, fetchNLPService } from '../utils';
 import { PlaceType, TextSearchParams, TokenResponse } from '../interfaces';
 import { TextSearchHit } from '../models/textSearchHit';
+import { BadRequestError } from '../../common/errors';
 import { esQuery } from './queries';
 
 /* eslint-enable @typescript-eslint/naming-convention */
@@ -19,7 +20,7 @@ const createQueryRepository = (client: Client) => {
       const { tokens, prediction } = response[0];
 
       if (!tokens || !prediction) {
-        throw new Error('No tokens or prediction');
+        throw new BadRequestError('No tokens or prediction');
       }
 
       const nameTokens = tokens.filter((_, index) => prediction[index] === 'name');

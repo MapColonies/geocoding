@@ -1,11 +1,5 @@
-export class DataFetchError extends Error {
-  public readonly name: string;
-
-  public constructor(message: string) {
-    super(message);
-    this.name = 'DataFetchError';
-  }
-}
+import httpStatus from 'http-status-codes';
+import { HttpError } from '@map-colonies/error-express-handler';
 
 export class MissingConfigError extends Error {
   public readonly name: string;
@@ -16,11 +10,26 @@ export class MissingConfigError extends Error {
   }
 }
 
-export class InvalidGeoJSONError extends Error {
-  public readonly name: string;
+export class BadRequestError extends Error implements HttpError {
+  public readonly status = httpStatus.BAD_REQUEST;
 
   public constructor(message: string) {
     super(message);
-    this.name = 'InvalidGeoJSONError';
+  }
+}
+
+export class InternalServerError extends Error implements HttpError {
+  public readonly status = httpStatus.INTERNAL_SERVER_ERROR;
+
+  public constructor(message: string) {
+    super(message);
+  }
+}
+
+export class NotFoundError extends Error implements HttpError {
+  public readonly status = httpStatus.NOT_FOUND;
+
+  public constructor(message: string) {
+    super(message);
   }
 }

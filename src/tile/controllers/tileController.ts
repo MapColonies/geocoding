@@ -41,19 +41,12 @@ export class TileController {
   }
 
   public getTiles: GetResourceHandler = async (req, res) => {
-    try {
-      const { tile, sub_tile, reduce_fuzzy_match, size } = req.query;
-      const response = await this.manager.getTiles(
-        { tile, subTile: sub_tile ? parseInt(sub_tile) : undefined },
-        reduce_fuzzy_match == 'true',
-        size ? parseInt(size) : undefined
-      );
-      return res.status(httpStatus.OK).json(response);
-    } catch (e: unknown) {
-      if (e instanceof Error) {
-        this.logger.error(e.message);
-        return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ type: 'Error', message: e.message });
-      }
-    }
+    const { tile, sub_tile, reduce_fuzzy_match, size } = req.query;
+    const response = await this.manager.getTiles(
+      { tile, subTile: sub_tile ? parseInt(sub_tile) : undefined },
+      reduce_fuzzy_match == 'true',
+      size ? parseInt(size) : undefined
+    );
+    return res.status(httpStatus.OK).json(response);
   };
 }
