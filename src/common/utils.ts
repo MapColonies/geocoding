@@ -1,10 +1,11 @@
 import config from 'config';
 import { estypes } from '@elastic/elasticsearch';
-import utmObj from 'utm-latlng';
+import proj4 from 'proj4';
 import { Item } from '../item/models/item';
 import { Tile } from '../tile/models/tile';
 import { Route } from '../route/models/route';
 import { FIELDS } from './constants';
+import { utmProjection, wgs84Projection } from './projections';
 
 export const formatResponse = <T extends Item | Tile | Route>(
   elasticResponse: estypes.SearchResponse<T>
@@ -57,29 +58,33 @@ export const validateWGS84Coordinate = (coordinate: { lon: number; lat: number }
   return true;
 };
 
+/* eslint-disable @typescript-eslint/naming-convention */
 export const convertWgs84ToUTM = (
   latitude: number,
   longitude: number,
-  utmPrecision: number = 0
+  utmPrecision = 0
 ):
   | string
   | {
-      /* eslint-disable @typescript-eslint/naming-convention */
       Easting: number;
       Northing: number;
       ZoneNumber: number;
-      ZoneLetter: string;
-      /* eslint-enable @typescript-eslint/naming-convention */
     } => {
-  const utm = new utmObj();
-  //@ts-ignore
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
-  return utm.convertLatLngToUtm(latitude, longitude, utmPrecision);
+  const zone = Math.floor((longitude + 180) / 6) + 1;
+
+  const [easting, northing] = proj4(wgs84Projection, utmProjection(zone), [longitude, latitude]);
+
+  return {
+    Easting: +easting.toFixed(utmPrecision),
+    Northing: +northing.toFixed(utmPrecision),
+    ZoneNumber: zone,
+  };
 };
+/* eslint-enable @typescript-eslint/naming-convention */
 
 export const convertUTMToWgs84 = (x: number, y: number, zone: number) => {
-  const utm = new utmObj();
-  return utm.convertUtmToLatLng(x, y, zone, 'N');
+  const [longitude, latitude] = proj4(utmProjection(zone), wgs84Projection, [x, y]);
+  return { lat: latitude, lng: longitude };
 };
 
 export const validateTile = (tile: { tileName: string; subTileNumber: number[] }): boolean => {
