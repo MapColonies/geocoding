@@ -93,10 +93,10 @@ export const validateTile = (tile: { tileName: string; subTileNumber: number[] }
   }
   //regex = /^-?d+$/;
   const regex = /^(\d\d)$/;
-  tile.subTileNumber.forEach((subTileNumber) => {
+  for (const subTileNumber of tile.subTileNumber) {
     if (!regex.test(`${subTileNumber}`)) {
       return false;
     }
-  });
+  }
   return true;
 };
