@@ -82,7 +82,14 @@ export const convertWgs84ToUTM = (
 };
 /* eslint-enable @typescript-eslint/naming-convention */
 
-export const convertUTMToWgs84 = (x: number, y: number, zone: number) => {
+export const convertUTMToWgs84 = (
+  x: number,
+  y: number,
+  zone: number
+): {
+  lat: number;
+  lng: number;
+} => {
   const [longitude, latitude] = proj4(utmProjection(zone), wgs84Projection, [x, y]);
   return { lat: latitude, lng: longitude };
 };
