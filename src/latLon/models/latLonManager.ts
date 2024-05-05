@@ -26,12 +26,14 @@ export class LatLonManager {
     subTileNumber: string[];
   }> {
     if (!validateWGS84Coordinate({ lat, lon })) {
+      this.logger.warn("LatLonManager.latLonToTile: Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal");
       throw new BadRequestError("Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal");
     }
 
     const utm = convertWgs84ToUTM(lat, lon);
 
     if (typeof utm === 'string') {
+      this.logger.warn('LatLonManager.latLonToTile: utm is string');
       throw new BadRequestError('utm is string');
     }
 
@@ -44,6 +46,7 @@ export class LatLonManager {
     const tileCoordinateData = await this.latLonRepository.latLonToTile({ x: coordinatesUTM.x, y: coordinatesUTM.y, zone: coordinatesUTM.zone });
 
     if (!tileCoordinateData) {
+      this.logger.warn('LatLonManager.latLonToTile: The coordinate is outside the grid extent');
       throw new BadRequestError('The coordinate is outside the grid extent');
     }
 
@@ -74,6 +77,9 @@ export class LatLonManager {
     };
   }> {
     if (!validateTile({ tileName, subTileNumber })) {
+      this.logger.warn(
+        "LatLonManager.tileToLatLon: Invalid tile, check that 'tileName' and 'subTileNumber' exists and subTileNumber is array of size 3 with positive integers"
+      );
       throw new BadRequestError(
         "Invalid tile, check that 'tileName' and 'subTileNumber' exists and subTileNumber is array of size 3 with positive integers"
       );
@@ -82,6 +88,7 @@ export class LatLonManager {
     const tile = await this.latLonRepository.tileToLatLon(tileName);
 
     if (!tile) {
+      this.logger.warn('LatLonManager.tileToLatLon: Tile not found');
       throw new NotFoundError('Tile not found');
     }
 
