@@ -43,7 +43,7 @@ export const validateWGS84Coordinate = (coordinate: { lon: number; lat: number }
   const [min, max] = [0, 180];
   const exceptedKeys = ['lat', 'lon'];
   const regex = /^([0-9]+(\.[0-9]+)?)$/;
-  exceptedKeys.forEach((key) => {
+  for (const key of exceptedKeys) {
     if (!coordinate[key as keyof typeof coordinate]) {
       return false;
     }
@@ -54,7 +54,7 @@ export const validateWGS84Coordinate = (coordinate: { lon: number; lat: number }
     ) {
       return false;
     }
-  });
+  }
   return true;
 };
 
