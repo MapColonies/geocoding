@@ -20,13 +20,15 @@ type GetResourceHandler = RequestHandler<
       message: string;
     },
   undefined,
-  {
-    tile: string;
-    sub_tile?: string;
-    reduce_fuzzy_match?: string;
-    size?: string;
-  }
+  GetTilesQueryParams
 >;
+
+export interface GetTilesQueryParams {
+  tile: string;
+  sub_tile?: string;
+  reduce_fuzzy_match?: string;
+  size?: string;
+}
 
 @injectable()
 export class TileController {
