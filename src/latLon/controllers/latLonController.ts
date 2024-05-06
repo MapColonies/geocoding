@@ -72,36 +72,56 @@ export class LatLonController {
     this.createdResourceCounter = meter.createCounter('created_resource');
   }
 
-  public latlonToTile: GetLatLonToTileHandler = async (req, res) => {
-    const { lat, lon } = req.query;
+  public latlonToTile: GetLatLonToTileHandler = async (req, res, next) => {
+    try {
+      const { lat, lon } = req.query;
 
-    const response = await this.manager.latLonToTile({ lat, lon });
-    return res.status(httpStatus.OK).json(response);
+      const response = await this.manager.latLonToTile({ lat, lon });
+      return res.status(httpStatus.OK).json(response);
+    } catch (error: unknown) {
+      this.logger.warn('latLonController.latlonToTile Error:', error);
+      next(error);
+    }
   };
 
-  public tileToLatLon: GetTileToLatLonHandler = async (req, res) => {
-    const { tile: tileName, sub_tile_number } = req.query;
+  public tileToLatLon: GetTileToLatLonHandler = async (req, res, next) => {
+    try {
+      const { tile: tileName, sub_tile_number } = req.query;
 
-    const response = await this.manager.tileToLatLon({
-      tileName,
-      subTileNumber: sub_tile_number,
-    });
-    return res.status(httpStatus.OK).json(response);
+      const response = await this.manager.tileToLatLon({
+        tileName,
+        subTileNumber: sub_tile_number,
+      });
+      return res.status(httpStatus.OK).json(response);
+    } catch (error: unknown) {
+      this.logger.warn('latLonController.tileToLatLon Error:', error);
+      next(error);
+    }
   };
 
-  public latlonToMgrs: GetLatLonToMgrsHandler = (req, res) => {
-    const { lat, lon, accuracy } = req.query;
+  public latlonToMgrs: GetLatLonToMgrsHandler = (req, res, next) => {
+    try {
+      const { lat, lon, accuracy } = req.query;
 
-    const response = this.manager.latLonToMGRS({ lat, lon, accuracy });
+      const response = this.manager.latLonToMGRS({ lat, lon, accuracy });
 
-    return res.status(httpStatus.OK).json(response);
+      return res.status(httpStatus.OK).json(response);
+    } catch (error: unknown) {
+      this.logger.warn('latLonController.latlonToMgrs Error:', error);
+      next(error);
+    }
   };
 
-  public mgrsToLatlon: getMgrsToLatLonHandler = (req, res) => {
-    const { mgrs } = req.query;
+  public mgrsToLatlon: getMgrsToLatLonHandler = (req, res, next) => {
+    try {
+      const { mgrs } = req.query;
 
-    const response = this.manager.mgrsToLatLon(mgrs);
+      const response = this.manager.mgrsToLatLon(mgrs);
 
-    return res.status(httpStatus.OK).json(response);
+      return res.status(httpStatus.OK).json(response);
+    } catch (error: unknown) {
+      this.logger.warn('latLonController.mgrsToLatlon Error:', error);
+      next(error);
+    }
   };
 }

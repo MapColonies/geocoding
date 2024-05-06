@@ -38,17 +38,22 @@ export class RouteController {
     this.createdResourceCounter = meter.createCounter('created_resource');
   }
 
-  public getRoutes: GetResourceHandler = async (req, res) => {
-    const { command_name: commandName, control_point, geo_context, reduce_fuzzy_match, size } = req.query;
-    const response = await this.manager.getRoutes(
-      {
-        commandName,
-        controlPoint: control_point ? parseInt(control_point) : undefined,
-        geo: geo_context ? (JSON.parse(geo_context) as GeoContext) : undefined,
-      },
-      reduce_fuzzy_match == 'true',
-      size ? parseInt(size) : undefined
-    );
-    return res.status(httpStatus.OK).json(response);
+  public getRoutes: GetResourceHandler = async (req, res, next) => {
+    try {
+      const { command_name: commandName, control_point, geo_context, reduce_fuzzy_match, size } = req.query;
+      const response = await this.manager.getRoutes(
+        {
+          commandName,
+          controlPoint: control_point ? parseInt(control_point) : undefined,
+          geo: geo_context ? (JSON.parse(geo_context) as GeoContext) : undefined,
+        },
+        reduce_fuzzy_match == 'true',
+        size ? parseInt(size) : undefined
+      );
+      return res.status(httpStatus.OK).json(response);
+    } catch (error: unknown) {
+      this.logger.warn('routeController.getRoutes Error:', error);
+      next(error);
+    }
   };
 }
