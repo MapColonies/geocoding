@@ -16,15 +16,17 @@ type GetResourceHandler = RequestHandler<
     features: (Item | undefined)[];
   },
   undefined,
-  {
-    command_name: string;
-    tile?: string;
-    sub_tile?: string;
-    geo_context?: string;
-    reduce_fuzzy_match?: string;
-    size?: string;
-  }
+  GetItemsQueryParams
 >;
+
+export interface GetItemsQueryParams {
+  command_name: string;
+  tile?: string;
+  sub_tile?: string;
+  geo_context?: string;
+  reduce_fuzzy_match?: string;
+  size?: string;
+}
 
 @injectable()
 export class ItemController {
