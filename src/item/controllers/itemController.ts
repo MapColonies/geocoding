@@ -5,7 +5,6 @@ import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
-
 import { ItemManager } from '../models/itemManager';
 import { Item } from '../models/item';
 import { GeoContext } from '../../common/interfaces';
@@ -39,18 +38,23 @@ export class ItemController {
     this.createdResourceCounter = meter.createCounter('created_resource');
   }
 
-  public getItems: GetResourceHandler = async (req, res) => {
-    const { command_name: commandName, tile, sub_tile, geo_context, reduce_fuzzy_match, size } = req.query;
-    const response = await this.manager.getItems(
-      {
-        commandName,
-        tile,
-        subTile: sub_tile ? parseInt(sub_tile) : undefined,
-        geo: geo_context ? (JSON.parse(geo_context) as GeoContext) : undefined,
-      },
-      reduce_fuzzy_match == 'true',
-      size ? parseInt(size) : undefined
-    );
-    return res.status(httpStatus.OK).json(response);
+  public getItems: GetResourceHandler = async (req, res, next) => {
+    try {
+      const { command_name: commandName, tile, sub_tile, geo_context, reduce_fuzzy_match, size } = req.query;
+      const response = await this.manager.getItems(
+        {
+          commandName,
+          tile,
+          subTile: sub_tile ? parseInt(sub_tile) : undefined,
+          geo: geo_context ? (JSON.parse(geo_context) as GeoContext) : undefined,
+        },
+        reduce_fuzzy_match == 'true',
+        size ? parseInt(size) : undefined
+      );
+      return res.status(httpStatus.OK).json(response);
+    } catch (error: unknown) {
+      this.logger.warn('itemController.getItems Error:', error);
+      next(error);
+    }
   };
 }
