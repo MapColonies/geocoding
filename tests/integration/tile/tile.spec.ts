@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
@@ -6,11 +7,10 @@ import { SERVICES } from '../../../src/common/constants';
 import { GetTilesQueryParams } from '../../../src/tile/controllers/tileController';
 import { TileRequestSender } from './helpers/requestSender';
 
-describe('resourceName', function () {
+describe('/tiles', function () {
   let requestSender: TileRequestSender;
 
   beforeEach(async function () {
-    // elasticClient = await initElasticsearchClient(elasticDataSourceOptions);
     const app = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
@@ -22,11 +22,27 @@ describe('resourceName', function () {
   });
 
   describe('Happy Path', function () {
-    it('should return 200 status code and the resource', async function () {
+    it('should return 200 status code and the tile', async function () {
       const response = await requestSender.getTiles({ tile: 'בעל' });
 
       expect(response.status).toBe(httpStatusCodes.OK);
       expect(response).toSatisfyApiSpec();
+    });
+    it('should return 200 status code and the subtile', async function () {
+      const response = await requestSender.getTiles({ tile: 'יהם', sub_tile: '65' });
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      expect(response).toSatisfyApiSpec();
+    });
+    it('should return 200 status code and response empty array', async function () {
+      const response = await requestSender.getTiles({ tile: 'אבג' });
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      expect(response).toSatisfyApiSpec();
+      expect(response.body).toMatchObject({
+        type: 'FeatureCollection',
+        features: [],
+      });
     });
   });
   describe('Bad Path', function () {
