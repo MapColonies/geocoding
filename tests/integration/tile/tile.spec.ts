@@ -35,7 +35,7 @@ describe('/tiles', function () {
       expect(response).toSatisfyApiSpec();
     });
     it('should return 200 status code and response empty array', async function () {
-      const response = await requestSender.getTiles({ tile: 'abc' });
+      const response = await requestSender.getTiles({ tile: 'xyz' });
 
       expect(response.status).toBe(httpStatusCodes.OK);
       expect(response).toSatisfyApiSpec();
