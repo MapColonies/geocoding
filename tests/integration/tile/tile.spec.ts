@@ -23,19 +23,19 @@ describe('/tiles', function () {
 
   describe('Happy Path', function () {
     it('should return 200 status code and the tile', async function () {
-      const response = await requestSender.getTiles({ tile: 'בעל' });
+      const response = await requestSender.getTiles({ tile: 'abc' });
 
       expect(response.status).toBe(httpStatusCodes.OK);
       expect(response).toSatisfyApiSpec();
     });
     it('should return 200 status code and the subtile', async function () {
-      const response = await requestSender.getTiles({ tile: 'יהם', sub_tile: '65' });
+      const response = await requestSender.getTiles({ tile: 'abc', sub_tile: '65' });
 
       expect(response.status).toBe(httpStatusCodes.OK);
       expect(response).toSatisfyApiSpec();
     });
     it('should return 200 status code and response empty array', async function () {
-      const response = await requestSender.getTiles({ tile: 'אבג' });
+      const response = await requestSender.getTiles({ tile: 'abc' });
 
       expect(response.status).toBe(httpStatusCodes.OK);
       expect(response).toSatisfyApiSpec();
