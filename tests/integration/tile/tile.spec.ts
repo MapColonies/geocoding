@@ -23,17 +23,68 @@ describe('/tiles', function () {
 
   describe('Happy Path', function () {
     it('should return 200 status code and the tile', async function () {
-      const response = await requestSender.getTiles({ tile: 'abc' });
+      const response = await requestSender.getTiles({ tile: 'RIT' });
 
       expect(response.status).toBe(httpStatusCodes.OK);
       expect(response).toSatisfyApiSpec();
+      expect(response.body).toMatchObject({
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: {
+              coordinates: [
+                [
+                  [12.539507865186607, 41.851751203650096],
+                  [12.536787075186538, 41.94185043165008],
+                  [12.42879133518656, 41.93952837265009],
+                  [12.431625055186686, 41.84943698365008],
+                  [12.539507865186607, 41.851751203650096],
+                ],
+              ],
+              type: 'Polygon',
+            },
+            properties: {
+              TILE_NAME: 'RIT',
+              TYPE: 'TILE',
+            },
+          },
+        ],
+      });
     });
+
     it('should return 200 status code and the subtile', async function () {
-      const response = await requestSender.getTiles({ tile: 'abc', sub_tile: '65' });
+      const response = await requestSender.getTiles({ tile: 'GRC', sub_tile: '65' });
 
       expect(response.status).toBe(httpStatusCodes.OK);
       expect(response).toSatisfyApiSpec();
+      expect(response.body).toMatchObject({
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: {
+              coordinates: [
+                [
+                  [27.149158174343427, 35.63159611670335],
+                  [27.149274355343437, 35.64061707270338],
+                  [27.138786228343463, 35.640716597703374],
+                  [27.13867103934342, 35.631695606703374],
+                  [27.149158174343427, 35.63159611670335],
+                ],
+              ],
+              type: 'Polygon',
+            },
+            properties: {
+              SUB_TILE_ID: '65',
+              TILE_NAME: 'GRC',
+              TYPE: 'SUB_TILE',
+            },
+          },
+        ],
+      });
     });
+
     it('should return 200 status code and response empty array', async function () {
       const response = await requestSender.getTiles({ tile: 'xyz' });
 

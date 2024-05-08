@@ -23,7 +23,7 @@ describe('/routes', function () {
 
   describe('Happy Path', function () {
     it('should return 200 status code and the route', async function () {
-      const response = await requestSender.getRoutes({ command_name: 'abc' });
+      const response = await requestSender.getRoutes({ command_name: 'route96' });
 
       expect(response.status).toBe(httpStatusCodes.OK);
       expect(response).toSatisfyApiSpec();
