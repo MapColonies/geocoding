@@ -15,10 +15,7 @@ type GetLatLonToTileHandler = RequestHandler<
     subTileNumber: string[];
   },
   undefined,
-  {
-    lat: number;
-    lon: number;
-  }
+  GetLatLonToTileQueryParams
 >;
 
 type GetTileToLatLonHandler = RequestHandler<
@@ -33,32 +30,39 @@ type GetTileToLatLonHandler = RequestHandler<
     };
   },
   undefined,
-  {
-    tile: string;
-    sub_tile_number: number[];
-  }
+  GetTileToLatLonQueryParams
 >;
 
-type GetLatLonToMgrsHandler = RequestHandler<
-  undefined,
-  { mgrs: string },
-  undefined,
-  {
-    lat: number;
-    lon: number;
-    accuracy?: number;
-  }
->;
+type GetLatLonToMgrsHandler = RequestHandler<undefined, { mgrs: string }, undefined, GetLatLonToMgrsQueryParams>;
 
-type getMgrsToLatLonHandler = RequestHandler<
+type GetMgrsToLatLonHandler = RequestHandler<
   undefined,
   {
     lat: number;
     lon: number;
   },
   undefined,
-  { mgrs: string }
+  GetMgrsToLatLonQueryParams
 >;
+
+export interface GetLatLonToTileQueryParams {
+  lat: number;
+  lon: number;
+}
+
+export interface GetTileToLatLonQueryParams {
+  tile: string;
+  sub_tile_number: number[];
+}
+
+export interface GetLatLonToMgrsQueryParams {
+  lat: number;
+  lon: number;
+  accuracy?: number;
+}
+export interface GetMgrsToLatLonQueryParams {
+  mgrs: string;
+}
 
 @injectable()
 export class LatLonController {
@@ -112,7 +116,7 @@ export class LatLonController {
     }
   };
 
-  public mgrsToLatlon: getMgrsToLatLonHandler = (req, res, next) => {
+  public mgrsToLatlon: GetMgrsToLatLonHandler = (req, res, next) => {
     try {
       const { mgrs } = req.query;
 
