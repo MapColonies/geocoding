@@ -75,7 +75,7 @@
         "SUB_TILE_ID": "65",
         "TILE_NAME": "GRC",
         "NAME": "somePlace",
-        "ZON": 36,
+        "ZON": 35,
         "LAYER_NAME": "CONTROL.SUB_TILES",
         "TYPE": "SUB_TILE"
       }
