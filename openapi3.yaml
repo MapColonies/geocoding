@@ -95,7 +95,7 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
+                anyOf:
                   - $ref: "#/components/schemas/tilesSchema"
                   - $ref: "#/components/schemas/routesSchema"
                   - $ref: "#/components/schemas/itemsSchema"
@@ -226,7 +226,7 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
+                anyOf:
                   - $ref: "#/components/schemas/routesSchema"
                   - $ref: "#/components/schemas/itemsSchema"
         400:
