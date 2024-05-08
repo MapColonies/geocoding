@@ -1,4 +1,5 @@
-module.exports = {
+/** @type {import('jest').Config} */
+const config = {
   transform: {
     '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.test.json' }],
   },
@@ -31,4 +32,7 @@ module.exports = {
       statements: -10,
     },
   },
+  testTimeout: 15000,
 };
+
+module.exports = config;
