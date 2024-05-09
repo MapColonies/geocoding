@@ -49,42 +49,22 @@ describe('/latLon', function () {
   });
   describe('Bad Path', function () {
     // All requests with status code of 400
-    // describe('Check for missing required parameters', () => {
-    //   test.each([
-    //     [requestSender.getLatlonToMgrs, ['lat', 'lon']],
-    //     [requestSender.getMgrsToLatlon, ['mgrs']],
-    //     [requestSender.getLatlonToTile, ['lat', 'lon']],
-    //     [requestSender.getTileToLatLon, ['tile', 'sub_tile_number']],
-    //   ])(
-    //     'Should return 400 status code and meessage "request/query must have required property \'%s\'"',
-    //     async function (request, missingProperties) {
-    //       const message = 'request/query must have required property';
-
-    //       const response = await request();
-
-    //       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-    //       expect(response.body).toMatchObject({ message: missingProperties.map((txt) => `${message} '${txt}'`).join(', ') });
-    //       expect(response).toSatisfyApiSpec();
-    //     }
-    //   );
-    // });
-
-    it('abc', async function () {
+    it('Check for missing required parameters', async function () {
       const arr = [
         {
-          request: requestSender.getLatlonToMgrs,
+          request: requestSender.getLatlonToMgrs(),
           missingProperties: ['lat', 'lon'],
         },
         {
-          request: requestSender.getMgrsToLatlon,
+          request: requestSender.getMgrsToLatlon(),
           missingProperties: ['mgrs'],
         },
         {
-          request: requestSender.getLatlonToTile,
+          request: requestSender.getLatlonToTile(),
           missingProperties: ['lat', 'lon'],
         },
         {
-          request: requestSender.getTileToLatLon,
+          request: requestSender.getTileToLatLon(),
           missingProperties: ['tile', 'sub_tile_number'],
         },
       ];
@@ -92,9 +72,7 @@ describe('/latLon', function () {
       for (const { request, missingProperties } of arr) {
         const message = 'request/query must have required property';
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-ignore
-        const response: supertest.Response = await request();
+        const response: supertest.Response = await request;
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toMatchObject({ message: missingProperties.map((txt) => `${message} '${txt}'`).join(', ') });
@@ -102,21 +80,33 @@ describe('/latLon', function () {
       }
     });
 
-    // describe('Check for invalid parameters', () => {
-    //   test.each([[requestSender.getLatlonToMgrs], [requestSender.getMgrsToLatlon], [requestSender.getLatlonToTile], [requestSender.getTileToLatLon]])(
-    //     'Should return 400 status code for unknown parameter',
-    //     async function (request) {
-    //       const parameter = 'test1234';
-    //       const message = `Unknown query parameter '${parameter}'`;
+    it('abc', async function () {
+      const parameter = 'test1234';
+      const message = `Unknown query parameter '${parameter}'`;
 
-    //       const response = await request({ [parameter]: parameter } as never);
+      const arr = [
+        {
+          request: requestSender.getLatlonToMgrs({ [parameter]: parameter } as never),
+        },
+        {
+          request: requestSender.getMgrsToLatlon({ [parameter]: parameter } as never),
+        },
+        {
+          request: requestSender.getLatlonToTile({ [parameter]: parameter } as never),
+        },
+        {
+          request: requestSender.getTileToLatLon({ [parameter]: parameter } as never),
+        },
+      ];
 
-    //       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-    //       expect(response.body).toMatchObject({ message });
-    //       expect(response).toSatisfyApiSpec();
-    //     }
-    //   );
-    // });
+      for (const { request } of arr) {
+        const response = await request;
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.body).toMatchObject({ message });
+        expect(response).toSatisfyApiSpec();
+      }
+    });
   });
   describe('Sad Path', function () {
     // All requests with status code 4XX-5XX
