@@ -57,7 +57,7 @@ describe('/latLon', function () {
       expect(reponse).toSatisfyApiSpec();
       expect(reponse.body).toMatchObject({
         tileName: 'BRN',
-        subTileNumber: ['00', '00', '00'],
+        subTileNumber: [0, 0, 0],
       });
     });
 
@@ -70,24 +70,28 @@ describe('/latLon', function () {
       expect(reponse.status).toBe(httpStatusCodes.OK);
       expect(reponse).toSatisfyApiSpec();
       expect(reponse.body).toMatchObject({
-        geometry: {
-          coordinates: [
-            [
-              [12.953293384350397, 52.512399536846765],
-              [12.953440643865289, 52.512402084451686],
-              [12.953436468347887, 52.51249192878939],
-              [12.95328920853307, 52.512489381176245],
-              [12.953293384350397, 52.512399536846765],
-            ],
-          ],
-          type: 'Polygon',
-        },
-        type: 'Feature',
-        properties: {
-          TYPE: 'TILE',
-          SUB_TILE_NUMBER: [10, 10, 10],
-          TILE_NAME: 'BRN',
-        },
+        type: 'FeatureCollection',
+        features: [
+          {
+            geometry: {
+              coordinates: [
+                [
+                  [12.953293384350397, 52.512399536846765],
+                  [12.953440643865289, 52.512402084451686],
+                  [12.953436468347887, 52.51249192878939],
+                  [12.95328920853307, 52.512489381176245],
+                  [12.953293384350397, 52.512399536846765],
+                ],
+              ],
+              type: 'Polygon',
+            },
+            properties: {
+              TYPE: 'TILE',
+              SUB_TILE_NUMBER: [10, 10, 10],
+              TILE_NAME: 'BRN',
+            },
+          },
+        ],
       });
     });
   });
