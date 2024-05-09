@@ -93,7 +93,7 @@ describe('/latLon', function () {
   });
   describe('Bad Path', function () {
     // All requests with status code of 400
-    it('Check for missing required parameters', async function () {
+    it('should return 400 and message for missing required parameters', async function () {
       const arr = [
         {
           request: requestSender.getLatlonToMgrs(),
@@ -124,7 +124,7 @@ describe('/latLon', function () {
       }
     });
 
-    it('test for checking unspecified query parameter', async function () {
+    it('should return 400 and message unknown query parameter', async function () {
       const parameter = 'test1234';
       const message = `Unknown query parameter '${parameter}'`;
 
