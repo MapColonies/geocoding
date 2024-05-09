@@ -1,28 +1,34 @@
 import { Polygon } from 'geojson';
-import { NotFoundError } from '../../common/errors';
+import { BadRequestError } from '../../common/errors';
 import { convertUTMToWgs84 } from '../../common/utils';
 import { LatLon } from '../DAL/latLon';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 const geoJsonObjectTemplate = (): {
-  geometry: Polygon;
   type: string;
-  properties: {
-    TYPE: string;
-    SUB_TILE_NUMBER?: number[];
-    TILE_NAME?: string;
-  };
+  features: {
+    geometry: Polygon;
+    properties: {
+      TYPE: string;
+      SUB_TILE_NUMBER?: number[];
+      TILE_NAME?: string;
+    };
+  }[];
 } => ({
-  geometry: {
-    coordinates: [[]],
-    type: 'Polygon',
-  },
-  type: 'Feature',
-  properties: {
-    TYPE: 'TILE',
-    SUB_TILE_NUMBER: undefined,
-    TILE_NAME: undefined,
-  },
+  type: 'FeatureCollection',
+  features: [
+    {
+      geometry: {
+        coordinates: [[]],
+        type: 'Polygon',
+      },
+      properties: {
+        TYPE: 'TILE',
+        SUB_TILE_NUMBER: undefined,
+        TILE_NAME: undefined,
+      },
+    },
+  ],
 });
 /* eslint-enable @typescript-eslint/naming-convention */
 
@@ -60,7 +66,7 @@ export const validateResult = (
   }
 ): void => {
   if (tile.extMinX > utmCoor.x || tile.extMaxX < utmCoor.x || tile.extMinY > utmCoor.y || tile.extMaxY < utmCoor.y) {
-    throw new NotFoundError("Tile is found, sub tile is not in tile's extent");
+    throw new BadRequestError("Tile is found, sub tile is not in tile's extent");
   }
 };
 
@@ -86,11 +92,11 @@ export const getSubTileByBottomLeftUtmCoor = (
     if (typeof coordiante === 'string') {
       throw new Error('coordinate is string');
     }
-    result.geometry.coordinates[0].push([coordiante.lng, coordiante.lat]);
+    result.features[0].geometry.coordinates[0].push([coordiante.lng, coordiante.lat]);
   }
 
-  result.properties.TILE_NAME = tile.tileName;
-  result.properties.SUB_TILE_NUMBER = tile.subTileNumber;
+  result.features[0].properties.TILE_NAME = tile.tileName;
+  result.features[0].properties.SUB_TILE_NUMBER = tile.subTileNumber;
 
   return result;
 };

@@ -12,7 +12,7 @@ type GetLatLonToTileHandler = RequestHandler<
   undefined,
   {
     tileName: string;
-    subTileNumber: string[];
+    subTileNumber: number[];
   },
   undefined,
   GetLatLonToTileQueryParams
@@ -21,13 +21,15 @@ type GetLatLonToTileHandler = RequestHandler<
 type GetTileToLatLonHandler = RequestHandler<
   undefined,
   {
-    geometry: Polygon;
     type: string;
-    properties: {
-      TYPE: string;
-      SUB_TILE_NUMBER?: number[] | undefined;
-      TILE_NAME?: string | undefined;
-    };
+    features: {
+      geometry: Polygon;
+      properties: {
+        TYPE: string;
+        SUB_TILE_NUMBER?: number[] | undefined;
+        TILE_NAME?: string | undefined;
+      };
+    }[];
   },
   undefined,
   GetTileToLatLonQueryParams

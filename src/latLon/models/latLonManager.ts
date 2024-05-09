@@ -23,7 +23,7 @@ export class LatLonManager {
 
   public async latLonToTile({ lat, lon }: { lat: number; lon: number }): Promise<{
     tileName: string;
-    subTileNumber: string[];
+    subTileNumber: number[];
   }> {
     if (!validateWGS84Coordinate({ lat, lon })) {
       this.logger.warn("LatLonManager.latLonToTile: Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal");
@@ -60,36 +60,36 @@ export class LatLonManager {
     return {
       tileName: tileCoordinateData.tileName,
       subTileNumber: new Array(3).fill('').map(function (value, i) {
-        return xNumber[i] + yNumber[i];
+        return +(xNumber[i] + yNumber[i]);
       }),
     };
   }
 
   public async tileToLatLon({ tileName, subTileNumber }: { tileName: string; subTileNumber: number[] }): Promise<{
-    geometry: Polygon;
     type: string;
-    properties: {
-      /* eslint-disable @typescript-eslint/naming-convention */
-      TYPE: string;
-      SUB_TILE_NUMBER?: number[] | undefined;
-      TILE_NAME?: string | undefined;
-      /* eslint-enable @typescript-eslint/naming-convention */
-    };
+    features: {
+      geometry: Polygon;
+      properties: {
+        /* eslint-disable @typescript-eslint/naming-convention */
+        TYPE: string;
+        SUB_TILE_NUMBER?: number[] | undefined;
+        TILE_NAME?: string | undefined;
+        /* eslint-enable @typescript-eslint/naming-convention */
+      };
+    }[];
   }> {
     if (!validateTile({ tileName, subTileNumber })) {
-      this.logger.warn(
-        "LatLonManager.tileToLatLon: Invalid tile, check that 'tileName' and 'subTileNumber' exists and subTileNumber is array of size 3 with positive integers"
-      );
-      throw new BadRequestError(
-        "Invalid tile, check that 'tileName' and 'subTileNumber' exists and subTileNumber is array of size 3 with positive integers"
-      );
+      const message = "Invalid tile, check that 'tileName' and 'subTileNumber' exists and subTileNumber is array of size 3 with positive integers";
+      this.logger.warn(`LatLonManager.tileToLatLon: ${message}`);
+      throw new BadRequestError(message);
     }
 
     const tile = await this.latLonRepository.tileToLatLon(tileName);
 
     if (!tile) {
-      this.logger.warn('LatLonManager.tileToLatLon: Tile not found');
-      throw new NotFoundError('Tile not found');
+      const meessage = 'Tile not found';
+      this.logger.warn(`LatLonManager.tileToLatLon: ${meessage}`);
+      throw new BadRequestError(meessage);
     }
 
     const utmCoor = convertTilesToUTM({ tileName, subTileNumber }, tile);
