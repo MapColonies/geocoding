@@ -46,6 +46,20 @@ describe('/latLon', function () {
         mgrs: '18TWL8565011369',
       });
     });
+
+    it('should return 200 status code and tile from lat-lon', async function () {
+      const reponse = await requestSender.getLatlonToTile({
+        lat: 52.57326537485767,
+        lon: 12.948781146422107,
+      });
+
+      expect(reponse.status).toBe(httpStatusCodes.OK);
+      expect(reponse).toSatisfyApiSpec();
+      expect(reponse.body).toMatchObject({
+        tileName: 'BRN',
+        subTileNumber: ['00', '00', '00'],
+      });
+    });
   });
   describe('Bad Path', function () {
     // All requests with status code of 400
