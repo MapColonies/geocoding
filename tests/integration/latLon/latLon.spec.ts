@@ -151,6 +151,46 @@ describe('/latLon', function () {
         expect(response).toSatisfyApiSpec();
       }
     });
+
+    it('should return 400 and check that all numbers are positive', async function () {
+      const message = "Invalid tile, check that 'tileName' and 'subTileNumber' exists and subTileNumber is array of size 3 with positive integers";
+
+      for (let i = 0; i < 3; i++) {
+        const arr = new Array(3).fill(10);
+        arr[i] = 0;
+
+        const response = await requestSender.getTileToLatLon({
+          tile: 'BRN',
+          sub_tile_number: [0, 0, 0],
+        });
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.body).toMatchObject({
+          message,
+        });
+        expect(response).toSatisfyApiSpec();
+      }
+    });
+
+    it('should return 400 for lat-lon that outside the grid extent', async function () {
+      const response = await requestSender.getLatlonToTile({ lat: 1, lon: 1 });
+
+      expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+      expect(response.body).toMatchObject({
+        message: 'The coordinate is outside the grid extent',
+      });
+      expect(response).toSatisfyApiSpec();
+    });
+
+    it('should return 400 for tile not found', async function () {
+      const response = await requestSender.getTileToLatLon({ tile: 'XXX', sub_tile_number: [10, 10, 10] });
+
+      expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+      expect(response.body).toMatchObject({
+        message: 'Tile not found',
+      });
+      expect(response).toSatisfyApiSpec();
+    });
   });
   describe('Sad Path', function () {
     // All requests with status code 4XX-5XX
