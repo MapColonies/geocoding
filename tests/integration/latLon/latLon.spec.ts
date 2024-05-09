@@ -124,7 +124,7 @@ describe('/latLon', function () {
       }
     });
 
-    it('abc', async function () {
+    it('test for checking unspecified query parameter', async function () {
       const parameter = 'test1234';
       const message = `Unknown query parameter '${parameter}'`;
 
