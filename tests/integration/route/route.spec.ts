@@ -33,7 +33,7 @@ describe('/routes', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
 
-      // expect(response).toSatisfyApiSpec(); // TODO:
+      expect(response).toSatisfyApiSpec();
       expect(response.body).toMatchObject({
         type: 'FeatureCollection',
         features: [],
