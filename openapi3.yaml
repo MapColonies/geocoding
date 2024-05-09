@@ -269,7 +269,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/subTileSchema"
+                $ref: "#/components/schemas/tilesSchema"
         400:
           "$ref": "#/components/responses/BadRequest"
         401:
