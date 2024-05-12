@@ -4,9 +4,10 @@ import { BoundCounter, Meter } from '@opentelemetry/api-metrics';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
-import { Polygon } from 'geojson';
 import { SERVICES } from '../../common/constants';
 import { LatLonManager } from '../models/latLonManager';
+import { Tile } from '../../tile/models/tile';
+import { FeatureCollection } from '../../common/interfaces';
 
 type GetLatLonToTileHandler = RequestHandler<
   undefined,
@@ -18,22 +19,7 @@ type GetLatLonToTileHandler = RequestHandler<
   GetLatLonToTileQueryParams
 >;
 
-type GetTileToLatLonHandler = RequestHandler<
-  undefined,
-  {
-    type: string;
-    features: {
-      geometry: Polygon;
-      properties: {
-        TYPE: string;
-        SUB_TILE_NUMBER?: number[] | undefined;
-        TILE_NAME?: string | undefined;
-      };
-    }[];
-  },
-  undefined,
-  GetTileToLatLonQueryParams
->;
+type GetTileToLatLonHandler = RequestHandler<undefined, FeatureCollection<Tile>, undefined, GetTileToLatLonQueryParams>;
 
 type GetLatLonToMgrsHandler = RequestHandler<undefined, { mgrs: string }, undefined, GetLatLonToMgrsQueryParams>;
 
