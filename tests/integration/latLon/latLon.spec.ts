@@ -3,7 +3,6 @@
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
-import supertest from 'supertest';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { LatLonRequestSender } from './helpers/requestSender';
@@ -96,65 +95,33 @@ describe('/latLon', function () {
     });
   });
   describe('Bad Path', function () {
-    // All requests with status code of 400
-    it('should return 400 and message for missing required parameters', async function () {
-      const arr = [
-        {
-          request: requestSender.getLatlonToMgrs(),
-          missingProperties: ['lat', 'lon'],
-        },
-        {
-          request: requestSender.getMgrsToLatlon(),
-          missingProperties: ['mgrs'],
-        },
-        {
-          request: requestSender.getLatlonToTile(),
-          missingProperties: ['lat', 'lon'],
-        },
-        {
-          request: requestSender.getTileToLatLon(),
-          missingProperties: ['tile', 'sub_tile_number'],
-        },
-      ];
+    test.each<[keyof typeof requestSender, string[]]>([
+      ['getLatlonToMgrs', ['lat', 'lon']],
+      ['getMgrsToLatlon', ['mgrs']],
+      ['getLatlonToTile', ['lat', 'lon']],
+      ['getTileToLatLon', ['tile', 'sub_tile_number']],
+    ])('should return 400 and message for missing required parameters', async (request, missingProperties) => {
+      const message = 'request/query must have required property';
+      const response = await requestSender[request]();
 
-      for (const { request, missingProperties } of arr) {
-        const message = 'request/query must have required property';
-
-        const response: supertest.Response = await request;
-
-        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toMatchObject({ message: missingProperties.map((txt) => `${message} '${txt}'`).join(', ') });
-        expect(response).toSatisfyApiSpec();
-      }
+      expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+      expect(response.body).toMatchObject({ message: missingProperties.map((txt) => `${message} '${txt}'`).join(', ') });
+      expect(response).toSatisfyApiSpec();
     });
 
-    it('should return 400 and message unknown query parameter', async function () {
-      const parameter = 'test1234';
-      const message = `Unknown query parameter '${parameter}'`;
+    test.each<[keyof typeof requestSender]>([['getLatlonToMgrs'], ['getMgrsToLatlon'], ['getLatlonToTile'], ['getTileToLatLon']])(
+      'should return 400 and message unknown query parameter',
+      async (request) => {
+        const parameter = 'test1234';
+        const message = `Unknown query parameter '${parameter}'`;
 
-      const arr = [
-        {
-          request: requestSender.getLatlonToMgrs({ [parameter]: parameter } as never),
-        },
-        {
-          request: requestSender.getMgrsToLatlon({ [parameter]: parameter } as never),
-        },
-        {
-          request: requestSender.getLatlonToTile({ [parameter]: parameter } as never),
-        },
-        {
-          request: requestSender.getTileToLatLon({ [parameter]: parameter } as never),
-        },
-      ];
-
-      for (const { request } of arr) {
-        const response = await request;
+        const response = await requestSender[request]({ [parameter]: parameter } as never);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toMatchObject({ message });
         expect(response).toSatisfyApiSpec();
       }
-    });
+    );
 
     it('should return 400 and check that all numbers are positive', async function () {
       const message = "Invalid tile, check that 'tileName' and 'subTileNumber' exists and subTileNumber is array of size 3 with positive integers";
