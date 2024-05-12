@@ -4,61 +4,53 @@ import { BoundCounter, Meter } from '@opentelemetry/api-metrics';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
-import { Polygon } from 'geojson';
 import { SERVICES } from '../../common/constants';
 import { LatLonManager } from '../models/latLonManager';
+import { Tile } from '../../tile/models/tile';
+import { FeatureCollection } from '../../common/interfaces';
 
 type GetLatLonToTileHandler = RequestHandler<
   undefined,
   {
     tileName: string;
-    subTileNumber: string[];
+    subTileNumber: number[];
   },
   undefined,
-  {
-    lat: number;
-    lon: number;
-  }
+  GetLatLonToTileQueryParams
 >;
 
-type GetTileToLatLonHandler = RequestHandler<
-  undefined,
-  {
-    geometry: Polygon;
-    type: string;
-    properties: {
-      TYPE: string;
-      SUB_TILE_NUMBER?: number[] | undefined;
-      TILE_NAME?: string | undefined;
-    };
-  },
-  undefined,
-  {
-    tile: string;
-    sub_tile_number: number[];
-  }
->;
+type GetTileToLatLonHandler = RequestHandler<undefined, FeatureCollection<Tile>, undefined, GetTileToLatLonQueryParams>;
 
-type GetLatLonToMgrsHandler = RequestHandler<
-  undefined,
-  { mgrs: string },
-  undefined,
-  {
-    lat: number;
-    lon: number;
-    accuracy?: number;
-  }
->;
+type GetLatLonToMgrsHandler = RequestHandler<undefined, { mgrs: string }, undefined, GetLatLonToMgrsQueryParams>;
 
-type getMgrsToLatLonHandler = RequestHandler<
+type GetMgrsToLatLonHandler = RequestHandler<
   undefined,
   {
     lat: number;
     lon: number;
   },
   undefined,
-  { mgrs: string }
+  GetMgrsToLatLonQueryParams
 >;
+
+export interface GetLatLonToTileQueryParams {
+  lat: number;
+  lon: number;
+}
+
+export interface GetTileToLatLonQueryParams {
+  tile: string;
+  sub_tile_number: number[];
+}
+
+export interface GetLatLonToMgrsQueryParams {
+  lat: number;
+  lon: number;
+  accuracy?: number;
+}
+export interface GetMgrsToLatLonQueryParams {
+  mgrs: string;
+}
 
 @injectable()
 export class LatLonController {
@@ -112,7 +104,7 @@ export class LatLonController {
     }
   };
 
-  public mgrsToLatlon: getMgrsToLatLonHandler = (req, res, next) => {
+  public mgrsToLatlon: GetMgrsToLatLonHandler = (req, res, next) => {
     try {
       const { mgrs } = req.query;
 

@@ -95,7 +95,7 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
+                anyOf:
                   - $ref: "#/components/schemas/tilesSchema"
                   - $ref: "#/components/schemas/routesSchema"
                   - $ref: "#/components/schemas/itemsSchema"
@@ -226,7 +226,7 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
+                anyOf:
                   - $ref: "#/components/schemas/routesSchema"
                   - $ref: "#/components/schemas/itemsSchema"
         400:
@@ -396,7 +396,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/tilesSchema"
+                type: object
+                properties:
+                  lat:
+                    type: number
+                  lon:
+                    type: number
         400:
           "$ref": "#/components/responses/BadRequest"
         401:
@@ -499,6 +504,9 @@ components:
           items:
             type: "object"
             properties:
+              type:
+                type: "string"
+                enum: ["Feature"]
               geometry:
                 $ref: "#/components/schemas/Geometry"
               properties:

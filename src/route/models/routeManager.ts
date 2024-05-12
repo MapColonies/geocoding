@@ -6,6 +6,7 @@ import { SERVICES } from '../../common/constants';
 import { ROUTE_REPOSITORY_SYMBOL, RouteRepository } from '../DAL/routeRepository';
 import { RouteQueryParams } from '../DAL/queries';
 import { formatResponse } from '../../common/utils';
+import { FeatureCollection } from '../../common/interfaces';
 import { Route } from './route';
 
 @injectable()
@@ -16,14 +17,7 @@ export class RouteManager {
     @inject(ROUTE_REPOSITORY_SYMBOL) private readonly routeRepository: RouteRepository
   ) {}
 
-  public async getRoutes(
-    routeQueryParams: RouteQueryParams,
-    reduceFuzzyMatch = false,
-    size?: number
-  ): Promise<{
-    type: string;
-    features: (Route | undefined)[];
-  }> {
+  public async getRoutes(routeQueryParams: RouteQueryParams, reduceFuzzyMatch = false, size?: number): Promise<FeatureCollection<Route>> {
     let elasticResponse: estypes.SearchResponse<Route> | undefined = undefined;
     if (routeQueryParams.controlPoint ?? 0) {
       elasticResponse = await this.routeRepository.getControlPointInRoute(
@@ -39,8 +33,8 @@ export class RouteManager {
     if (reduceFuzzyMatch && formattedResponse.features.length > 0) {
       const filterFunction =
         routeQueryParams.controlPoint ?? 0
-          ? (hit: Route | undefined): hit is Route => hit?.properties.OBJECT_COMMAND_NAME === routeQueryParams.controlPoint
-          : (hit: Route | undefined): hit is Route => hit?.properties.OBJECT_COMMAND_NAME === routeQueryParams.commandName;
+          ? (hit: Route | undefined): hit is Route => hit?.properties?.OBJECT_COMMAND_NAME === routeQueryParams.controlPoint
+          : (hit: Route | undefined): hit is Route => hit?.properties?.OBJECT_COMMAND_NAME === routeQueryParams.commandName;
       formattedResponse.features = formattedResponse.features.filter(filterFunction);
     }
 

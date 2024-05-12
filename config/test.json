@@ -1,1 +1,32 @@
-{}
+{
+  "db": {
+    "elastic": {
+      "node": "http://localhost:9200",
+      "auth": {
+        "username": "elastic",
+        "password": "changeme"
+      },
+      "requestTimeout": 60000,
+      "properties": {
+        "controlIndex": "geocoder_control_tests",
+        "nlpIndex": "geocoder_control_tests",
+        "size": 3
+      }
+    },
+    "postgresql": {
+      "type": "postgres",
+      "host": "localhost",
+      "port": 5432,
+      "username": "postgres",
+      "password": "postgres",
+      "enableSslAuth": false,
+      "sslPaths": {
+        "ca": "",
+        "key": "",
+        "cert": ""
+      },
+      "database": "postgres",
+      "schema": "geocoder_test"
+    }
+  }
+}

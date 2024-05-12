@@ -6,6 +6,7 @@ import { SERVICES } from '../../common/constants';
 import { TILE_REPOSITORY_SYMBOL, TileRepository } from '../DAL/tileRepository';
 import { formatResponse } from '../../common/utils';
 import { TileQueryParams } from '../DAL/queries';
+import { FeatureCollection } from '../../common/interfaces';
 import { Tile } from './tile';
 
 @injectable()
@@ -16,14 +17,7 @@ export class TileManager {
     @inject(TILE_REPOSITORY_SYMBOL) private readonly tileRepository: TileRepository
   ) {}
 
-  public async getTiles(
-    tileQueryParams: TileQueryParams,
-    reduceFuzzyMatch = false,
-    size?: number
-  ): Promise<{
-    type: string;
-    features: (Tile | undefined)[];
-  }> {
+  public async getTiles(tileQueryParams: TileQueryParams, reduceFuzzyMatch = false, size?: number): Promise<FeatureCollection<Tile>> {
     let elasticResponse: estypes.SearchResponse<Tile> | undefined = undefined;
     const numberOfResults = size ?? this.config.get<number>('db.elastic.properties.size');
     if (tileQueryParams.subTile ?? 0) {
@@ -38,8 +32,8 @@ export class TileManager {
       const filterFunction =
         tileQueryParams.subTile ?? 0
           ? (hit: Tile | undefined): hit is Tile =>
-              hit?.properties.SUB_TILE_ID === tileQueryParams.subTile && hit?.properties.TILE_NAME === tileQueryParams.tile
-          : (hit: Tile | undefined): hit is Tile => hit?.properties.TILE_NAME === tileQueryParams.tile;
+              hit?.properties?.SUB_TILE_ID === tileQueryParams.subTile && hit?.properties?.TILE_NAME === tileQueryParams.tile
+          : (hit: Tile | undefined): hit is Tile => hit?.properties?.TILE_NAME === tileQueryParams.tile;
       formattedResponse.features = formattedResponse.features.filter(filterFunction);
     }
 

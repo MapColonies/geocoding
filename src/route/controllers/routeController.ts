@@ -17,14 +17,16 @@ type GetResourceHandler = RequestHandler<
     features: (Route | undefined)[];
   },
   undefined,
-  {
-    command_name: string;
-    control_point?: string;
-    geo_context?: string;
-    reduce_fuzzy_match?: string;
-    size?: string;
-  }
+  GetRoutesQueryParams
 >;
+
+export interface GetRoutesQueryParams {
+  command_name: string;
+  control_point?: string;
+  geo_context?: string;
+  reduce_fuzzy_match?: string;
+  size?: string;
+}
 
 @injectable()
 export class RouteController {

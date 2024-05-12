@@ -21,7 +21,12 @@
     "start:dev": "npm run build && cd dist && node --enable-source-maps ./index.js",
     "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles -f ./openapi3.yaml ./dist/ && copyfiles ./package.json dist",
     "clean": "rimraf dist",
-    "install": "npx husky install"
+    "install": "npx husky install",
+    "dev:scripts": "npx ts-node ./devScripts/index.ts",
+    "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js -d dataSource.ts",
+    "migration:create": "npm run typeorm migration:generate",
+    "migration:run": "npm run typeorm migration:run",
+    "migration:revert": "npm run typeorm migration:revert"
   },
   "directories": {
     "test": "tests"

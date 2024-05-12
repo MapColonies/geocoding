@@ -1,5 +1,6 @@
 import { ClientOptions } from '@elastic/elasticsearch';
 import { DataSourceOptions } from 'typeorm';
+import { Feature, FeatureCollection as GeoJSONFeatureCollection } from 'geojson';
 
 export interface IConfig {
   get: <T>(setting: string) => T;
@@ -30,4 +31,8 @@ export interface GeoContext {
 export interface Geometry {
   type: string;
   coordinates: number[][][];
+}
+
+export interface FeatureCollection<T extends Feature> extends GeoJSONFeatureCollection {
+  features: T[];
 }
