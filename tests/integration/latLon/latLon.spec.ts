@@ -127,12 +127,12 @@ describe('/latLon', function () {
       const message = "Invalid tile, check that 'tileName' and 'subTileNumber' exists and subTileNumber is array of size 3 with positive integers";
 
       for (let i = 0; i < 3; i++) {
-        const arr = new Array(3).fill(10);
+        const arr: number[] = [10, 10, 10];
         arr[i] = 0;
 
         const response = await requestSender.getTileToLatLon({
           tile: 'BRN',
-          sub_tile_number: [0, 0, 0],
+          sub_tile_number: arr,
         });
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
