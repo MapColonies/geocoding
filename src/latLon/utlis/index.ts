@@ -2,30 +2,21 @@ import { Polygon } from 'geojson';
 import { BadRequestError } from '../../common/errors';
 import { convertUTMToWgs84 } from '../../common/utils';
 import { LatLon } from '../DAL/latLon';
+import { FeatureCollection } from '../../common/interfaces';
+import { Tile } from '../../tile/models/tile';
 
 /* eslint-disable @typescript-eslint/naming-convention */
-const geoJsonObjectTemplate = (): {
-  type: string;
-  features: {
-    geometry: Polygon;
-    properties: {
-      TYPE: string;
-      SUB_TILE_NUMBER?: number[];
-      TILE_NAME?: string;
-    };
-  }[];
-} => ({
+const geoJsonObjectTemplate = (): FeatureCollection<Tile> => ({
   type: 'FeatureCollection',
   features: [
     {
+      type: 'Feature',
       geometry: {
-        coordinates: [[]],
         type: 'Polygon',
+        coordinates: [[]],
       },
       properties: {
         TYPE: 'TILE',
-        SUB_TILE_NUMBER: undefined,
-        TILE_NAME: undefined,
       },
     },
   ],
@@ -77,8 +68,9 @@ export const getSubTileByBottomLeftUtmCoor = (
     zone: number;
   },
   tile: { tileName: string; subTileNumber: number[] }
-) => {
+): FeatureCollection<Tile> => {
   const result = geoJsonObjectTemplate();
+
   const multiplyByOrder = [
     [0, 0],
     [1, 0],
@@ -87,16 +79,22 @@ export const getSubTileByBottomLeftUtmCoor = (
     [0, 0],
   ]; // bottom left -> bottom right -> top right -> top left -> bottom left
   const distance = 10; // 10 meters
+  const polygon: Polygon = {
+    type: 'Polygon',
+    coordinates: [[]],
+  };
+
   for (const multiply of multiplyByOrder) {
     const coordiante = convertUTMToWgs84(utmCoor.x + distance * multiply[0], utmCoor.y + distance * multiply[1], utmCoor.zone);
     if (typeof coordiante === 'string') {
       throw new Error('coordinate is string');
     }
-    result.features[0].geometry.coordinates[0].push([coordiante.lng, coordiante.lat]);
+    polygon.coordinates[0].push([coordiante.lng, coordiante.lat]);
   }
 
-  result.features[0].properties.TILE_NAME = tile.tileName;
-  result.features[0].properties.SUB_TILE_NUMBER = tile.subTileNumber;
+  result.features[0].geometry = polygon;
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  result.features[0].properties = { ...result.features[0].properties, TILE_NAME: tile.tileName, SUB_TILE_NUMBER: tile.subTileNumber };
 
   return result;
 };
