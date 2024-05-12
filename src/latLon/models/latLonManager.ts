@@ -7,7 +7,7 @@ import { SERVICES } from '../../common/constants';
 import { LATLON_CUSTOM_REPOSITORY_SYMBOL, LatLonRepository } from '../DAL/latLonRepository';
 import { convertWgs84ToUTM, validateTile, validateWGS84Coordinate } from '../../common/utils';
 import { convertTilesToUTM, getSubTileByBottomLeftUtmCoor, validateResult } from '../utlis';
-import { BadRequestError, NotFoundError } from '../../common/errors';
+import { BadRequestError } from '../../common/errors';
 
 @injectable()
 export class LatLonManager {
