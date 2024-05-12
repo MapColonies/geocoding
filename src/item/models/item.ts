@@ -1,4 +1,4 @@
-import { Geometry } from '../../common/interfaces';
+import { Feature, Geometry } from 'geojson';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 interface Properties {
@@ -20,9 +20,4 @@ interface Properties {
   TYPE: string;
 }
 
-export interface Item {
-  type: string;
-  id: number;
-  geometry: Geometry;
-  properties: Properties;
-}
+export interface Item extends Feature<Geometry, Properties> {}
