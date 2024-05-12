@@ -13,10 +13,10 @@ export const formatResponse = <T extends Item | Tile | Route>(elasticResponse: e
   features: [
     ...(elasticResponse.hits.hits.map((item) => {
       const source = item._source;
-      if (source) {
+      if (source?.properties) {
         Object.keys(source.properties).forEach((key) => {
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          if (source.properties[key as keyof typeof source.properties] == null) {
+          if (source.properties !== null && source.properties[key as keyof typeof source.properties] == null) {
             delete source.properties[key as keyof typeof source.properties];
           }
         });
