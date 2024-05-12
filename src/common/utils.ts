@@ -6,7 +6,7 @@ import { Tile } from '../tile/models/tile';
 import { Route } from '../route/models/route';
 import { FIELDS } from './constants';
 import { utmProjection, wgs84Projection } from './projections';
-import { FeatureCollection } from './interfaces';
+import { FeatureCollection, WGS84Coordinate } from './interfaces';
 
 export const formatResponse = <T extends Item | Tile | Route>(elasticResponse: estypes.SearchResponse<T>): FeatureCollection<T> => ({
   type: 'FeatureCollection',
@@ -78,16 +78,9 @@ export const convertWgs84ToUTM = (
 };
 /* eslint-enable @typescript-eslint/naming-convention */
 
-export const convertUTMToWgs84 = (
-  x: number,
-  y: number,
-  zone: number
-): {
-  lat: number;
-  lng: number;
-} => {
+export const convertUTMToWgs84 = (x: number, y: number, zone: number): WGS84Coordinate => {
   const [longitude, latitude] = proj4(utmProjection(zone), wgs84Projection, [x, y]);
-  return { lat: latitude, lng: longitude };
+  return { lat: latitude, lon: longitude };
 };
 
 export const validateTile = (tile: { tileName: string; subTileNumber: number[] }): boolean => {
