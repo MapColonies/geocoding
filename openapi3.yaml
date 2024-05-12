@@ -504,6 +504,9 @@ components:
           items:
             type: "object"
             properties:
+              type:
+                type: "string"
+                enum: ["Feature"]
               geometry:
                 $ref: "#/components/schemas/Geometry"
               properties:
