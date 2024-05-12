@@ -1,17 +1,13 @@
+import { WGS84Coordinate } from '../interfaces';
+
 /* eslint-disable @typescript-eslint/naming-convention */
 export const boundingBox = (
   bbox: number[]
 ): {
   geo_bounding_box: {
     geometry: {
-      top_left: {
-        lon: number;
-        lat: number;
-      };
-      bottom_right: {
-        lon: number;
-        lat: number;
-      };
+      top_left: WGS84Coordinate;
+      bottom_right: WGS84Coordinate;
     };
   };
 } => ({
@@ -29,17 +25,12 @@ export const boundingBox = (
   },
 });
 
-export const geoDistance = (params: {
-  radius: number;
-  lon: number;
-  lat: number;
-}): {
+export const geoDistance = (
+  params: WGS84Coordinate & { radius: number }
+): {
   geo_distance: {
     distance: string;
-    geometry: {
-      lon: number;
-      lat: number;
-    };
+    geometry: WGS84Coordinate;
   };
 } => ({
   geo_distance: {
