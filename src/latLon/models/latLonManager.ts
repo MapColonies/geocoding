@@ -2,12 +2,13 @@ import { IConfig } from 'config';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import * as mgrs from 'mgrs';
-import { Polygon } from 'geojson';
 import { SERVICES } from '../../common/constants';
 import { LATLON_CUSTOM_REPOSITORY_SYMBOL, LatLonRepository } from '../DAL/latLonRepository';
 import { convertWgs84ToUTM, validateTile, validateWGS84Coordinate } from '../../common/utils';
 import { convertTilesToUTM, getSubTileByBottomLeftUtmCoor, validateResult } from '../utlis';
 import { BadRequestError } from '../../common/errors';
+import { Tile } from '../../tile/models/tile';
+import { FeatureCollection } from '../../common/interfaces';
 
 @injectable()
 export class LatLonManager {
@@ -65,19 +66,8 @@ export class LatLonManager {
     };
   }
 
-  public async tileToLatLon({ tileName, subTileNumber }: { tileName: string; subTileNumber: number[] }): Promise<{
-    type: string;
-    features: {
-      geometry: Polygon;
-      properties: {
-        /* eslint-disable @typescript-eslint/naming-convention */
-        TYPE: string;
-        SUB_TILE_NUMBER?: number[] | undefined;
-        TILE_NAME?: string | undefined;
-        /* eslint-enable @typescript-eslint/naming-convention */
-      };
-    }[];
-  }> {
+  public async tileToLatLon({ tileName, subTileNumber }: { tileName: string; subTileNumber: number[] }): Promise<FeatureCollection<Tile>> {
+    console.log('tileToLatLon', tileName, subTileNumber);
     if (!validateTile({ tileName, subTileNumber })) {
       const message = "Invalid tile, check that 'tileName' and 'subTileNumber' exists and subTileNumber is array of size 3 with positive integers";
       this.logger.warn(`LatLonManager.tileToLatLon: ${message}`);
