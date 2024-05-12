@@ -33,8 +33,8 @@ export class RouteManager {
     if (reduceFuzzyMatch && formattedResponse.features.length > 0) {
       const filterFunction =
         routeQueryParams.controlPoint ?? 0
-          ? (hit: Route | undefined): hit is Route => hit?.properties.OBJECT_COMMAND_NAME === routeQueryParams.controlPoint
-          : (hit: Route | undefined): hit is Route => hit?.properties.OBJECT_COMMAND_NAME === routeQueryParams.commandName;
+          ? (hit: Route | undefined): hit is Route => hit?.properties?.OBJECT_COMMAND_NAME === routeQueryParams.controlPoint
+          : (hit: Route | undefined): hit is Route => hit?.properties?.OBJECT_COMMAND_NAME === routeQueryParams.commandName;
       formattedResponse.features = formattedResponse.features.filter(filterFunction);
     }
 
