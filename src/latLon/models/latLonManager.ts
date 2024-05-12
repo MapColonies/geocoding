@@ -67,7 +67,6 @@ export class LatLonManager {
   }
 
   public async tileToLatLon({ tileName, subTileNumber }: { tileName: string; subTileNumber: number[] }): Promise<FeatureCollection<Tile>> {
-    console.log('tileToLatLon', tileName, subTileNumber);
     if (!validateTile({ tileName, subTileNumber })) {
       const message = "Invalid tile, check that 'tileName' and 'subTileNumber' exists and subTileNumber is array of size 3 with positive integers";
       this.logger.warn(`LatLonManager.tileToLatLon: ${message}`);
