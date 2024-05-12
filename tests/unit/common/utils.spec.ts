@@ -10,6 +10,7 @@ import {
 } from '../../../src/common/utils';
 import config from '../../../config/test.json';
 import { FIELDS } from '../../../src/common/constants';
+import { WGS84Coordinate } from '../../../src/common/interfaces';
 import {
   itemElasticResponse,
   itemExpectedFormattedResponse,
@@ -40,7 +41,7 @@ describe('utils', () => {
 
   it('should convert UTM to WGS84', () => {
     const result = convertUTMToWgs84(630048, 4330433, 29);
-    expect(result).toMatchObject({ lat: 39.11335578352079, lng: -7.495780486809503 });
+    expect(result).toMatchObject({ lat: 39.11335578352079, lon: -7.495780486809503 });
   });
 
   it('should convert WGS84 to UTM', () => {
@@ -60,7 +61,7 @@ describe('utils', () => {
     expect(validateTile(tile as never)).toBe(expected);
   });
 
-  test.each([
+  test.each<[WGS84Coordinate, boolean]>([
     [{ lon: 50, lat: 50 }, true],
     [{ lon: 190, lat: 50 }, false],
     [{ lon: 50, lat: 190 }, false],
