@@ -8,7 +8,7 @@ import { convertWgs84ToUTM, validateTile, validateWGS84Coordinate } from '../../
 import { convertTilesToUTM, getSubTileByBottomLeftUtmCoor, validateResult } from '../utlis';
 import { BadRequestError } from '../../common/errors';
 import { Tile } from '../../tile/models/tile';
-import { FeatureCollection } from '../../common/interfaces';
+import { FeatureCollection, WGS84Coordinate } from '../../common/interfaces';
 
 @injectable()
 export class LatLonManager {
@@ -22,7 +22,7 @@ export class LatLonManager {
     this.dbSchema = this.config.get('db.postgresql.schema');
   }
 
-  public async latLonToTile({ lat, lon }: { lat: number; lon: number }): Promise<{
+  public async latLonToTile({ lat, lon }: WGS84Coordinate): Promise<{
     tileName: string;
     subTileNumber: number[];
   }> {
