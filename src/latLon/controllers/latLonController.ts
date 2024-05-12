@@ -7,7 +7,7 @@ import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
 import { LatLonManager } from '../models/latLonManager';
 import { Tile } from '../../tile/models/tile';
-import { FeatureCollection } from '../../common/interfaces';
+import { FeatureCollection, WGS84Coordinate } from '../../common/interfaces';
 
 type GetLatLonToTileHandler = RequestHandler<
   undefined,
@@ -23,29 +23,16 @@ type GetTileToLatLonHandler = RequestHandler<undefined, FeatureCollection<Tile>,
 
 type GetLatLonToMgrsHandler = RequestHandler<undefined, { mgrs: string }, undefined, GetLatLonToMgrsQueryParams>;
 
-type GetMgrsToLatLonHandler = RequestHandler<
-  undefined,
-  {
-    lat: number;
-    lon: number;
-  },
-  undefined,
-  GetMgrsToLatLonQueryParams
->;
+type GetMgrsToLatLonHandler = RequestHandler<undefined, WGS84Coordinate, undefined, GetMgrsToLatLonQueryParams>;
 
-export interface GetLatLonToTileQueryParams {
-  lat: number;
-  lon: number;
-}
+export interface GetLatLonToTileQueryParams extends WGS84Coordinate {}
 
 export interface GetTileToLatLonQueryParams {
   tile: string;
   sub_tile_number: number[];
 }
 
-export interface GetLatLonToMgrsQueryParams {
-  lat: number;
-  lon: number;
+export interface GetLatLonToMgrsQueryParams extends WGS84Coordinate {
   accuracy?: number;
 }
 export interface GetMgrsToLatLonQueryParams {
