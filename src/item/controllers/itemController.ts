@@ -7,17 +7,9 @@ import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
 import { ItemManager } from '../models/itemManager';
 import { Item } from '../models/item';
-import { GeoContext } from '../../common/interfaces';
+import { FeatureCollection, GeoContext } from '../../common/interfaces';
 
-type GetResourceHandler = RequestHandler<
-  undefined,
-  {
-    type: string;
-    features: (Item | undefined)[];
-  },
-  undefined,
-  GetItemsQueryParams
->;
+type GetItemsHandler = RequestHandler<undefined, FeatureCollection<Item>, undefined, GetItemsQueryParams>;
 
 export interface GetItemsQueryParams {
   command_name: string;
@@ -40,7 +32,7 @@ export class ItemController {
     this.createdResourceCounter = meter.createCounter('created_resource');
   }
 
-  public getItems: GetResourceHandler = async (req, res, next) => {
+  public getItems: GetItemsHandler = async (req, res, next) => {
     try {
       const { command_name: commandName, tile, sub_tile, geo_context, reduce_fuzzy_match, size } = req.query;
       const response = await this.manager.getItems(
