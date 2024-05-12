@@ -5,20 +5,11 @@ import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
-
 import { RouteManager } from '../models/routeManager';
 import { Route } from '../models/route';
-import { GeoContext } from '../../common/interfaces';
+import { FeatureCollection, GeoContext } from '../../common/interfaces';
 
-type GetResourceHandler = RequestHandler<
-  undefined,
-  {
-    type: string;
-    features: (Route | undefined)[];
-  },
-  undefined,
-  GetRoutesQueryParams
->;
+type GetRoutesHandler = RequestHandler<undefined, FeatureCollection<Route>, undefined, GetRoutesQueryParams>;
 
 export interface GetRoutesQueryParams {
   command_name: string;
@@ -40,7 +31,7 @@ export class RouteController {
     this.createdResourceCounter = meter.createCounter('created_resource');
   }
 
-  public getRoutes: GetResourceHandler = async (req, res, next) => {
+  public getRoutes: GetRoutesHandler = async (req, res, next) => {
     try {
       const { command_name: commandName, control_point, geo_context, reduce_fuzzy_match, size } = req.query;
       const response = await this.manager.getRoutes(

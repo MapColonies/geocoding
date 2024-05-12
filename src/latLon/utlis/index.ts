@@ -89,7 +89,7 @@ export const getSubTileByBottomLeftUtmCoor = (
     if (typeof coordiante === 'string') {
       throw new Error('coordinate is string');
     }
-    polygon.coordinates[0].push([coordiante.lng, coordiante.lat]);
+    polygon.coordinates[0].push([coordiante.lon, coordiante.lat]);
   }
 
   result.features[0].geometry = polygon;

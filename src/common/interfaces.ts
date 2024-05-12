@@ -36,3 +36,8 @@ export interface Geometry {
 export interface FeatureCollection<T extends Feature> extends GeoJSONFeatureCollection {
   features: T[];
 }
+
+export interface WGS84Coordinate {
+  lat: number;
+  lon: number;
+}

@@ -5,16 +5,13 @@ import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
-
 import { TileManager } from '../models/tileManager';
 import { Tile } from '../models/tile';
+import { FeatureCollection } from '../../common/interfaces';
 
-type GetResourceHandler = RequestHandler<
+type GetTilesHandler = RequestHandler<
   undefined,
-  | {
-      type: string;
-      features: (Tile | undefined)[];
-    }
+  | FeatureCollection<Tile>
   | {
       type: string;
       message: string;
@@ -42,7 +39,7 @@ export class TileController {
     this.createdResourceCounter = meter.createCounter('created_resource');
   }
 
-  public getTiles: GetResourceHandler = async (req, res, next) => {
+  public getTiles: GetTilesHandler = async (req, res, next) => {
     try {
       const { tile, sub_tile, reduce_fuzzy_match, size } = req.query;
       const response = await this.manager.getTiles(
