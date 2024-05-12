@@ -6,16 +6,12 @@ import { Tile } from '../tile/models/tile';
 import { Route } from '../route/models/route';
 import { FIELDS } from './constants';
 import { utmProjection, wgs84Projection } from './projections';
+import { FeatureCollection } from './interfaces';
 
-export const formatResponse = <T extends Item | Tile | Route>(
-  elasticResponse: estypes.SearchResponse<T>
-): {
-  type: string;
-  features: (T | undefined)[];
-} => ({
+export const formatResponse = <T extends Item | Tile | Route>(elasticResponse: estypes.SearchResponse<T>): FeatureCollection<T> => ({
   type: 'FeatureCollection',
   features: [
-    ...elasticResponse.hits.hits.map((item) => {
+    ...(elasticResponse.hits.hits.map((item) => {
       const source = item._source;
       if (source) {
         Object.keys(source.properties).forEach((key) => {
@@ -26,7 +22,7 @@ export const formatResponse = <T extends Item | Tile | Route>(
         });
       }
       return source;
-    }),
+    }) as T[]),
   ],
 });
 
