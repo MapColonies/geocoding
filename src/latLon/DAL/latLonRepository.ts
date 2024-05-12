@@ -3,6 +3,7 @@ import { DataSource } from 'typeorm';
 import { FactoryFunction } from 'tsyringe';
 import { LatLon as LatLonDb } from './latLon';
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const createLatLonRepository = (dataSource: DataSource) => {
   return dataSource.getRepository(LatLonDb).extend({
     async latLonToTile({ x, y, zone }: { x: number; y: number; zone: number }): Promise<LatLonDb | null> {
