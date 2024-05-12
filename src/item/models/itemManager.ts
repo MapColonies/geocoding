@@ -24,7 +24,7 @@ export class ItemManager {
     const formattedResponse = formatResponse(elasticResponse);
 
     if (reduceFuzzyMatch && formattedResponse.features.length > 0) {
-      const filterFunction = (hit: Item | undefined): hit is Item => hit?.properties.OBJECT_COMMAND_NAME === itemQueryParams.commandName;
+      const filterFunction = (hit: Item | undefined): hit is Item => hit?.properties?.OBJECT_COMMAND_NAME === itemQueryParams.commandName;
       formattedResponse.features = formattedResponse.features.filter(filterFunction);
     }
 
