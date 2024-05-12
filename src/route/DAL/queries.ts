@@ -1,7 +1,6 @@
 import { estypes } from '@elastic/elasticsearch';
 import { boundingBox, geoDistance } from '../../common/elastic/utils';
-import { Route } from '../models/route';
-import { GeoContext } from '../../common/interfaces';
+import { GeoContext, WGS84Coordinate } from '../../common/interfaces';
 
 export interface RouteQueryParams {
   commandName: string;
@@ -61,17 +60,7 @@ export const queryForControlPointInRoute = (params: RouteQueryParams & Required<
           },
         },
         ...(params.geo?.bbox ? [boundingBox(params.geo.bbox)] : []),
-        ...(params.geo?.radius
-          ? [
-              geoDistance(
-                params.geo as {
-                  radius: number;
-                  lon: number;
-                  lat: number;
-                }
-              ),
-            ]
-          : []),
+        ...(params.geo?.radius ?? 0 ? [geoDistance(params.geo as WGS84Coordinate & { radius: number })] : []),
       ],
       filter: [
         {
