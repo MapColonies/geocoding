@@ -32,8 +32,8 @@ export class TileManager {
       const filterFunction =
         tileQueryParams.subTile ?? 0
           ? (hit: Tile | undefined): hit is Tile =>
-              hit?.properties.SUB_TILE_ID === tileQueryParams.subTile && hit?.properties.TILE_NAME === tileQueryParams.tile
-          : (hit: Tile | undefined): hit is Tile => hit?.properties.TILE_NAME === tileQueryParams.tile;
+              hit?.properties?.SUB_TILE_ID === tileQueryParams.subTile && hit?.properties?.TILE_NAME === tileQueryParams.tile
+          : (hit: Tile | undefined): hit is Tile => hit?.properties?.TILE_NAME === tileQueryParams.tile;
       formattedResponse.features = formattedResponse.features.filter(filterFunction);
     }
 
