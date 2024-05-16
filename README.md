@@ -4,7 +4,7 @@ This is an API for MapColonies custom geocoding service.
 Checkout the OpenAPI spec [here](/openapi3.yaml)
 
 ## Installation
-Install mock data
+Install mock data - Don't forget to edit /config/test.json file to your specific specific config. 
 ```bash
 npm run dev:scripts
 ```
