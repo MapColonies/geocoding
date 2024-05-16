@@ -11,6 +11,8 @@ export default async function createDatabaseClient(): Promise<void> {
 
   await connection.initialize();
 
+  await connection.query(`CREATE SCHEMA IF NOT EXISTS ${config.db.postgresql.schema};`);
+
   await connection.query(`
         CREATE TABLE IF NOT EXISTS ${config.db.postgresql.schema}.tile_lat_lon
         (
