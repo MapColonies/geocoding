@@ -58,5 +58,6 @@
   "services": {
     "placeTypeUrl": "http://example.com",
     "tokenTypesUrl": "http://example.com"
-  }
+  },
+  "cronLoadTileLatLonDataPattern": "0 * * * *"
 }
