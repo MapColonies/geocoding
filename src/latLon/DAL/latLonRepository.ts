@@ -27,6 +27,11 @@ const createLatLonRepository = (dataSource: DataSource) => {
 
       return result;
     },
+
+    async getAll(): Promise<LatLonDb[]> {
+      const result = await this.find();
+      return result;
+    },
   });
 };
 
