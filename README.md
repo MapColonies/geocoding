@@ -4,6 +4,10 @@ This is an API for MapColonies custom geocoding service.
 Checkout the OpenAPI spec [here](/openapi3.yaml)
 
 ## Installation
+Install mock data
+```bash
+npm run dev:scripts
+```
 
 Install deps with npm
 
