@@ -6,6 +6,7 @@ import { cleanQuery, fetchNLPService } from '../utils';
 import { PlaceType, TextSearchParams, TokenResponse } from '../interfaces';
 import { TextSearchHit } from '../models/textSearchHit';
 import { BadRequestError } from '../../common/errors';
+import { ElasticClients } from '../../common/interfaces';
 import { esQuery } from './queries';
 
 /* eslint-enable @typescript-eslint/naming-convention */
@@ -29,7 +30,6 @@ const createQueryRepository = (client: Client) => {
     },
 
     async getPlaceType(endpoint: string, query: string): Promise<PlaceType> {
-      // const endpoint = config.get<string>('services.placeTypeUrl');
       const response = await fetchNLPService<PlaceType>(endpoint, {
         text: query,
         start: 0,
@@ -42,7 +42,7 @@ const createQueryRepository = (client: Client) => {
     },
 
     async queryElastic(params: TextSearchParams): Promise<estypes.SearchResponse<TextSearchHit>> {
-      const index = config.get<string>('db.elastic.properties.nlpIndex');
+      const index = config.get<string>('db.elastic.nlp.properties.index');
 
       const response = await client.search<TextSearchHit>({
         index,
@@ -57,7 +57,7 @@ const createQueryRepository = (client: Client) => {
 export type QueryRepository = ReturnType<typeof createQueryRepository>;
 
 export const queryRepositoryFactory: FactoryFunction<QueryRepository> = (depContainer) => {
-  return createQueryRepository(depContainer.resolve<Client>(elasticClientSymbol));
+  return createQueryRepository(depContainer.resolve<ElasticClients>(elasticClientSymbol).nlp);
 };
 
 export const QUERY_REPOSITORY_SYMBOL = Symbol('QUERY_REPOSITORY_SYMBOL');
