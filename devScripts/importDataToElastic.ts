@@ -6,12 +6,12 @@ import config from '../config/test.json';
 import data from './elasticsearchData.json';
 
 const main = async (): Promise<void> => {
-  const client = new Client({ node: config.db.elastic.node as string });
+  const client = new Client({ node: config.db.elastic.searchy.node as string });
 
   for (const item of data) {
     await client.index({
-      index: config.db.elastic.properties.controlIndex as string,
-      id: item._id as string,
+      index: config.db.elastic.searchy.properties.index as string,
+      id: item._id,
       body: item._source,
     });
   }

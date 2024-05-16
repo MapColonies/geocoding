@@ -36,7 +36,8 @@ describe('utils', () => {
   it('should return additional search properties', () => {
     const size = 10;
     const result = additionalSearchProperties(size);
-    expect(result).toMatchObject({ size, index: config.db.elastic.properties.controlIndex, _source: FIELDS });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    expect(result).toMatchObject({ size, index: config.db.elastic.searchy.properties.index as string, _source: FIELDS });
   });
 
   it('should convert UTM to WGS84', () => {
