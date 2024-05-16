@@ -9,7 +9,7 @@ import { SERVICES, SERVICE_NAME } from './common/constants';
 import { tracing } from './common/tracing';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
 import { elasticClientSymbol, initElasticsearchClient } from './common/elastic';
-import { ElasticDbConfig, PostgresDbConfig } from './common/interfaces';
+import { ElasticClients, ElasticDbClientsConfig, ElasticDbConfig, PostgresDbConfig } from './common/interfaces';
 import { TILE_REPOSITORY_SYMBOL, tileRepositoryFactory } from './tile/DAL/tileRepository';
 import { TILE_ROUTER_SYMBOL, tileRouterFactory } from './tile/routes/tileRouter';
 import { ITEM_REPOSITORY_SYMBOL, itemRepositoryFactory } from './item/DAL/itemRepository';
@@ -38,9 +38,12 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
   tracing.start();
   const tracer = trace.getTracer(SERVICE_NAME);
 
-  const elasticDataSourceOptions = config.get<ElasticDbConfig>('db.elastic');
+  const elasticClientsConfig = config.get<ElasticDbClientsConfig>('db.elastic');
   const postgresqlDataSourceOptions = config.get<PostgresDbConfig>('db.postgresql');
-  const elasticClient = await initElasticsearchClient(elasticDataSourceOptions);
+  const elasticClients = {} as ElasticClients;
+  for (const [key, value] of Object.entries(elasticClientsConfig)) {
+    elasticClients[key as keyof ElasticDbClientsConfig] = await initElasticsearchClient(value as ElasticDbConfig);
+  }
   const postgresqlConnection = await initDataSource(postgresqlDataSourceOptions);
 
   const dependencies: InjectionObject<unknown>[] = [
@@ -48,7 +51,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     { token: SERVICES.LOGGER, provider: { useValue: logger } },
     { token: SERVICES.TRACER, provider: { useValue: tracer } },
     { token: SERVICES.METER, provider: { useValue: OtelMetrics.getMeterProvider().getMeter(SERVICE_NAME) } },
-    { token: elasticClientSymbol, provider: { useValue: elasticClient } },
+    { token: elasticClientSymbol, provider: { useValue: elasticClients } },
     { token: DataSource, provider: { useValue: postgresqlConnection } },
     { token: TILE_REPOSITORY_SYMBOL, provider: { useFactory: tileRepositoryFactory } },
     { token: TILE_ROUTER_SYMBOL, provider: { useFactory: tileRouterFactory } },
