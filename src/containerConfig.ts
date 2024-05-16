@@ -21,6 +21,7 @@ import { LATLON_CUSTOM_REPOSITORY_SYMBOL, latLonRepositoryFactory } from './latL
 import { LAT_LON_ROUTER_SYMBOL, latLonRouterFactory } from './latLon/routes/latLonRouter';
 import { QUERY_REPOSITORY_SYMBOL, queryRepositoryFactory } from './query/DAL/queryRepository';
 import { QUERY_ROUTER_SYMBOL, queryRouterFactory } from './query/routes/queryRouter';
+import { cronLoadTileLatLonDataFactory, cronLoadTileLatLonDataSymbol } from './latLon/DAL/latLonDAL';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -59,6 +60,12 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     { token: LAT_LON_ROUTER_SYMBOL, provider: { useFactory: latLonRouterFactory } },
     { token: QUERY_REPOSITORY_SYMBOL, provider: { useFactory: queryRepositoryFactory } },
     { token: QUERY_ROUTER_SYMBOL, provider: { useFactory: queryRouterFactory } },
+    {
+      token: cronLoadTileLatLonDataSymbol,
+      provider: {
+        useFactory: cronLoadTileLatLonDataFactory,
+      },
+    },
     {
       token: 'onSignal',
       provider: {
