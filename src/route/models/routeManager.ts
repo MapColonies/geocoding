@@ -5,7 +5,7 @@ import { estypes } from '@elastic/elasticsearch';
 import { SERVICES } from '../../common/constants';
 import { ROUTE_REPOSITORY_SYMBOL, RouteRepository } from '../DAL/routeRepository';
 import { RouteQueryParams } from '../DAL/queries';
-import { formatResponse } from '../../common/utils';
+import { formatResponse, getElasticClientQuerySize } from '../../common/utils';
 import { FeatureCollection } from '../../common/interfaces';
 import { Route } from './route';
 
@@ -22,10 +22,10 @@ export class RouteManager {
     if (routeQueryParams.controlPoint ?? 0) {
       elasticResponse = await this.routeRepository.getControlPointInRoute(
         routeQueryParams as RouteQueryParams & Required<Pick<RouteQueryParams, 'controlPoint'>>,
-        size ?? this.config.get<number>('db.elastic.properties.size')
+        size ?? getElasticClientQuerySize('searchy')
       );
     } else {
-      elasticResponse = await this.routeRepository.getRoutes(routeQueryParams, size ?? this.config.get<number>('db.elastic.properties.size'));
+      elasticResponse = await this.routeRepository.getRoutes(routeQueryParams, size ?? getElasticClientQuerySize('searchy'));
     }
 
     const formattedResponse = formatResponse(elasticResponse);

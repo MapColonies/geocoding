@@ -4,7 +4,7 @@ import { inject, injectable } from 'tsyringe';
 import { estypes } from '@elastic/elasticsearch';
 import { SERVICES } from '../../common/constants';
 import { TILE_REPOSITORY_SYMBOL, TileRepository } from '../DAL/tileRepository';
-import { formatResponse } from '../../common/utils';
+import { formatResponse, getElasticClientQuerySize } from '../../common/utils';
 import { TileQueryParams } from '../DAL/queries';
 import { FeatureCollection } from '../../common/interfaces';
 import { Tile } from './tile';
@@ -19,7 +19,7 @@ export class TileManager {
 
   public async getTiles(tileQueryParams: TileQueryParams, reduceFuzzyMatch = false, size?: number): Promise<FeatureCollection<Tile>> {
     let elasticResponse: estypes.SearchResponse<Tile> | undefined = undefined;
-    const numberOfResults = size ?? this.config.get<number>('db.elastic.properties.size');
+    const numberOfResults = size ?? getElasticClientQuerySize('searchy');
     if (tileQueryParams.subTile ?? 0) {
       elasticResponse = await this.tileRepository.getSubTiles(tileQueryParams as Required<TileQueryParams>, numberOfResults);
     } else {
