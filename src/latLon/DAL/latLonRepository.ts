@@ -6,28 +6,6 @@ import { LatLon as LatLonDb } from './latLon';
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const createLatLonRepository = (dataSource: DataSource) => {
   return dataSource.getRepository(LatLonDb).extend({
-    async latLonToTile({ x, y, zone }: { x: number; y: number; zone: number }): Promise<LatLonDb | null> {
-      const result = await this.findOne({
-        where: {
-          minX: x.toString(),
-          minY: y.toString(),
-          zone: zone.toString(),
-        },
-      });
-
-      return result;
-    },
-
-    async tileToLatLon(tileName: string): Promise<LatLonDb | null> {
-      const result = await this.findOne({
-        where: {
-          tileName,
-        },
-      });
-
-      return result;
-    },
-
     async getAll(): Promise<LatLonDb[]> {
       const result = await this.find();
       return result;
