@@ -3,7 +3,7 @@ import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import * as mgrs from 'mgrs';
 import { SERVICES } from '../../common/constants';
-import { LATLON_CUSTOM_REPOSITORY_SYMBOL, LatLonRepository } from '../DAL/latLonRepository';
+import { LatLonDAL } from '../DAL/latLonDAL';
 import { convertWgs84ToUTM, validateTile, validateWGS84Coordinate } from '../../common/utils';
 import { convertTilesToUTM, getSubTileByBottomLeftUtmCoor, validateResult } from '../utlis';
 import { BadRequestError } from '../../common/errors';
@@ -16,7 +16,7 @@ export class LatLonManager {
 
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(LATLON_CUSTOM_REPOSITORY_SYMBOL) private readonly latLonRepository: LatLonRepository,
+    @inject(LatLonDAL) private readonly latLonDAL: LatLonDAL,
     @inject(SERVICES.CONFIG) private readonly config: IConfig
   ) {
     this.dbSchema = this.config.get('db.postgresql.schema');
@@ -44,7 +44,7 @@ export class LatLonManager {
       zone: utm.ZoneNumber,
     };
 
-    const tileCoordinateData = await this.latLonRepository.latLonToTile({ x: coordinatesUTM.x, y: coordinatesUTM.y, zone: coordinatesUTM.zone });
+    const tileCoordinateData = await this.latLonDAL.latLonToTile({ x: coordinatesUTM.x, y: coordinatesUTM.y, zone: coordinatesUTM.zone });
 
     if (!tileCoordinateData) {
       this.logger.warn('LatLonManager.latLonToTile: The coordinate is outside the grid extent');
@@ -73,7 +73,7 @@ export class LatLonManager {
       throw new BadRequestError(message);
     }
 
-    const tile = await this.latLonRepository.tileToLatLon(tileName);
+    const tile = await this.latLonDAL.tileToLatLon(tileName);
 
     if (!tile) {
       const meessage = 'Tile not found';

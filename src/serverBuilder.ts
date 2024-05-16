@@ -15,6 +15,7 @@ import { ITEM_ROUTER_SYMBOL } from './item/routes/itemRouter';
 import { ROUTE_ROUTER_SYMBOL } from './route/routes/routeRouter';
 import { LAT_LON_ROUTER_SYMBOL } from './latLon/routes/latLonRouter';
 import { QUERY_ROUTER_SYMBOL } from './query/routes/queryRouter';
+import { cronLoadTileLatLonDataSymbol } from './latLon/DAL/latLonDAL';
 
 @injectable()
 export class ServerBuilder {
@@ -27,9 +28,12 @@ export class ServerBuilder {
     @inject(ITEM_ROUTER_SYMBOL) private readonly itemRouter: Router,
     @inject(ROUTE_ROUTER_SYMBOL) private readonly routeRouter: Router,
     @inject(LAT_LON_ROUTER_SYMBOL) private readonly latLonRouter: Router,
-    @inject(QUERY_ROUTER_SYMBOL) private readonly queryRouter: Router
+    @inject(QUERY_ROUTER_SYMBOL) private readonly queryRouter: Router,
+    @inject(cronLoadTileLatLonDataSymbol) private readonly cronLoadTileLatLonData: void
   ) {
     this.serverInstance = express();
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    this.cronLoadTileLatLonData;
   }
 
   public build(): express.Application {
