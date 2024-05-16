@@ -1,16 +1,29 @@
 {
   "db": {
     "elastic": {
-      "node": "http://localhost:9200",
-      "auth": {
-        "username": "elastic",
-        "password": "changeme"
+      "searchy": {
+        "node": "http://localhost:9200",
+        "auth": {
+          "username": "elastic",
+          "password": "changeme"
+        },
+        "requestTimeout": 60000,
+        "properties": {
+          "index": "control_gil_v5",
+          "size": 3
+        }
       },
-      "requestTimeout": 60000,
-      "properties": {
-        "controlIndex": "geocoder_control_tests",
-        "nlpIndex": "geocoder_control_tests",
-        "size": 3
+      "nlp": {
+        "node": "http://localhost:9200",
+        "auth": {
+          "username": "elastic",
+          "password": "changeme"
+        },
+        "requestTimeout": 60000,
+        "properties": {
+          "index": "nlp_gil_v5",
+          "size": 3
+        }
       }
     },
     "postgresql": {
