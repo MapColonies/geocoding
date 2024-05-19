@@ -6,7 +6,7 @@ import { Tile } from '../tile/models/tile';
 import { Route } from '../route/models/route';
 import { FIELDS } from './constants';
 import { utmProjection, wgs84Projection } from './projections';
-import { FeatureCollection, WGS84Coordinate } from './interfaces';
+import { ElasticClients, FeatureCollection, WGS84Coordinate } from './interfaces';
 
 export const formatResponse = <T extends Item | Tile | Route>(elasticResponse: estypes.SearchResponse<T>): FeatureCollection<T> => ({
   type: 'FeatureCollection',
@@ -29,7 +29,7 @@ export const formatResponse = <T extends Item | Tile | Route>(elasticResponse: e
 /* eslint-disable @typescript-eslint/naming-convention */
 export const additionalSearchProperties = (size: number): { size: number; index: string; _source: string[] } => ({
   size,
-  index: config.get<string>('db.elastic.properties.controlIndex'),
+  index: config.get<string>('db.elastic.searchy.properties.index'),
   _source: FIELDS,
 });
 /* eslint-enable @typescript-eslint/naming-convention */
@@ -95,4 +95,8 @@ export const validateTile = (tile: { tileName: string; subTileNumber: number[] }
     }
   }
   return true;
+};
+
+export const getElasticClientQuerySize = (key: keyof ElasticClients): number => {
+  return config.get<number>(`db.elastic.${key}.properties.size`);
 };

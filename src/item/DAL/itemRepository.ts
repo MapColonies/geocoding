@@ -3,6 +3,7 @@ import { FactoryFunction } from 'tsyringe';
 import { elasticClientSymbol } from '../../common/elastic';
 import { Item } from '../models/item';
 import { additionalSearchProperties } from '../../common/utils';
+import { ElasticClients } from '../../common/interfaces';
 import { ItemQueryParams, queryForItems } from './queries';
 
 /* eslint-enable @typescript-eslint/naming-convention */
@@ -25,7 +26,7 @@ const createItemRepository = (client: Client) => {
 export type ItemRepository = ReturnType<typeof createItemRepository>;
 
 export const itemRepositoryFactory: FactoryFunction<ItemRepository> = (depContainer) => {
-  return createItemRepository(depContainer.resolve<Client>(elasticClientSymbol));
+  return createItemRepository(depContainer.resolve<ElasticClients>(elasticClientSymbol).searchy);
 };
 
 export const ITEM_REPOSITORY_SYMBOL = Symbol('ITEM_REPOSITORY_SYMBOL');

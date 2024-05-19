@@ -3,6 +3,7 @@ import { FactoryFunction } from 'tsyringe';
 import { elasticClientSymbol } from '../../common/elastic';
 import { Tile } from '../models/tile';
 import { additionalSearchProperties } from '../../common/utils';
+import { ElasticClients } from '../../common/interfaces';
 import { queryForTiles, queryForSubTiles, TileQueryParams } from './queries';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -32,7 +33,7 @@ const createTileRepository = (client: Client) => {
 export type TileRepository = ReturnType<typeof createTileRepository>;
 
 export const tileRepositoryFactory: FactoryFunction<TileRepository> = (depContainer) => {
-  return createTileRepository(depContainer.resolve<Client>(elasticClientSymbol));
+  return createTileRepository(depContainer.resolve<ElasticClients>(elasticClientSymbol).searchy);
 };
 
 export const TILE_REPOSITORY_SYMBOL = Symbol('TILE_REPOSITORY_SYMBOL');

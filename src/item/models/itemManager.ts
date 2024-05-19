@@ -19,7 +19,7 @@ export class ItemManager {
 
   public async getItems(itemQueryParams: ItemQueryParams, reduceFuzzyMatch = false, size?: number): Promise<FeatureCollection<Item>> {
     let elasticResponse: estypes.SearchResponse<Item> | undefined = undefined;
-    elasticResponse = await this.itemRepository.getItems(itemQueryParams, size ?? this.config.get<number>('db.elastic.properties.size'));
+    elasticResponse = await this.itemRepository.getItems(itemQueryParams, size ?? this.config.get<number>('db.elastic.searchy.properties.size'));
 
     const formattedResponse = formatResponse(elasticResponse);
 
