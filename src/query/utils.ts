@@ -57,25 +57,24 @@ export const parseBbox = (split: string[]): GeoJSON => {
   };
 };
 
-export const parseGeo = (input: string): GeoJSON => {
-  const splitted = input.split(',');
-  const converted = splitted.map(Number);
-  if (converted.findIndex((item) => isNaN(item)) === INDEX_NOT_FOUND) {
-    switch (converted.length) {
-      case POINT_LENGTH:
-        return parsePoint(splitted);
-      case BBOX_LENGTH:
-        return parseBbox(splitted);
+export const parseGeo = (input: string | GeoJSON): GeoJSON => {
+  if (typeof input === 'string') {
+    const splitted = input.split(',');
+    const converted = splitted.map(Number);
+
+    if (converted.findIndex((x) => isNaN(x)) < 0) {
+      switch (splitted.length) {
+        case POINT_LENGTH:
+          // Point
+          return parsePoint(splitted);
+        case BBOX_LENGTH:
+          //BBOX
+          return parseBbox(splitted);
+      }
     }
   }
 
-  const fromString: GeoJSON | unknown = JSON.parse(input) as unknown;
-  const trace = geojsonValidator.valid(fromString, true);
-  if (trace.length > 0) {
-    throw new BadRequestError(trace.toString());
-  }
-
-  return fromString as GeoJSON;
+  return input as GeoJSON;
 };
 
 /* eslint-disable @typescript-eslint/naming-convention */
