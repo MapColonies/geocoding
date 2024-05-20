@@ -110,7 +110,7 @@ paths:
           "$ref": "#/components/responses/InternalError"
       security:
         - X-API-Key: []
-        - X-User-ID: []
+          X-User-ID: []
   /search/tiles:
     get:
       operationId: getTilesByQueryParams
@@ -149,7 +149,7 @@ paths:
           "$ref": "#/components/responses/InternalError"
       security:
         - X-API-Key: []
-        - X-User-ID: []
+          X-User-ID: []
   /search/items:
     get:
       operationId: getItemsByQueryParams
@@ -197,7 +197,7 @@ paths:
           "$ref": "#/components/responses/InternalError"
       security:
         - X-API-Key: []
-        - X-User-ID: []
+          X-User-ID: []
   /search/routes:
     get:
       operationId: getRoutesByQueryParams
@@ -239,7 +239,7 @@ paths:
           "$ref": "#/components/responses/InternalError"
       security:
         - X-API-Key: []
-        - X-User-ID: []
+          X-User-ID: []
   /lookup/latlonToTile:
     get:
       operationId: convertLatlonToTile
@@ -280,7 +280,7 @@ paths:
           "$ref": "#/components/responses/InternalError"
       security:
         - X-API-Key: []
-        - X-User-ID: []
+          X-User-ID: []
   /lookup/tileToLatLon:
     get:
       operationId: convertTileToLatlon
@@ -323,7 +323,7 @@ paths:
           "$ref": "#/components/responses/InternalError"
       security:
         - X-API-Key: []
-        - X-User-ID: []
+          X-User-ID: []
   /lookup/latlonToMgrs:
     get:
       operationId: convertLatLonToMgrs
@@ -375,7 +375,7 @@ paths:
           "$ref": "#/components/responses/InternalError"
       security:
         - X-API-Key: []
-        - X-User-ID: []
+          X-User-ID: []
   /lookup/mgrsToLatLon:
     get:
       operationId: convertMgrsToLatLon
@@ -412,7 +412,7 @@ paths:
           "$ref": "#/components/responses/InternalError"
       security:
         - X-API-Key: []
-        - X-User-ID: []
+          X-User-ID: []
 components:
   responses:
     BadRequest:
