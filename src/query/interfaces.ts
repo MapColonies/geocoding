@@ -22,10 +22,10 @@ export interface TextSearchParams {
 
 export interface GetQueryQueryParams {
   query: string;
-  limit: number;
+  limit?: number;
   sources?: string[];
-  viewbox: string;
-  boundary: string;
+  viewbox?: string;
+  boundary?: string;
 }
 
 /* eslint-disable @typescript-eslint/naming-convention */
