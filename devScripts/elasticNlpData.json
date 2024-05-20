@@ -1,0 +1,36 @@
+[
+  {
+    "_id": "abc123",
+    "_score": 49.962334,
+    "_source": {
+      "source": "test",
+      "layer_name": "test_roads",
+      "ingestion_timestamp": "2024-03-05 00:00:00",
+      "timestamp": "11/02/2024 15:43:52",
+      "source_id": ["{2154E3F9-DD19-4FDF-B7CC-81A497A1B49E}"],
+      "gfid": ["{2154E3F9-DD19-4FDF-B7CC-81A497A1B49E}"],
+      "sensitivity": "n/a",
+      "placetype": "roads-and-landmarks",
+      "sub_placetype": "road type b",
+      "geo_json": {
+        "type": "LineString",
+        "coordinates": [
+          [11.132174698047265, 42.79784500915852],
+          [11.132207950899442, 42.82191000606011],
+          [11.165897343847803, 42.85289908144955],
+          [11.193519316958259, 42.86171629826666],
+          [11.223695541997671, 42.88763619566484],
+          [11.234044995927803, 42.887013268970605]
+        ]
+      },
+      "region": ["italy"],
+      "sub_region": [],
+      "name": "road italy ss223",
+      "text": ["road italy ss223"],
+      "translated_text": []
+    },
+    "highlight": {
+      "text": ["<em>road italy ss223</em>"]
+    }
+  }
+]
