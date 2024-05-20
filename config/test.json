@@ -41,5 +41,10 @@
       "database": "postgres",
       "schema": "geocoder_test"
     }
-  }
+  },
+  "services": {
+    "placeTypeUrl": "http://example.com/placeType",
+    "tokenTypesUrl": "http://example.com/extractName"
+  },
+  "cronLoadTileLatLonDataPattern": "0 * * * *"
 }

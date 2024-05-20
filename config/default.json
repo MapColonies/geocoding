@@ -69,8 +69,8 @@
     }
   },
   "services": {
-    "placeTypeUrl": "http://example.com",
-    "tokenTypesUrl": "http://example.com"
+    "placeTypeUrl": "http://example.com/placeType",
+    "tokenTypesUrl": "http://example.com/extractName"
   },
   "cronLoadTileLatLonDataPattern": "0 * * * *"
 }
