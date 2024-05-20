@@ -29,8 +29,8 @@ export class QueryManager {
       query: params.query,
       limit: params.limit,
       sources: params.sources ? (params.sources instanceof Array ? params.sources : [params.sources]) : undefined,
-      viewbox: parseGeo(params.viewbox),
-      boundary: parseGeo(params.boundary),
+      viewbox: params.viewbox ? parseGeo(params.viewbox) : undefined,
+      boundary: params.boundary ? parseGeo(params.boundary) : undefined,
       name,
       placeType,
     };
