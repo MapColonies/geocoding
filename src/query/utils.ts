@@ -26,7 +26,11 @@ export const fetchNLPService = async <T>(endpoint: string, requestData: object):
     throw new InternalServerError('fetchNLPService: Unknown error' + JSON.stringify(err));
   }
 
-  data = (await res.json()) as T[] | undefined;
+  try {
+    data = (await res.json()) as T[] | undefined;
+  } catch (_) {
+    throw new InternalServerError("Couldn't convert the response from NLP service to JSON");
+  }
 
   if (!res.ok || !data || data.length < 1 || !data[0]) {
     throw new InternalServerError(JSON.stringify(data));
