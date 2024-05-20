@@ -9,7 +9,7 @@ import { SERVICES, SERVICE_NAME } from './common/constants';
 import { tracing } from './common/tracing';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
 import { elasticClientSymbol, initElasticsearchClient } from './common/elastic';
-import { ElasticClients, ElasticDbClientsConfig, ElasticDbConfig, PostgresDbConfig } from './common/interfaces';
+import { ElasticClients, ElasticDbClientsConfig, PostgresDbConfig } from './common/interfaces';
 import { TILE_REPOSITORY_SYMBOL, tileRepositoryFactory } from './tile/DAL/tileRepository';
 import { TILE_ROUTER_SYMBOL, tileRouterFactory } from './tile/routes/tileRouter';
 import { ITEM_REPOSITORY_SYMBOL, itemRepositoryFactory } from './item/DAL/itemRepository';
@@ -42,7 +42,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
   const postgresqlDataSourceOptions = config.get<PostgresDbConfig>('db.postgresql');
   const elasticClients = {} as ElasticClients;
   for (const [key, value] of Object.entries(elasticClientsConfig)) {
-    elasticClients[key as keyof ElasticDbClientsConfig] = await initElasticsearchClient(value as ElasticDbConfig);
+    elasticClients[key as keyof ElasticDbClientsConfig] = await initElasticsearchClient(value);
   }
   const postgresqlConnection = await initDataSource(postgresqlDataSourceOptions);
 
