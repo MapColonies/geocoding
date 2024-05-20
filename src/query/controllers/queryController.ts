@@ -25,8 +25,13 @@ export class QueryController {
     this.createdResourceCounter = meter.createCounter('created_resource');
   }
 
-  public getQuery: GetQueryHandler = async (req, res) => {
-    const response = await this.manager.query(req.query);
-    return res.status(httpStatus.OK).json(response);
+  public getQuery: GetQueryHandler = async (req, res, next) => {
+    try {
+      const response = await this.manager.query(req.query);
+      return res.status(httpStatus.OK).json(response);
+    } catch (error: unknown) {
+      this.logger.error('Error in getQuery', error);
+      next(error);
+    }
   };
 }
