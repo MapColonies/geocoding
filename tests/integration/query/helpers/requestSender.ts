@@ -10,6 +10,7 @@ export class QueryRequestSender {
       .get('/query')
       .set('Content-Type', 'application/json')
       .set('X-API-Key', 'abc123')
+      .set('X-User-ID', 'abc123')
       .query(queryParams ?? {});
   }
 }

@@ -10,6 +10,7 @@ export class RouteRequestSender {
       .get('/search/routes/')
       .set('Content-Type', 'application/json')
       .set('X-API-Key', 'abc123')
+      .set('X-User-ID', 'abc123')
       .query(queryParams ?? {});
   }
 }
