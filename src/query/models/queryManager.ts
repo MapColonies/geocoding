@@ -1,22 +1,22 @@
-import { IConfig } from 'config';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
 import { QUERY_REPOSITORY_SYMBOL, QueryRepository } from '../DAL/queryRepository';
-import { GetQueryQueryParams, TextSearchParams } from '../interfaces';
+import { GetQueryQueryParams, QueryResult, TextSearchParams } from '../interfaces';
 import { convertResult, parseGeo } from '../utils';
+import { IApplication } from '../../common/interfaces';
 
 @injectable()
 export class QueryManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(SERVICES.CONFIG) private readonly config: IConfig,
+    @inject(SERVICES.APPLICATION) private readonly config: IApplication,
     @inject(QUERY_REPOSITORY_SYMBOL) private readonly itemRepository: QueryRepository
   ) {}
 
-  public async query(params: GetQueryQueryParams) {
-    const extractNameEndpoint = this.config.get<string>('services.tokenTypesUrl');
-    const placeTypeEndpoint = this.config.get<string>('services.placeTypeUrl');
+  public async query(params: GetQueryQueryParams): Promise<QueryResult> {
+    const extractNameEndpoint = this.config.services.tokenTypesUrl;
+    const placeTypeEndpoint = this.config.services.placeTypeUrl;
 
     const promises = Promise.all([
       this.itemRepository.extractName(extractNameEndpoint, params.query),
