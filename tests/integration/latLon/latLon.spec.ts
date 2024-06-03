@@ -1,10 +1,13 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 /* eslint-disable @typescript-eslint/naming-convention */
+import config from 'config';
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
+import { IApplication } from '../../../src/common/interfaces';
+import { LATLON_CUSTOM_REPOSITORY_SYMBOL } from '../../../src/latLon/DAL/latLonRepository';
 import { LatLonRequestSender } from './helpers/requestSender';
 
 describe('/latLon', function () {
@@ -164,6 +167,51 @@ describe('/latLon', function () {
     });
   });
   describe('Sad Path', function () {
-    // All requests with status code 4XX-5XX
+    it("server won't start and throw an error if cronLoadTileLatLonDataPattern config isn't provided", async function () {
+      const applicationConfig = config.get<IApplication>('application');
+      await expect(
+        getApp({
+          override: [
+            { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
+            { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
+            { token: SERVICES.APPLICATION, provider: { useValue: { ...applicationConfig, cronLoadTileLatLonDataPattern: undefined } } },
+          ],
+          useChild: true,
+        })
+      ).rejects.toBeDefined();
+    });
+
+    it('check that if dataload errored out, it returns 500', async function () {
+      const mockGetAll = jest.fn();
+      mockGetAll.mockRejectedValue(new Error('test error'));
+
+      const app = await getApp({
+        override: [
+          { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
+          { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
+          { token: LATLON_CUSTOM_REPOSITORY_SYMBOL, provider: { useValue: { getAll: mockGetAll } } },
+        ],
+        useChild: true,
+      });
+
+      const requestSender = new LatLonRequestSender(app.app);
+      expect(
+        (
+          await requestSender.getLatlonToTile({
+            lat: 52.57326537485767,
+            lon: 12.948781146422107,
+          })
+        ).status
+      ).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+
+      expect(
+        (
+          await requestSender.getTileToLatLon({
+            tile: 'BRN',
+            sub_tile_number: [10, 10, 10],
+          })
+        ).status
+      ).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+    });
   });
 });
