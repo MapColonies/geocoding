@@ -28,6 +28,14 @@ describe('/routes', function () {
       expect(response.status).toBe(httpStatusCodes.OK);
       expect(response).toSatisfyApiSpec();
     });
+
+    it('should return 200 status code and the route with control_point being sent', async function () {
+      const response = await requestSender.getRoutes({ command_name: 'route96', control_point: '1' });
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      expect(response).toSatisfyApiSpec();
+    });
+
     it('should return 200 status code and empty response', async function () {
       const response = await requestSender.getRoutes({ command_name: '48054805' });
 
