@@ -27,8 +27,8 @@ describe('/query', function () {
     it('should return 200 status code and a response', async function () {
       const query = 'road ss223';
 
-      const placeTypeEndpoint = config.get<string>('services.placeTypeUrl');
-      const extractNameEndpoint = config.get<string>('services.tokenTypesUrl');
+      const placeTypeEndpoint = config.get<string>('application.services.placeTypeUrl');
+      const extractNameEndpoint = config.get<string>('application.services.tokenTypesUrl');
       const placeTypeScope = nock(placeTypeEndpoint)
         .filteringRequestBody(() => '*')
         .post('', '*')
@@ -39,7 +39,7 @@ describe('/query', function () {
         .post('', '*')
         .reply(httpStatusCodes.OK, [{ tokens: ['ss223', 'road'], prediction: ['essence', 'name'] }]);
 
-      const response = await requestSender.getLatlonToTile({
+      const response = await requestSender.getQuery({
         query,
         limit: 10,
         viewbox: '9.687803687385893,41.73743156025994,14.05055873548689,44.361899834467614',
@@ -107,6 +107,70 @@ describe('/query', function () {
 
       placeTypeScope.done();
       extractNameScope.done();
+    });
+
+    it('should return 200 status code and response with no features', async function () {
+      const query = 'road notExist123';
+
+      const placeTypeEndpoint = config.get<string>('application.services.placeTypeUrl');
+      const extractNameEndpoint = config.get<string>('application.services.tokenTypesUrl');
+      const placeTypeScope = nock(placeTypeEndpoint)
+        .filteringRequestBody(() => '*')
+        .post('', '*')
+        .reply(httpStatusCodes.OK, [{ placetype: 'roads-and-landmarks', confidence: 0.8 }]);
+
+      const extractNameScope = nock(extractNameEndpoint)
+        .filteringRequestBody(() => '*')
+        .post('', '*')
+        .reply(httpStatusCodes.OK, [{ tokens: ['notExist123', 'road'], prediction: ['essence', 'name'] }]);
+
+      const response = await requestSender.getQuery({
+        query,
+        limit: 10,
+        viewbox: '9.687803687385893,41.73743156025994,14.05055873548689,44.361899834467614',
+      });
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      // expect(response).toSatisfyApiSpec();
+      expect(response.body).toMatchObject({
+        type: 'FeatureCollection',
+        geocoding: {
+          query,
+          limit: 10,
+          viewbox: {
+            type: 'Polygon',
+            coordinates: [
+              [
+                [9.687803687385893, 41.73743156025994],
+                [9.687803687385893, 44.361899834467614],
+                [14.05055873548689, 44.361899834467614],
+                [14.05055873548689, 41.73743156025994],
+                [9.687803687385893, 41.73743156025994],
+              ],
+            ],
+          },
+          name: 'road',
+          placeType: {
+            placetype: 'roads-and-landmarks',
+            confidence: 0.8,
+          },
+        },
+        features: [],
+      });
+
+      placeTypeScope.done();
+      extractNameScope.done();
+    });
+  });
+
+  describe('Sad Path', function () {
+    it('should return 400 status code and a response of missing required properties', async function () {
+      const response = await requestSender.getQuery();
+      expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+      // expect(response).toSatisfyApiSpec();
+      expect(response.body).toMatchObject({
+        message: "request/query must have required property 'query'",
+      });
     });
   });
 });
