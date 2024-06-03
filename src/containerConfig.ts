@@ -9,7 +9,7 @@ import { SERVICES, SERVICE_NAME } from './common/constants';
 import { tracing } from './common/tracing';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
 import { elasticClientSymbol, initElasticsearchClient } from './common/elastic';
-import { ElasticClients, ElasticDbClientsConfig, PostgresDbConfig } from './common/interfaces';
+import { ElasticClients, ElasticDbClientsConfig, IApplication, PostgresDbConfig } from './common/interfaces';
 import { TILE_REPOSITORY_SYMBOL, tileRepositoryFactory } from './tile/DAL/tileRepository';
 import { TILE_ROUTER_SYMBOL, tileRouterFactory } from './tile/routes/tileRouter';
 import { ITEM_REPOSITORY_SYMBOL, itemRepositoryFactory } from './item/DAL/itemRepository';
@@ -38,6 +38,8 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
   tracing.start();
   const tracer = trace.getTracer(SERVICE_NAME);
 
+  const applicationConfig: IApplication = config.get<IApplication>('application');
+
   const elasticClientsConfig = config.get<ElasticDbClientsConfig>('db.elastic');
   const postgresqlDataSourceOptions = config.get<PostgresDbConfig>('db.postgresql');
   const elasticClients = {} as ElasticClients;
@@ -51,6 +53,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     { token: SERVICES.LOGGER, provider: { useValue: logger } },
     { token: SERVICES.TRACER, provider: { useValue: tracer } },
     { token: SERVICES.METER, provider: { useValue: OtelMetrics.getMeterProvider().getMeter(SERVICE_NAME) } },
+    { token: SERVICES.APPLICATION, provider: { useValue: applicationConfig } },
     { token: elasticClientSymbol, provider: { useValue: elasticClients } },
     { token: DataSource, provider: { useValue: postgresqlConnection } },
     { token: TILE_REPOSITORY_SYMBOL, provider: { useFactory: tileRepositoryFactory } },
