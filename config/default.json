@@ -68,9 +68,11 @@
       "schema": "geocoder"
     }
   },
-  "services": {
-    "placeTypeUrl": "http://example.com/placeType",
-    "tokenTypesUrl": "http://example.com/extractName"
-  },
-  "cronLoadTileLatLonDataPattern": "0 * * * *"
+  "application": {
+    "services": {
+      "placeTypeUrl": "http://example.com/placeType",
+      "tokenTypesUrl": "http://example.com/extractName"
+    },
+    "cronLoadTileLatLonDataPattern": "0 * * * *"
+  }
 }
