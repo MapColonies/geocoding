@@ -47,3 +47,11 @@ export interface WGS84Coordinate {
   lat: number;
   lon: number;
 }
+
+export interface IApplication {
+  services: {
+    placeTypeUrl: string;
+    tokenTypesUrl: string;
+  };
+  cronLoadTileLatLonDataPattern: string;
+}
