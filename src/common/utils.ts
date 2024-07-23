@@ -4,9 +4,9 @@ import proj4 from 'proj4';
 import { Item } from '../item/models/item';
 import { Tile } from '../tile/models/tile';
 import { Route } from '../route/models/route';
-import { FIELDS } from './constants';
+import { FIELDS, elasticConfigPath } from './constants';
 import { utmProjection, wgs84Projection } from './projections';
-import { ElasticClients, FeatureCollection, WGS84Coordinate } from './interfaces';
+import { ElasticClients, ElasticDbClientsConfig, FeatureCollection, WGS84Coordinate } from './interfaces';
 
 export const formatResponse = <T extends Item | Tile | Route>(elasticResponse: estypes.SearchResponse<T>): FeatureCollection<T> => ({
   type: 'FeatureCollection',
@@ -29,7 +29,7 @@ export const formatResponse = <T extends Item | Tile | Route>(elasticResponse: e
 /* eslint-disable @typescript-eslint/naming-convention */
 export const additionalSearchProperties = (size: number): { size: number; index: string; _source: string[] } => ({
   size,
-  index: config.get<string>('db.elastic.searchy.properties.index'),
+  index: config.get<ElasticDbClientsConfig>(elasticConfigPath).control.properties.index as string,
   _source: FIELDS,
 });
 /* eslint-enable @typescript-eslint/naming-convention */
@@ -98,5 +98,5 @@ export const validateTile = (tile: { tileName: string; subTileNumber: number[] }
 };
 
 export const getElasticClientQuerySize = (key: keyof ElasticClients): number => {
-  return config.get<number>(`db.elastic.${key}.properties.size`);
+  return config.get<ElasticDbClientsConfig>(elasticConfigPath)[key].properties.defaultResponseLimit;
 };
