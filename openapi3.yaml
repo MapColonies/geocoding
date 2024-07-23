@@ -10,13 +10,13 @@ tags:
   - name: Query Based Search
   - name: Exact Searches
 paths:
-  /query:
+  /v1/query:
     get:
       operationId: searchByQuery
       tags:
         - Query Based Search
       summary: "Search anything by query"
-      description: "This is for general queries. If known regex is found, the server will return results as if you searched for exact search. Else, the server will search using NLP engine to find a match."
+      description: "This is for general queries. If known regex is found, the server will return results as if you searched for exact search. Else, the server will search using geotext engine to find a match."
       parameters:
         - name: query
           in: query
@@ -28,6 +28,7 @@ paths:
             description: Text to search
             title: Query
           description: Text to search
+          allowReserved: true
         - name: limit
           in: query
           required: false
@@ -52,6 +53,7 @@ paths:
         - name: viewbox
           in: query
           required: false
+          allowReserved: true
           schema:
             type: string
             description: |-
@@ -74,6 +76,7 @@ paths:
         - name: boundary
           in: query
           required: false
+          allowReserved: true
           schema:
             type: string
             description: |-
@@ -89,9 +92,19 @@ paths:
                 Results not touching this geometry will not be returned
 
                 Possible formats include a valid geoJSON, a valid WKT, an "x,y" point, or a "xmin,ymin,xmax,ymax" bounding box
+        - name: region
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Region"
+            description: Regions to include (if not specified, all Regions will be queried)
+            title: Region
+          description: Regions to include (if not specified, all Regions will be queried)
       responses:
         200:
-          description: "OK (can be one of the following: tilesSchema, routesSchema, itemsSchema, subTileSchema) <br><br>WIP: Find out returned schema from nlp"
+          description: "OK (can be one of the following: tilesSchema, routesSchema, itemsSchema, subTileSchema) <br><br>WIP: Find out returned schema from geotext"
           content:
             application/json:
               schema:
@@ -110,8 +123,34 @@ paths:
           "$ref": "#/components/responses/InternalError"
       security:
         - X-API-Key: []
-        - X-User-ID: []
-  /search/tiles:
+          X-User-ID: []
+  /v1/query/regions:
+    get:
+      operationId: getRegions
+      tags:
+        - Query Based Search
+      summary: "Get regions"
+      responses:
+        200:
+          description: "All regions"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        400:
+          "$ref": "#/components/responses/BadRequest"
+        401:
+          "$ref": "#/components/responses/Unauthorized"
+        403:
+          "$ref": "#/components/responses/Forbidden"
+        500:
+          "$ref": "#/components/responses/InternalError"
+      security:
+        - X-API-Key: []
+          X-User-ID: []
+  /v1/search/tiles:
     get:
       operationId: getTilesByQueryParams
       tags:
@@ -149,8 +188,8 @@ paths:
           "$ref": "#/components/responses/InternalError"
       security:
         - X-API-Key: []
-        - X-User-ID: []
-  /search/items:
+          X-User-ID: []
+  /v1/search/items:
     get:
       operationId: getItemsByQueryParams
       tags:
@@ -197,8 +236,8 @@ paths:
           "$ref": "#/components/responses/InternalError"
       security:
         - X-API-Key: []
-        - X-User-ID: []
-  /search/routes:
+          X-User-ID: []
+  /v1/search/routes:
     get:
       operationId: getRoutesByQueryParams
       tags:
@@ -239,8 +278,8 @@ paths:
           "$ref": "#/components/responses/InternalError"
       security:
         - X-API-Key: []
-        - X-User-ID: []
-  /lookup/latlonToTile:
+          X-User-ID: []
+  /v1/lookup/latlonToTile:
     get:
       operationId: convertLatlonToTile
       tags:
@@ -280,8 +319,8 @@ paths:
           "$ref": "#/components/responses/InternalError"
       security:
         - X-API-Key: []
-        - X-User-ID: []
-  /lookup/tileToLatLon:
+          X-User-ID: []
+  /v1/lookup/tileToLatLon:
     get:
       operationId: convertTileToLatlon
       tags:
@@ -323,8 +362,8 @@ paths:
           "$ref": "#/components/responses/InternalError"
       security:
         - X-API-Key: []
-        - X-User-ID: []
-  /lookup/latlonToMgrs:
+          X-User-ID: []
+  /v1/lookup/latlonToMgrs:
     get:
       operationId: convertLatLonToMgrs
       tags:
@@ -375,8 +414,8 @@ paths:
           "$ref": "#/components/responses/InternalError"
       security:
         - X-API-Key: []
-        - X-User-ID: []
-  /lookup/mgrsToLatLon:
+          X-User-ID: []
+  /v1/lookup/mgrsToLatLon:
     get:
       operationId: convertMgrsToLatLon
       tags:
@@ -412,7 +451,7 @@ paths:
           "$ref": "#/components/responses/InternalError"
       security:
         - X-API-Key: []
-        - X-User-ID: []
+          X-User-ID: []
 components:
   responses:
     BadRequest:
@@ -707,10 +746,10 @@ components:
                     $ref: "#/components/schemas/Point3D"
     Source:
       type: string
-      enum:
-        - moria
-        - lasagna
       title: Source
+    Region:
+      type: string
+      title: Region
   securitySchemes:
     X-API-Key:
       type: "apiKey"
