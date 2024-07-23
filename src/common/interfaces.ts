@@ -15,7 +15,17 @@ export interface OpenApiConfig {
 }
 
 export type ElasticDbClientsConfig = {
-  [key in 'searchy' | 'nlp']: ElasticDbConfig;
+  [key in 'control' | 'geotext']: ElasticDbConfig & {
+    properties: {
+      index:
+        | string
+        | {
+            [key: string]: string;
+          };
+      defaultResponseLimit: number;
+      textTermLanguage: string;
+    };
+  };
 };
 
 export type ElasticDbConfig = ClientOptions;
@@ -46,4 +56,24 @@ export interface FeatureCollection<T extends Feature> extends GeoJSONFeatureColl
 export interface WGS84Coordinate {
   lat: number;
   lon: number;
+}
+
+export interface IApplication {
+  services: {
+    tokenTypesUrl: string;
+  };
+  cronLoadTileLatLonDataPattern: string;
+  elasticQueryBoosts: {
+    name: number;
+    placeType: number;
+    subPlaceType: number;
+    hierarchy: number;
+    viewbox: number;
+  };
+  sources?: {
+    [key: string]: string;
+  };
+  regions?: {
+    [key: string]: string[];
+  };
 }
