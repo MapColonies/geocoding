@@ -5,11 +5,11 @@ import { trace, metrics as OtelMetrics } from '@opentelemetry/api';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
 import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { Metrics } from '@map-colonies/telemetry';
-import { SERVICES, SERVICE_NAME } from './common/constants';
+import { SERVICES, SERVICE_NAME, elasticConfigPath } from './common/constants';
 import { tracing } from './common/tracing';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
 import { elasticClientSymbol, initElasticsearchClient } from './common/elastic';
-import { ElasticClients, ElasticDbClientsConfig, ElasticDbConfig, PostgresDbConfig } from './common/interfaces';
+import { ElasticClients, ElasticDbClientsConfig, ElasticDbConfig, IApplication, PostgresDbConfig } from './common/interfaces';
 import { TILE_REPOSITORY_SYMBOL, tileRepositoryFactory } from './tile/DAL/tileRepository';
 import { TILE_ROUTER_SYMBOL, tileRouterFactory } from './tile/routes/tileRouter';
 import { ITEM_REPOSITORY_SYMBOL, itemRepositoryFactory } from './item/DAL/itemRepository';
@@ -19,8 +19,8 @@ import { ROUTE_ROUTER_SYMBOL, routeRouterFactory } from './route/routes/routeRou
 import { initDataSource } from './common/postgresql';
 import { LATLON_CUSTOM_REPOSITORY_SYMBOL, latLonRepositoryFactory } from './latLon/DAL/latLonRepository';
 import { LAT_LON_ROUTER_SYMBOL, latLonRouterFactory } from './latLon/routes/latLonRouter';
-import { QUERY_REPOSITORY_SYMBOL, queryRepositoryFactory } from './query/DAL/queryRepository';
-import { QUERY_ROUTER_SYMBOL, queryRouterFactory } from './query/routes/queryRouter';
+import { GEOTEXT_REPOSITORY_SYMBOL, geotextRepositoryFactory } from './geotextSearch/DAL/geotextSearchRepository';
+import { GEOTEXT_SEARCH_ROUTER_SYMBOL, geotextSearchRouterFactory } from './geotextSearch/routes/geotextSearchRouter';
 import { cronLoadTileLatLonDataFactory, cronLoadTileLatLonDataSymbol } from './latLon/DAL/latLonDAL';
 
 export interface RegisterOptions {
@@ -38,11 +38,14 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
   tracing.start();
   const tracer = trace.getTracer(SERVICE_NAME);
 
-  const elasticClientsConfig = config.get<ElasticDbClientsConfig>('db.elastic');
+  const applicationConfig: IApplication = config.get<IApplication>('application');
+
+  const elasticClientsConfig = config.get<ElasticDbClientsConfig>(elasticConfigPath);
+
   const postgresqlDataSourceOptions = config.get<PostgresDbConfig>('db.postgresql');
-  const elasticClients = {} as ElasticClients;
+  const elasticClients = {} as Partial<ElasticClients>;
   for (const [key, value] of Object.entries(elasticClientsConfig)) {
-    elasticClients[key as keyof ElasticDbClientsConfig] = await initElasticsearchClient(value as ElasticDbConfig);
+    elasticClients[key as keyof ElasticDbClientsConfig] = (await initElasticsearchClient(value as ElasticDbConfig)) ?? undefined;
   }
   const postgresqlConnection = await initDataSource(postgresqlDataSourceOptions);
 
@@ -51,6 +54,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     { token: SERVICES.LOGGER, provider: { useValue: logger } },
     { token: SERVICES.TRACER, provider: { useValue: tracer } },
     { token: SERVICES.METER, provider: { useValue: OtelMetrics.getMeterProvider().getMeter(SERVICE_NAME) } },
+    { token: SERVICES.APPLICATION, provider: { useValue: applicationConfig } },
     { token: elasticClientSymbol, provider: { useValue: elasticClients } },
     { token: DataSource, provider: { useValue: postgresqlConnection } },
     { token: TILE_REPOSITORY_SYMBOL, provider: { useFactory: tileRepositoryFactory } },
@@ -61,8 +65,8 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     { token: ROUTE_ROUTER_SYMBOL, provider: { useFactory: routeRouterFactory } },
     { token: LATLON_CUSTOM_REPOSITORY_SYMBOL, provider: { useFactory: latLonRepositoryFactory } },
     { token: LAT_LON_ROUTER_SYMBOL, provider: { useFactory: latLonRouterFactory } },
-    { token: QUERY_REPOSITORY_SYMBOL, provider: { useFactory: queryRepositoryFactory } },
-    { token: QUERY_ROUTER_SYMBOL, provider: { useFactory: queryRouterFactory } },
+    { token: GEOTEXT_REPOSITORY_SYMBOL, provider: { useFactory: geotextRepositoryFactory } },
+    { token: GEOTEXT_SEARCH_ROUTER_SYMBOL, provider: { useFactory: geotextSearchRouterFactory } },
     {
       token: cronLoadTileLatLonDataSymbol,
       provider: {
