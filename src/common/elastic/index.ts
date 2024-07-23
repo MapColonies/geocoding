@@ -1,17 +1,22 @@
 import { Client, ClientOptions } from '@elastic/elasticsearch';
 
-let client: Client | null = null;
-
-export const initElasticsearchClient = async (clientOptions: ClientOptions): Promise<Client> => {
-  if (!client) {
-    client = new Client(clientOptions);
-    try {
-      await client.ping();
-    } catch (error) {
-      console.error('Elasticsearch cluster is down!', error);
-      throw error;
-    }
+export const initElasticsearchClient = async (clientOptions: ClientOptions): Promise<Client | null> => {
+  const client = new Client({
+    ...clientOptions,
+    sniffOnStart: false,
+    sniffOnConnectionFault: false,
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+  try {
+    await client.ping();
+    console.log('Elastic connection established to:', clientOptions.node);
+  } catch (error) {
+    console.error("Can't connect to Elasticseach!", clientOptions.node, error);
+    return null;
   }
+
   return client;
 };
 
