@@ -33,7 +33,7 @@ const createTileRepository = (client: Client) => {
 export type TileRepository = ReturnType<typeof createTileRepository>;
 
 export const tileRepositoryFactory: FactoryFunction<TileRepository> = (depContainer) => {
-  return createTileRepository(depContainer.resolve<ElasticClients>(elasticClientSymbol).searchy);
+  return createTileRepository(depContainer.resolve<ElasticClients>(elasticClientSymbol).control);
 };
 
 export const TILE_REPOSITORY_SYMBOL = Symbol('TILE_REPOSITORY_SYMBOL');
