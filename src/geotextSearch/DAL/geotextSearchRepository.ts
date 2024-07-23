@@ -3,7 +3,7 @@ import { FactoryFunction } from 'tsyringe';
 import { elasticClientSymbol } from '../../common/elastic';
 import { cleanQuery, fetchNLPService } from '../utils';
 import { TextSearchParams, TokenResponse } from '../interfaces';
-import { PlaceTypeSearchHit, HierarchySearchHit, TextSearchHit } from '../models/textSearchHit';
+import { PlaceTypeSearchHit, HierarchySearchHit, TextSearchHit } from '../models/elasticsearchHits';
 import { BadRequestError } from '../../common/errors';
 import { ElasticClients, IApplication } from '../../common/interfaces';
 import { hierarchyQuery, placetypeQuery, geotextQuery } from './queries';
