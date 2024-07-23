@@ -19,7 +19,7 @@ export class TileManager {
 
   public async getTiles(tileQueryParams: TileQueryParams, reduceFuzzyMatch = false, size?: number): Promise<FeatureCollection<Tile>> {
     let elasticResponse: estypes.SearchResponse<Tile> | undefined = undefined;
-    const numberOfResults = size ?? getElasticClientQuerySize('searchy');
+    const numberOfResults = size ?? getElasticClientQuerySize('control');
     if (tileQueryParams.subTile ?? 0) {
       elasticResponse = await this.tileRepository.getSubTiles(tileQueryParams as Required<TileQueryParams>, numberOfResults);
     } else {
