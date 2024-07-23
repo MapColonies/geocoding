@@ -35,7 +35,7 @@ const createRouteRepository = (client: Client) => {
 export type RouteRepository = ReturnType<typeof createRouteRepository>;
 
 export const routeRepositoryFactory: FactoryFunction<RouteRepository> = (depContainer) => {
-  return createRouteRepository(depContainer.resolve<ElasticClients>(elasticClientSymbol).searchy);
+  return createRouteRepository(depContainer.resolve<ElasticClients>(elasticClientSymbol).control);
 };
 
 export const ROUTE_REPOSITORY_SYMBOL = Symbol('ROUTE_REPOSITORY_SYMBOL');
