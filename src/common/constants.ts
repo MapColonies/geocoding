@@ -12,6 +12,7 @@ export const SERVICES: Record<string, symbol> = {
   CONFIG: Symbol('Config'),
   TRACER: Symbol('Tracer'),
   METER: Symbol('Meter'),
+  APPLICATION: Symbol('Application'),
 };
 /* eslint-enable @typescript-eslint/naming-convention */
 
@@ -28,3 +29,5 @@ export const FIELDS = [
   'properties.SUB_TILE_ID',
   'properties.SECTION',
 ];
+
+export const elasticConfigPath = 'db.elastic';
