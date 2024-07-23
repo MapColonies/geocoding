@@ -26,7 +26,7 @@ const createItemRepository = (client: Client) => {
 export type ItemRepository = ReturnType<typeof createItemRepository>;
 
 export const itemRepositoryFactory: FactoryFunction<ItemRepository> = (depContainer) => {
-  return createItemRepository(depContainer.resolve<ElasticClients>(elasticClientSymbol).searchy);
+  return createItemRepository(depContainer.resolve<ElasticClients>(elasticClientSymbol).control);
 };
 
 export const ITEM_REPOSITORY_SYMBOL = Symbol('ITEM_REPOSITORY_SYMBOL');
