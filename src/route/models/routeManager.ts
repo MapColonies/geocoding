@@ -22,10 +22,10 @@ export class RouteManager {
     if (routeQueryParams.controlPoint ?? 0) {
       elasticResponse = await this.routeRepository.getControlPointInRoute(
         routeQueryParams as RouteQueryParams & Required<Pick<RouteQueryParams, 'controlPoint'>>,
-        size ?? getElasticClientQuerySize('searchy')
+        size ?? getElasticClientQuerySize('control')
       );
     } else {
-      elasticResponse = await this.routeRepository.getRoutes(routeQueryParams, size ?? getElasticClientQuerySize('searchy'));
+      elasticResponse = await this.routeRepository.getRoutes(routeQueryParams, size ?? getElasticClientQuerySize('control'));
     }
 
     const formattedResponse = formatResponse(elasticResponse);
