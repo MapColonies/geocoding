@@ -59,7 +59,12 @@ export class GeotextSearchManager {
     );
 
     console.log(this.appConfig.regions);
-    return convertResult(searchParams, esResult.hits.hits, { sources: this.appConfig.sources, regionCollection: this.appConfig.regions });
+    return convertResult(searchParams, esResult.hits.hits, {
+      sources: this.appConfig.sources,
+      regionCollection: this.appConfig.regions,
+      nameKeys: this.appConfig.nameTranslationsKeys,
+      mainLanguageRegex: this.appConfig.mainLanguageRegex,
+    });
   }
 
   public regions(): string[] {
