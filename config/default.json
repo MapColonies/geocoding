@@ -89,6 +89,8 @@
       "SOURCE_A": "a",
       "SOURCE_B": "b"
     },
-    "regions": {}
+    "regions": {},
+    "nameTranslationsKeys": ["en", "fr"],
+    "mainLanguageRegex": "[a-zA-Z]"
   }
 }

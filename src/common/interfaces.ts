@@ -76,4 +76,6 @@ export interface IApplication {
   regions?: {
     [key: string]: string[];
   };
+  nameTranslationsKeys: string[];
+  mainLanguageRegex: string;
 }

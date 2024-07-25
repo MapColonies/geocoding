@@ -99,6 +99,11 @@
     "regions": {
       "__name": "REGIONS",
       "__format": "json"
-    }
+    },
+    "nameTranslationsKeys": {
+      "__name": "NAME_TRANSLATION_KEYS",
+      "__format": "json"
+    },
+    "mainLanguageRegex": "MAIN_LANGUAGE_REGEX"
   }
 }
