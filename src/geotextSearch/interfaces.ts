@@ -37,7 +37,7 @@ export interface GetQueryQueryParams {
 
 export interface QueryResult {
   type: string;
-  geocoding: { version?: string; query: TextSearchParams };
+  geocoding: { version?: string; query: TextSearchParams; name?: string };
   features: {
     type: string;
     geometry?: GeoJSON;
@@ -54,6 +54,7 @@ export interface QueryResult {
       sub_placetype?: string;
       region?: string[];
       sub_region?: string[];
+      regions?: { region: string; sub_regions: string[] }[];
     };
   }[];
 }
