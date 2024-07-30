@@ -24,7 +24,7 @@ export interface TextSearchParams {
   limit: number;
 }
 
-export interface GetQueryQueryParams {
+export interface GetGeotextSearchParams {
   query: string;
   limit: number;
   source?: string[];
