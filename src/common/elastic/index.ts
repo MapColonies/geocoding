@@ -11,7 +11,6 @@ export const initElasticsearchClient = async (clientOptions: ClientOptions): Pro
   });
   try {
     await client.ping();
-    console.log('Elastic connection established to:', clientOptions.node);
   } catch (error) {
     console.error("Can't connect to Elasticseach!", clientOptions.node, error);
     return null;
