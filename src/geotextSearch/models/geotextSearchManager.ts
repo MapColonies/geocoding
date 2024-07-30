@@ -3,7 +3,7 @@ import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { SERVICES, elasticConfigPath } from '../../common/constants';
 import { GEOTEXT_REPOSITORY_SYMBOL, GeotextRepository } from '../DAL/geotextSearchRepository';
-import { GetQueryQueryParams, QueryResult, TextSearchParams } from '../interfaces';
+import { GetGeotextSearchParams, QueryResult, TextSearchParams } from '../interfaces';
 import { convertResult, parseGeo } from '../utils';
 import { IApplication } from '../../common/interfaces';
 import { ElasticDbClientsConfig } from '../../common/interfaces';
@@ -17,7 +17,7 @@ export class GeotextSearchManager {
     @inject(GEOTEXT_REPOSITORY_SYMBOL) private readonly geotextRepository: GeotextRepository
   ) {}
 
-  public async search(params: GetQueryQueryParams): Promise<QueryResult> {
+  public async search(params: GetGeotextSearchParams): Promise<QueryResult> {
     const extractNameEndpoint = this.appConfig.services.tokenTypesUrl;
     const {
       geotext: geotextIndex,
@@ -58,7 +58,6 @@ export class GeotextSearchManager {
       this.appConfig.elasticQueryBoosts
     );
 
-    console.log(this.appConfig.regions);
     return convertResult(searchParams, esResult.hits.hits, {
       sources: this.appConfig.sources,
       regionCollection: this.appConfig.regions,
