@@ -1,7 +1,7 @@
 {
   "db": {
     "elastic": {
-      "searchy": {
+      "control": {
         "node": "http://localhost:9200",
         "auth": {
           "username": "elastic",
@@ -9,11 +9,11 @@
         },
         "requestTimeout": 60000,
         "properties": {
-          "index": "control_gil_v5",
-          "size": 3
+          "index": "control_index",
+          "defaultResponseLimit": 3
         }
       },
-      "nlp": {
+      "geotext": {
         "node": "http://localhost:9200",
         "auth": {
           "username": "elastic",
@@ -21,8 +21,13 @@
         },
         "requestTimeout": 60000,
         "properties": {
-          "index": "nlp_gil_v5",
-          "size": 3
+          "index": {
+            "geotext": "geotext_index",
+            "placetypes": "placetypes_index",
+            "hierarchies": "hierarchies_index"
+          },
+          "defaultResponseLimit": 3,
+          "textTermLanguage": "en"
         }
       }
     },
@@ -39,7 +44,28 @@
         "cert": ""
       },
       "database": "postgres",
-      "schema": "geocoder_test"
+      "schema": "geocoder"
     }
+  },
+  "application": {
+    "services": {
+      "tokenTypesUrl": "http://localhost:5001/NLP_ANALYSES"
+    },
+    "cronLoadTileLatLonDataPattern": "0 * * * *",
+    "elasticQueryBoosts": {
+      "name": 1.1,
+      "placeType": 1.1,
+      "subPlaceType": 1.1,
+      "hierarchy": 1.1,
+      "viewbox": 1.1
+    },
+    "sources": {
+      "OSM": "OSM"
+    },
+    "regions": {
+      "USA": ["New York", "Los Angeles"]
+    },
+    "nameTranslationsKeys": ["en", "fr"],
+    "mainLanguageRegex": "[a-zA-Z]"
   }
 }
