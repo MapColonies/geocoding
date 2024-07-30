@@ -38,19 +38,20 @@ export class ServerBuilder {
 
   public build(): express.Application {
     this.registerPreRoutesMiddleware();
+    this.buildDocsRoutes();
     this.buildRoutesV1();
     this.registerPostRoutesMiddleware();
 
     return this.serverInstance;
   }
 
-  private buildDocsRoutes(router: Router): void {
+  private buildDocsRoutes(): void {
     const openapiRouter = new OpenapiViewerRouter({
       ...this.config.get<OpenapiRouterConfig>('openapiConfig'),
       filePathOrSpec: this.config.get<string>('openapiConfig.filePath'),
     });
     openapiRouter.setup();
-    router.use(this.config.get<string>('openapiConfig.basePath'), openapiRouter.getRouter());
+    this.serverInstance.use(this.config.get<string>('openapiConfig.basePath'), openapiRouter.getRouter());
   }
 
   private buildRoutesV1(): void {
@@ -60,7 +61,6 @@ export class ServerBuilder {
     router.use('/search/routes', this.routeRouter);
     router.use('/lookup', this.latLonRouter);
     router.use('/query', this.geotextRouter);
-    this.buildDocsRoutes(router);
     this.serverInstance.use('/v1', router);
   }
 
