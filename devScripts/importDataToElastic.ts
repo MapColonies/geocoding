@@ -2,17 +2,29 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Client } from '@elastic/elasticsearch';
-import config from '../config/test.json';
-import data from './elasticsearchData.json';
+import config from '../config/default.json';
+import controlData from './controlElasticsearchData.json';
+import geotextData from './geotextElasticsearchData.json';
 
 const main = async (): Promise<void> => {
-  const client = new Client({ node: config.db.elastic.searchy.node as string });
+  const controlClient = new Client({ ...config.db.elastic.control });
+  const geotextClient = new Client({ ...config.db.elastic.geotext });
 
-  for (const item of data) {
-    await client.index({
-      index: config.db.elastic.searchy.properties.index as string,
+  for (const item of controlData) {
+    await controlClient.index({
+      index: config.db.elastic.control.properties.index,
       id: item._id,
       body: item._source,
+    });
+  }
+
+  for (const item of geotextData) {
+    await geotextClient.index({
+      index: item._index,
+      id: item._id,
+      body: {
+        ...item._source,
+      },
     });
   }
 };
