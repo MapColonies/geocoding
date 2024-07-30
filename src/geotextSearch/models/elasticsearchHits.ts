@@ -1,4 +1,4 @@
-import { GeoJSON } from "geojson";
+import { GeoJSON, Geometry } from 'geojson';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 export interface TextSearchHit {
@@ -26,7 +26,7 @@ export interface HierarchySearchHit {
   region: string;
   hierarchy: string;
   placetype: string;
-  geo_json: string;
+  geo_json: string | Geometry;
   weight?: number;
 }
 
