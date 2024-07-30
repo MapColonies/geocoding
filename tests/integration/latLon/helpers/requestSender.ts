@@ -6,7 +6,7 @@ import {
   GetMgrsToLatLonQueryParams,
 } from '../../../../src/latLon/controllers/latLonController';
 
-const PREFIX = '/lookup';
+const PREFIX = '/v1/lookup';
 
 export class LatLonRequestSender {
   public constructor(private readonly app: Express.Application) {}
@@ -17,6 +17,7 @@ export class LatLonRequestSender {
       .get(`${PREFIX}/latlonToTile`)
       .set('Content-Type', 'application/json')
       .set('X-API-Key', 'abc123')
+      .set('x-user-id', 'abc123')
       .query(queryParams ?? {});
   }
 
@@ -26,6 +27,7 @@ export class LatLonRequestSender {
       .get(`${PREFIX}/tileToLatLon`)
       .set('Content-Type', 'application/json')
       .set('X-API-Key', 'abc123')
+      .set('x-user-id', 'abc123')
       .query(queryParams ?? {});
   }
 
@@ -35,6 +37,7 @@ export class LatLonRequestSender {
       .get(`${PREFIX}/latlonToMgrs`)
       .set('Content-Type', 'application/json')
       .set('X-API-Key', 'abc123')
+      .set('x-user-id', 'abc123')
       .query(queryParams ?? {});
   }
 
@@ -44,6 +47,7 @@ export class LatLonRequestSender {
       .get(`${PREFIX}/mgrsToLatLon`)
       .set('Content-Type', 'application/json')
       .set('X-API-Key', 'abc123')
+      .set('x-user-id', 'abc123')
       .query(queryParams ?? {});
   }
 }
