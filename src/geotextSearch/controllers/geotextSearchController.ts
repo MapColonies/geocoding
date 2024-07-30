@@ -5,13 +5,13 @@ import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
 import { GeotextSearchManager } from '../models/geotextSearchManager';
-import { GetQueryQueryParams, QueryResult } from '../interfaces';
+import { GetGeotextSearchParams, QueryResult } from '../interfaces';
 
 type GetGeotextSearchHandler = RequestHandler<
   unknown,
   QueryResult | { message: string; error: string }, //response
   undefined,
-  GetQueryQueryParams
+  GetGeotextSearchParams
 >;
 
 type GetRegionshHandler = RequestHandler<unknown, string[], undefined, undefined>;
