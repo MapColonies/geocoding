@@ -126,18 +126,16 @@ export const geotextQuery = (
     });
 
   hierarchies.forEach((hierarchy) => {
-    const hierarchyGeoJSON = WKT.parse(hierarchy.geo_json);
-    const hierarchyShape = {
-      type: hierarchyGeoJSON!.type.toLowerCase(),
-      coordinates: (hierarchyGeoJSON as GeoJSONPolygon).coordinates,
-    };
-
+    const hierarchyShape = typeof hierarchy.geo_json === 'string' ? WKT.parse(hierarchy.geo_json) : hierarchy.geo_json;
     esQuery.query?.function_score?.functions?.push({
       weight: hierarchy.weight,
       filter: {
         geo_shape: {
           [GEOJSON_FIELD]: {
-            shape: hierarchyShape,
+            shape: {
+              type: hierarchyShape?.type,
+              coordinates: (hierarchyShape as GeoJSONPolygon).coordinates,
+            },
           },
         },
       },
