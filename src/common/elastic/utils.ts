@@ -21,7 +21,7 @@ export const additionalControlSearchProperties = (size: number): { size: number;
 export const queryElastic = async <T>(client: ElasticClient, body: estypes.SearchRequest): Promise<estypes.SearchResponse<T>> => {
   const clientNotAvailableError = new InternalServerError('Elasticsearch client is not available');
   try {
-    if (!client || !(await client.ping())) {
+    if (!(await client.ping())) {
       throw clientNotAvailableError;
     }
   } catch (error) {
