@@ -1,4 +1,31 @@
+import config from 'config';
+import { estypes } from '@elastic/elasticsearch';
 import { WGS84Coordinate } from '../interfaces';
+import { InternalServerError } from '../errors';
+import { elasticConfigPath, CONTROL_FIELDS } from '../constants';
+import { ElasticDbClientsConfig } from './interfaces';
+import { ElasticClient } from './index';
+
+/* eslint-disable @typescript-eslint/naming-convention */
+export const additionalControlSearchProperties = (size: number): { size: number; index: string; _source: string[] } => ({
+  size,
+  index: config.get<ElasticDbClientsConfig>(elasticConfigPath).control.properties.index as string,
+  _source: CONTROL_FIELDS,
+});
+/* eslint-enable @typescript-eslint/naming-convention */
+
+export const queryElastic = async <T>(client: ElasticClient, body: estypes.SearchRequest): Promise<estypes.SearchResponse<T>> => {
+  const clientNotAvailableError = new InternalServerError('Elasticsearch client is not available');
+  try {
+    if (!client || !(await client.ping())) {
+      throw clientNotAvailableError;
+    }
+  } catch (error) {
+    throw clientNotAvailableError;
+  }
+
+  return client.search<T>(body);
+};
 
 /* eslint-disable @typescript-eslint/naming-convention */
 export const boundingBox = (
