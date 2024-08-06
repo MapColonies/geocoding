@@ -19,8 +19,6 @@ const initElasticsearchClient = (clientOptions: ClientOptions): ElasticClient =>
   return client;
 };
 
-export type ElasticClient = Client | null;
-
 export const elasticClientFactory: FactoryFunction<ElasticClients> = (container: DependencyContainer): ElasticClients => {
   const config = container.resolve<IConfig>(SERVICES.CONFIG);
   const logger = container.resolve<Logger>(SERVICES.LOGGER);
@@ -30,16 +28,12 @@ export const elasticClientFactory: FactoryFunction<ElasticClients> = (container:
   const elasticClients = {} as ElasticClients;
 
   for (const [key, value] of Object.entries(elasticClientsConfig)) {
-    try {
-      const client = initElasticsearchClient(value as ElasticDbConfig);
-      elasticClients[key as keyof ElasticDbClientsConfig] = client;
-    } catch (err) {
-      logger.error('Failed to connect to Elasticsearch', err);
-      elasticClients[key as keyof ElasticDbClientsConfig] = null;
-    }
+    elasticClients[key as keyof ElasticDbClientsConfig] = initElasticsearchClient(value as ElasticDbConfig);
+    logger.info(`Elasticsearch client for ${key} is initialized`);
   }
 
   return elasticClients;
 };
 
+export type ElasticClient = Client;
 export type ElasticClients = Record<keyof ElasticDbClientsConfig, ElasticClient>;
