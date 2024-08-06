@@ -1,4 +1,3 @@
-import config from 'config';
 import { estypes } from '@elastic/elasticsearch';
 import { IConfig, WGS84Coordinate } from '../interfaces';
 import { InternalServerError } from '../errors';
@@ -11,7 +10,7 @@ export const getElasticClientQuerySize = (config: IConfig, key: keyof ElasticCli
 };
 
 /* eslint-disable @typescript-eslint/naming-convention */
-export const additionalControlSearchProperties = (size: number): { size: number; index: string; _source: string[] } => ({
+export const additionalControlSearchProperties = (config: IConfig, size: number): { size: number; index: string; _source: string[] } => ({
   size,
   index: config.get<ElasticDbClientsConfig>(elasticConfigPath).control.properties.index as string,
   _source: CONTROL_FIELDS,
