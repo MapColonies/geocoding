@@ -19,8 +19,8 @@ export const fetchNLPService = async <T>(endpoint: string, requestData: object):
   try {
     res = await axios.post(endpoint, requestData);
   } catch (err: unknown) {
-    if (err instanceof Error) {
-      throw new InternalServerError(err.message);
+    if (axios.isAxiosError(err)) {
+      throw new InternalServerError(`NLP analyser is not available - ${err.message}`);
     }
     throw new InternalServerError('fetchNLPService: Unknown error' + JSON.stringify(err));
   }
