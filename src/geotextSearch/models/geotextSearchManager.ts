@@ -6,7 +6,7 @@ import { GEOTEXT_REPOSITORY_SYMBOL, GeotextRepository } from '../DAL/geotextSear
 import { GetGeotextSearchParams, QueryResult, TextSearchParams } from '../interfaces';
 import { convertResult, parseGeo } from '../utils';
 import { IApplication } from '../../common/interfaces';
-import { ElasticDbClientsConfig } from '../../common/interfaces';
+import { ElasticDbClientsConfig } from '../../common/elastic/interfaces';
 
 @injectable()
 export class GeotextSearchManager {
