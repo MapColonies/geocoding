@@ -1,10 +1,14 @@
 import config from 'config';
 import { estypes } from '@elastic/elasticsearch';
-import { WGS84Coordinate } from '../interfaces';
+import { IConfig, WGS84Coordinate } from '../interfaces';
 import { InternalServerError } from '../errors';
 import { elasticConfigPath, CONTROL_FIELDS } from '../constants';
 import { ElasticDbClientsConfig } from './interfaces';
-import { ElasticClient } from './index';
+import { ElasticClient, ElasticClients } from './index';
+
+export const getElasticClientQuerySize = (config: IConfig, key: keyof ElasticClients): number => {
+  return config.get<ElasticDbClientsConfig>(elasticConfigPath)[key].properties.defaultResponseLimit;
+};
 
 /* eslint-disable @typescript-eslint/naming-convention */
 export const additionalControlSearchProperties = (size: number): { size: number; index: string; _source: string[] } => ({

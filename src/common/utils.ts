@@ -1,12 +1,13 @@
-import config from 'config';
 import { estypes } from '@elastic/elasticsearch';
 import proj4 from 'proj4';
 import { Item } from '../item/models/item';
 import { Tile } from '../tile/models/tile';
 import { Route } from '../route/models/route';
-import { FIELDS, elasticConfigPath } from './constants';
+import { elasticConfigPath } from './constants';
 import { utmProjection, wgs84Projection } from './projections';
-import { ElasticClients, ElasticDbClientsConfig, FeatureCollection, WGS84Coordinate } from './interfaces';
+import { FeatureCollection, IConfig, WGS84Coordinate } from './interfaces';
+import { ElasticClients } from './elastic';
+import { ElasticDbClientsConfig } from './elastic/interfaces';
 
 export const formatResponse = <T extends Item | Tile | Route>(elasticResponse: estypes.SearchResponse<T>): FeatureCollection<T> => ({
   type: 'FeatureCollection',
@@ -25,14 +26,6 @@ export const formatResponse = <T extends Item | Tile | Route>(elasticResponse: e
     }) as T[]),
   ],
 });
-
-/* eslint-disable @typescript-eslint/naming-convention */
-export const additionalSearchProperties = (size: number): { size: number; index: string; _source: string[] } => ({
-  size,
-  index: config.get<ElasticDbClientsConfig>(elasticConfigPath).control.properties.index as string,
-  _source: FIELDS,
-});
-/* eslint-enable @typescript-eslint/naming-convention */
 
 export const validateWGS84Coordinate = (coordinate: { lon: number; lat: number }): boolean => {
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
@@ -95,8 +88,4 @@ export const validateTile = (tile: { tileName: string; subTileNumber: number[] }
     }
   }
   return true;
-};
-
-export const getElasticClientQuerySize = (key: keyof ElasticClients): number => {
-  return config.get<ElasticDbClientsConfig>(elasticConfigPath)[key].properties.defaultResponseLimit;
 };
