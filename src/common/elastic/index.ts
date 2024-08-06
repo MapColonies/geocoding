@@ -1,22 +1,45 @@
+import { Logger } from '@map-colonies/js-logger';
 import { Client, ClientOptions } from '@elastic/elasticsearch';
+import { DependencyContainer, FactoryFunction } from 'tsyringe';
+import { IConfig } from '../interfaces';
+import { elasticConfigPath, SERVICES } from '../constants';
+import { ElasticDbClientsConfig, ElasticDbConfig } from './interfaces';
 
-export const initElasticsearchClient = async (clientOptions: ClientOptions): Promise<Client | null> => {
-  const client = new Client({
-    ...clientOptions,
-    sniffOnStart: false,
-    sniffOnConnectionFault: false,
-    tls: {
-      rejectUnauthorized: false,
-    },
-  });
-  try {
-    await client.ping();
-  } catch (error) {
-    console.error("Can't connect to Elasticseach!", clientOptions.node, error);
-    return null;
-  }
+const createConnectionOptions = (clientOptions: ClientOptions): ClientOptions => ({
+  ...clientOptions,
+  sniffOnStart: false,
+  sniffOnConnectionFault: false,
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
 
+const initElasticsearchClient = (clientOptions: ClientOptions): ElasticClient => {
+  const client = new Client(createConnectionOptions(clientOptions));
   return client;
 };
 
-export const elasticClientSymbol = Symbol('elasticClient');
+export type ElasticClient = Client | null;
+
+export const elasticClientFactory: FactoryFunction<ElasticClients> = (container: DependencyContainer): ElasticClients => {
+  const config = container.resolve<IConfig>(SERVICES.CONFIG);
+  const logger = container.resolve<Logger>(SERVICES.LOGGER);
+
+  const elasticClientsConfig = config.get<ElasticDbClientsConfig>(elasticConfigPath);
+
+  const elasticClients = {} as ElasticClients;
+
+  for (const [key, value] of Object.entries(elasticClientsConfig)) {
+    try {
+      const client = initElasticsearchClient(value as ElasticDbConfig);
+      elasticClients[key as keyof ElasticDbClientsConfig] = client;
+    } catch (err) {
+      logger.error('Failed to connect to Elasticsearch', err);
+      elasticClients[key as keyof ElasticDbClientsConfig] = null;
+    }
+  }
+
+  return elasticClients;
+};
+
+export type ElasticClients = Record<keyof ElasticDbClientsConfig, ElasticClient>;
