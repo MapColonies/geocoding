@@ -1,15 +1,16 @@
 import config from 'config';
 import { getOtelMixin } from '@map-colonies/telemetry';
 import { DataSource } from 'typeorm';
+import { instancePerContainerCachingFactory } from 'tsyringe';
 import { trace, metrics as OtelMetrics } from '@opentelemetry/api';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
 import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { Metrics } from '@map-colonies/telemetry';
-import { SERVICES, SERVICE_NAME, elasticConfigPath } from './common/constants';
+import { SERVICES, SERVICE_NAME } from './common/constants';
 import { tracing } from './common/tracing';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
-import { elasticClientSymbol, initElasticsearchClient } from './common/elastic';
-import { ElasticClients, ElasticDbClientsConfig, ElasticDbConfig, IApplication, PostgresDbConfig } from './common/interfaces';
+import { elasticClientFactory, ElasticClients } from './common/elastic';
+import { IApplication, PostgresDbConfig } from './common/interfaces';
 import { TILE_REPOSITORY_SYMBOL, tileRepositoryFactory } from './tile/DAL/tileRepository';
 import { TILE_ROUTER_SYMBOL, tileRouterFactory } from './tile/routes/tileRouter';
 import { ITEM_REPOSITORY_SYMBOL, itemRepositoryFactory } from './item/DAL/itemRepository';
@@ -40,13 +41,8 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
 
   const applicationConfig: IApplication = config.get<IApplication>('application');
 
-  const elasticClientsConfig = config.get<ElasticDbClientsConfig>(elasticConfigPath);
-
   const postgresqlDataSourceOptions = config.get<PostgresDbConfig>('db.postgresql');
-  const elasticClients = {} as Partial<ElasticClients>;
-  for (const [key, value] of Object.entries(elasticClientsConfig)) {
-    elasticClients[key as keyof ElasticDbClientsConfig] = (await initElasticsearchClient(value as ElasticDbConfig)) ?? undefined;
-  }
+
   const postgresqlConnection = await initDataSource(postgresqlDataSourceOptions);
 
   const dependencies: InjectionObject<unknown>[] = [
@@ -55,7 +51,23 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     { token: SERVICES.TRACER, provider: { useValue: tracer } },
     { token: SERVICES.METER, provider: { useValue: OtelMetrics.getMeterProvider().getMeter(SERVICE_NAME) } },
     { token: SERVICES.APPLICATION, provider: { useValue: applicationConfig } },
-    { token: elasticClientSymbol, provider: { useValue: elasticClients } },
+    {
+      token: SERVICES.ELASTIC_CLIENTS,
+      provider: { useFactory: instancePerContainerCachingFactory(elasticClientFactory) },
+      postInjectionHook: async (deps: DependencyContainer): Promise<void> => {
+        const elasticClients = deps.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
+        try {
+          const response = await Promise.all([elasticClients.control?.ping(), elasticClients.geotext?.ping()]);
+          response.forEach((res) => {
+            if (!res) {
+              logger.error('Failed to connect to Elasticsearch', res);
+            }
+          });
+        } catch (err) {
+          logger.error('Failed to connect to Elasticsearch', err);
+        }
+      },
+    },
     { token: DataSource, provider: { useValue: postgresqlConnection } },
     { token: TILE_REPOSITORY_SYMBOL, provider: { useFactory: tileRepositoryFactory } },
     { token: TILE_ROUTER_SYMBOL, provider: { useFactory: tileRouterFactory } },
@@ -84,6 +96,6 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
       },
     },
   ];
-
-  return registerDependencies(dependencies, options?.override, options?.useChild);
+  const container = await registerDependencies(dependencies, options?.override, options?.useChild);
+  return container;
 };
