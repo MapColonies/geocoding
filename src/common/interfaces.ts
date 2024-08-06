@@ -14,28 +14,10 @@ export interface OpenApiConfig {
   uiPath: string;
 }
 
-export type ElasticDbClientsConfig = {
-  [key in 'control' | 'geotext']: ElasticDbConfig & {
-    properties: {
-      index:
-        | string
-        | {
-            [key: string]: string;
-          };
-      defaultResponseLimit: number;
-      textTermLanguage: string;
-    };
-  };
-};
-
-export type ElasticDbConfig = ClientOptions;
-
 export type PostgresDbConfig = {
   enableSslAuth: boolean;
   sslPaths: { ca: string; cert: string; key: string };
 } & DataSourceOptions;
-
-export type ElasticClients = Record<keyof ElasticDbClientsConfig, Client>;
 
 export interface GeoContext {
   bbox?: number[];
