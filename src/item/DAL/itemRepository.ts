@@ -17,7 +17,7 @@ const createItemRepository = (client: ElasticClient, config: IConfig, logger: Lo
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     async getItems(itemQueryParams: ItemQueryParams, size: number): Promise<estypes.SearchResponse<Item>> {
       logger.info('Querying items from elastic');
-      const response = await queryElastic<Item>(client, { ...additionalControlSearchProperties(size), ...queryForItems(itemQueryParams) });
+      const response = await queryElastic<Item>(client, { ...additionalControlSearchProperties(config, size), ...queryForItems(itemQueryParams) });
 
       return response;
     },
