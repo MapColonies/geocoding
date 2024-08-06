@@ -5,8 +5,9 @@ import { estypes } from '@elastic/elasticsearch';
 import { SERVICES } from '../../common/constants';
 import { ROUTE_REPOSITORY_SYMBOL, RouteRepository } from '../DAL/routeRepository';
 import { RouteQueryParams } from '../DAL/queries';
-import { formatResponse, getElasticClientQuerySize } from '../../common/utils';
+import { formatResponse } from '../../common/utils';
 import { FeatureCollection } from '../../common/interfaces';
+import { getElasticClientQuerySize } from '../../common/elastic/utils';
 import { Route } from './route';
 
 @injectable()
@@ -22,10 +23,10 @@ export class RouteManager {
     if (routeQueryParams.controlPoint ?? 0) {
       elasticResponse = await this.routeRepository.getControlPointInRoute(
         routeQueryParams as RouteQueryParams & Required<Pick<RouteQueryParams, 'controlPoint'>>,
-        size ?? getElasticClientQuerySize('control')
+        size ?? getElasticClientQuerySize(this.config, 'control')
       );
     } else {
-      elasticResponse = await this.routeRepository.getRoutes(routeQueryParams, size ?? getElasticClientQuerySize('control'));
+      elasticResponse = await this.routeRepository.getRoutes(routeQueryParams, size ?? getElasticClientQuerySize(this.config, 'control'));
     }
 
     const formattedResponse = formatResponse(elasticResponse);

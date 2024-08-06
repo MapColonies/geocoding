@@ -4,9 +4,10 @@ import { inject, injectable } from 'tsyringe';
 import { estypes } from '@elastic/elasticsearch';
 import { SERVICES } from '../../common/constants';
 import { TILE_REPOSITORY_SYMBOL, TileRepository } from '../DAL/tileRepository';
-import { formatResponse, getElasticClientQuerySize } from '../../common/utils';
+import { formatResponse } from '../../common/utils';
 import { TileQueryParams } from '../DAL/queries';
 import { FeatureCollection } from '../../common/interfaces';
+import { getElasticClientQuerySize } from '../../common/elastic/utils';
 import { Tile } from './tile';
 
 @injectable()
@@ -19,7 +20,7 @@ export class TileManager {
 
   public async getTiles(tileQueryParams: TileQueryParams, reduceFuzzyMatch = false, size?: number): Promise<FeatureCollection<Tile>> {
     let elasticResponse: estypes.SearchResponse<Tile> | undefined = undefined;
-    const numberOfResults = size ?? getElasticClientQuerySize('control');
+    const numberOfResults = size ?? getElasticClientQuerySize(this.config, 'control');
     if (tileQueryParams.subTile ?? 0) {
       elasticResponse = await this.tileRepository.getSubTiles(tileQueryParams as Required<TileQueryParams>, numberOfResults);
     } else {
