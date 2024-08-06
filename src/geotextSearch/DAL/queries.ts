@@ -38,17 +38,20 @@ export const geotextQuery = (
   };
 
   if (!name && subPlaceTypes?.length) {
-    (esQuery.query?.function_score?.query?.bool?.must as QueryDslQueryContainer[]).push({
-      terms: {
-        [SUB_PLACETYPE_FIELD]: subPlaceTypes,
-      },
-    });
-
-    (esQuery.query?.function_score?.query?.bool?.must as QueryDslQueryContainer[]).push({
-      term: {
-        text_language: textLanguage,
-      },
-    });
+    (esQuery.query?.function_score?.query?.bool?.must as QueryDslQueryContainer[]).push(
+      ...[
+        {
+          terms: {
+            [SUB_PLACETYPE_FIELD]: subPlaceTypes,
+          },
+        },
+        {
+          term: {
+            text_language: textLanguage,
+          },
+        },
+      ]
+    );
   } else {
     (esQuery.query?.function_score?.query?.bool?.must as QueryDslQueryContainer[]).push({
       match: {
@@ -61,7 +64,7 @@ export const geotextQuery = (
   }
 
   boundary &&
-    (esQuery.query?.function_score?.query?.bool?.must as QueryDslQueryContainer[]).push({
+    (esQuery.query?.function_score?.query?.bool?.filter as QueryDslQueryContainer[]).push({
       geo_shape: {
         [GEOJSON_FIELD]: {
           shape: boundary,
@@ -70,14 +73,14 @@ export const geotextQuery = (
     });
 
   sources?.length &&
-    (esQuery.query?.function_score?.query?.bool?.must as QueryDslQueryContainer[]).push({
+    (esQuery.query?.function_score?.query?.bool?.filter as QueryDslQueryContainer[]).push({
       terms: {
         [SOURCE_FIELD]: sources,
       },
     });
 
   regions?.length &&
-    (esQuery.query?.function_score?.query?.bool?.must as QueryDslQueryContainer[]).push({
+    (esQuery.query?.function_score?.query?.bool?.filter as QueryDslQueryContainer[]).push({
       terms: {
         [REGION_FIELD]: regions,
       },
