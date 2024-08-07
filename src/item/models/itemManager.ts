@@ -7,6 +7,7 @@ import { ITEM_REPOSITORY_SYMBOL, ItemRepository } from '../DAL/itemRepository';
 import { ItemQueryParams } from '../DAL/queries';
 import { formatResponse } from '../../common/utils';
 import { FeatureCollection } from '../../common/interfaces';
+import { getElasticClientQuerySize } from '../../common/elastic/utils';
 import { Item } from './item';
 
 @injectable()
@@ -19,7 +20,7 @@ export class ItemManager {
 
   public async getItems(itemQueryParams: ItemQueryParams, reduceFuzzyMatch = false, size?: number): Promise<FeatureCollection<Item>> {
     let elasticResponse: estypes.SearchResponse<Item> | undefined = undefined;
-    elasticResponse = await this.itemRepository.getItems(itemQueryParams, size ?? this.config.get<number>('db.elastic.searchy.properties.size'));
+    elasticResponse = await this.itemRepository.getItems(itemQueryParams, size ?? getElasticClientQuerySize(this.config, 'control'));
 
     const formattedResponse = formatResponse(elasticResponse);
 

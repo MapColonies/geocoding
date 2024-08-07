@@ -7,9 +7,10 @@ export class RouteRequestSender {
   public async getRoutes(queryParams?: GetRoutesQueryParams): Promise<supertest.Response> {
     return supertest
       .agent(this.app)
-      .get('/search/routes/')
+      .get('/v1/search/routes/')
       .set('Content-Type', 'application/json')
       .set('X-API-Key', 'abc123')
+      .set('x-user-id', 'abc123')
       .query(queryParams ?? {});
   }
 }

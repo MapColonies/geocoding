@@ -7,9 +7,10 @@ export class TileRequestSender {
   public async getTiles(queryParams?: GetTilesQueryParams): Promise<supertest.Response> {
     return supertest
       .agent(this.app)
-      .get('/search/tiles/')
+      .get('/v1/search/tiles/')
       .set('Content-Type', 'application/json')
       .set('X-API-Key', 'abc123')
+      .set('x-user-id', 'abc123')
       .query(queryParams ?? {});
   }
 }

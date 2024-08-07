@@ -27,28 +27,33 @@
   },
   "db": {
     "elastic": {
-      "searchy": {
+      "control": {
         "node": "http://localhost:9200",
         "auth": {
-          "username": "elastic",
-          "password": "changeme"
+          "username": "control",
+          "password": "password"
         },
         "requestTimeout": 60000,
         "properties": {
-          "index": "control_gil_v5",
-          "size": 3
+          "index": "control_index",
+          "defaultResponseLimit": 3
         }
       },
-      "nlp": {
+      "geotext": {
         "node": "http://localhost:9200",
         "auth": {
-          "username": "elastic",
-          "password": "changeme"
+          "username": "geotext",
+          "password": "password"
         },
         "requestTimeout": 60000,
         "properties": {
-          "index": "nlp_gil_v5",
-          "size": 3
+          "index": {
+            "geotext": "geotext_index",
+            "placetypes": "placetypes_index",
+            "hierarchies": "hierarchies_index"
+          },
+          "defaultResponseLimit": 3,
+          "textTermLanguage": "en"
         }
       }
     },
@@ -68,9 +73,24 @@
       "schema": "geocoder"
     }
   },
-  "services": {
-    "placeTypeUrl": "http://example.com",
-    "tokenTypesUrl": "http://example.com"
-  },
-  "cronLoadTileLatLonDataPattern": "0 * * * *"
+  "application": {
+    "services": {
+      "tokenTypesUrl": "http://NLP_ANALYSES"
+    },
+    "cronLoadTileLatLonDataPattern": "0 * * * *",
+    "elasticQueryBoosts": {
+      "name": 1.1,
+      "placeType": 1.1,
+      "subPlaceType": 1.1,
+      "hierarchy": 1.1,
+      "viewbox": 1.1
+    },
+    "sources": {
+      "SOURCE_A": "a",
+      "SOURCE_B": "b"
+    },
+    "regions": {},
+    "nameTranslationsKeys": ["en", "fr"],
+    "mainLanguageRegex": "[a-zA-Z]"
+  }
 }

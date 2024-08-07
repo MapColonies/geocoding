@@ -7,9 +7,10 @@ export class ItemRequestSender {
   public async getItems(queryParams?: GetItemsQueryParams): Promise<supertest.Response> {
     return supertest
       .agent(this.app)
-      .get('/search/items/')
+      .get('/v1/search/items/')
       .set('Content-Type', 'application/json')
       .set('X-API-Key', 'abc123')
+      .set('x-user-id', 'abc123')
       .query(queryParams ?? {});
   }
 }

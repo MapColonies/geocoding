@@ -38,5 +38,72 @@
         }
       }
     }
+  },
+  "db": {
+    "elastic": {
+      "control": {
+        "node": "ELASTIC_CONTROL_URL",
+        "auth": {
+          "username": "ELASTIC_CONTROL_USERNAME",
+          "password": "ELASTIC_CONTROL_PASSWORD"
+        },
+        "properties": {
+          "index": "ELASTIC_CONTROL_INDEX"
+        }
+      },
+      "geotext": {
+        "node": "ELASTIC_GEOTEXT_URL",
+        "auth": {
+          "username": "ELASTIC_GEOTEXT_USERNAME",
+          "password": "ELASTIC_GEOTEXT_PASSWORD"
+        },
+        "properties": {
+          "index": {
+            "geotext": "ELASTIC_GEOTEXT_DATA_INDEX",
+            "placetypes": "ELASTIC_GEOTEXT_PLACETYPES_INDEX",
+            "hierarchies": "ELASTIC_GEOTEXT_HIERARCHIES_INDEX"
+          },
+          "textTermLanguage": "ELASTIC_GEOTEXT_TEXT_TERM_LANGUAGE"
+        }
+      }
+    },
+    "postgresql": {
+      "host": "POSTGRES_URL",
+      "port": {
+        "__name": "POSTGRES_PORT",
+        "__format": "number"
+      },
+      "username": "POSTGRES_USERNAME",
+      "password": "POSTGRES_PASSWORD",
+      "enableSslAuth": {
+        "__name": "POSTGRES_ENABLE_SLL_AUTH",
+        "__format": "boolean"
+      },
+      "sslPaths": {
+        "ca": "POSTGRES_CA_PATH",
+        "key": "POSTGRES_KEY_PATH",
+        "cert": "POSTGRES_CERT_PATH"
+      },
+      "database": "POSTGRES_DB_NAME",
+      "schema": "POSTGRES_DB_SCHEMA"
+    }
+  },
+  "application": {
+    "services": {
+      "tokenTypesUrl": "TOKEN_TYPE_URL"
+    },
+    "sources": {
+      "__name": "GEOTEXT_SOURCES",
+      "__format": "json"
+    },
+    "regions": {
+      "__name": "REGIONS",
+      "__format": "json"
+    },
+    "nameTranslationsKeys": {
+      "__name": "NAME_TRANSLATION_KEYS",
+      "__format": "json"
+    },
+    "mainLanguageRegex": "MAIN_LANGUAGE_REGEX"
   }
 }

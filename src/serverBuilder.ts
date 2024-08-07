@@ -14,7 +14,7 @@ import { TILE_ROUTER_SYMBOL } from './tile/routes/tileRouter';
 import { ITEM_ROUTER_SYMBOL } from './item/routes/itemRouter';
 import { ROUTE_ROUTER_SYMBOL } from './route/routes/routeRouter';
 import { LAT_LON_ROUTER_SYMBOL } from './latLon/routes/latLonRouter';
-import { QUERY_ROUTER_SYMBOL } from './query/routes/queryRouter';
+import { GEOTEXT_SEARCH_ROUTER_SYMBOL } from './geotextSearch/routes/geotextSearchRouter';
 import { cronLoadTileLatLonDataSymbol } from './latLon/DAL/latLonDAL';
 
 @injectable()
@@ -28,7 +28,7 @@ export class ServerBuilder {
     @inject(ITEM_ROUTER_SYMBOL) private readonly itemRouter: Router,
     @inject(ROUTE_ROUTER_SYMBOL) private readonly routeRouter: Router,
     @inject(LAT_LON_ROUTER_SYMBOL) private readonly latLonRouter: Router,
-    @inject(QUERY_ROUTER_SYMBOL) private readonly queryRouter: Router,
+    @inject(GEOTEXT_SEARCH_ROUTER_SYMBOL) private readonly geotextRouter: Router,
     @inject(cronLoadTileLatLonDataSymbol) private readonly cronLoadTileLatLonData: void
   ) {
     this.serverInstance = express();
@@ -38,7 +38,8 @@ export class ServerBuilder {
 
   public build(): express.Application {
     this.registerPreRoutesMiddleware();
-    this.buildRoutes();
+    this.buildDocsRoutes();
+    this.buildRoutesV1();
     this.registerPostRoutesMiddleware();
 
     return this.serverInstance;
@@ -53,13 +54,14 @@ export class ServerBuilder {
     this.serverInstance.use(this.config.get<string>('openapiConfig.basePath'), openapiRouter.getRouter());
   }
 
-  private buildRoutes(): void {
-    this.serverInstance.use('/search/tiles', this.tileRouter);
-    this.serverInstance.use('/search/items', this.itemRouter);
-    this.serverInstance.use('/search/routes', this.routeRouter);
-    this.serverInstance.use('/lookup', this.latLonRouter);
-    this.serverInstance.use('/query', this.queryRouter);
-    this.buildDocsRoutes();
+  private buildRoutesV1(): void {
+    const router = Router();
+    router.use('/search/tiles', this.tileRouter);
+    router.use('/search/items', this.itemRouter);
+    router.use('/search/routes', this.routeRouter);
+    router.use('/lookup', this.latLonRouter);
+    router.use('/query', this.geotextRouter);
+    this.serverInstance.use('/v1', router);
   }
 
   private registerPreRoutesMiddleware(): void {
