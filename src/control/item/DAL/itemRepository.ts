@@ -1,12 +1,12 @@
 import { Logger } from '@map-colonies/js-logger';
 import { estypes } from '@elastic/elasticsearch';
 import { FactoryFunction } from 'tsyringe';
-import { IConfig } from '../../common/interfaces';
-import { ElasticClients } from '../../common/elastic';
-import { additionalControlSearchProperties, queryElastic } from '../../common/elastic/utils';
-import { ElasticClient } from '../../common/elastic';
+import { IConfig } from '../../../common/interfaces';
+import { ElasticClients } from '../../../common/elastic';
+import { additionalControlSearchProperties, queryElastic } from '../../../common/elastic/utils';
+import { ElasticClient } from '../../../common/elastic';
 import { Item } from '../models/item';
-import { SERVICES } from '../../common/constants';
+import { SERVICES } from '../../../common/constants';
 import { ItemQueryParams, queryForItems } from './queries';
 
 /* eslint-enable @typescript-eslint/naming-convention */

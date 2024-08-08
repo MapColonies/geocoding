@@ -1,6 +1,6 @@
 import { estypes } from '@elastic/elasticsearch';
-import { boundingBox, geoDistance } from '../../common/elastic/utils';
-import { GeoContext, WGS84Coordinate } from '../../common/interfaces';
+import { boundingBox, geoDistance } from '../../../common/elastic/utils';
+import { GeoContext, WGS84Coordinate } from '../../../common/interfaces';
 
 export interface RouteQueryParams {
   commandName: string;

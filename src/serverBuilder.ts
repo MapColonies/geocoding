@@ -10,9 +10,9 @@ import httpLogger from '@map-colonies/express-access-log-middleware';
 import { defaultMetricsMiddleware, getTraceContexHeaderMiddleware } from '@map-colonies/telemetry';
 import { SERVICES } from './common/constants';
 import { IConfig } from './common/interfaces';
-import { TILE_ROUTER_SYMBOL } from './tile/routes/tileRouter';
-import { ITEM_ROUTER_SYMBOL } from './item/routes/itemRouter';
-import { ROUTE_ROUTER_SYMBOL } from './route/routes/routeRouter';
+import { TILE_ROUTER_SYMBOL } from './control/tile/routes/tileRouter';
+import { ITEM_ROUTER_SYMBOL } from './control/item/routes/itemRouter';
+import { ROUTE_ROUTER_SYMBOL } from './control/route/routes/routeRouter';
 import { LAT_LON_ROUTER_SYMBOL } from './latLon/routes/latLonRouter';
 import { GEOTEXT_SEARCH_ROUTER_SYMBOL } from './geotextSearch/routes/geotextSearchRouter';
 import { cronLoadTileLatLonDataSymbol } from './latLon/DAL/latLonDAL';
@@ -39,7 +39,7 @@ export class ServerBuilder {
   public build(): express.Application {
     this.registerPreRoutesMiddleware();
     this.buildDocsRoutes();
-    this.buildRoutesV1();
+    this.buildRoutes();
     this.registerPostRoutesMiddleware();
 
     return this.serverInstance;
@@ -54,14 +54,23 @@ export class ServerBuilder {
     this.serverInstance.use(this.config.get<string>('openapiConfig.basePath'), openapiRouter.getRouter());
   }
 
-  private buildRoutesV1(): void {
+  private buildRoutes(): void {
     const router = Router();
-    router.use('/search/tiles', this.tileRouter);
-    router.use('/search/items', this.itemRouter);
-    router.use('/search/routes', this.routeRouter);
     router.use('/lookup', this.latLonRouter);
-    router.use('/query', this.geotextRouter);
-    this.serverInstance.use('/v1', router);
+    router.use('/location', this.geotextRouter);
+    router.use('/control', this.buildControlRoutes());
+
+    this.serverInstance.use('/search/', router);
+  }
+
+  private buildControlRoutes(): Router {
+    const router = Router();
+
+    router.use('/tiles', this.tileRouter);
+    router.use('/items', this.itemRouter);
+    router.use('/routes', this.routeRouter);
+
+    return router;
   }
 
   private registerPreRoutesMiddleware(): void {

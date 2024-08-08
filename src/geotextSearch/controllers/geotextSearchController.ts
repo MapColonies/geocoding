@@ -16,6 +16,8 @@ type GetGeotextSearchHandler = RequestHandler<
 
 type GetRegionshHandler = RequestHandler<unknown, string[], undefined, undefined>;
 
+type GetSourcesHandler = RequestHandler<unknown, undefined, undefined, undefined>;
+
 @injectable()
 export class GeotextSearchController {
   private readonly createdResourceCounter: BoundCounter;
@@ -40,5 +42,9 @@ export class GeotextSearchController {
 
   public getRegions: GetRegionshHandler = (req, res, next) => {
     return res.status(httpStatus.OK).json(this.manager.regions());
+  };
+
+  public getSources: GetSourcesHandler = (req, res, next) => {
+    return res.status(httpStatus.NOT_IMPLEMENTED).send();
   };
 }

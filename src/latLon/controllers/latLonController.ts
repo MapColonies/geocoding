@@ -6,7 +6,7 @@ import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
 import { LatLonManager } from '../models/latLonManager';
-import { Tile } from '../../tile/models/tile';
+import { Tile } from '../../control/tile/models/tile';
 import { FeatureCollection, WGS84Coordinate } from '../../common/interfaces';
 
 type GetLatLonToTileHandler = RequestHandler<

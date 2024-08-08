@@ -2,12 +2,12 @@ import { IConfig } from 'config';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { estypes } from '@elastic/elasticsearch';
-import { SERVICES } from '../../common/constants';
+import { SERVICES } from '../../../common/constants';
 import { TILE_REPOSITORY_SYMBOL, TileRepository } from '../DAL/tileRepository';
-import { formatResponse } from '../../common/utils';
+import { formatResponse } from '../../../common/utils';
 import { TileQueryParams } from '../DAL/queries';
-import { FeatureCollection } from '../../common/interfaces';
-import { getElasticClientQuerySize } from '../../common/elastic/utils';
+import { FeatureCollection } from '../../../common/interfaces';
+import { getElasticClientQuerySize } from '../../../common/elastic/utils';
 import { Tile } from './tile';
 
 @injectable()

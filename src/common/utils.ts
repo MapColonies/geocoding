@@ -1,13 +1,10 @@
 import { estypes } from '@elastic/elasticsearch';
 import proj4 from 'proj4';
-import { Item } from '../item/models/item';
-import { Tile } from '../tile/models/tile';
-import { Route } from '../route/models/route';
-import { elasticConfigPath } from './constants';
+import { Item } from '../control/item/models/item';
+import { Tile } from '../control/tile/models/tile';
+import { Route } from '../control/route/models/route';
 import { utmProjection, wgs84Projection } from './projections';
-import { FeatureCollection, IConfig, WGS84Coordinate } from './interfaces';
-import { ElasticClients } from './elastic';
-import { ElasticDbClientsConfig } from './elastic/interfaces';
+import { FeatureCollection, WGS84Coordinate } from './interfaces';
 
 export const formatResponse = <T extends Item | Tile | Route>(elasticResponse: estypes.SearchResponse<T>): FeatureCollection<T> => ({
   type: 'FeatureCollection',

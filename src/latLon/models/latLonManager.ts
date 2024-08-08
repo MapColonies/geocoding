@@ -7,7 +7,7 @@ import { LatLonDAL } from '../DAL/latLonDAL';
 import { convertWgs84ToUTM, validateTile, validateWGS84Coordinate } from '../../common/utils';
 import { convertTilesToUTM, getSubTileByBottomLeftUtmCoor, validateResult } from '../utlis';
 import { BadRequestError } from '../../common/errors';
-import { Tile } from '../../tile/models/tile';
+import { Tile } from '../../control/tile/models/tile';
 import { FeatureCollection, WGS84Coordinate } from '../../common/interfaces';
 
 @injectable()

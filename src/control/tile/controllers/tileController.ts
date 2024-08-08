@@ -4,10 +4,10 @@ import { BoundCounter, Meter } from '@opentelemetry/api-metrics';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
-import { SERVICES } from '../../common/constants';
+import { SERVICES } from '../../../common/constants';
 import { TileManager } from '../models/tileManager';
 import { Tile } from '../models/tile';
-import { FeatureCollection } from '../../common/interfaces';
+import { FeatureCollection } from '../../../common/interfaces';
 
 type GetTilesHandler = RequestHandler<
   undefined,

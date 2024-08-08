@@ -2,12 +2,12 @@ import { IConfig } from 'config';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { estypes } from '@elastic/elasticsearch';
-import { SERVICES } from '../../common/constants';
+import { SERVICES } from '../../../common/constants';
 import { ROUTE_REPOSITORY_SYMBOL, RouteRepository } from '../DAL/routeRepository';
 import { RouteQueryParams } from '../DAL/queries';
-import { formatResponse } from '../../common/utils';
-import { FeatureCollection } from '../../common/interfaces';
-import { getElasticClientQuerySize } from '../../common/elastic/utils';
+import { formatResponse } from '../../../common/utils';
+import { FeatureCollection } from '../../../common/interfaces';
+import { getElasticClientQuerySize } from '../../../common/elastic/utils';
 import { Route } from './route';
 
 @injectable()

@@ -11,18 +11,18 @@ import { tracing } from './common/tracing';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
 import { elasticClientFactory, ElasticClients } from './common/elastic';
 import { IApplication, PostgresDbConfig } from './common/interfaces';
-import { TILE_REPOSITORY_SYMBOL, tileRepositoryFactory } from './tile/DAL/tileRepository';
-import { TILE_ROUTER_SYMBOL, tileRouterFactory } from './tile/routes/tileRouter';
-import { ITEM_REPOSITORY_SYMBOL, itemRepositoryFactory } from './item/DAL/itemRepository';
-import { ITEM_ROUTER_SYMBOL, itemRouterFactory } from './item/routes/itemRouter';
-import { ROUTE_REPOSITORY_SYMBOL, routeRepositoryFactory } from './route/DAL/routeRepository';
-import { ROUTE_ROUTER_SYMBOL, routeRouterFactory } from './route/routes/routeRouter';
+import { TILE_REPOSITORY_SYMBOL, tileRepositoryFactory } from './control/tile/DAL/tileRepository';
+import { TILE_ROUTER_SYMBOL, tileRouterFactory } from './control/tile/routes/tileRouter';
+import { ITEM_ROUTER_SYMBOL, itemRouterFactory } from './control/item/routes/itemRouter';
+import { ROUTE_REPOSITORY_SYMBOL, routeRepositoryFactory } from './control/route/DAL/routeRepository';
+import { ROUTE_ROUTER_SYMBOL, routeRouterFactory } from './control/route/routes/routeRouter';
 import { initDataSource } from './common/postgresql';
 import { LATLON_CUSTOM_REPOSITORY_SYMBOL, latLonRepositoryFactory } from './latLon/DAL/latLonRepository';
 import { LAT_LON_ROUTER_SYMBOL, latLonRouterFactory } from './latLon/routes/latLonRouter';
 import { GEOTEXT_REPOSITORY_SYMBOL, geotextRepositoryFactory } from './geotextSearch/DAL/geotextSearchRepository';
 import { GEOTEXT_SEARCH_ROUTER_SYMBOL, geotextSearchRouterFactory } from './geotextSearch/routes/geotextSearchRouter';
 import { cronLoadTileLatLonDataFactory, cronLoadTileLatLonDataSymbol } from './latLon/DAL/latLonDAL';
+import { ITEM_REPOSITORY_SYMBOL, itemRepositoryFactory } from './control/item/DAL/itemRepository';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];

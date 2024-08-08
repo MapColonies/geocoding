@@ -3,7 +3,7 @@ import { BadRequestError } from '../../common/errors';
 import { convertUTMToWgs84 } from '../../common/utils';
 import { LatLon } from '../DAL/latLon';
 import { FeatureCollection } from '../../common/interfaces';
-import { Tile } from '../../tile/models/tile';
+import { Tile } from '../../control/tile/models/tile';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 const geoJsonObjectTemplate = (): FeatureCollection<Tile> => ({

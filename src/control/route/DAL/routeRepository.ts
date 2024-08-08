@@ -1,13 +1,12 @@
 import { Logger } from '@map-colonies/js-logger';
 import { estypes } from '@elastic/elasticsearch';
 import { FactoryFunction } from 'tsyringe';
-import { ElasticClient } from '../../common/elastic';
-import { elasticConfigPath, SERVICES } from '../../common/constants';
+import { ElasticClient } from '../../../common/elastic';
+import { SERVICES } from '../../../common/constants';
 import { Route } from '../models/route';
-import { IConfig } from '../../common/interfaces';
-import { ElasticClients } from '../../common/elastic';
-import { ElasticDbClientsConfig } from '../../common/elastic/interfaces';
-import { additionalControlSearchProperties, queryElastic } from '../../common/elastic/utils';
+import { IConfig } from '../../../common/interfaces';
+import { ElasticClients } from '../../../common/elastic';
+import { additionalControlSearchProperties, queryElastic } from '../../../common/elastic/utils';
 import { RouteQueryParams, queryForControlPointInRoute, queryForRoute } from './queries';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
