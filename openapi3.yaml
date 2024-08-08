@@ -45,7 +45,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/genericGeocodingResponse'
+                $ref: "#/components/schemas/genericGeocodingResponse"
         400:
           "$ref": "#/components/responses/BadRequest"
         401:
@@ -111,7 +111,7 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": '#/components/schemas/genericGeocodingResponse'
+                "$ref": "#/components/schemas/genericGeocodingResponse"
         400:
           "$ref": "#/components/responses/BadRequest"
         401:
@@ -430,7 +430,7 @@ paths:
         400:
           "$ref": "#/components/responses/BadRequest"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         401:
           "$ref": "#/components/responses/Unauthorized"
         403:
@@ -504,7 +504,10 @@ components:
         {"lon":value,"lat":value,"radius":value}<br>
         {"x":value,"y":value,"zone": number, "radius":value}
       schema:
-        type: "string" # we need to make it oneOf types
+        oneOf:
+          - $ref: "#/components/schemas/BoundingBox"
+          - $ref: "#/components/schemas/WGS84Circle"
+          - $ref: "#/components/schemas/UTMCircle"
     geo_context_mode:
       name: "geo_context_mode"
       in: "query"
@@ -543,41 +546,41 @@ components:
     tileSchema:
       type: "object"
       properties:
-          type:
-            type: "string"
-            enum: ["Feature"]
-          geometry:
-            $ref: "#/components/schemas/Polygon"
+        type:
+          type: "string"
+          enum: ["Feature"]
+        geometry:
+          $ref: "#/components/schemas/Polygon"
+        properties:
+          type: "object"
+          required:
+            - "TYPE"
+            - "tile_name"
           properties:
-            type: "object"
-            required:
-              - "TYPE"
-              - "tile_name"
-            properties:
-              TYPE:
-                type: "string"
-              tile_name:
-                type: "string"
-              sub_tile_id:
-                type: "string"
-              SUB_TILE_NUMBER:
-                type: "array"
-                items:
-                  type: "number"
-                  minimum: 0
-                  maximum: 100
-                minItems: 3
-                maxItems: 3
+            TYPE:
+              type: "string"
+            tile_name:
+              type: "string"
+            sub_tile_id:
+              type: "string"
+            SUB_TILE_NUMBER:
+              type: "array"
+              items:
+                type: "number"
+                minimum: 0
+                maximum: 100
+              minItems: 3
+              maxItems: 3
     mgrsTileSchema:
       type: "object"
       properties:
-          type:
-            type: "string"
-            enum: ["Feature"]
-          geometry:
-            $ref: "#/components/schemas/Polygon"
-          properties:
-            type: "object"
+        type:
+          type: "string"
+          enum: ["Feature"]
+        geometry:
+          $ref: "#/components/schemas/Polygon"
+        properties:
+          type: "object"
     tilesSchema:
       type: "object"
       description: "GeoJson feature collection representing a tile (Polygon)"
@@ -611,8 +614,8 @@ components:
             properties:
               geometry:
                 oneOf:
-                 - $ref: "#/components/schemas/Point"
-                 - $ref: "#/components/schemas/Polygon"
+                  - $ref: "#/components/schemas/Point"
+                  - $ref: "#/components/schemas/Polygon"
               properties:
                 type: "object"
                 required:
@@ -649,8 +652,8 @@ components:
             properties:
               geometry:
                 oneOf:
-                - $ref: "#/components/schemas/LineString"
-                - $ref: "#/components/schemas/MultiLineString"
+                  - $ref: "#/components/schemas/LineString"
+                  - $ref: "#/components/schemas/MultiLineString"
               properties:
                 type: "object"
                 required:
@@ -711,9 +714,9 @@ components:
             response:
               type: object
               required:
-              - "max_score"
-              - "results_count"
-              - "match_latency"
+                - "max_score"
+                - "results_count"
+                - "match_latency"
               properties:
                 max_score:
                   type: number
@@ -802,8 +805,8 @@ components:
                     items:
                       type: object
                       required:
-                      - name
-                      - sub_regions_names
+                        - name
+                        - sub_regions_names
                       properties:
                         name:
                           type: string
@@ -930,6 +933,39 @@ components:
     Region:
       type: string
       title: Region
+    BoundingBox:
+      type: object
+      description: "Bounding box array that contains [minX,minY,maxX,maxY]"
+      example: '{"bbox":[-74.382527,40.477003,-73.322346,40.916383]}'
+      properties:
+        bbox:
+          type: array
+          items:
+            type: number
+          minLength: 4
+          maxLength: 4
+    WGS84Circle:
+      type: object
+      properties:
+        lat:
+          type: number
+        lon:
+          type: number
+        radius:
+          type: number
+    UTMCircle:
+      type: object
+      properties:
+        x:
+          type: number
+        y:
+          type: number
+        zone:
+          type: number
+          minimum: 1
+          maximum: 60
+        radius:
+          type: number
   securitySchemes:
     x-api-key:
       type: "apiKey"
