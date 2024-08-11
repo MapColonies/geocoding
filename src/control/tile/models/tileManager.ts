@@ -28,6 +28,10 @@ export class TileManager {
     ) {
       throw new BadRequestError("/control/tiles/queryForTiles: only one of 'tile' or 'mgrs' query parameter must be defined");
     }
+
+    //TODO: Handle MGRS query
+    if (tileQueryParams.mgrs !== undefined) {
+      throw new NotImplementedError('MGRS query is not implemented yet');
     }
 
     let elasticResponse: estypes.SearchResponse<Tile> | undefined = undefined;
