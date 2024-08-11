@@ -3,11 +3,7 @@ import { IConfig, WGS84Coordinate } from '../interfaces';
 import { InternalServerError } from '../errors';
 import { elasticConfigPath, CONTROL_FIELDS } from '../constants';
 import { ElasticDbClientsConfig } from './interfaces';
-import { ElasticClient, ElasticClients } from './index';
-
-export const getElasticClientQuerySize = (config: IConfig, key: keyof ElasticClients): number => {
-  return config.get<ElasticDbClientsConfig>(elasticConfigPath)[key].properties.defaultResponseLimit;
-};
+import { ElasticClient } from './index';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 export const additionalControlSearchProperties = (config: IConfig, size: number): { size: number; index: string; _source: string[] } => ({
