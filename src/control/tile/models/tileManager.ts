@@ -21,8 +21,13 @@ export class TileManager {
   public async getTiles(tileQueryParams: TileQueryParams): Promise<FeatureCollection<Tile>> {
     //TODO: Handle MGRS query
     const { limit, disable_fuzziness: disableFuzziness } = tileQueryParams;
-    if (tileQueryParams.tile === undefined && tileQueryParams.mgrs === undefined) {
-      throw new BadRequestError('/control/tiles/queryForTiles: tile or mgrs must be defined');
+
+    if (
+      (tileQueryParams.tile === undefined && tileQueryParams.mgrs === undefined) ||
+      (tileQueryParams.tile !== undefined && tileQueryParams.mgrs !== undefined)
+    ) {
+      throw new BadRequestError("/control/tiles/queryForTiles: only one of 'tile' or 'mgrs' query parameter must be defined");
+    }
     }
 
     let elasticResponse: estypes.SearchResponse<Tile> | undefined = undefined;
