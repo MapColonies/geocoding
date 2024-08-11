@@ -1,7 +1,14 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { estypes } from '@elastic/elasticsearch';
+import { CommonRequestParameters } from '../../../common/interfaces';
 
-export interface TileQueryParams {
+const ELASTIC_KEYWORDS = {
+  TYPE: 'properties.TYPE.keyword',
+  TILE_NAME: 'properties.TILE_NAME.keyword',
+  SUB_TILE_ID: 'properties.SUB_TILE_ID.keyword',
+};
+
+export interface TileQueryParams extends CommonRequestParameters {
   tile: string;
   subTile?: number;
 }
@@ -12,14 +19,14 @@ export const queryForTiles = (params: Omit<TileQueryParams, 'subTile'>): estypes
       must: [
         {
           term: {
-            'properties.TYPE.keyword': 'TILE',
+            [ELASTIC_KEYWORDS.TYPE]: 'TILE',
           },
         },
         {
           match: {
-            'properties.TILE_NAME.keyword': {
+            [ELASTIC_KEYWORDS.TILE_NAME]: {
               query: params.tile,
-              fuzziness: 1,
+              fuzziness: !params.disable_fuzziness ? 1 : undefined,
               prefix_length: 1,
             },
           },
@@ -35,17 +42,17 @@ export const queryForSubTiles = (params: Required<TileQueryParams>): estypes.Sea
       must: [
         {
           term: {
-            'properties.TYPE.keyword': 'SUB_TILE',
+            [ELASTIC_KEYWORDS.TYPE]: 'SUB_TILE',
           },
         },
         {
           term: {
-            'properties.TILE_NAME.keyword': params.tile,
+            [ELASTIC_KEYWORDS.TILE_NAME]: params.tile,
           },
         },
         {
           match: {
-            'properties.SUB_TILE_ID.keyword': params.subTile,
+            [ELASTIC_KEYWORDS.SUB_TILE_ID]: params.subTile,
           },
         },
       ],
