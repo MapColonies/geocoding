@@ -23,6 +23,9 @@ export interface GeoContext {
   radius?: number;
   lon?: number;
   lat?: number;
+  x?: number;
+  y?: number;
+  zone?: number;
 }
 
 export interface Geometry {
