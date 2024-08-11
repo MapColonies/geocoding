@@ -3,10 +3,11 @@ import { estypes } from '@elastic/elasticsearch';
 import { FactoryFunction } from 'tsyringe';
 import { IConfig } from '../../../common/interfaces';
 import { ElasticClients } from '../../../common/elastic';
-import { additionalControlSearchProperties, queryElastic } from '../../../common/elastic/utils';
+import { queryElastic } from '../../../common/elastic/utils';
 import { ElasticClient } from '../../../common/elastic';
 import { Item } from '../models/item';
 import { SERVICES } from '../../../common/constants';
+import { additionalControlSearchProperties } from '../../utils';
 import { ItemQueryParams, queryForItems } from './queries';
 
 /* eslint-enable @typescript-eslint/naming-convention */
