@@ -1,8 +1,10 @@
 import { estypes } from '@elastic/elasticsearch';
 import { parseGeo } from '../geotextSearch/utils';
-import { GeoContext, GeoContextMode } from '../common/interfaces';
+import { GeoContext, GeoContextMode, IConfig } from '../common/interfaces';
 import { BadRequestError } from '../common/errors';
-import { ELASTIC_KEYWORDS } from './constants';
+import { elasticConfigPath } from '../common/constants';
+import { ElasticDbClientsConfig } from '../common/elastic/interfaces';
+import { CONTROL_FIELDS, ELASTIC_KEYWORDS } from './constants';
 
 export const geoContextQuery = (geoContext?: GeoContext, geoContextMode?: GeoContextMode): estypes.SearchRequest => {
   if (geoContext === undefined && geoContextMode === undefined) {
@@ -26,3 +28,11 @@ export const geoContextQuery = (geoContext?: GeoContext, geoContextMode?: GeoCon
     ],
   };
 };
+
+/* eslint-disable @typescript-eslint/naming-convention */
+export const additionalControlSearchProperties = (config: IConfig, size: number): { size: number; index: string; _source: string[] } => ({
+  size,
+  index: config.get<ElasticDbClientsConfig>(elasticConfigPath).control.properties.index as string,
+  _source: CONTROL_FIELDS,
+});
+/* eslint-enable @typescript-eslint/naming-convention */
