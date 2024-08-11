@@ -7,7 +7,7 @@ import { TILE_REPOSITORY_SYMBOL, TileRepository } from '../DAL/tileRepository';
 import { formatResponse } from '../../../common/utils';
 import { TileQueryParams } from '../DAL/queries';
 import { FeatureCollection } from '../../../common/interfaces';
-import { BadRequestError } from '../../../common/errors';
+import { BadRequestError, NotImplementedError } from '../../../common/errors';
 import { Tile } from './tile';
 
 @injectable()
@@ -19,7 +19,6 @@ export class TileManager {
   ) {}
 
   public async getTiles(tileQueryParams: TileQueryParams): Promise<FeatureCollection<Tile>> {
-    //TODO: Handle MGRS query
     const { limit, disable_fuzziness: disableFuzziness } = tileQueryParams;
 
     if (
@@ -35,10 +34,14 @@ export class TileManager {
     }
 
     let elasticResponse: estypes.SearchResponse<Tile> | undefined = undefined;
+    if (tileQueryParams.tile === undefined) {
+      throw new BadRequestError('/control/tiles/queryForTiles: tile must be defined');
+    }
+
     if (tileQueryParams.subTile ?? 0) {
       elasticResponse = await this.tileRepository.getSubTiles(tileQueryParams as Required<TileQueryParams>, limit);
     } else {
-      elasticResponse = await this.tileRepository.getTiles(tileQueryParams, limit);
+      elasticResponse = await this.tileRepository.getTiles(tileQueryParams as TileQueryParams & Required<Pick<TileQueryParams, 'tile'>>, limit);
     }
 
     const formattedResponse = formatResponse(elasticResponse);
