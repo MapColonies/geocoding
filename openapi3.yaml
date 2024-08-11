@@ -506,13 +506,7 @@ components:
         {"lon":value,"lat":value,"radius":value}<br>
         {"x":value,"y":value,"zone": number, "radius":value}
       schema:
-        oneOf:
-          - type: object
-            properties:
-              bbox:
-                $ref: "#/components/schemas/BoundingBox"
-          - $ref: "#/components/schemas/WGS84Circle"
-          - $ref: "#/components/schemas/UTMCircle"
+        $ref: "#/components/schemas/geo_context"
     geo_context_mode:
       name: "geo_context_mode"
       in: "query"
@@ -713,7 +707,7 @@ components:
                   minimum: 1
                   maximum: 10
                 geo_context:
-                  $ref: "#/components/parameters/geo_context"
+                  $ref: "#/components/schemas/geo_context"
                 disable_fuzziness:
                   $ref: "#/components/parameters/disable_fuzziness"
             response:
@@ -963,6 +957,14 @@ components:
           maximum: 60
         radius:
           type: number
+    geo_context: 
+      oneOf:
+        - type: object
+          properties:
+            bbox:
+              $ref: "#/components/schemas/BoundingBox"
+        - $ref: "#/components/schemas/WGS84Circle"
+        - $ref: "#/components/schemas/UTMCircle"
   securitySchemes:
     x-api-key:
       type: "apiKey"
