@@ -12,7 +12,8 @@ const ELASTIC_KEYWORDS = {
 };
 
 export interface TileQueryParams extends CommonRequestParameters {
-  tile: string;
+  tile?: string;
+  mgrs?: string;
   subTile?: number;
 }
 
