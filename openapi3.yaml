@@ -201,7 +201,7 @@ paths:
           description: "Sub tile number"
           schema:
             type: "number"
-        - name: MGRS
+        - name: mgrs
           description: "1 meters MGRS Tile"
           example: "18SUJ2338907395"
           in: query
