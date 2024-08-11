@@ -6,7 +6,8 @@ import { SERVICES } from '../../../common/constants';
 import { Route } from '../models/route';
 import { IConfig } from '../../../common/interfaces';
 import { ElasticClients } from '../../../common/elastic';
-import { additionalControlSearchProperties, queryElastic } from '../../../common/elastic/utils';
+import { queryElastic } from '../../../common/elastic/utils';
+import { additionalControlSearchProperties } from '../../utils';
 import { RouteQueryParams, queryForControlPointInRoute, queryForRoute } from './queries';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
