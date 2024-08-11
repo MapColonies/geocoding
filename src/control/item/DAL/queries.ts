@@ -1,66 +1,60 @@
 import { estypes } from '@elastic/elasticsearch';
-import { boundingBox, geoDistance } from '../../../common/elastic/utils';
-import { GeoContext } from '../../../common/interfaces';
+import { CommonRequestParameters, GeoContext } from '../../../common/interfaces';
+import { ELASTIC_KEYWORDS } from '../../constants';
+import { geoContextQuery } from '../../utils';
 
-export interface ItemQueryParams {
+export interface ItemQueryParams extends CommonRequestParameters {
   commandName: string;
   tile?: string;
   subTile?: number;
   geo?: GeoContext;
 }
-
 /* eslint-disable @typescript-eslint/naming-convention */
-export const queryForItems = (params: ItemQueryParams): estypes.SearchRequest => ({
+export const queryForItems = ({
+  commandName,
+  tile,
+  subTile,
+  geo_context: geoContext,
+  geo_context_mode: geoContextMode,
+  disable_fuzziness: disableFuzziness,
+}: ItemQueryParams): estypes.SearchRequest => ({
   query: {
     bool: {
-      should: [
-        {
-          term: {
-            'properties.TYPE.keyword': 'ITEM',
-          },
-        },
-      ],
       must: [
         {
+          term: {
+            [ELASTIC_KEYWORDS.type]: 'ITEM',
+          },
+        },
+        {
           match: {
-            'properties.OBJECT_COMMAND_NAME.keyword': {
-              query: params.commandName,
-              fuzziness: 1,
+            [ELASTIC_KEYWORDS.objectCommandName]: {
+              query: commandName,
+              fuzziness: disableFuzziness ? undefined : 1,
               prefix_length: 1,
             },
           },
         },
-        ...(params.tile ?? ''
+        ...(tile ?? ''
           ? [
               {
                 term: {
-                  'properties.TILE_NAME.keyword': params.tile,
+                  [ELASTIC_KEYWORDS.tileName]: tile,
                 },
               },
             ]
           : []),
-        ...(params.subTile ?? 0
+        ...(subTile ?? 0
           ? [
               {
                 term: {
-                  'properties.SUB_TILE_ID.keyword': params.subTile,
+                  [ELASTIC_KEYWORDS.subTileId]: subTile,
                 },
               },
-            ]
-          : []),
-        ...(params.geo?.bbox ? [boundingBox(params.geo.bbox)] : []),
-        ...((params.geo?.radius ?? 0) && (params.geo?.lat ?? 0) && (params.geo?.lon ?? 0)
-          ? [
-              geoDistance(
-                params.geo as {
-                  radius: number;
-                  lon: number;
-                  lat: number;
-                }
-              ),
             ]
           : []),
       ],
+      ...geoContextQuery(geoContext, geoContextMode),
     },
   },
 });
