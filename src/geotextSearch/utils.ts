@@ -5,7 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import axios, { AxiosResponse as Response } from 'axios';
 import { InternalServerError } from '../common/errors';
 import { GeoContext, IApplication } from '../common/interfaces';
-import { convertUTMToWgs84, convertWgs84ToUTM } from '../common/utils';
+import { convertUTMToWgs84 } from '../common/utils';
 import { BBOX_LENGTH, POINT_LENGTH, QueryResult, TextSearchParams } from './interfaces';
 import { generateDisplayName } from './parsing';
 import { TextSearchHit } from './models/elasticsearchHits';
