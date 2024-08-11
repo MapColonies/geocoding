@@ -928,12 +928,20 @@ components:
       type: string
       title: Region
     BoundingBox:
-      type: object
+      type: array
       description: "Bounding box array that contains [minX,minY,maxX,maxY]"
-      example: '[-74.382527,40.477003,-73.322346,40.916383]'
-      properties:
-        bbox:
-          $ref: "#/components/schemas/BoundingBox"
+      # example: '[-74.382527,40.477003,-73.322346,40.916383]'
+      items:
+        type: number
+      minLength: 4
+      maxLength: 4
+      # properties:
+      #   bbox:
+      #     type: array
+      #     items:
+      #       type: number
+      #     minLength: 4
+      #     maxLength: 4
     WGS84Circle:
       type: object
       properties:
@@ -956,8 +964,8 @@ components:
           maximum: 60
         radius:
           type: number
-    geo_context: 
-      oneOf:
+    geo_context:
+      anyOf:
         - type: object
           properties:
             bbox:
