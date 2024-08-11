@@ -7,17 +7,14 @@ import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../../common/constants';
 import { ItemManager } from '../models/itemManager';
 import { Item } from '../models/item';
-import { FeatureCollection, GeoContext } from '../../../common/interfaces';
+import { CommonRequestParameters, FeatureCollection, GeoContext } from '../../../common/interfaces';
 
 type GetItemsHandler = RequestHandler<undefined, FeatureCollection<Item>, undefined, GetItemsQueryParams>;
 
-export interface GetItemsQueryParams {
+export interface GetItemsQueryParams extends CommonRequestParameters {
   command_name: string;
   tile?: string;
   sub_tile?: string;
-  geo_context?: string;
-  reduce_fuzzy_match?: string;
-  size?: string;
 }
 
 @injectable()
@@ -34,17 +31,15 @@ export class ItemController {
 
   public getItems: GetItemsHandler = async (req, res, next) => {
     try {
-      const { command_name: commandName, tile, sub_tile, geo_context, reduce_fuzzy_match, size } = req.query;
-      const response = await this.manager.getItems(
-        {
-          commandName,
-          tile,
-          subTile: sub_tile ? parseInt(sub_tile) : undefined,
-          geo: geo_context ? (JSON.parse(geo_context) as GeoContext) : undefined,
-        },
-        reduce_fuzzy_match == 'true',
-        size ? parseInt(size) : undefined
-      );
+      const { command_name: commandName, tile, sub_tile, geo_context, disable_fuzziness, limit } = req.query;
+      const response = await this.manager.getItems({
+        tile,
+        subTile: sub_tile ? parseInt(sub_tile) : undefined,
+        commandName,
+        geo: geo_context,
+        limit,
+        disable_fuzziness,
+      });
       return res.status(httpStatus.OK).json(response);
     } catch (error: unknown) {
       this.logger.warn('itemController.getItems Error:', error);
