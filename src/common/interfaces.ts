@@ -1,4 +1,3 @@
-import { Client, ClientOptions } from '@elastic/elasticsearch';
 import { DataSourceOptions } from 'typeorm';
 import { Feature, FeatureCollection as GeoJSONFeatureCollection } from 'geojson';
 
@@ -61,3 +60,17 @@ export interface IApplication {
   nameTranslationsKeys: string[];
   mainLanguageRegex: string;
 }
+
+export enum GeoContextMode {
+  FILTER = 'filter',
+  BIAS = 'bias',
+}
+
+/* eslint-disable @typescript-eslint/naming-convention */
+export interface CommonRequestParameters {
+  geo_context?: GeoContext;
+  geo_context_mode?: GeoContextMode;
+  limit: number;
+  disable_fuzziness: boolean;
+}
+/* eslint-enable @typescript-eslint/naming-convention */
