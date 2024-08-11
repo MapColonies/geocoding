@@ -17,7 +17,9 @@ export interface TileQueryParams extends CommonRequestParameters {
   subTile?: number;
 }
 
-export const queryForTiles = (params: Omit<TileQueryParams, 'subTile' | 'limit'>): estypes.SearchRequest => {
+export const queryForTiles = (
+  params: Omit<TileQueryParams, 'subTile' | 'limit'> & Required<Pick<TileQueryParams, 'tile'>>
+): estypes.SearchRequest => {
   const { tile, geo_context, geo_context_mode, disable_fuzziness } = params;
   if ((geo_context_mode !== undefined && geo_context === undefined) || (geo_context_mode === undefined && geo_context !== undefined)) {
     throw new BadRequestError('/control/tiles/queryForTiles: geo_context and geo_context_mode must be both defined or both undefined');
@@ -42,16 +44,6 @@ export const queryForTiles = (params: Omit<TileQueryParams, 'subTile' | 'limit'>
             },
           },
         ],
-        // filter: [
-        //   {
-        //     geo_shape: {
-        //       geometry: {
-        //         shape: parseGeo(geo_context!),
-        //       },
-        //       boost: geo_context_mode === GeoContextMode.BIAS ? 1.1 : 1, //TODO: change magic number
-        //     },
-        //   },
-        // ],
       },
     },
   };
