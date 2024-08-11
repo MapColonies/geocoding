@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import crypto from 'crypto';
 import { Client } from '@elastic/elasticsearch';
 import config from '../config/default.json';
 import controlData from './controlElasticsearchData.json';
@@ -44,7 +45,7 @@ const main = async (): Promise<void> => {
   for (const item of controlData) {
     await controlClient.index({
       index: config.db.elastic.control.properties.index,
-      id: item._id,
+      id: crypto.randomUUID(),
       body: item._source,
     });
   }
@@ -52,7 +53,7 @@ const main = async (): Promise<void> => {
   for (const item of geotextData) {
     await geotextClient.index({
       index: item._index,
-      id: item._id,
+      id: crypto.randomUUID(),
       body: {
         ...item._source,
       },
