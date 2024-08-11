@@ -186,7 +186,8 @@ paths:
       summary: "Search tiles and sub tiles"
       description: |-
         Tiles are consisted of 3 characters.</br>
-        You can query and get results from 2 characters.   <br><br> If you define a tile (full name of it) you can query the sub tile associated with it.
+        You can query and get results from 2 characters.   </br></br> If you define a tile (full name of it) you can query the sub tile associated with it. </br>
+        You may also search tile based on 1 meter precision MGRS tile.
       parameters:
         - name: "tile"
           in: "query"
@@ -195,13 +196,14 @@ paths:
             type: "string"
             minLength: 2
             maxLength: 3
-          required: true
         - name: "sub_tile"
           in: "query"
           description: "Sub tile number"
           schema:
             type: "number"
         - name: MGRS
+          description: "1 meters MGRS Tile"
+          example: "18SUJ2338907395"
           in: query
           schema:
             type: string
