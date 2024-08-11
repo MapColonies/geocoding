@@ -507,7 +507,10 @@ components:
         {"x":value,"y":value,"zone": number, "radius":value}
       schema:
         oneOf:
-          - $ref: "#/components/schemas/BoundingBox"
+          - type: object
+            properties:
+              bbox:
+                $ref: "#/components/schemas/BoundingBox"
           - $ref: "#/components/schemas/WGS84Circle"
           - $ref: "#/components/schemas/UTMCircle"
     geo_context_mode:
@@ -710,9 +713,9 @@ components:
                   minimum: 1
                   maximum: 10
                 geo_context:
-                  type: string # fix later by referencing and correct type
+                  $ref: "#/components/parameters/geo_context"
                 disable_fuzziness:
-                  type: boolean # reference later
+                  $ref: "#/components/parameters/disable_fuzziness"
             response:
               type: object
               required:
@@ -733,11 +736,7 @@ components:
                   minimum: 0
                   maximum: 5000
         bbox:
-          type: array
-          items:
-            type: number
-          minItems: 4
-          maxItems: 4
+          $ref: "#/components/schemas/BoundingBox"
         features:
           type: "array"
           items:
@@ -938,14 +937,10 @@ components:
     BoundingBox:
       type: object
       description: "Bounding box array that contains [minX,minY,maxX,maxY]"
-      example: '{"bbox":[-74.382527,40.477003,-73.322346,40.916383]}'
+      example: '[-74.382527,40.477003,-73.322346,40.916383]'
       properties:
         bbox:
-          type: array
-          items:
-            type: number
-          minLength: 4
-          maxLength: 4
+          $ref: "#/components/schemas/BoundingBox"
     WGS84Circle:
       type: object
       properties:
