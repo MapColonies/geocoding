@@ -6,7 +6,10 @@ import { elasticConfigPath } from '../common/constants';
 import { ElasticDbClientsConfig } from '../common/elastic/interfaces';
 import { CONTROL_FIELDS, ELASTIC_KEYWORDS } from './constants';
 
-export const geoContextQuery = (geoContext?: GeoContext, geoContextMode?: GeoContextMode): estypes.SearchRequest => {
+export const geoContextQuery = (
+  geoContext?: GeoContext,
+  geoContextMode?: GeoContextMode
+): { [key in 'filter' | 'should']?: estypes.QueryDslQueryContainer[] } => {
   if (geoContext === undefined && geoContextMode === undefined) {
     return {};
   }
