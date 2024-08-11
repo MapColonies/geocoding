@@ -7,7 +7,6 @@ import { ITEM_REPOSITORY_SYMBOL, ItemRepository } from '../DAL/itemRepository';
 import { ItemQueryParams } from '../DAL/queries';
 import { formatResponse } from '../../../common/utils';
 import { FeatureCollection } from '../../../common/interfaces';
-import { getElasticClientQuerySize } from '../../../common/elastic/utils';
 import { Item } from './item';
 
 @injectable()
@@ -18,13 +17,14 @@ export class ItemManager {
     @inject(ITEM_REPOSITORY_SYMBOL) private readonly itemRepository: ItemRepository
   ) {}
 
-  public async getItems(itemQueryParams: ItemQueryParams, reduceFuzzyMatch = false, size?: number): Promise<FeatureCollection<Item>> {
+  public async getItems(itemQueryParams: ItemQueryParams): Promise<FeatureCollection<Item>> {
+    const { limit, disable_fuzziness: disableFuzziness } = itemQueryParams;
     let elasticResponse: estypes.SearchResponse<Item> | undefined = undefined;
-    elasticResponse = await this.itemRepository.getItems(itemQueryParams, size ?? getElasticClientQuerySize(this.config, 'control'));
+    elasticResponse = await this.itemRepository.getItems(itemQueryParams, limit);
 
     const formattedResponse = formatResponse(elasticResponse);
 
-    if (reduceFuzzyMatch && formattedResponse.features.length > 0) {
+    if (disableFuzziness && formattedResponse.features.length > 0) {
       const filterFunction = (hit: Item | undefined): hit is Item => hit?.properties?.OBJECT_COMMAND_NAME === itemQueryParams.commandName;
       formattedResponse.features = formattedResponse.features.filter(filterFunction);
     }
