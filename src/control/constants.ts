@@ -4,6 +4,8 @@ export const ELASTIC_KEYWORDS = {
   subTileId: 'properties.SUB_TILE_ID.keyword',
   geometry: 'geometry',
   objectCommandName: 'properties.OBJECT_COMMAND_NAME.keyword',
+  layerName: 'properties.LAYER_NAME.keyword',
+  tiedTo: 'properties.TIED_TO',
 };
 
 export const CONTROL_FIELDS = [
