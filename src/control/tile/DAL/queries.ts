@@ -1,15 +1,7 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { estypes } from '@elastic/elasticsearch';
-import { CommonRequestParameters, GeoContextMode } from '../../../common/interfaces';
-import { parseGeo } from '../../../geotextSearch/utils';
-import { BadRequestError } from '../../../common/errors';
-
-const ELASTIC_KEYWORDS = {
-  TYPE: 'properties.TYPE.keyword',
-  TILE_NAME: 'properties.TILE_NAME.keyword',
-  SUB_TILE_ID: 'properties.SUB_TILE_ID.keyword',
-  GEOMETRY: 'geometry',
-};
+import { CommonRequestParameters } from '../../../common/interfaces';
+import { ELASTIC_KEYWORDS } from '../../constants';
+import { geoContextQuery } from '../../utils';
 
 export interface TileQueryParams extends CommonRequestParameters {
   tile?: string;
@@ -17,72 +9,63 @@ export interface TileQueryParams extends CommonRequestParameters {
   subTile?: number;
 }
 
-export const queryForTiles = (
-  params: Omit<TileQueryParams, 'subTile' | 'limit'> & Required<Pick<TileQueryParams, 'tile'>>
-): estypes.SearchRequest => {
-  const { tile, geo_context, geo_context_mode, disable_fuzziness } = params;
-  if ((geo_context_mode !== undefined && geo_context === undefined) || (geo_context_mode === undefined && geo_context !== undefined)) {
-    throw new BadRequestError('/control/tiles/queryForTiles: geo_context and geo_context_mode must be both defined or both undefined');
-  }
-
-  const esQuery: estypes.SearchRequest = {
-    query: {
-      bool: {
-        must: [
-          {
-            term: {
-              [ELASTIC_KEYWORDS.TYPE]: 'TILE',
-            },
-          },
-          {
-            match: {
-              [ELASTIC_KEYWORDS.TILE_NAME]: {
-                query: tile,
-                fuzziness: disable_fuzziness ? undefined : 1,
-                prefix_length: 1,
-              },
-            },
-          },
-        ],
-      },
-    },
-  };
-
-  if (geo_context !== undefined) {
-    esQuery.query!.bool![geo_context_mode === GeoContextMode.FILTER ? 'filter' : 'should'] = [
-      {
-        geo_shape: {
-          [ELASTIC_KEYWORDS.GEOMETRY]: {
-            shape: parseGeo(geo_context),
-          },
-          boost: geo_context_mode === GeoContextMode.BIAS ? 1.1 : 1, //TODO: change magic number
-        },
-      },
-    ];
-  }
-  return esQuery;
-};
-
-export const queryForSubTiles = (params: Required<TileQueryParams>): estypes.SearchRequest => ({
+export const queryForTiles = ({
+  tile,
+  geo_context: geoContext,
+  geo_context_mode: geoContextMode,
+  disable_fuzziness: disableFuzziness,
+}: Omit<TileQueryParams, 'subTile' | 'limit'> & Required<Pick<TileQueryParams, 'tile'>>): estypes.SearchRequest => ({
   query: {
     bool: {
       must: [
         {
           term: {
-            [ELASTIC_KEYWORDS.TYPE]: 'SUB_TILE',
-          },
-        },
-        {
-          term: {
-            [ELASTIC_KEYWORDS.TILE_NAME]: params.tile,
+            [ELASTIC_KEYWORDS.type]: 'TILE',
           },
         },
         {
           match: {
-            [ELASTIC_KEYWORDS.SUB_TILE_ID]: params.subTile,
+            [ELASTIC_KEYWORDS.tileName]: {
+              query: tile,
+              fuzziness: disableFuzziness ? undefined : 1,
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              prefix_length: 1,
+            },
           },
         },
       ],
+      ...geoContextQuery(geoContext, geoContextMode),
+    },
+  },
+});
+
+export const queryForSubTiles = ({
+  tile,
+  geo_context: geoContext,
+  geo_context_mode: geoContextMode,
+  disable_fuzziness: disableFuzziness,
+  subTile,
+}: Required<TileQueryParams>): estypes.SearchRequest => ({
+  query: {
+    bool: {
+      must: [
+        {
+          term: {
+            [ELASTIC_KEYWORDS.type]: 'SUB_TILE',
+          },
+        },
+        {
+          term: {
+            [ELASTIC_KEYWORDS.tileName]: tile,
+          },
+        },
+        {
+          match: {
+            [ELASTIC_KEYWORDS.subTileId]: subTile,
+          },
+        },
+      ],
+      ...geoContextQuery(geoContext, geoContextMode),
     },
   },
 });
