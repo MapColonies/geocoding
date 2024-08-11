@@ -1,10 +1,10 @@
 // import fetch, { Response } from "node-fetch-commonjs";
-import { GeoJSON } from 'geojson';
+import { GeoJSON, Geometry, Feature, FeatureCollection, Position } from 'geojson';
 import { SearchHit } from '@elastic/elasticsearch/lib/api/types';
 import { StatusCodes } from 'http-status-codes';
 import axios, { AxiosResponse as Response } from 'axios';
 import { InternalServerError } from '../common/errors';
-import { IApplication } from '../common/interfaces';
+import { GeoContext, IApplication } from '../common/interfaces';
 import { BBOX_LENGTH, POINT_LENGTH, QueryResult, TextSearchParams } from './interfaces';
 import { generateDisplayName } from './parsing';
 import { TextSearchHit } from './models/elasticsearchHits';
@@ -12,6 +12,27 @@ import { TextSearchHit } from './models/elasticsearchHits';
 const FIND_QUOTES = /["']/g;
 
 const FIND_SPECIAL = /[`!@#$%^&*()_\-+=|\\/,.<>:[\]{}\n\t\r\s;؛]+/g;
+
+const parsePoint = (split: string[]): GeoJSON => ({
+  type: 'Point',
+  coordinates: split.map(Number),
+});
+
+const parseBbox = (split: string[]): GeoJSON => {
+  const [xMin, yMin, xMax, yMax] = split.map(Number);
+  return {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [xMin, yMin],
+        [xMin, yMax],
+        [xMax, yMax],
+        [xMax, yMin],
+        [xMin, yMin],
+      ],
+    ],
+  };
+};
 
 export const fetchNLPService = async <T>(endpoint: string, requestData: object): Promise<T[]> => {
   let res: Response | null = null,
@@ -40,28 +61,8 @@ export const fetchNLPService = async <T>(endpoint: string, requestData: object):
 
 export const cleanQuery = (query: string): string[] => query.replace(FIND_QUOTES, '').split(FIND_SPECIAL);
 
-export const parsePoint = (split: string[]): GeoJSON => ({
-  type: 'Point',
-  coordinates: split.map(Number),
-});
-
-export const parseBbox = (split: string[]): GeoJSON => {
-  const [xMin, yMin, xMax, yMax] = split.map(Number);
-  return {
-    type: 'Polygon',
-    coordinates: [
-      [
-        [xMin, yMin],
-        [xMin, yMax],
-        [xMax, yMax],
-        [xMax, yMin],
-        [xMin, yMin],
-      ],
-    ],
-  };
-};
-
-export const parseGeo = (input: string | GeoJSON): GeoJSON | undefined => {
+export const parseGeo = (input: string | GeoJSON | GeoContext): GeoJSON | undefined => {
+  //TODO: remove string | GeoJson as accepted types
   if (typeof input === 'string') {
     const splitted = input.split(',');
     const converted = splitted.map(Number);
@@ -79,7 +80,7 @@ export const parseGeo = (input: string | GeoJSON): GeoJSON | undefined => {
       }
     }
   }
-
+  // TODO: Add geojson validation
   return input as GeoJSON;
 };
 
