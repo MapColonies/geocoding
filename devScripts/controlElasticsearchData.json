@@ -1,7 +1,6 @@
 [
   {
     "_id": "CONTROL.ITEMS",
-    "_score": 1,
     "_source": {
       "type": "Feature",
       "id": 27,
@@ -54,7 +53,6 @@
   },
   {
     "_id": "CONTROL.SUB_TILES",
-    "_score": 1,
     "_source": {
       "type": "Feature",
       "id": 13668,
@@ -83,7 +81,6 @@
   },
   {
     "_id": "CONTROL.ROUTES",
-    "_score": 1,
     "_source": {
       "type": "Feature",
       "id": 2,
@@ -116,7 +113,6 @@
   },
   {
     "_id": "CONTROL.TILES",
-    "_score": 1,
     "_source": {
       "type": "Feature",
       "id": 52,
