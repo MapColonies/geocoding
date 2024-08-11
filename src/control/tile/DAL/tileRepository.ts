@@ -12,7 +12,7 @@ import { queryForTiles, queryForSubTiles, TileQueryParams } from './queries';
 const createTileRepository = (client: ElasticClient, config: IConfig, logger: Logger) => {
   return {
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    async getTiles(tileQueryParams: TileQueryParams, size: number): Promise<estypes.SearchResponse<Tile>> {
+    async getTiles(tileQueryParams: TileQueryParams & Required<Pick<TileQueryParams, 'tile'>>, size: number): Promise<estypes.SearchResponse<Tile>> {
       const response = await queryElastic<Tile>(client, { ...additionalControlSearchProperties(config, size), ...queryForTiles(tileQueryParams) });
 
       return response;
