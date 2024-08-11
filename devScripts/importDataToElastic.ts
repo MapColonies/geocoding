@@ -10,6 +10,37 @@ const main = async (): Promise<void> => {
   const controlClient = new Client({ ...config.db.elastic.control });
   const geotextClient = new Client({ ...config.db.elastic.geotext });
 
+  for (const { client, index, key } of [
+    {
+      client: controlClient,
+      index: config.db.elastic.control.properties.index,
+      key: 'geometry',
+    },
+    {
+      client: geotextClient,
+      index: config.db.elastic.geotext.properties.index.geotext,
+      key: 'geo_json',
+    },
+    {
+      client: geotextClient,
+      index: config.db.elastic.geotext.properties.index.hierarchies,
+      key: 'geo_json',
+    },
+  ]) {
+    await client.indices.create({
+      index: index,
+      body: {
+        mappings: {
+          properties: {
+            [key]: {
+              type: 'geo_shape',
+            },
+          },
+        },
+      },
+    });
+  }
+
   for (const item of controlData) {
     await controlClient.index({
       index: config.db.elastic.control.properties.index,
