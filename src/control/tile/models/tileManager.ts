@@ -6,7 +6,8 @@ import { SERVICES } from '../../../common/constants';
 import { TILE_REPOSITORY_SYMBOL, TileRepository } from '../DAL/tileRepository';
 import { formatResponse } from '../../../common/utils';
 import { TileQueryParams } from '../DAL/queries';
-import { CommonRequestParameters, FeatureCollection } from '../../../common/interfaces';
+import { FeatureCollection } from '../../../common/interfaces';
+import { BadRequestError } from '../../../common/errors';
 import { Tile } from './tile';
 
 @injectable()
@@ -18,7 +19,11 @@ export class TileManager {
   ) {}
 
   public async getTiles(tileQueryParams: TileQueryParams): Promise<FeatureCollection<Tile>> {
+    //TODO: Handle MGRS query
     const { limit, disable_fuzziness: disableFuzziness } = tileQueryParams;
+    if (tileQueryParams.tile === undefined && tileQueryParams.mgrs === undefined) {
+      throw new BadRequestError('/control/tiles/queryForTiles: tile or mgrs must be defined');
+    }
 
     let elasticResponse: estypes.SearchResponse<Tile> | undefined = undefined;
     if (tileQueryParams.subTile ?? 0) {

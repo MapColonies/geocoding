@@ -21,7 +21,8 @@ type GetTilesHandler = RequestHandler<
 >;
 
 export interface GetTilesQueryParams extends CommonRequestParameters {
-  tile: string;
+  tile?: string;
+  mgrs?: string;
   sub_tile?: string;
 }
 
@@ -39,7 +40,7 @@ export class TileController {
 
   public getTiles: GetTilesHandler = async (req, res, next) => {
     try {
-      const { tile, sub_tile, disable_fuzziness, geo_context, geo_context_mode, limit } = req.query;
+      const { tile, sub_tile, disable_fuzziness, geo_context, geo_context_mode, limit, mgrs } = req.query;
       const response = await this.manager.getTiles({
         tile,
         subTile: sub_tile ? parseInt(sub_tile) : undefined,
@@ -47,6 +48,7 @@ export class TileController {
         geo_context,
         geo_context_mode,
         limit,
+        mgrs,
       });
       return res.status(httpStatus.OK).json(response);
     } catch (error: unknown) {
