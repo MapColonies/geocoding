@@ -6,8 +6,7 @@ import { SERVICES } from '../../../common/constants';
 import { TILE_REPOSITORY_SYMBOL, TileRepository } from '../DAL/tileRepository';
 import { formatResponse } from '../../../common/utils';
 import { TileQueryParams } from '../DAL/queries';
-import { FeatureCollection } from '../../../common/interfaces';
-import { getElasticClientQuerySize } from '../../../common/elastic/utils';
+import { CommonRequestParameters, FeatureCollection } from '../../../common/interfaces';
 import { Tile } from './tile';
 
 @injectable()
@@ -18,18 +17,19 @@ export class TileManager {
     @inject(TILE_REPOSITORY_SYMBOL) private readonly tileRepository: TileRepository
   ) {}
 
-  public async getTiles(tileQueryParams: TileQueryParams, reduceFuzzyMatch = false, size?: number): Promise<FeatureCollection<Tile>> {
+  public async getTiles(tileQueryParams: TileQueryParams & CommonRequestParameters): Promise<FeatureCollection<Tile>> {
+    const { limit, disable_fuzziness: disableFuzziness } = tileQueryParams;
+
     let elasticResponse: estypes.SearchResponse<Tile> | undefined = undefined;
-    const numberOfResults = size ?? getElasticClientQuerySize(this.config, 'control');
     if (tileQueryParams.subTile ?? 0) {
-      elasticResponse = await this.tileRepository.getSubTiles(tileQueryParams as Required<TileQueryParams>, numberOfResults);
+      elasticResponse = await this.tileRepository.getSubTiles(tileQueryParams as Required<TileQueryParams>, limit);
     } else {
-      elasticResponse = await this.tileRepository.getTiles(tileQueryParams, numberOfResults);
+      elasticResponse = await this.tileRepository.getTiles(tileQueryParams, limit);
     }
 
     const formattedResponse = formatResponse(elasticResponse);
 
-    if (reduceFuzzyMatch && formattedResponse.features.length > 0) {
+    if (!disableFuzziness && formattedResponse.features.length > 0) {
       const filterFunction =
         tileQueryParams.subTile ?? 0
           ? (hit: Tile | undefined): hit is Tile =>

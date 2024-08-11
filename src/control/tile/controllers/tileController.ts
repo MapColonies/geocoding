@@ -7,7 +7,7 @@ import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../../common/constants';
 import { TileManager } from '../models/tileManager';
 import { Tile } from '../models/tile';
-import { FeatureCollection } from '../../../common/interfaces';
+import { CommonRequestParameters, FeatureCollection } from '../../../common/interfaces';
 
 type GetTilesHandler = RequestHandler<
   undefined,
@@ -20,11 +20,9 @@ type GetTilesHandler = RequestHandler<
   GetTilesQueryParams
 >;
 
-export interface GetTilesQueryParams {
+export interface GetTilesQueryParams extends CommonRequestParameters {
   tile: string;
   sub_tile?: string;
-  reduce_fuzzy_match?: string;
-  size?: string;
 }
 
 @injectable()
@@ -41,12 +39,15 @@ export class TileController {
 
   public getTiles: GetTilesHandler = async (req, res, next) => {
     try {
-      const { tile, sub_tile, reduce_fuzzy_match, size } = req.query;
-      const response = await this.manager.getTiles(
-        { tile, subTile: sub_tile ? parseInt(sub_tile) : undefined },
-        reduce_fuzzy_match == 'true',
-        size ? parseInt(size) : undefined
-      );
+      const { tile, sub_tile, disable_fuzziness, geo_context, geo_context_mode, limit } = req.query;
+      const response = await this.manager.getTiles({
+        tile,
+        subTile: sub_tile ? parseInt(sub_tile) : undefined,
+        disable_fuzziness,
+        geo_context,
+        geo_context_mode,
+        limit,
+      });
       return res.status(httpStatus.OK).json(response);
     } catch (error: unknown) {
       this.logger.warn('tileController.getTiles Error:', error);
