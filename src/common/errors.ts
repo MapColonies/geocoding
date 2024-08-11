@@ -33,3 +33,11 @@ export class NotFoundError extends Error implements HttpError {
     super(message);
   }
 }
+
+export class NotImplementedError extends Error implements HttpError {
+  public readonly status = httpStatus.NOT_IMPLEMENTED;
+
+  public constructor(message: string) {
+    super(message);
+  }
+}
