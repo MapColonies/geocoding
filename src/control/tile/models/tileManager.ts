@@ -17,7 +17,7 @@ export class TileManager {
     @inject(TILE_REPOSITORY_SYMBOL) private readonly tileRepository: TileRepository
   ) {}
 
-  public async getTiles(tileQueryParams: TileQueryParams & CommonRequestParameters): Promise<FeatureCollection<Tile>> {
+  public async getTiles(tileQueryParams: TileQueryParams): Promise<FeatureCollection<Tile>> {
     const { limit, disable_fuzziness: disableFuzziness } = tileQueryParams;
 
     let elasticResponse: estypes.SearchResponse<Tile> | undefined = undefined;
@@ -29,7 +29,7 @@ export class TileManager {
 
     const formattedResponse = formatResponse(elasticResponse);
 
-    if (!disableFuzziness && formattedResponse.features.length > 0) {
+    if (disableFuzziness && formattedResponse.features.length > 0) {
       const filterFunction =
         tileQueryParams.subTile ?? 0
           ? (hit: Tile | undefined): hit is Tile =>
