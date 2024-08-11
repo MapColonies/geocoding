@@ -482,8 +482,7 @@ components:
       description: |-
         If an accurate result is obtained, only it will be returned
       schema:
-        default: false
-        type: "boolean"
+        $ref: "#/components/schemas/disable_fuzziness"
     limit:
       name: "limit"
       in: "query"
@@ -709,7 +708,7 @@ components:
                 geo_context:
                   $ref: "#/components/schemas/geo_context"
                 disable_fuzziness:
-                  $ref: "#/components/parameters/disable_fuzziness"
+                  $ref: "#/components/schemas/disable_fuzziness"
             response:
               type: object
               required:
@@ -965,6 +964,9 @@ components:
               $ref: "#/components/schemas/BoundingBox"
         - $ref: "#/components/schemas/WGS84Circle"
         - $ref: "#/components/schemas/UTMCircle"
+    disable_fuzziness:
+      type: boolean
+      default: false
   securitySchemes:
     x-api-key:
       type: "apiKey"
