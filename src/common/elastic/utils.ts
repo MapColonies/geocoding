@@ -1,9 +1,6 @@
 import { estypes } from '@elastic/elasticsearch';
-import { IConfig, WGS84Coordinate } from '../interfaces';
+import { WGS84Coordinate } from '../interfaces';
 import { InternalServerError } from '../errors';
-import { elasticConfigPath } from '../constants';
-import { CONTROL_FIELDS } from '../../control/constants';
-import { ElasticDbClientsConfig } from './interfaces';
 import { ElasticClient } from './index';
 
 export const queryElastic = async <T>(client: ElasticClient, body: estypes.SearchRequest): Promise<estypes.SearchResponse<T>> => {
