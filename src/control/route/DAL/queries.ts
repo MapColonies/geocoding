@@ -1,79 +1,82 @@
 import { estypes } from '@elastic/elasticsearch';
-import { boundingBox, geoDistance } from '../../../common/elastic/utils';
-import { GeoContext, WGS84Coordinate } from '../../../common/interfaces';
+import { CommonRequestParameters } from '../../../common/interfaces';
+import { geoContextQuery } from '../../utils';
+import { ELASTIC_KEYWORDS } from '../../constants';
 
-export interface RouteQueryParams {
+export interface RouteQueryParams extends CommonRequestParameters {
   commandName: string;
   controlPoint?: number;
-  geo?: GeoContext;
 }
 
 /* eslint-disable @typescript-eslint/naming-convention */
-export const queryForRoute = (params: RouteQueryParams): estypes.SearchRequest => ({
+export const queryForRoute = ({
+  geo_context: geoContext,
+  geo_context_mode: geoContextMode,
+  commandName,
+  disable_fuzziness: disableFuzziness,
+}: RouteQueryParams): estypes.SearchRequest => ({
   query: {
     bool: {
-      should: [
-        {
-          term: {
-            'properties.TYPE.keyword': 'ROUTE',
-          },
-        },
-      ],
       must: [
         {
+          term: {
+            [ELASTIC_KEYWORDS.type]: 'ROUTE',
+          },
+        },
+        {
           match: {
-            'properties.OBJECT_COMMAND_NAME.keyword': {
-              query: params.commandName,
-              fuzziness: 1,
+            [ELASTIC_KEYWORDS.objectCommandName]: {
+              query: commandName,
+              fuzziness: disableFuzziness ? undefined : 1,
               prefix_length: 1,
             },
           },
         },
-        ...(params.geo?.bbox ? [boundingBox(params.geo.bbox)] : []),
-        ...(params.geo?.radius
-          ? [
-              geoDistance(
-                params.geo as {
-                  radius: number;
-                  lon: number;
-                  lat: number;
-                }
-              ),
-            ]
-          : []),
       ],
+      ...geoContextQuery(geoContext, geoContextMode),
     },
   },
 });
 
-export const queryForControlPointInRoute = (params: RouteQueryParams & Required<Pick<RouteQueryParams, 'controlPoint'>>): estypes.SearchRequest => ({
-  query: {
-    bool: {
-      must: [
-        {
-          match: {
-            'properties.OBJECT_COMMAND_NAME.keyword': {
-              query: params.controlPoint,
-              fuzziness: 1,
-              prefix_length: 1,
+export const queryForControlPointInRoute = ({
+  controlPoint,
+  commandName,
+  geo_context: geoContext,
+  geo_context_mode: geoContextMode,
+}: RouteQueryParams & Required<Pick<RouteQueryParams, 'controlPoint'>>): estypes.SearchRequest => {
+  const geoContextOperation = geoContextQuery(geoContext, geoContextMode);
+
+  const esQuery: estypes.SearchRequest = {
+    query: {
+      bool: {
+        must: [
+          {
+            match: {
+              [ELASTIC_KEYWORDS.objectCommandName]: {
+                query: controlPoint,
+                fuzziness: 1,
+                prefix_length: 1,
+              },
             },
           },
-        },
-        ...(params.geo?.bbox ? [boundingBox(params.geo.bbox)] : []),
-        ...(params.geo?.radius ?? 0 ? [geoDistance(params.geo as WGS84Coordinate & { radius: number })] : []),
-      ],
-      filter: [
-        {
-          terms: {
-            'properties.LAYER_NAME.keyword': ['CONTROL_GIL_GDB.CTR_CONTROL_POINT_N', 'CONTROL_GIL_GDB.CTR_CONTROL_POINT_CROSS_N'],
+        ],
+        filter: [
+          {
+            terms: {
+              [ELASTIC_KEYWORDS.layerName]: ['CONTROL_GIL_GDB.CTR_CONTROL_POINT_N', 'CONTROL_GIL_GDB.CTR_CONTROL_POINT_CROSS_N'],
+            },
           },
-        },
-        {
-          term: {
-            'properties.TIED_TO': params.commandName,
+          {
+            term: {
+              [ELASTIC_KEYWORDS.tiedTo]: commandName,
+            },
           },
-        },
-      ],
+          ...(geoContextOperation.filter ?? []),
+        ],
+        should: geoContextOperation.should ?? [],
+      },
     },
-  },
-});
+  };
+
+  return esQuery;
+};
