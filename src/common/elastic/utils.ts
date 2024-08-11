@@ -1,17 +1,10 @@
 import { estypes } from '@elastic/elasticsearch';
 import { IConfig, WGS84Coordinate } from '../interfaces';
 import { InternalServerError } from '../errors';
-import { elasticConfigPath, CONTROL_FIELDS } from '../constants';
+import { elasticConfigPath } from '../constants';
+import { CONTROL_FIELDS } from '../../control/constants';
 import { ElasticDbClientsConfig } from './interfaces';
 import { ElasticClient } from './index';
-
-/* eslint-disable @typescript-eslint/naming-convention */
-export const additionalControlSearchProperties = (config: IConfig, size: number): { size: number; index: string; _source: string[] } => ({
-  size,
-  index: config.get<ElasticDbClientsConfig>(elasticConfigPath).control.properties.index as string,
-  _source: CONTROL_FIELDS,
-});
-/* eslint-enable @typescript-eslint/naming-convention */
 
 export const queryElastic = async <T>(client: ElasticClient, body: estypes.SearchRequest): Promise<estypes.SearchResponse<T>> => {
   const clientNotAvailableError = new InternalServerError('Elasticsearch client is not available');
