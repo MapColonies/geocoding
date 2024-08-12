@@ -14,7 +14,7 @@ export const geoContextQuery = (
     return {};
   }
   if ((geoContext !== undefined && geoContextMode === undefined) || (geoContext === undefined && geoContextMode !== undefined)) {
-    throw new BadRequestError('/control/tiles/queryForTiles: geo_context and geo_context_mode must be both defined or both undefined');
+    throw new BadRequestError('/control/utils/geoContextQuery: geo_context and geo_context_mode must be both defined or both undefined');
   }
 
   return {
@@ -32,10 +32,9 @@ export const geoContextQuery = (
   };
 };
 
-/* eslint-disable @typescript-eslint/naming-convention */
 export const additionalControlSearchProperties = (config: IConfig, size: number): { size: number; index: string; _source: string[] } => ({
   size,
   index: config.get<ElasticDbClientsConfig>(elasticConfigPath).control.properties.index as string,
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   _source: CONTROL_FIELDS,
 });
-/* eslint-enable @typescript-eslint/naming-convention */
