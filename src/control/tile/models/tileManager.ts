@@ -44,7 +44,7 @@ export class TileManager {
       elasticResponse = await this.tileRepository.getTiles(tileQueryParams as TileQueryParams & Required<Pick<TileQueryParams, 'tile'>>, limit);
     }
 
-    const formattedResponse = formatResponse(elasticResponse);
+    const formattedResponse = formatResponse(elasticResponse, tileQueryParams);
 
     if (disableFuzziness && formattedResponse.features.length > 0) {
       const filterFunction =

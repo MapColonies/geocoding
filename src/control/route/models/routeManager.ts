@@ -30,7 +30,7 @@ export class RouteManager {
       elasticResponse = await this.routeRepository.getRoutes(routeQueryParams, limit);
     }
 
-    const formattedResponse = formatResponse(elasticResponse);
+    const formattedResponse = formatResponse(elasticResponse, routeQueryParams);
 
     if (disableFuzziness && formattedResponse.features.length > 0) {
       const filterFunction =

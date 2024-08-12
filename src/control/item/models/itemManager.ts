@@ -22,7 +22,7 @@ export class ItemManager {
     let elasticResponse: estypes.SearchResponse<Item> | undefined = undefined;
     elasticResponse = await this.itemRepository.getItems(itemQueryParams, limit);
 
-    const formattedResponse = formatResponse(elasticResponse);
+    const formattedResponse = formatResponse(elasticResponse, itemQueryParams);
 
     if (disableFuzziness && formattedResponse.features.length > 0) {
       const filterFunction = (hit: Item | undefined): hit is Item => hit?.properties?.OBJECT_COMMAND_NAME === itemQueryParams.commandName;
