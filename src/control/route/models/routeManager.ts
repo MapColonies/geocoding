@@ -5,7 +5,7 @@ import { estypes } from '@elastic/elasticsearch';
 import { SERVICES } from '../../../common/constants';
 import { ROUTE_REPOSITORY_SYMBOL, RouteRepository } from '../DAL/routeRepository';
 import { RouteQueryParams } from '../DAL/queries';
-import { formatResponse } from '../../../common/utils';
+import { formatResponse } from '../../utils';
 import { FeatureCollection } from '../../../common/interfaces';
 import { Route } from './route';
 
