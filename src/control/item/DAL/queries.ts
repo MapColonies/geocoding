@@ -1,5 +1,5 @@
 import { estypes } from '@elastic/elasticsearch';
-import { CommonRequestParameters, GeoContext } from '../../../common/interfaces';
+import { CommonRequestParameters } from '../../../common/interfaces';
 import { ELASTIC_KEYWORDS } from '../../constants';
 import { geoContextQuery } from '../../utils';
 import { ConvertSnakeToCamelCase } from '../../../common/utils';
@@ -14,9 +14,9 @@ export const queryForItems = ({
   commandName,
   tile,
   subTile,
-  geo_context: geoContext,
-  geo_context_mode: geoContextMode,
-  disable_fuzziness: disableFuzziness,
+  geoContext,
+  geoContextMode,
+  disableFuzziness,
 }: ItemQueryParams): estypes.SearchRequest => ({
   query: {
     bool: {

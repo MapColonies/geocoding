@@ -18,7 +18,7 @@ export class ItemManager {
   ) {}
 
   public async getItems(itemQueryParams: ItemQueryParams): Promise<FeatureCollection<Item>> {
-    const { limit, disable_fuzziness: disableFuzziness } = itemQueryParams;
+    const { limit, disableFuzziness } = itemQueryParams;
     let elasticResponse: estypes.SearchResponse<Item> | undefined = undefined;
     elasticResponse = await this.itemRepository.getItems(itemQueryParams, limit);
 

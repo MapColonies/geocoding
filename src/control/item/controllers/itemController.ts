@@ -7,7 +7,7 @@ import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../../common/constants';
 import { ItemManager } from '../models/itemManager';
 import { Item } from '../models/item';
-import { CommonRequestParameters, FeatureCollection, GeoContext } from '../../../common/interfaces';
+import { CommonRequestParameters, FeatureCollection } from '../../../common/interfaces';
 
 type GetItemsHandler = RequestHandler<undefined, FeatureCollection<Item>, undefined, GetItemsQueryParams>;
 
@@ -31,14 +31,15 @@ export class ItemController {
 
   public getItems: GetItemsHandler = async (req, res, next) => {
     try {
-      const { command_name: commandName, tile, sub_tile, geo_context, disable_fuzziness, limit } = req.query;
+      const { command_name: commandName, tile, sub_tile, geo_context, geo_context_mode, disable_fuzziness, limit } = req.query;
       const response = await this.manager.getItems({
         tile,
         subTile: sub_tile ? parseInt(sub_tile) : undefined,
         commandName,
-        geo: geo_context,
+        geoContext: geo_context,
+        geoContextMode: geo_context_mode,
         limit,
-        disable_fuzziness,
+        disableFuzziness: disable_fuzziness,
       });
       return res.status(httpStatus.OK).json(response);
     } catch (error: unknown) {

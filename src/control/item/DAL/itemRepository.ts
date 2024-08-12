@@ -10,8 +10,6 @@ import { SERVICES } from '../../../common/constants';
 import { additionalControlSearchProperties } from '../../utils';
 import { ItemQueryParams, queryForItems } from './queries';
 
-/* eslint-enable @typescript-eslint/naming-convention */
-
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const createItemRepository = (client: ElasticClient, config: IConfig, logger: Logger) => {
   return {
