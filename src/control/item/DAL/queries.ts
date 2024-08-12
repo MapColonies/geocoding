@@ -2,12 +2,12 @@ import { estypes } from '@elastic/elasticsearch';
 import { CommonRequestParameters, GeoContext } from '../../../common/interfaces';
 import { ELASTIC_KEYWORDS } from '../../constants';
 import { geoContextQuery } from '../../utils';
+import { ConvertSnakeToCamelCase } from '../../../common/utils';
 
-export interface ItemQueryParams extends CommonRequestParameters {
+export interface ItemQueryParams extends ConvertSnakeToCamelCase<CommonRequestParameters> {
   commandName: string;
   tile?: string;
   subTile?: number;
-  geo?: GeoContext;
 }
 /* eslint-disable @typescript-eslint/naming-convention */
 export const queryForItems = ({
