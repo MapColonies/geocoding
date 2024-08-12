@@ -28,11 +28,6 @@ export interface GeoContext {
   zone?: number;
 }
 
-export interface Geometry {
-  type: string;
-  coordinates: number[][][];
-}
-
 export interface FeatureCollection<T extends Feature> extends GeoJSONFeatureCollection {
   features: T[];
 }
