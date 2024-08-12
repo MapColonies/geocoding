@@ -7,7 +7,7 @@ import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../../common/constants';
 import { RouteManager } from '../models/routeManager';
 import { Route } from '../models/route';
-import { CommonRequestParameters, FeatureCollection, GeoContext } from '../../../common/interfaces';
+import { CommonRequestParameters, FeatureCollection } from '../../../common/interfaces';
 
 type GetRoutesHandler = RequestHandler<undefined, FeatureCollection<Route>, undefined, GetRoutesQueryParams>;
 
@@ -34,9 +34,9 @@ export class RouteController {
       const response = await this.manager.getRoutes({
         commandName,
         controlPoint: control_point ? parseInt(control_point) : undefined,
-        geo_context,
-        geo_context_mode,
-        disable_fuzziness,
+        geoContext: geo_context,
+        geoContextMode: geo_context_mode,
+        disableFuzziness: disable_fuzziness,
         limit,
       });
       return res.status(httpStatus.OK).json(response);

@@ -10,12 +10,7 @@ export interface RouteQueryParams extends ConvertSnakeToCamelCase<CommonRequestP
 }
 
 /* eslint-disable @typescript-eslint/naming-convention */
-export const queryForRoute = ({
-  geo_context: geoContext,
-  geo_context_mode: geoContextMode,
-  commandName,
-  disable_fuzziness: disableFuzziness,
-}: RouteQueryParams): estypes.SearchRequest => ({
+export const queryForRoute = ({ geoContext, geoContextMode, commandName, disableFuzziness }: RouteQueryParams): estypes.SearchRequest => ({
   query: {
     bool: {
       must: [
@@ -42,8 +37,8 @@ export const queryForRoute = ({
 export const queryForControlPointInRoute = ({
   controlPoint,
   commandName,
-  geo_context: geoContext,
-  geo_context_mode: geoContextMode,
+  geoContext,
+  geoContextMode,
 }: RouteQueryParams & Required<Pick<RouteQueryParams, 'controlPoint'>>): estypes.SearchRequest => {
   const geoContextOperation = geoContextQuery(geoContext, geoContextMode);
 

@@ -18,7 +18,7 @@ export class RouteManager {
   ) {}
 
   public async getRoutes(routeQueryParams: RouteQueryParams): Promise<FeatureCollection<Route>> {
-    const { limit, disable_fuzziness: disableFuzziness } = routeQueryParams;
+    const { limit, disableFuzziness } = routeQueryParams;
 
     let elasticResponse: estypes.SearchResponse<Route> | undefined = undefined;
     if (routeQueryParams.controlPoint ?? 0) {
