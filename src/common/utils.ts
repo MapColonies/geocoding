@@ -6,6 +6,12 @@ import { Route } from '../control/route/models/route';
 import { utmProjection, wgs84Projection } from './projections';
 import { FeatureCollection, WGS84Coordinate } from './interfaces';
 
+type SnakeToCamelCase<S extends string> = S extends `${infer T}_${infer U}` ? `${T}${Capitalize<SnakeToCamelCase<U>>}` : S;
+
+export type ConvertSnakeToCamelCase<T> = {
+  [K in keyof T as SnakeToCamelCase<K & string>]: T[K];
+};
+
 export const formatResponse = <T extends Item | Tile | Route>(elasticResponse: estypes.SearchResponse<T>): FeatureCollection<T> => ({
   type: 'FeatureCollection',
   features: [
