@@ -12,9 +12,9 @@ export interface TileQueryParams extends ConvertSnakeToCamelCase<CommonRequestPa
 
 export const queryForTiles = ({
   tile,
-  geo_context: geoContext,
-  geo_context_mode: geoContextMode,
-  disable_fuzziness: disableFuzziness,
+  geoContext,
+  geoContextMode,
+  disableFuzziness,
 }: Omit<TileQueryParams, 'subTile' | 'limit'> & Required<Pick<TileQueryParams, 'tile'>>): estypes.SearchRequest => ({
   query: {
     bool: {
@@ -40,13 +40,7 @@ export const queryForTiles = ({
   },
 });
 
-export const queryForSubTiles = ({
-  tile,
-  geo_context: geoContext,
-  geo_context_mode: geoContextMode,
-  disable_fuzziness: disableFuzziness,
-  subTile,
-}: Required<TileQueryParams>): estypes.SearchRequest => ({
+export const queryForSubTiles = ({ tile, geoContext, geoContextMode, subTile }: Required<TileQueryParams>): estypes.SearchRequest => ({
   query: {
     bool: {
       must: [

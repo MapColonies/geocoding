@@ -44,9 +44,9 @@ export class TileController {
       const response = await this.manager.getTiles({
         tile,
         subTile: sub_tile ? parseInt(sub_tile) : undefined,
-        disable_fuzziness,
-        geo_context,
-        geo_context_mode,
+        disableFuzziness: disable_fuzziness,
+        geoContext: geo_context,
+        geoContextMode: geo_context_mode,
         limit,
         mgrs,
       });

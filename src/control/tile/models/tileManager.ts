@@ -19,7 +19,7 @@ export class TileManager {
   ) {}
 
   public async getTiles(tileQueryParams: TileQueryParams): Promise<FeatureCollection<Tile>> {
-    const { limit, disable_fuzziness: disableFuzziness } = tileQueryParams;
+    const { limit, disableFuzziness } = tileQueryParams;
 
     if (
       (tileQueryParams.tile === undefined && tileQueryParams.mgrs === undefined) ||
