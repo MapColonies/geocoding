@@ -1,13 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { estypes } from '@elastic/elasticsearch';
-import {
-  formatResponse,
-  additionalSearchProperties,
-  convertUTMToWgs84,
-  convertWgs84ToUTM,
-  validateTile,
-  validateWGS84Coordinate,
-} from '../../../src/common/utils';
+import { additionalSearchProperties, convertUTMToWgs84, convertWgs84ToUTM, validateTile, validateWGS84Coordinate } from '../../../src/common/utils';
+import { formatResponse } from '../../../src/control/utils';
 import config from '../../../config/test.json';
 import { FIELDS } from '../../../src/common/constants';
 import { WGS84Coordinate } from '../../../src/common/interfaces';
