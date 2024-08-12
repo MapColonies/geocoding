@@ -2,8 +2,9 @@ import { estypes } from '@elastic/elasticsearch';
 import { CommonRequestParameters } from '../../../common/interfaces';
 import { geoContextQuery } from '../../utils';
 import { ELASTIC_KEYWORDS } from '../../constants';
+import { ConvertSnakeToCamelCase } from '../../../common/utils';
 
-export interface RouteQueryParams extends CommonRequestParameters {
+export interface RouteQueryParams extends ConvertSnakeToCamelCase<CommonRequestParameters> {
   commandName: string;
   controlPoint?: number;
 }
