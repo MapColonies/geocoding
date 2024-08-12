@@ -1,22 +1,33 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { estypes } from '@elastic/elasticsearch';
 import { parseGeo } from '../geotextSearch/utils';
-import { FeatureCollection, GeoContext, GeoContextMode, IConfig } from '../common/interfaces';
+import { CommonRequestParameters, GeoContext, GeoContextMode, IConfig } from '../common/interfaces';
 import { BadRequestError } from '../common/errors';
 import { elasticConfigPath } from '../common/constants';
 import { ElasticDbClientsConfig } from '../common/elastic/interfaces';
 import { Item } from '../control/item/models/item';
 import { Tile } from '../control/tile/models/tile';
 import { Route } from '../control/route/models/route';
+import { ConvertSnakeToCamelCase } from '../common/utils';
 import { CONTROL_FIELDS, ELASTIC_KEYWORDS } from './constants';
+import { ControlResponse } from './interfaces';
 
-type SnakeToCamelCase<S extends string> = S extends `${infer T}_${infer U}` ? `${T}${Capitalize<SnakeToCamelCase<U>>}` : S;
-
-export type ConvertSnakeToCamelCase<T> = {
-  [K in keyof T as SnakeToCamelCase<K & string>]: T[K];
-};
-
-export const formatResponse = <T extends Item | Tile | Route>(elasticResponse: estypes.SearchResponse<T>): FeatureCollection<T> => ({
+export const formatResponse = <T extends Item | Tile | Route>(
+  elasticResponse: estypes.SearchResponse<T>,
+  requestParams?: ConvertSnakeToCamelCase<CommonRequestParameters> | undefined
+): ControlResponse<T> => ({
   type: 'FeatureCollection',
+  geocoding: {
+    version: process.env.npm_package_version,
+    query: requestParams,
+    response: {
+      /* eslint-disable @typescript-eslint/naming-convention */
+      results_count: elasticResponse.hits.hits.length,
+      max_score: elasticResponse.hits.max_score ?? 0,
+      match_latency_ms: elasticResponse.took,
+      /* eslint-enable @typescript-eslint/naming-convention */
+    },
+  },
   features: [
     ...(elasticResponse.hits.hits.map((item) => {
       const source = item._source;
