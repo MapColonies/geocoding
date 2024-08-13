@@ -71,7 +71,7 @@ export const geoContextQuery = (
 };
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export const additionalControlSearchProperties = (config: IConfig, size: number): { size: number; index: string; _source: string[] } => ({
+export const additionalControlSearchProperties = (config: IConfig, size: number): Pick<estypes.SearchRequest, 'size' | 'index' | '_source'> => ({
   size,
   index: config.get<ElasticDbClientsConfig>(elasticConfigPath).control.properties.index as string,
   // eslint-disable-next-line @typescript-eslint/naming-convention
