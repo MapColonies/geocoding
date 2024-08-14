@@ -34,7 +34,7 @@ export class ItemController {
       const { command_name: commandName, tile, sub_tile, geo_context, geo_context_mode, disable_fuzziness, limit } = req.query;
       const response = await this.manager.getItems({
         tile,
-        subTile: sub_tile ? parseInt(sub_tile) : undefined,
+        subTile: sub_tile,
         commandName,
         geoContext: geo_context,
         geoContextMode: geo_context_mode,

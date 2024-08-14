@@ -200,7 +200,8 @@ paths:
           in: "query"
           description: "Sub tile number"
           schema:
-            type: "number"
+            type: "string"
+            pattern: "^[1-9][0-9]*$"
         - name: mgrs
           description: "1 meters MGRS Tile"
           example: "18SUJ2338907395"
