@@ -1,6 +1,6 @@
 // import fetch, { Response } from "node-fetch-commonjs";
 import { GeoJSON, Point } from 'geojson';
-import { SearchHit } from '@elastic/elasticsearch/lib/api/types';
+import { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import { StatusCodes } from 'http-status-codes';
 import axios, { AxiosResponse as Response } from 'axios';
 import { InternalServerError } from '../common/errors';
@@ -104,7 +104,7 @@ export const parseGeo = (input: string | GeoJSON | GeoContext): GeoJSON | undefi
 /* eslint-disable @typescript-eslint/naming-convention */
 export const convertResult = (
   params: TextSearchParams,
-  results: SearchHit<TextSearchHit>[],
+  results: SearchResponse<TextSearchHit>,
   {
     sources,
     regionCollection,
@@ -122,14 +122,22 @@ export const convertResult = (
     version: process.env.npm_package_version,
     query: {
       ...params,
+      response: {
+        /* eslint-disable @typescript-eslint/naming-convention */
+        results_count: results.hits.hits.length,
+        max_score: results.hits.max_score ?? 0,
+        match_latency_ms: results.took,
+        /* eslint-enable @typescript-eslint/naming-convention */
+      },
     },
-    name: params.name,
+    name: params.name || undefined,
   },
-  features: results.map(({ highlight, _source: feature }, index): QueryResult['features'][number] => {
+  features: results.hits.hits.map(({ highlight, _source: feature, _score }, index): QueryResult['features'][number] => {
     const allNames = [feature!.text, feature!.translated_text || []];
     return {
       type: 'Feature',
       geometry: feature?.geo_json,
+      _score,
       properties: {
         rank: index + 1,
         source: (sources ?? {})[feature?.source ?? ''] ?? feature?.source,
