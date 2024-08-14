@@ -18,17 +18,10 @@ export class ItemManager {
   ) {}
 
   public async getItems(itemQueryParams: ItemQueryParams): Promise<FeatureCollection<Item>> {
-    const { limit, disableFuzziness } = itemQueryParams;
+    const { limit } = itemQueryParams;
     let elasticResponse: estypes.SearchResponse<Item> | undefined = undefined;
     elasticResponse = await this.itemRepository.getItems(itemQueryParams, limit);
 
-    const formattedResponse = formatResponse(elasticResponse, itemQueryParams);
-
-    if (disableFuzziness && formattedResponse.features.length > 0) {
-      const filterFunction = (hit: Item | undefined): hit is Item => hit?.properties?.OBJECT_COMMAND_NAME === itemQueryParams.commandName;
-      formattedResponse.features = formattedResponse.features.filter(filterFunction);
-    }
-
-    return formattedResponse;
+    return formatResponse(elasticResponse, itemQueryParams);
   }
 }
