@@ -33,10 +33,10 @@ const createGeotextRepository = (client: ElasticClient, logger: Logger) => {
       return nameTokens.join(' ');
     },
 
-    async generatePlacetype(index: string, query: string): Promise<{ placeTypes: string[]; subPlaceTypes: string[] }> {
+    async generatePlacetype(index: string, query: string, disableFuzziness: boolean): Promise<{ placeTypes: string[]; subPlaceTypes: string[] }> {
       const {
         hits: { hits },
-      } = await queryElastic<PlaceTypeSearchHit>(client, { index, ...placetypeQuery(query) });
+      } = await queryElastic<PlaceTypeSearchHit>(client, { index, ...placetypeQuery(query, disableFuzziness) });
 
       if (hits.length == 2 && hits[0]._score! - hits[1]._score! > 0.5) {
         hits.pop();
@@ -50,10 +50,10 @@ const createGeotextRepository = (client: ElasticClient, logger: Logger) => {
       return { placeTypes, subPlaceTypes };
     },
 
-    async extractHierarchy(index: string, query: string, hierarchyBoost: number): Promise<HierarchySearchHit[]> {
+    async extractHierarchy(index: string, query: string, hierarchyBoost: number, disableFuzziness: boolean): Promise<HierarchySearchHit[]> {
       const {
         hits: { hits },
-      } = await queryElastic<HierarchySearchHit>(client, { index, ...hierarchyQuery(query) });
+      } = await queryElastic<HierarchySearchHit>(client, { index, ...hierarchyQuery(query, disableFuzziness) });
 
       const filteredHits = hits.length > 3 ? hits.filter((hit) => hit._score! >= hits[2]._score!) : hits;
 
