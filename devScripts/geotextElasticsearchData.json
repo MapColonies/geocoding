@@ -233,7 +233,7 @@
       "source_id": ["{1a5b981b-bb0e-44dd-b9e2-424b92f2de49}"],
       "sensitivity": "non-sensitive",
       "placetype": "education",
-      "sub_placetype": "elementary school",
+      "sub_placetype": "school",
       "wkt": "POLYGON ((-118.30812263653988 33.71684417247593, -118.30861990876181 33.71674433152869, -118.30879709771484 33.71635922964194, -118.30619642115158 33.71550819588987, -118.30586490633668 33.715921827872904, -118.30587062210924 33.716183318328746, -118.30812263653988 33.71684417247593))",
       "geo_json": {
         "coordinates": [
@@ -336,9 +336,9 @@
     "_id": "6941ab8e-7503-4f8a-94f2-4750b2698db9",
     "_index": "placetypes_index",
     "_source": {
-      "placetype": "transportation",
-      "sub_placetype": "education",
-      "sub_placetype_keyword": "elementary school"
+      "placetype": "education",
+      "sub_placetype": "school",
+      "sub_placetype_keyword": "school"
     }
   }
 ]
