@@ -7,7 +7,7 @@ import { ConvertSnakeToCamelCase } from '../../../common/utils';
 export interface ItemQueryParams extends ConvertSnakeToCamelCase<CommonRequestParameters> {
   commandName: string;
   tile?: string;
-  subTile?: number;
+  subTile?: string;
 }
 /* eslint-disable @typescript-eslint/naming-convention */
 export const queryForItems = ({
@@ -44,7 +44,7 @@ export const queryForItems = ({
               },
             ]
           : []),
-        ...(subTile ?? 0
+        ...(subTile ?? ''
           ? [
               {
                 term: {
