@@ -18,10 +18,10 @@ export class RouteManager {
   ) {}
 
   public async getRoutes(routeQueryParams: RouteQueryParams): Promise<FeatureCollection<Route>> {
-    const { limit, disableFuzziness } = routeQueryParams;
+    const { limit } = routeQueryParams;
 
     let elasticResponse: estypes.SearchResponse<Route> | undefined = undefined;
-    if (routeQueryParams.controlPoint ?? 0) {
+    if (routeQueryParams.controlPoint ?? '') {
       elasticResponse = await this.routeRepository.getControlPointInRoute(
         routeQueryParams as RouteQueryParams & Required<Pick<RouteQueryParams, 'controlPoint'>>,
         limit
@@ -30,16 +30,6 @@ export class RouteManager {
       elasticResponse = await this.routeRepository.getRoutes(routeQueryParams, limit);
     }
 
-    const formattedResponse = formatResponse(elasticResponse, routeQueryParams);
-
-    if (disableFuzziness && formattedResponse.features.length > 0) {
-      const filterFunction =
-        routeQueryParams.controlPoint ?? 0
-          ? (hit: Route | undefined): hit is Route => hit?.properties?.OBJECT_COMMAND_NAME === routeQueryParams.controlPoint
-          : (hit: Route | undefined): hit is Route => hit?.properties?.OBJECT_COMMAND_NAME === routeQueryParams.commandName;
-      formattedResponse.features = formattedResponse.features.filter(filterFunction);
-    }
-
-    return formattedResponse;
+    return formatResponse(elasticResponse, routeQueryParams);
   }
 }
