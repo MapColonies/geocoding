@@ -39,8 +39,8 @@ export const formatResponse = <T extends Item | Tile | Route>(
           }
         });
       }
-      return source;
-    }) as T[]),
+      return { ...source, _score: item._score };
+    }) as (T & Pick<estypes.SearchHit<T>, '_score'>)[]),
   ],
 });
 
