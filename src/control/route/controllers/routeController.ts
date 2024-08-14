@@ -33,7 +33,7 @@ export class RouteController {
       const { command_name: commandName, control_point, geo_context, geo_context_mode, disable_fuzziness, limit } = req.query;
       const response = await this.manager.getRoutes({
         commandName,
-        controlPoint: control_point ? parseInt(control_point) : undefined,
+        controlPoint: control_point,
         geoContext: geo_context,
         geoContextMode: geo_context_mode,
         disableFuzziness: disable_fuzziness,
