@@ -1,4 +1,7 @@
 import type { GeoJSON } from 'geojson';
+import { estypes } from '@elastic/elasticsearch';
+import { CommonRequestParameters } from '../common/interfaces';
+import { ConvertSnakeToCamelCase } from '../common/utils';
 import { HierarchySearchHit } from './models/elasticsearchHits';
 
 export interface PlaceType {
@@ -11,25 +14,16 @@ export interface TokenResponse {
   prediction: string[];
 }
 
-export interface TextSearchParams {
-  query: string;
-  viewbox?: GeoJSON;
-  boundary?: GeoJSON;
-  sources?: string[];
-  regions?: string[];
+export interface TextSearchParams extends ConvertSnakeToCamelCase<GetGeotextSearchParams> {
   name?: string;
   placeTypes?: string[];
   subPlaceTypes?: string[];
   hierarchies: HierarchySearchHit[];
-  limit: number;
 }
 
-export interface GetGeotextSearchParams {
+export interface GetGeotextSearchParams extends CommonRequestParameters {
   query: string;
-  limit: number;
   source?: string[];
-  viewbox?: string;
-  boundary?: string;
   region?: string[];
 }
 
@@ -37,8 +31,12 @@ export interface GetGeotextSearchParams {
 
 export interface QueryResult {
   type: string;
-  geocoding: { version?: string; query: TextSearchParams; name?: string };
-  features: {
+  geocoding: {
+    version?: string;
+    query: TextSearchParams & { response: { max_score: number; results_count: number; match_latency_ms: number } };
+    name?: string;
+  };
+  features: ({
     type: string;
     geometry?: GeoJSON;
     properties: {
@@ -56,7 +54,7 @@ export interface QueryResult {
       sub_region?: string[];
       regions?: { region: string; sub_regions: string[] }[];
     };
-  }[];
+  } & Pick<estypes.SearchHit, '_score'>)[];
 }
 /* eslint-enable @typescript-eslint/naming-convention */
 
