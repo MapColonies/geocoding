@@ -38,7 +38,7 @@ export class TileManager {
       throw new BadRequestError('/control/tiles/queryForTiles: tile must be defined');
     }
 
-    if (tileQueryParams.subTile ?? 0) {
+    if (tileQueryParams.subTile ?? '') {
       elasticResponse = await this.tileRepository.getSubTiles(tileQueryParams as Required<TileQueryParams>, limit);
     } else {
       elasticResponse = await this.tileRepository.getTiles(tileQueryParams as TileQueryParams & Required<Pick<TileQueryParams, 'tile'>>, limit);
