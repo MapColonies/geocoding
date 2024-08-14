@@ -14,7 +14,7 @@ import { TILE_ROUTER_SYMBOL } from './control/tile/routes/tileRouter';
 import { ITEM_ROUTER_SYMBOL } from './control/item/routes/itemRouter';
 import { ROUTE_ROUTER_SYMBOL } from './control/route/routes/routeRouter';
 import { LAT_LON_ROUTER_SYMBOL } from './latLon/routes/latLonRouter';
-import { GEOTEXT_SEARCH_ROUTER_SYMBOL } from './geotextSearch/routes/geotextSearchRouter';
+import { GEOTEXT_SEARCH_ROUTER_SYMBOL } from './location/routes/locationRouter';
 import { cronLoadTileLatLonDataSymbol } from './latLon/DAL/latLonDAL';
 
 @injectable()

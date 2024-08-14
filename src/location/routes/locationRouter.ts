@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { FactoryFunction } from 'tsyringe';
-import { GeotextSearchController } from '../controllers/geotextSearchController';
+import { GeotextSearchController } from '../controllers/locationController';
 
 const geotextSearchRouterFactory: FactoryFunction<Router> = (dependencyContainer) => {
   const router = Router();

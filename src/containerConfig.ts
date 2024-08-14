@@ -19,8 +19,8 @@ import { ROUTE_ROUTER_SYMBOL, routeRouterFactory } from './control/route/routes/
 import { initDataSource } from './common/postgresql';
 import { LATLON_CUSTOM_REPOSITORY_SYMBOL, latLonRepositoryFactory } from './latLon/DAL/latLonRepository';
 import { LAT_LON_ROUTER_SYMBOL, latLonRouterFactory } from './latLon/routes/latLonRouter';
-import { GEOTEXT_REPOSITORY_SYMBOL, geotextRepositoryFactory } from './geotextSearch/DAL/geotextSearchRepository';
-import { GEOTEXT_SEARCH_ROUTER_SYMBOL, geotextSearchRouterFactory } from './geotextSearch/routes/geotextSearchRouter';
+import { GEOTEXT_REPOSITORY_SYMBOL, geotextRepositoryFactory } from './location/DAL/locationRepository';
+import { GEOTEXT_SEARCH_ROUTER_SYMBOL, geotextSearchRouterFactory } from './location/routes/locationRouter';
 import { cronLoadTileLatLonDataFactory, cronLoadTileLatLonDataSymbol } from './latLon/DAL/latLonDAL';
 import { ITEM_REPOSITORY_SYMBOL, itemRepositoryFactory } from './control/item/DAL/itemRepository';
 

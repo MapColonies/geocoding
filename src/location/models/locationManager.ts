@@ -2,7 +2,7 @@ import { IConfig } from 'config';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { SERVICES, elasticConfigPath } from '../../common/constants';
-import { GEOTEXT_REPOSITORY_SYMBOL, GeotextRepository } from '../DAL/geotextSearchRepository';
+import { GEOTEXT_REPOSITORY_SYMBOL, GeotextRepository } from '../DAL/locationRepository';
 import { GetGeotextSearchParams, QueryResult, TextSearchParams } from '../interfaces';
 import { convertResult, parseGeo } from '../utils';
 import { IApplication } from '../../common/interfaces';

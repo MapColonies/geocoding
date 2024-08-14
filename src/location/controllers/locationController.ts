@@ -4,7 +4,7 @@ import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
-import { GeotextSearchManager } from '../models/geotextSearchManager';
+import { GeotextSearchManager } from '../models/locationManager';
 import { GetGeotextSearchParams, QueryResult } from '../interfaces';
 
 type GetGeotextSearchHandler = RequestHandler<

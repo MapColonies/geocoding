@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { estypes } from '@elastic/elasticsearch';
-import { parseGeo } from '../geotextSearch/utils';
+import { parseGeo } from '../location/utils';
 import { CommonRequestParameters, GeoContext, GeoContextMode, IConfig } from '../common/interfaces';
 import { BadRequestError } from '../common/errors';
 import { elasticConfigPath } from '../common/constants';
