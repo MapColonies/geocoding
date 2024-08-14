@@ -255,7 +255,9 @@ paths:
           in: "query"
           description: "The sub tile the item in it (required if tile is defined)"
           schema:
-            type: "number"
+            type: "string"
+            pattern: "^[1-9][0-9]*$"
+          example: "66"
         - $ref: "#/components/parameters/geo_context"
         - $ref: "#/components/parameters/geo_context_mode"
         - $ref: "#/components/parameters/limit"
