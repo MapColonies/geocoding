@@ -19,7 +19,7 @@ export class TileManager {
   ) {}
 
   public async getTiles(tileQueryParams: TileQueryParams): Promise<FeatureCollection<Tile>> {
-    const { limit, disableFuzziness } = tileQueryParams;
+    const { limit } = tileQueryParams;
 
     if (
       (tileQueryParams.tile === undefined && tileQueryParams.mgrs === undefined) ||
@@ -44,17 +44,6 @@ export class TileManager {
       elasticResponse = await this.tileRepository.getTiles(tileQueryParams as TileQueryParams & Required<Pick<TileQueryParams, 'tile'>>, limit);
     }
 
-    const formattedResponse = formatResponse(elasticResponse, tileQueryParams);
-
-    if (disableFuzziness && formattedResponse.features.length > 0) {
-      const filterFunction =
-        tileQueryParams.subTile ?? 0
-          ? (hit: Tile | undefined): hit is Tile =>
-              hit?.properties?.SUB_TILE_ID === tileQueryParams.subTile && hit?.properties?.TILE_NAME === tileQueryParams.tile
-          : (hit: Tile | undefined): hit is Tile => hit?.properties?.TILE_NAME === tileQueryParams.tile;
-      formattedResponse.features = formattedResponse.features.filter(filterFunction);
-    }
-
-    return formattedResponse;
+    return formatResponse(elasticResponse, tileQueryParams);
   }
 }
