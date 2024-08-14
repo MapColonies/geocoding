@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/naming-convention */
 import WKT, { GeoJSONPolygon } from 'wellknown';
 import { estypes } from '@elastic/elasticsearch';
 import { QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
 import { TextSearchParams } from '../interfaces';
-import { IApplication } from '../../common/interfaces';
+import { GeoContextMode, IApplication } from '../../common/interfaces';
+import { BadRequestError } from '../../common/errors';
+import { parseGeo } from '../utils';
 
 const TEXT_FIELD = 'text';
 const PLACETYPE_FIELD = 'placetype.keyword';
@@ -15,10 +18,26 @@ const HIERARCHY_FIELD = 'heirarchy';
 const PLACETYPE_SEARCH_FIELD = 'sub_placetype_keyword';
 
 export const geotextQuery = (
-  { query, limit: size, name, placeTypes, subPlaceTypes, hierarchies, regions, viewbox, boundary, sources }: TextSearchParams,
+  {
+    query,
+    limit: size,
+    name,
+    placeTypes,
+    subPlaceTypes,
+    hierarchies,
+    region,
+    source,
+    geoContext,
+    geoContextMode,
+    disableFuzziness,
+  }: TextSearchParams,
   textLanguage: string,
   boosts: IApplication['elasticQueryBoosts']
 ): estypes.SearchRequest => {
+  if ((geoContext !== undefined && geoContextMode === undefined) || (geoContext === undefined && geoContextMode !== undefined)) {
+    throw new BadRequestError('/location/geotextQuery: geo_context and geo_context_mode must be both defined or both undefined');
+  }
+
   const esQuery: estypes.SearchRequest = {
     query: {
       function_score: {
@@ -36,6 +55,26 @@ export const geotextQuery = (
     },
     size,
   };
+
+  if (geoContext && geoContextMode) {
+    const geo_shape = {
+      [GEOJSON_FIELD]: {
+        shape: parseGeo(geoContext),
+      },
+    };
+    if (geoContextMode === GeoContextMode.FILTER) {
+      (esQuery.query?.function_score?.query?.bool?.filter as QueryDslQueryContainer[]).push({
+        geo_shape: geo_shape,
+      });
+    } else {
+      esQuery.query?.function_score?.functions?.push({
+        weight: boosts.viewbox,
+        filter: {
+          geo_shape,
+        },
+      });
+    }
+  }
 
   if (!name && subPlaceTypes?.length) {
     (esQuery.query?.function_score?.query?.bool?.must as QueryDslQueryContainer[]).push(
@@ -57,32 +96,23 @@ export const geotextQuery = (
       match: {
         [TEXT_FIELD]: {
           query,
-          fuzziness: 'AUTO:3,4',
+          fuzziness: disableFuzziness ? undefined : 'AUTO:3,4',
         },
       },
     });
   }
 
-  boundary &&
+  source?.length &&
     (esQuery.query?.function_score?.query?.bool?.filter as QueryDslQueryContainer[]).push({
-      geo_shape: {
-        [GEOJSON_FIELD]: {
-          shape: boundary,
-        },
+      terms: {
+        [SOURCE_FIELD]: source,
       },
     });
 
-  sources?.length &&
+  region?.length &&
     (esQuery.query?.function_score?.query?.bool?.filter as QueryDslQueryContainer[]).push({
       terms: {
-        [SOURCE_FIELD]: sources,
-      },
-    });
-
-  regions?.length &&
-    (esQuery.query?.function_score?.query?.bool?.filter as QueryDslQueryContainer[]).push({
-      terms: {
-        [REGION_FIELD]: regions,
+        [REGION_FIELD]: region,
       },
     });
 
@@ -116,18 +146,6 @@ export const geotextQuery = (
       },
     });
 
-  viewbox &&
-    esQuery.query?.function_score?.functions?.push({
-      weight: boosts.viewbox,
-      filter: {
-        geo_shape: {
-          [GEOJSON_FIELD]: {
-            shape: viewbox,
-          },
-        },
-      },
-    });
-
   hierarchies.forEach((hierarchy) => {
     const hierarchyShape = typeof hierarchy.geo_json === 'string' ? WKT.parse(hierarchy.geo_json) : hierarchy.geo_json;
     esQuery.query?.function_score?.functions?.push({
@@ -150,14 +168,14 @@ export const geotextQuery = (
   return esQuery;
 };
 
-export const placetypeQuery = (query: string): estypes.SearchRequest => ({
+export const placetypeQuery = (query: string, disableFuzziness: boolean): estypes.SearchRequest => ({
   query: {
     bool: {
       should: {
         match: {
           [PLACETYPE_SEARCH_FIELD]: {
             query,
-            fuzziness: 'AUTO:3,4',
+            fuzziness: disableFuzziness ? undefined : 'AUTO:3,4',
           },
         },
       },
@@ -166,7 +184,7 @@ export const placetypeQuery = (query: string): estypes.SearchRequest => ({
   size: 2,
 });
 
-export const hierarchyQuery = (query: string): estypes.SearchRequest => ({
+export const hierarchyQuery = (query: string, disableFuzziness: boolean): estypes.SearchRequest => ({
   query: {
     function_score: {
       functions: [
@@ -176,7 +194,7 @@ export const hierarchyQuery = (query: string): estypes.SearchRequest => ({
             match: {
               [HIERARCHY_FIELD]: {
                 query,
-                fuzziness: 'AUTO:3,4',
+                fuzziness: disableFuzziness ? undefined : 'AUTO:3,4',
               },
             },
           },
@@ -188,7 +206,7 @@ export const hierarchyQuery = (query: string): estypes.SearchRequest => ({
             match: {
               text: {
                 query,
-                fuzziness: 'AUTO:3,4',
+                fuzziness: disableFuzziness ? undefined : 'AUTO:3,4',
               },
             },
           },
