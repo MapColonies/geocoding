@@ -6,7 +6,7 @@ import { ConvertSnakeToCamelCase } from '../../../common/utils';
 
 export interface RouteQueryParams extends ConvertSnakeToCamelCase<CommonRequestParameters> {
   commandName: string;
-  controlPoint?: number;
+  controlPoint?: string;
 }
 
 /* eslint-disable @typescript-eslint/naming-convention */
@@ -39,6 +39,7 @@ export const queryForControlPointInRoute = ({
   commandName,
   geoContext,
   geoContextMode,
+  disableFuzziness,
 }: RouteQueryParams & Required<Pick<RouteQueryParams, 'controlPoint'>>): estypes.SearchRequest => {
   const geoContextOperation = geoContextQuery(geoContext, geoContextMode);
 
@@ -50,7 +51,7 @@ export const queryForControlPointInRoute = ({
             match: {
               [ELASTIC_KEYWORDS.objectCommandName]: {
                 query: controlPoint,
-                fuzziness: 1,
+                fuzziness: disableFuzziness ? undefined : 1,
                 prefix_length: 1,
               },
             },
