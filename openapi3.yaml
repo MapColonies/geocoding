@@ -299,7 +299,8 @@ paths:
           in: "query"
           description: "The associated report control point of the route"
           schema:
-            type: "number"
+            type: "string"
+            pattern: "^[1-9][0-9]*$"
         - $ref: "#/components/parameters/geo_context"
         - $ref: "#/components/parameters/geo_context_mode"
         - $ref: "#/components/parameters/limit"
