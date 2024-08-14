@@ -4,9 +4,10 @@ import { inject, injectable } from 'tsyringe';
 import { SERVICES, elasticConfigPath } from '../../common/constants';
 import { GEOTEXT_REPOSITORY_SYMBOL, GeotextRepository } from '../DAL/locationRepository';
 import { GetGeotextSearchParams, QueryResult, TextSearchParams } from '../interfaces';
-import { convertResult, parseGeo } from '../utils';
+import { convertResult } from '../utils';
 import { IApplication } from '../../common/interfaces';
 import { ElasticDbClientsConfig } from '../../common/elastic/interfaces';
+import { ConvertSnakeToCamelCase } from '../../common/utils';
 
 @injectable()
 export class GeotextSearchManager {
@@ -17,7 +18,7 @@ export class GeotextSearchManager {
     @inject(GEOTEXT_REPOSITORY_SYMBOL) private readonly geotextRepository: GeotextRepository
   ) {}
 
-  public async search(params: GetGeotextSearchParams): Promise<QueryResult> {
+  public async search(params: ConvertSnakeToCamelCase<GetGeotextSearchParams>): Promise<QueryResult> {
     const extractNameEndpoint = this.appConfig.services.tokenTypesUrl;
     const {
       geotext: geotextIndex,
@@ -32,23 +33,18 @@ export class GeotextSearchManager {
 
     const promises = Promise.all([
       this.geotextRepository.extractName(extractNameEndpoint, query),
-      this.geotextRepository.generatePlacetype(placetypesIndex, query),
-      this.geotextRepository.extractHierarchy(hierarchiesIndex, hierarchyQuery.join(','), hierarchyBoost),
+      this.geotextRepository.generatePlacetype(placetypesIndex, query, params.disableFuzziness),
+      this.geotextRepository.extractHierarchy(hierarchiesIndex, hierarchyQuery.join(','), hierarchyBoost, params.disableFuzziness),
     ]);
 
     const [name, { placeTypes, subPlaceTypes }, hierarchies] = await promises;
 
     const searchParams: TextSearchParams = {
-      query,
-      limit: params.limit,
-      sources: params.source ? (params.source instanceof Array ? params.source : [params.source]) : undefined,
-      viewbox: params.viewbox ? parseGeo(params.viewbox) : undefined,
-      boundary: params.boundary ? parseGeo(params.boundary) : undefined,
+      ...params,
       name,
       placeTypes,
       subPlaceTypes,
       hierarchies,
-      regions: params.region,
     };
 
     const esResult = await this.geotextRepository.geotextSearch(
@@ -58,7 +54,7 @@ export class GeotextSearchManager {
       this.appConfig.elasticQueryBoosts
     );
 
-    return convertResult(searchParams, esResult.hits.hits, {
+    return convertResult(searchParams, esResult, {
       sources: this.appConfig.sources,
       regionCollection: this.appConfig.regions,
       nameKeys: this.appConfig.nameTranslationsKeys,
