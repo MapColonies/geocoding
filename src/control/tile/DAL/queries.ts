@@ -40,7 +40,13 @@ export const queryForTiles = ({
   },
 });
 
-export const queryForSubTiles = ({ tile, geoContext, geoContextMode, subTile }: Required<TileQueryParams>): estypes.SearchRequest => ({
+export const queryForSubTiles = ({
+  tile,
+  geoContext,
+  geoContextMode,
+  subTile,
+  disableFuzziness,
+}: Required<TileQueryParams>): estypes.SearchRequest => ({
   query: {
     bool: {
       must: [
@@ -56,7 +62,12 @@ export const queryForSubTiles = ({ tile, geoContext, geoContextMode, subTile }: 
         },
         {
           match: {
-            [ELASTIC_KEYWORDS.subTileId]: subTile,
+            [ELASTIC_KEYWORDS.subTileId]: {
+              query: subTile,
+              fuzziness: disableFuzziness ? undefined : 1,
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              prefix_length: 1,
+            },
           },
         },
       ],
