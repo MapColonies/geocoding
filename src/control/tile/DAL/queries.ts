@@ -7,7 +7,7 @@ import { ConvertSnakeToCamelCase } from '../../../common/utils';
 export interface TileQueryParams extends ConvertSnakeToCamelCase<CommonRequestParameters> {
   tile?: string;
   mgrs?: string;
-  subTile?: number;
+  subTile?: string;
 }
 
 export const queryForTiles = ({
