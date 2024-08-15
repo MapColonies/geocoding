@@ -1,11 +1,11 @@
 import { readFileSync } from 'fs';
 import { HealthCheck } from '@godaddy/terminus';
 import { DataSource, DataSourceOptions, QueryFailedError } from 'typeorm';
-import { PostgresDbConfig } from '../interfaces';
+import { DependencyContainer, FactoryFunction } from 'tsyringe';
+import { IConfig, PostgresDbConfig } from '../interfaces';
 import { LatLon } from '../../latLon/DAL/latLon';
+import { SERVICES } from '../constants';
 import { promiseTimeout } from './promiseTimeout';
-
-let connectionSingleton: DataSource | undefined;
 
 const DB_TIMEOUT = 5000;
 
@@ -17,6 +17,13 @@ enum TransactionFailure {
 interface QueryFailedErrorWithCode extends QueryFailedError {
   code: string | undefined;
 }
+
+export const postgresClientFactory: FactoryFunction<DataSource> = (container: DependencyContainer): DataSource => {
+  const config = container.resolve<IConfig>(SERVICES.CONFIG);
+
+  const dbConfig = config.get<PostgresDbConfig>('db.postgresql');
+  return new DataSource(createConnectionOptions(dbConfig));
+};
 
 export enum TransactionName {
   TRY_CLOSING_FILE = 'TryClosingFile',
@@ -42,14 +49,6 @@ export const createConnectionOptions = (dbConfig: PostgresDbConfig): DataSourceO
     connectionOptions.ssl = { key: readFileSync(sslPaths.key), cert: readFileSync(sslPaths.cert), ca: readFileSync(sslPaths.ca) };
   }
   return { entities: [...DB_ENTITIES, '**/DAL/*.js'], ...connectionOptions };
-};
-
-export const initDataSource = async (dbConfig: PostgresDbConfig): Promise<DataSource> => {
-  if (connectionSingleton === undefined || !connectionSingleton.isInitialized) {
-    connectionSingleton = new DataSource(createConnectionOptions(dbConfig));
-    await connectionSingleton.initialize();
-  }
-  return connectionSingleton;
 };
 
 export const getDbHealthCheckFunction = (connection: DataSource): HealthCheck => {

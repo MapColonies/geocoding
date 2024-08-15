@@ -10,13 +10,13 @@ import { SERVICES, SERVICE_NAME } from './common/constants';
 import { tracing } from './common/tracing';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
 import { elasticClientFactory, ElasticClients } from './common/elastic';
-import { IApplication, PostgresDbConfig } from './common/interfaces';
+import { IApplication } from './common/interfaces';
 import { TILE_REPOSITORY_SYMBOL, tileRepositoryFactory } from './control/tile/DAL/tileRepository';
 import { TILE_ROUTER_SYMBOL, tileRouterFactory } from './control/tile/routes/tileRouter';
 import { ITEM_ROUTER_SYMBOL, itemRouterFactory } from './control/item/routes/itemRouter';
 import { ROUTE_REPOSITORY_SYMBOL, routeRepositoryFactory } from './control/route/DAL/routeRepository';
 import { ROUTE_ROUTER_SYMBOL, routeRouterFactory } from './control/route/routes/routeRouter';
-import { initDataSource } from './common/postgresql';
+import { postgresClientFactory } from './common/postgresql';
 import { LATLON_CUSTOM_REPOSITORY_SYMBOL, latLonRepositoryFactory } from './latLon/DAL/latLonRepository';
 import { LAT_LON_ROUTER_SYMBOL, latLonRouterFactory } from './latLon/routes/latLonRouter';
 import { GEOTEXT_REPOSITORY_SYMBOL, geotextRepositoryFactory } from './location/DAL/locationRepository';
@@ -41,10 +41,6 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
 
   const applicationConfig: IApplication = config.get<IApplication>('application');
 
-  const postgresqlDataSourceOptions = config.get<PostgresDbConfig>('db.postgresql');
-
-  const postgresqlConnection = await initDataSource(postgresqlDataSourceOptions);
-
   const dependencies: InjectionObject<unknown>[] = [
     { token: SERVICES.CONFIG, provider: { useValue: config } },
     { token: SERVICES.LOGGER, provider: { useValue: logger } },
@@ -68,7 +64,19 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
         }
       },
     },
-    { token: DataSource, provider: { useValue: postgresqlConnection } },
+    {
+      token: DataSource,
+      provider: { useFactory: postgresClientFactory },
+      postInjectionHook: async (deps: DependencyContainer): Promise<void> => {
+        const connection = deps.resolve<DataSource>(DataSource);
+        try {
+          await connection.initialize();
+          logger.info('Connected to Postgres');
+        } catch (err) {
+          logger.error('Failed to connect to Postgres', err);
+        }
+      },
+    },
     { token: TILE_REPOSITORY_SYMBOL, provider: { useFactory: tileRepositoryFactory } },
     { token: TILE_ROUTER_SYMBOL, provider: { useFactory: tileRouterFactory } },
     { token: ITEM_REPOSITORY_SYMBOL, provider: { useFactory: itemRepositoryFactory } },
