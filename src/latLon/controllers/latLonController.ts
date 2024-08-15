@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
+import { Feature } from 'geojson';
 import { Logger } from '@map-colonies/js-logger';
 import { BoundCounter, Meter } from '@opentelemetry/api-metrics';
 import { RequestHandler } from 'express';
@@ -24,6 +25,13 @@ type GetTileToLatLonHandler = RequestHandler<undefined, FeatureCollection<Tile>,
 type GetLatLonToMgrsHandler = RequestHandler<undefined, { mgrs: string }, undefined, GetLatLonToMgrsQueryParams>;
 
 type GetMgrsToLatLonHandler = RequestHandler<undefined, WGS84Coordinate, undefined, GetMgrsToLatLonQueryParams>;
+
+type GetCoordinatesHandler = RequestHandler<
+  undefined,
+  { [key: string]: unknown } & Feature,
+  undefined,
+  WGS84Coordinate & { target_gird: 'control' | 'MGRS' }
+>;
 
 export interface GetLatLonToTileQueryParams extends WGS84Coordinate {}
 
@@ -100,6 +108,29 @@ export class LatLonController {
       return res.status(httpStatus.OK).json(response);
     } catch (error: unknown) {
       this.logger.warn('latLonController.mgrsToLatlon Error:', error);
+      next(error);
+    }
+  };
+
+  public getCoordinates: GetCoordinatesHandler = async (req, res, next) => {
+    try {
+      const { lat, lon, target_gird } = req.query;
+
+      let response:
+        | ({
+            [key: string]: unknown;
+          } & Feature)
+        | undefined = undefined;
+
+      if (target_gird === 'control') {
+        response = await this.manager.latLonToTile({ lat, lon });
+      } else {
+        response = this.manager.latLonToMGRS({ lat, lon });
+      }
+
+      return res.status(httpStatus.OK).json(response);
+    } catch (error: unknown) {
+      this.logger.warn('latLonController.getCoordinates Error:', error);
       next(error);
     }
   };

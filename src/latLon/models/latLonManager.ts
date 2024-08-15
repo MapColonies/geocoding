@@ -9,6 +9,8 @@ import { convertTilesToUTM, getSubTileByBottomLeftUtmCoor, validateResult } from
 import { BadRequestError } from '../../common/errors';
 import { Tile } from '../../control/tile/models/tile';
 import { FeatureCollection, WGS84Coordinate } from '../../common/interfaces';
+import { Feature } from 'geojson';
+import { parseGeo } from '../../location/utils';
 
 @injectable()
 export class LatLonManager {
@@ -22,10 +24,7 @@ export class LatLonManager {
     this.dbSchema = this.config.get('db.postgresql.schema');
   }
 
-  public async latLonToTile({ lat, lon }: WGS84Coordinate): Promise<{
-    tileName: string;
-    subTileNumber: number[];
-  }> {
+  public async latLonToTile({ lat, lon }: WGS84Coordinate): Promise<{ [key: string]: unknown } & Feature> {
     if (!validateWGS84Coordinate({ lat, lon })) {
       this.logger.warn("LatLonManager.latLonToTile: Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal");
       throw new BadRequestError("Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal");
@@ -59,6 +58,15 @@ export class LatLonManager {
       .padStart(4, '0');
 
     return {
+      type: 'Feature',
+      properties: {},
+      geometry: parseGeo({
+        bbox: [tileCoordinateData.extMinX, tileCoordinateData.extMinY, tileCoordinateData.extMaxX, tileCoordinateData.extMaxY],
+      }) ?? {
+        type: 'Point',
+        coordinates: [lon, lat],
+      },
+      bbox: [tileCoordinateData.extMinX, tileCoordinateData.extMinY, tileCoordinateData.extMaxX, tileCoordinateData.extMaxY],
       tileName: tileCoordinateData.tileName,
       subTileNumber: new Array(3).fill('').map(function (value, i) {
         return +(xNumber[i] + yNumber[i]);
@@ -88,9 +96,17 @@ export class LatLonManager {
     return geojsonRes;
   }
 
-  public latLonToMGRS({ lat, lon, accuracy = 5 }: { lat: number; lon: number; accuracy?: number }): { mgrs: string } {
+  public latLonToMGRS({ lat, lon, accuracy = 5 }: { lat: number; lon: number; accuracy?: number }): { [key: string]: unknown } & Feature {
     return {
+      type: 'Feature',
       mgrs: mgrs.forward([lon, lat], accuracy),
+      geometry: {
+        type: 'Point',
+        coordinates: [lon, lat],
+      },
+      properties: {
+        accuracy,
+      },
     };
   }
 
