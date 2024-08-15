@@ -156,8 +156,6 @@ export const convertResult = (
           region: region,
           sub_regions: feature.sub_region.filter((sub_region) => (regionCollection ?? {})[region ?? '']?.includes(sub_region)),
         })),
-        region: feature?.region,
-        sub_region: feature?.sub_region,
       },
     };
   }),
