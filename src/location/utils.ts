@@ -1,5 +1,5 @@
 // import fetch, { Response } from "node-fetch-commonjs";
-import { GeoJSON, Point } from 'geojson';
+import { GeoJSON, Geometry, Point } from 'geojson';
 import { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import { StatusCodes } from 'http-status-codes';
 import axios, { AxiosResponse as Response } from 'axios';
@@ -14,12 +14,12 @@ const FIND_QUOTES = /["']/g;
 
 const FIND_SPECIAL = /[`!@#$%^&*()_\-+=|\\/,.<>:[\]{}\n\t\r\s;؛]+/g;
 
-const parsePoint = (split: string[] | number[]): GeoJSON => ({
+const parsePoint = (split: string[] | number[]): Geometry => ({
   type: 'Point',
   coordinates: split.map(Number),
 });
 
-const parseBbox = (split: string[] | number[]): GeoJSON => {
+const parseBbox = (split: string[] | number[]): Geometry => {
   const [xMin, yMin, xMax, yMax] = split.map(Number);
   return {
     type: 'Polygon',
@@ -62,7 +62,7 @@ export const fetchNLPService = async <T>(endpoint: string, requestData: object):
 
 export const cleanQuery = (query: string): string[] => query.replace(FIND_QUOTES, '').split(FIND_SPECIAL);
 
-export const parseGeo = (input: string | GeoJSON | GeoContext): GeoJSON | undefined => {
+export const parseGeo = (input: string | GeoJSON | GeoContext): Geometry | undefined => {
   //TODO: remove string | GeoJson as accepted types
   //TODO: Add geojson validation
   //TODO: refactor this function
@@ -96,9 +96,9 @@ export const parseGeo = (input: string | GeoJSON | GeoContext): GeoJSON | undefi
 
     // console.log(convertWgs84ToUTM(lat, lon));
 
-    return { type: 'Circle', coordinates: (parsePoint([lon, lat]) as Point).coordinates, radius: `${radius ?? ''}` } as unknown as GeoJSON;
+    return { type: 'Circle', coordinates: (parsePoint([lon, lat]) as Point).coordinates, radius: `${radius ?? ''}` } as unknown as Geometry;
   }
-  return input as GeoJSON;
+  return input as Geometry;
 };
 
 /* eslint-disable @typescript-eslint/naming-convention */
