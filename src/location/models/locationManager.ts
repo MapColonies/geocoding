@@ -65,4 +65,8 @@ export class GeotextSearchManager {
   public regions(): string[] {
     return Object.keys(this.appConfig.regions ?? {});
   }
+
+  public sources(): string[] {
+    return Object.keys(this.appConfig.sources ?? {});
+  }
 }
