@@ -1,6 +1,6 @@
 openapi: "3.0.1"
 info:
-  version: "1.0.0"
+  version: "0.1.0"
   title: "Geocoding"
   description: |-
     MapColonies Vector Geocoding api provides custom geodata search engine uniting multiple sources of data, query tiles, routes, items; Convertion functions - tile to/from WGS84 lat lng, WGS84 to/from US Army MGRS, WGS84 to/from UTM.
@@ -934,7 +934,7 @@ components:
     BoundingBox:
       type: array
       description: "Bounding box array that contains [minX,minY,maxX,maxY]"
-      example: '[-74.382527,40.477003,-73.322346,40.916383]'
+      example: "[-74.382527,40.477003,-73.322346,40.916383]"
       items:
         type: number
       minLength: 4
