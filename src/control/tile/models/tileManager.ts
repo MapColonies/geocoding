@@ -4,7 +4,7 @@ import { inject, injectable } from 'tsyringe';
 import { estypes } from '@elastic/elasticsearch';
 import { SERVICES } from '../../../common/constants';
 import { TILE_REPOSITORY_SYMBOL, TileRepository } from '../DAL/tileRepository';
-import { formatResponse } from '../../utils';
+import { formatResponse, validateGeoContext } from '../../utils';
 import { TileQueryParams } from '../DAL/queries';
 import { FeatureCollection } from '../../../common/interfaces';
 import { BadRequestError, NotImplementedError } from '../../../common/errors';
@@ -19,13 +19,16 @@ export class TileManager {
   ) {}
 
   public async getTiles(tileQueryParams: TileQueryParams): Promise<FeatureCollection<Tile>> {
+    if (tileQueryParams.geoContext) {
+      validateGeoContext(tileQueryParams.geoContext);
+    }
     const { limit } = tileQueryParams;
 
     if (
       (tileQueryParams.tile === undefined && tileQueryParams.mgrs === undefined) ||
       (tileQueryParams.tile !== undefined && tileQueryParams.mgrs !== undefined)
     ) {
-      throw new BadRequestError("/control/tiles/queryForTiles: only one of 'tile' or 'mgrs' query parameter must be defined");
+      throw new BadRequestError("/control/tiles: only one of 'tile' or 'mgrs' query parameter must be defined");
     }
 
     //TODO: Handle MGRS query
@@ -34,9 +37,6 @@ export class TileManager {
     }
 
     let elasticResponse: estypes.SearchResponse<Tile> | undefined = undefined;
-    if (tileQueryParams.tile === undefined) {
-      throw new BadRequestError('/control/tiles/queryForTiles: tile must be defined');
-    }
 
     if (tileQueryParams.subTile ?? '') {
       elasticResponse = await this.tileRepository.getSubTiles(tileQueryParams as Required<TileQueryParams>, limit);
