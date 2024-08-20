@@ -948,10 +948,6 @@ components:
           type: number
         radius:
           type: number
-      required:
-        - lat
-        - lon
-        - radius
     UTMCircle:
       type: object
       properties:
@@ -965,19 +961,12 @@ components:
           maximum: 60
         radius:
           type: number
-      required:
-        - x
-        - y
-        - zone
-        - radius
     geo_context:
       anyOf:
         - type: object
           properties:
             bbox:
               $ref: "#/components/schemas/BoundingBox"
-          required:
-            - bbox
         - $ref: "#/components/schemas/WGS84Circle"
         - $ref: "#/components/schemas/UTMCircle"
     disable_fuzziness:
