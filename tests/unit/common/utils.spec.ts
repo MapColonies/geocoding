@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { estypes } from '@elastic/elasticsearch';
-import { additionalSearchProperties, convertUTMToWgs84, convertWgs84ToUTM, validateTile, validateWGS84Coordinate } from '../../../src/common/utils';
-import { formatResponse } from '../../../src/control/utils';
+import { convertUTMToWgs84, convertWgs84ToUTM, validateTile, validateWGS84Coordinate } from '../../../src/common/utils';
+import { additionalControlSearchProperties, formatResponse } from '../../../src/control/utils';
 import config from '../../../config/test.json';
-import { FIELDS } from '../../../src/common/constants';
 import { WGS84Coordinate } from '../../../src/common/interfaces';
+import { CONTROL_FIELDS } from '../../../src/control/constants';
 import {
   itemElasticResponse,
   itemExpectedFormattedResponse,
@@ -29,9 +29,9 @@ describe('utils', () => {
 
   it('should return additional search properties', () => {
     const size = 10;
-    const result = additionalSearchProperties(size);
+    const result = additionalControlSearchProperties(size);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    expect(result).toMatchObject({ size, index: config.db.elastic.searchy.properties.index as string, _source: FIELDS });
+    expect(result).toMatchObject({ size, index: config.db.elastic.searchy.properties.index as string, _source: CONTROL_FIELDS });
   });
 
   it('should convert UTM to WGS84', () => {
