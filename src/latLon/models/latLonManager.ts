@@ -1,6 +1,7 @@
 import { IConfig } from 'config';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
+import { Feature } from 'geojson';
 import * as mgrs from 'mgrs';
 import { SERVICES } from '../../common/constants';
 import { LatLonDAL } from '../DAL/latLonDAL';
@@ -9,7 +10,6 @@ import { convertTilesToUTM, getSubTileByBottomLeftUtmCoor, validateResult } from
 import { BadRequestError } from '../../common/errors';
 import { Tile } from '../../control/tile/models/tile';
 import { FeatureCollection, WGS84Coordinate } from '../../common/interfaces';
-import { Feature } from 'geojson';
 import { parseGeo } from '../../location/utils';
 
 @injectable()
@@ -30,7 +30,7 @@ export class LatLonManager {
       throw new BadRequestError("Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal");
     }
 
-    const utm = convertWgs84ToUTM(lat, lon);
+    const utm = convertWgs84ToUTM({ longitude: lon, latitude: lat });
 
     if (typeof utm === 'string') {
       this.logger.warn('LatLonManager.latLonToTile: utm is string');
