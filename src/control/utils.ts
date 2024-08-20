@@ -9,6 +9,7 @@ import { Item } from '../control/item/models/item';
 import { Tile } from '../control/tile/models/tile';
 import { Route } from '../control/route/models/route';
 import { ConvertSnakeToCamelCase } from '../common/utils';
+import { BBOX_LENGTH } from '../location/interfaces';
 import { CONTROL_FIELDS, ELASTIC_KEYWORDS } from './constants';
 import { ControlResponse } from './interfaces';
 
@@ -79,6 +80,28 @@ export const geoContextQuery = (
       },
     ],
   };
+};
+
+export const validateGeoContext = (geoContext: GeoContext): boolean => {
+  //TODO: Add validation for possible values
+
+  const messagePrefix = 'geo_context validation: ';
+
+  const validPairs = [['bbox'], ['lat', 'lon', 'radius'], ['x', 'y', 'zone', 'radius']];
+
+  if (geoContext.bbox !== undefined && geoContext.bbox.length !== BBOX_LENGTH) {
+    throw new BadRequestError(messagePrefix + 'bbox must contain 4 values');
+  }
+
+  if (
+    !validPairs.some(
+      (pair) => pair.every((key) => geoContext[key as keyof GeoContext] !== undefined) && Object.keys(geoContext).length === pair.length
+    )
+  ) {
+    throw new BadRequestError(messagePrefix + 'geo_context must contain one of the following: {bbox}, {lat, lon, radius}, or {x, y, zone, radius}');
+  }
+
+  return true;
 };
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
