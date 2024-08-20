@@ -94,8 +94,6 @@ export const parseGeo = (input: string | GeoJSON | GeoContext): Geometry | undef
     const { x, y, zone, radius } = input as GeoContext;
     const { lon, lat } = x && y && zone ? convertUTMToWgs84(x, y, zone) : (input as Required<Pick<GeoContext, 'lat' | 'lon'>>);
 
-    // console.log(convertWgs84ToUTM(lat, lon));
-
     return { type: 'Circle', coordinates: (parsePoint([lon, lat]) as Point).coordinates, radius: `${radius ?? ''}` } as unknown as Geometry;
   }
   return input as Geometry;
