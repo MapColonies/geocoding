@@ -12,14 +12,25 @@ import { ConvertSnakeToCamelCase } from '../common/utils';
 import { CONTROL_FIELDS, ELASTIC_KEYWORDS } from './constants';
 import { ControlResponse } from './interfaces';
 
+export const convertCamelToSnakeCase = (obj: Record<string, unknown>): Record<string, unknown> => {
+  const snakeCaseObj: Record<string, any> = {};
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      const snakeCaseKey = key.replace(/[A-Z]/g, (match) => `_${match.toLowerCase()}`);
+      snakeCaseObj[snakeCaseKey] = obj[key];
+    }
+  }
+  return snakeCaseObj;
+};
+
 export const formatResponse = <T extends Item | Tile | Route>(
   elasticResponse: estypes.SearchResponse<T>,
-  requestParams?: ConvertSnakeToCamelCase<CommonRequestParameters> | undefined
+  requestParams?: CommonRequestParameters | ConvertSnakeToCamelCase<CommonRequestParameters> | undefined
 ): ControlResponse<T> => ({
   type: 'FeatureCollection',
   geocoding: {
     version: process.env.npm_package_version,
-    query: requestParams,
+    query: requestParams ? convertCamelToSnakeCase(requestParams as Record<string, unknown>) : undefined,
     response: {
       /* eslint-disable @typescript-eslint/naming-convention */
       results_count: elasticResponse.hits.hits.length,
