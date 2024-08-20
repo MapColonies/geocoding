@@ -8,21 +8,14 @@ import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
 import { LatLonManager } from '../models/latLonManager';
 import { Tile } from '../../control/tile/models/tile';
-import { FeatureCollection, WGS84Coordinate } from '../../common/interfaces';
+import { WGS84Coordinate } from '../../common/interfaces';
+import { ControlResponse } from '../../control/interfaces';
 
-type GetLatLonToTileHandler = RequestHandler<
-  undefined,
-  {
-    tileName: string;
-    subTileNumber: number[];
-  },
-  undefined,
-  GetLatLonToTileQueryParams
->;
+type GetLatLonToTileHandler = RequestHandler<undefined, { [key: string]: unknown } & Feature, undefined, GetLatLonToTileQueryParams>;
 
-type GetTileToLatLonHandler = RequestHandler<undefined, FeatureCollection<Tile>, undefined, GetTileToLatLonQueryParams>;
+type GetTileToLatLonHandler = RequestHandler<undefined, ControlResponse<Tile>, undefined, GetTileToLatLonQueryParams>;
 
-type GetLatLonToMgrsHandler = RequestHandler<undefined, { mgrs: string }, undefined, GetLatLonToMgrsQueryParams>;
+type GetLatLonToMgrsHandler = RequestHandler<undefined, { [key: string]: unknown } & Feature, undefined, GetLatLonToMgrsQueryParams>;
 
 type GetMgrsToLatLonHandler = RequestHandler<undefined, WGS84Coordinate, undefined, GetMgrsToLatLonQueryParams>;
 
