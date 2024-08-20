@@ -30,8 +30,7 @@ export const validateWGS84Coordinate = (coordinate: { lon: number; lat: number }
 
 /* eslint-disable @typescript-eslint/naming-convention */
 export const convertWgs84ToUTM = (
-  latitude: number,
-  longitude: number,
+  { longitude, latitude }: { longitude: number; latitude: number },
   utmPrecision = 0
 ):
   | string
