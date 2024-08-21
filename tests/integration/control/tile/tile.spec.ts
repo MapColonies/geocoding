@@ -11,10 +11,11 @@ import { ControlResponse } from '../../../../src/control/interfaces';
 import { CommonRequestParameters, GeoContext, GeoContextMode } from '../../../../src/common/interfaces';
 import { LATLON_CUSTOM_REPOSITORY_SYMBOL } from '../../../../src/latLon/DAL/latLonRepository';
 import { cronLoadTileLatLonDataSymbol } from '../../../../src/latLon/DAL/latLonDAL';
+import { expectedResponse } from '../utils';
 import { TileRequestSender } from './helpers/requestSender';
-import { RIC_TILE, RIT_TILE, SUB_TILE_65, SUB_TILE_66, expectedResponse } from './utils';
+import { RIC_TILE, RIT_TILE, SUB_TILE_65, SUB_TILE_66 } from './mockObjects';
 
-describe('/tiles', function () {
+describe('/search/control/tiles', function () {
   let requestSender: TileRequestSender;
 
   beforeEach(async function () {

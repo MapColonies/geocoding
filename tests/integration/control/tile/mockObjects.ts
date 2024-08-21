@@ -1,23 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { CommonRequestParameters } from '../../../../src/common/interfaces';
-import { ControlResponse } from '../../../../src/control/interfaces';
-import { GetTilesQueryParams } from '../../../../src/control/tile/controllers/tileController';
 import { Tile } from '../../../../src/control/tile/models/tile';
-
-const expectedTileWithScore = (tile: Tile, expect: jest.Expect): ControlResponse<Tile>['features'][number] => ({
-  ...tile,
-  _score: expect.any(Number) as number,
-});
-
-const expectedGeocodingElasticResponseMetrics = (
-  resultsCount: number,
-  expect: jest.Expect
-): NonNullable<ControlResponse<Tile>['geocoding']>['response'] => ({
-  results_count: resultsCount,
-  max_score: expect.any(Number) as number,
-  match_latency_ms: expect.any(Number) as number,
-});
 
 export const RIT_TILE: Tile = {
   type: 'Feature',
@@ -100,17 +83,3 @@ export const SUB_TILE_65: Tile = {
     type: 'Polygon',
   },
 };
-
-export const expectedResponse = (
-  requestParams: GetTilesQueryParams,
-  tiles: Tile[],
-  expect: jest.Expect
-): ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>> => ({
-  type: 'FeatureCollection',
-  geocoding: {
-    version: process.env.npm_package_version,
-    query: requestParams,
-    response: expectedGeocodingElasticResponseMetrics(tiles.length, expect),
-  },
-  features: tiles.map((tile) => expectedTileWithScore(tile, expect)),
-});
