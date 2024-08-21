@@ -4,7 +4,7 @@ import { inject, injectable } from 'tsyringe';
 import { estypes } from '@elastic/elasticsearch';
 import { SERVICES } from '../../../common/constants';
 import { TILE_REPOSITORY_SYMBOL, TileRepository } from '../DAL/tileRepository';
-import { formatResponse, validateGeoContext } from '../../utils';
+import { formatResponse } from '../../utils';
 import { TileQueryParams } from '../DAL/queries';
 import { FeatureCollection } from '../../../common/interfaces';
 import { BadRequestError, NotImplementedError } from '../../../common/errors';
@@ -19,9 +19,6 @@ export class TileManager {
   ) {}
 
   public async getTiles(tileQueryParams: TileQueryParams): Promise<FeatureCollection<Tile>> {
-    if (tileQueryParams.geoContext) {
-      validateGeoContext(tileQueryParams.geoContext);
-    }
     const { limit } = tileQueryParams;
 
     if (
