@@ -46,6 +46,30 @@ describe('/search/control/items', function () {
       );
     });
 
+    it('should return 200 status code and items in tile RIT', async function () {
+      const requestParams: GetItemsQueryParams = { command_name: '123', tile: 'RIT', limit: 5, disable_fuzziness: false };
+
+      const response = await requestSender.getItems(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      // expect(response).toSatisfyApiSpec();
+      expect(response.body).toMatchObject<ControlResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+        expectedResponse(requestParams, [ITEM_1234, ITEM_1235, ITEM_1236], expect)
+      );
+    });
+
+    it('should return 200 status code and no items in tile RIC', async function () {
+      const requestParams: GetItemsQueryParams = { command_name: '123', tile: 'RIC', limit: 5, disable_fuzziness: false };
+
+      const response = await requestSender.getItems(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      // expect(response).toSatisfyApiSpec();
+      expect(response.body).toMatchObject<ControlResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+        expectedResponse(requestParams, [], expect)
+      );
+    });
+
     it('should return 200 status code and tiles biased by geo_context (bbox)', async function () {
       const requestParams: GetItemsQueryParams = {
         command_name: '123',
