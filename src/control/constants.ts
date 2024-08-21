@@ -17,4 +17,5 @@ export const CONTROL_FIELDS = [
   'properties.ENTITY_HEB',
   'properties.SUB_TILE_ID',
   'properties.SECTION',
+  'properties.TIED_TO',
 ];
