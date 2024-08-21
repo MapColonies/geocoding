@@ -250,6 +250,8 @@ paths:
           description: "The tile the item in it (full name of it)"
           schema:
             type: "string"
+            minLength: 3
+            maxLength: 3
           required: false
 
         - name: "sub_tile"
