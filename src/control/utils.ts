@@ -26,12 +26,12 @@ export const convertCamelToSnakeCase = (obj: Record<string, unknown>): Record<st
 
 export const formatResponse = <T extends Item | Tile | Route>(
   elasticResponse: estypes.SearchResponse<T>,
-  requestParams?: CommonRequestParameters | ConvertSnakeToCamelCase<CommonRequestParameters> | undefined
+  requestParams: CommonRequestParameters | ConvertSnakeToCamelCase<CommonRequestParameters>
 ): ControlResponse<T> => ({
   type: 'FeatureCollection',
   geocoding: {
     version: process.env.npm_package_version,
-    query: requestParams ? convertCamelToSnakeCase(requestParams as Record<string, unknown>) : undefined,
+    query: convertCamelToSnakeCase(requestParams as Record<string, unknown>),
     response: {
       /* eslint-disable @typescript-eslint/naming-convention */
       results_count: elasticResponse.hits.hits.length,
@@ -41,18 +41,10 @@ export const formatResponse = <T extends Item | Tile | Route>(
     },
   },
   features: [
-    ...(elasticResponse.hits.hits.map((item) => {
-      const source = item._source;
-      if (source?.properties) {
-        Object.keys(source.properties).forEach((key) => {
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          if (source.properties !== null && source.properties[key as keyof typeof source.properties] == null) {
-            delete source.properties[key as keyof typeof source.properties];
-          }
-        });
-      }
-      return { ...source, _score: item._score };
-    }) as (T & Pick<estypes.SearchHit<T>, '_score'>)[]),
+    ...(elasticResponse.hits.hits.map((item) => ({
+      ...item._source,
+      _score: item._score,
+    })) as (T & Pick<estypes.SearchHit<T>, '_score'>)[]),
   ],
 });
 
