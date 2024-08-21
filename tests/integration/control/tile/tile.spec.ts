@@ -210,6 +210,22 @@ describe('/search/control/tiles', function () {
       );
     });
 
+    it('should return 200 status code and no sub tiles as disable_fuzziness: true', async function () {
+      const requestParams: GetTilesQueryParams = {
+        tile: 'RIT',
+        sub_tile: '11',
+        limit: 5,
+        disable_fuzziness: true,
+      };
+      const response = await requestSender.getTiles(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      // expect(response).toSatisfyApiSpec();
+      expect(response.body).toMatchObject<ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
+        expectedResponse(requestParams, [], expect)
+      );
+    });
+
     it('should return 200 status code and sub_tile "66" filtered by geo_context (UTM)', async function () {
       const geo_context = { x: 288240, y: 4645787, zone: 33, radius: 100 };
       const requestParams: GetTilesQueryParams = {
@@ -306,6 +322,24 @@ describe('/search/control/tiles', function () {
         message: 'request/query/tile must NOT have fewer than 2 characters',
       });
     });
+
+    test.each<number[][]>([[[1]], [[1, 1]], [[1, 1, 1]], [[1, 1, 1, 1, 1]]])(
+      'should return 400 status code and error message when bbox not containing 4 values',
+      async function (bbox) {
+        const response = await requestSender.getTiles({
+          tile: 'RIT',
+          limit: 5,
+          disable_fuzziness: false,
+          geo_context: { bbox },
+          geo_context_mode: GeoContextMode.FILTER,
+        });
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.body).toMatchObject({
+          message: 'geo_context validation: bbox must contain 4 values',
+        });
+      }
+    );
 
     test.each<string>(['invalid', '6a6', '06', '-11', '6 ', ' 6', ' ', ' 6 ', ''])(
       'should return 400 status code and error message when sub_tile value is invalid',
