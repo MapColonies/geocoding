@@ -8,7 +8,7 @@ import { SERVICES } from '../../../../src/common/constants';
 import { GetTilesQueryParams } from '../../../../src/control/tile/controllers/tileController';
 import { Tile } from '../../../../src/control/tile/models/tile';
 import { ControlResponse } from '../../../../src/control/interfaces';
-import { CommonRequestParameters, GeoContextMode } from '../../../../src/common/interfaces';
+import { CommonRequestParameters, GeoContext, GeoContextMode } from '../../../../src/common/interfaces';
 import { LATLON_CUSTOM_REPOSITORY_SYMBOL } from '../../../../src/latLon/DAL/latLonRepository';
 import { cronLoadTileLatLonDataSymbol } from '../../../../src/latLon/DAL/latLonDAL';
 import { TileRequestSender } from './helpers/requestSender';
@@ -420,49 +420,51 @@ describe('/tiles', function () {
       });
     });
 
-    it('should return 400 status code and error message when geo_context object is invalid', async function () {
-      const response = await requestSender.getTiles({
-        tile: 'RIT',
-        limit: 5,
-        disable_fuzziness: false,
-        geo_context: {} as unknown as GetTilesQueryParams['geo_context'],
-      });
+    test.each<(keyof GeoContext)[][]>([[['lat', 'lon', 'radius']], [['x', 'y', 'zone', 'radius']]])(
+      'should return 400 for all invalid geo_context object for the keys %s',
+      async function (keys) {
+        function generateCombinations(keys: (keyof GeoContext)[]): GeoContext[] {
+          const combinations: object[] = [];
 
-      expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
-        message: 'geo_context validation: geocontext must contain one of the following: {bbox}, {lat, lon, radius}, or {x, y, zone, radius}',
-      });
-    });
+          function backtrack(current: object, remainingKeys: string[]): void {
+            if (remainingKeys.length === 0) {
+              combinations.push(current);
+              return;
+            }
 
-    test.each<Pick<GetTilesQueryParams, 'geo_context'>>([
-      {},
-      { geo_context: { radius: 1 } },
-      { geo_context: { lat: 1 } },
-      { geo_context: { lon: 1 } },
-      { geo_context: { lat: 1, lon: 1 } },
-      { geo_context: { lat: 1, radius: 1 } },
-      { geo_context: { lon: 1, radius: 1 } },
-      { geo_context: { x: 1 } },
-      { geo_context: { y: 1 } },
-      { geo_context: { zone: 1 } },
-      { geo_context: { x: 1, y: 1 } },
-      { geo_context: { x: 1, zone: 1 } },
-      { geo_context: { y: 1, zone: 1 } },
-      { geo_context: { x: 1, radius: 1 } },
-      { geo_context: { y: 1, radius: 1 } },
-      { geo_context: { zone: 1, radius: 1 } },
-      { geo_context: { x: 1, y: 1, zone: 1 } },
-      { geo_context: { x: 1, y: 1, radius: 1 } },
-      { geo_context: { x: 1, zone: 1, radius: 1 } },
-      { geo_context: { y: 1, zone: 1, radius: 1 } },
-    ])('should return 400 status code and not pass geo_context validation', async function (requestParams) {
-      const response = await requestSender.getTiles({ tile: 'RIT', limit: 5, disable_fuzziness: false, ...requestParams });
+            const key = remainingKeys[0];
+            const remaining = remainingKeys.slice(1);
 
-      expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
-        message: 'geo_context validation: geo_context must contain one of the following: {bbox}, {lat, lon, radius}, or {x, y, zone, radius}',
-      });
-    });
+            backtrack({ ...current, [key]: 1 }, remaining);
+            backtrack(current, remaining);
+          }
+
+          backtrack({}, keys);
+
+          return combinations;
+        }
+
+        const geoContexts = generateCombinations(keys);
+
+        for (const geo_context of geoContexts) {
+          if (Object.keys(geo_context).length === keys.length) {
+            continue;
+          }
+          const response = await requestSender.getTiles({
+            tile: 'RIT',
+            limit: 5,
+            disable_fuzziness: false,
+            geo_context: JSON.stringify(geo_context) as unknown as GetTilesQueryParams['geo_context'],
+            geo_context_mode: GeoContextMode.BIAS,
+          });
+
+          expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+          expect(response.body).toMatchObject({
+            message: 'geo_context validation: geo_context must contain one of the following: {bbox}, {lat, lon, radius}, or {x, y, zone, radius}',
+          });
+        }
+      }
+    );
   });
   describe('Sad Path', function () {
     // All requests with status code 4XX-5XX
