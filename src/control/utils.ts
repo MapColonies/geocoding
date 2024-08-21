@@ -67,6 +67,8 @@ export const geoContextQuery = (
     throw new BadRequestError('/control/utils/geoContextQuery: geo_context and geo_context_mode must be both defined or both undefined');
   }
 
+  validateGeoContext(geoContext!);
+
   return {
     [geoContextMode === GeoContextMode.FILTER ? 'filter' : 'should']: [
       {
