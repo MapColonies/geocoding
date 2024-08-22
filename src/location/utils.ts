@@ -5,7 +5,8 @@ import { StatusCodes } from 'http-status-codes';
 import axios, { AxiosResponse as Response } from 'axios';
 import { InternalServerError } from '../common/errors';
 import { GeoContext, IApplication } from '../common/interfaces';
-import { convertUTMToWgs84 } from '../common/utils';
+import { ConvertCamelToSnakeCase, convertUTMToWgs84 } from '../common/utils';
+import { convertCamelToSnakeCase } from '../control/utils';
 import { BBOX_LENGTH, POINT_LENGTH, QueryResult, TextSearchParams } from './interfaces';
 import { generateDisplayName } from './parsing';
 import { TextSearchHit } from './models/elasticsearchHits';
@@ -119,16 +120,15 @@ export const convertResult = (
   geocoding: {
     version: process.env.npm_package_version,
     query: {
-      ...params,
-      response: {
-        /* eslint-disable @typescript-eslint/naming-convention */
-        results_count: results.hits.hits.length,
-        max_score: results.hits.max_score ?? 0,
-        match_latency_ms: results.took,
-        /* eslint-enable @typescript-eslint/naming-convention */
-      },
+      ...(convertCamelToSnakeCase(params as unknown as Record<string, unknown>) as ConvertCamelToSnakeCase<TextSearchParams>),
     },
-    name: params.name || undefined,
+    response: {
+      /* eslint-disable @typescript-eslint/naming-convention */
+      results_count: results.hits.hits.length,
+      max_score: results.hits.max_score ?? 0,
+      match_latency_ms: results.took,
+      /* eslint-enable @typescript-eslint/naming-convention */
+    },
   },
   features: results.hits.hits.map(({ highlight, _source: feature, _score }, index): QueryResult['features'][number] => {
     const allNames = [feature!.text, feature!.translated_text || []];
