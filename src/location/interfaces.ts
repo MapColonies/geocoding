@@ -1,7 +1,7 @@
 import type { GeoJSON } from 'geojson';
 import { estypes } from '@elastic/elasticsearch';
 import { CommonRequestParameters } from '../common/interfaces';
-import { ConvertSnakeToCamelCase } from '../common/utils';
+import { ConvertCamelToSnakeCase, ConvertSnakeToCamelCase } from '../common/utils';
 import { HierarchySearchHit } from './models/elasticsearchHits';
 
 export interface PlaceType {
@@ -33,8 +33,8 @@ export interface QueryResult {
   type: string;
   geocoding: {
     version?: string;
-    query: TextSearchParams & { response: { max_score: number; results_count: number; match_latency_ms: number } };
-    name?: string;
+    query: ConvertCamelToSnakeCase<TextSearchParams>;
+    response: { max_score: number; results_count: number; match_latency_ms: number };
   };
   features: ({
     type: string;
