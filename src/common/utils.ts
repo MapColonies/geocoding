@@ -4,8 +4,18 @@ import { WGS84Coordinate } from './interfaces';
 
 type SnakeToCamelCase<S extends string> = S extends `${infer T}_${infer U}` ? `${T}${Capitalize<SnakeToCamelCase<U>>}` : S;
 
+type CamelToSnakeCase<S extends string> = S extends `${infer T}${infer U}`
+  ? U extends Uncapitalize<U>
+    ? `${Lowercase<T>}${CamelToSnakeCase<U>}`
+    : `${Lowercase<T>}_${CamelToSnakeCase<Uncapitalize<U>>}`
+  : S;
+
 export type ConvertSnakeToCamelCase<T> = {
   [K in keyof T as SnakeToCamelCase<K & string>]: T[K];
+};
+
+export type ConvertCamelToSnakeCase<T> = {
+  [K in keyof T as CamelToSnakeCase<K & string>]: T[K];
 };
 
 export const validateWGS84Coordinate = (coordinate: { lon: number; lat: number }): boolean => {
