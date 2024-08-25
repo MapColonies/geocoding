@@ -3,14 +3,16 @@
 import { QueryResult } from '../../../src/location/interfaces';
 import { HierarchySearchHit } from '../../../src/location/models/elasticsearchHits';
 
-type QueryFeature = QueryResult['features'][number];
-type OmitRankFromProperties = Omit<QueryFeature['properties'], 'rank'>;
+type ChangeFields<T, R> = Omit<T, keyof R> & R;
 
-type ExpectedQueryFeature = Omit<QueryFeature, '_score'> & {
-  properties: OmitRankFromProperties;
-};
+export type MockLocationQueryFeature = ChangeFields<
+  QueryResult['features'][number],
+  {
+    properties: Omit<QueryResult['features'][number]['properties'], 'rank'>;
+  }
+>;
 
-export const NY_JFK_AIRPORT: ExpectedQueryFeature = {
+export const NY_JFK_AIRPORT: MockLocationQueryFeature = {
   type: 'Feature',
   geometry: {
     type: 'Polygon',
@@ -71,7 +73,7 @@ export const NY_JFK_AIRPORT: ExpectedQueryFeature = {
   },
 };
 
-export const NY_POLICE_AIRPORT: ExpectedQueryFeature = {
+export const NY_POLICE_AIRPORT: MockLocationQueryFeature = {
   type: 'Feature',
   geometry: {
     coordinates: [
@@ -118,7 +120,7 @@ export const NY_POLICE_AIRPORT: ExpectedQueryFeature = {
   },
 };
 
-export const LA_AIRPORT: ExpectedQueryFeature = {
+export const LA_AIRPORT: MockLocationQueryFeature = {
   type: 'Feature',
   geometry: {
     coordinates: [
@@ -167,7 +169,7 @@ export const LA_AIRPORT: ExpectedQueryFeature = {
   },
 };
 
-export const OSM_LA_PORT: ExpectedQueryFeature = {
+export const OSM_LA_PORT: MockLocationQueryFeature = {
   type: 'Feature',
   geometry: {
     type: 'Polygon',
@@ -216,7 +218,7 @@ export const OSM_LA_PORT: ExpectedQueryFeature = {
     ],
   },
 };
-export const GOOGLE_LA_PORT: ExpectedQueryFeature = {
+export const GOOGLE_LA_PORT: MockLocationQueryFeature = {
   type: 'Feature',
   geometry: {
     type: 'Polygon',
@@ -266,7 +268,7 @@ export const GOOGLE_LA_PORT: ExpectedQueryFeature = {
   },
 };
 
-export const LA_WHITE_POINT_SCHOOL: ExpectedQueryFeature = {
+export const LA_WHITE_POINT_SCHOOL: MockLocationQueryFeature = {
   type: 'Feature',
   geometry: {
     coordinates: [
