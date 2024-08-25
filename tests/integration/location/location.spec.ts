@@ -10,6 +10,7 @@ import { SERVICES } from '../../../src/common/constants';
 import { LATLON_CUSTOM_REPOSITORY_SYMBOL } from '../../../src/latLon/DAL/latLonRepository';
 import { cronLoadTileLatLonDataSymbol } from '../../../src/latLon/DAL/latLonDAL';
 import { GetGeotextSearchParams, QueryResult } from '../../../src/location/interfaces';
+import { IApplication } from '../../../src/common/interfaces';
 import { LocationRequestSender } from './helpers/requestSender';
 import {
   OSM_LA_PORT,
@@ -20,9 +21,9 @@ import {
   NY_POLICE_AIRPORT,
   NY_HIERRARCHY,
   LA_HIERRARCHY,
+  MockLocationQueryFeature,
 } from './mockObjects';
 import { expectedResponse, hierarchiesWithAnyWieght } from './utils';
-import { IApplication } from '../../../src/common/interfaces';
 
 describe('/search/control/tiles', function () {
   let requestSender: LocationRequestSender;
@@ -68,7 +69,7 @@ describe('/search/control/tiles', function () {
     test.each<
       Pick<GetGeotextSearchParams, 'query'> & {
         hierarchies: QueryResult['geocoding']['query']['hierarchies'];
-        returnedFeatures: QueryResult['features'];
+        returnedFeatures: MockLocationQueryFeature[];
       }
     >([
       {
@@ -78,7 +79,7 @@ describe('/search/control/tiles', function () {
       },
       {
         query: 'los angeles',
-        hierarchies: hierarchiesWithAnyWieght([NY_HIERRARCHY], expect),
+        hierarchies: hierarchiesWithAnyWieght([LA_HIERRARCHY], expect),
         returnedFeatures: [LA_AIRPORT, NY_JFK_AIRPORT, NY_POLICE_AIRPORT],
       },
     ])('it should test airports response with hierrarchy in %s', async ({ query, hierarchies, returnedFeatures }) => {
@@ -107,7 +108,7 @@ describe('/search/control/tiles', function () {
       Pick<GetGeotextSearchParams, 'query'> & {
         place_types: QueryResult['geocoding']['query']['place_types'];
         sub_place_types: QueryResult['geocoding']['query']['sub_place_types'];
-        returnedFeatures: QueryResult['features'];
+        returnedFeatures: MockLocationQueryFeature[];
       }
     >([
       {

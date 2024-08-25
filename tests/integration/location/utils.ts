@@ -1,8 +1,13 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { QueryResult } from '../../../src/location/interfaces';
+import { MockLocationQueryFeature } from './mockObjects';
 
-const expectedObjectWithScore = (obj: Omit<QueryResult['features'][number], '_score'>, expect: jest.Expect): QueryResult['features'][number] => ({
+const expectedObjectWithScoreAndRank = (obj: MockLocationQueryFeature, expect: jest.Expect): QueryResult['features'][number] => ({
   ...obj,
+  properties: {
+    ...obj.properties,
+    rank: expect.any(Number) as number,
+  },
   _score: expect.any(Number) as number,
 });
 
@@ -14,7 +19,7 @@ const expectedGeocodingElasticResponseMetrics = (resultsCount: number, expect: j
 
 export const expectedResponse = (
   requestParams: QueryResult['geocoding']['query'],
-  arr: Omit<QueryResult['features'][number], '_score'>[],
+  arr: MockLocationQueryFeature[],
   expect: jest.Expect
 ): QueryResult => ({
   type: 'FeatureCollection',
@@ -23,7 +28,7 @@ export const expectedResponse = (
     query: requestParams,
     response: expectedGeocodingElasticResponseMetrics(arr.length, expect),
   },
-  features: arr.map((item) => expectedObjectWithScore(item, expect)),
+  features: arr.map((item) => expectedObjectWithScoreAndRank(item, expect)),
 });
 
 export const hierarchiesWithAnyWieght = (
