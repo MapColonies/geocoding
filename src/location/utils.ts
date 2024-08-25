@@ -8,7 +8,6 @@ import { GeoContext, IApplication } from '../common/interfaces';
 import { ConvertCamelToSnakeCase, convertUTMToWgs84 } from '../common/utils';
 import { convertCamelToSnakeCase } from '../control/utils';
 import { BBOX_LENGTH, POINT_LENGTH, QueryResult, TextSearchParams } from './interfaces';
-import { generateDisplayName } from './parsing';
 import { TextSearchHit } from './models/elasticsearchHits';
 
 const FIND_QUOTES = /["']/g;
@@ -130,7 +129,7 @@ export const convertResult = (
       /* eslint-enable @typescript-eslint/naming-convention */
     },
   },
-  features: results.hits.hits.map(({ highlight, _source: feature, _score }, index): QueryResult['features'][number] => {
+  features: results.hits.hits.map(({ _source: feature, _score }, index): QueryResult['features'][number] => {
     const allNames = [feature!.text, feature!.translated_text || []];
     return {
       type: 'Feature',
@@ -145,9 +144,10 @@ export const convertResult = (
           [nameKeys[0]]: new RegExp(mainLanguageRegex).test(feature!.text[0]) ? allNames.shift() : allNames.pop(),
           [nameKeys[1]]: allNames.pop(),
           ['default']: [feature!.name],
-          display: highlight ? generateDisplayName(highlight.text, params.query!.split(' ').length, params.name) : feature!.name,
+          // display: highlight ? generateDisplayName(highlight.text, params.query!.split(' ').length, params.name) : feature!.name,
+          display: feature!.name,
         },
-        highlight,
+        // highlight,
         placetype: feature?.placetype, // TODO: check if to remove this
         sub_placetype: feature?.sub_placetype,
         regions: feature?.region.map((region) => ({
