@@ -42,7 +42,6 @@ describe('/search/control/tiles', function () {
     });
 
     requestSender = new LocationRequestSender(app.app);
-    nock.restore();
   });
 
   describe('Happy Path', function () {
@@ -181,8 +180,6 @@ describe('/search/control/tiles', function () {
     });
 
     it('should return 200 status code and all regions', async function () {
-      const regions = Object.keys(config.get<IApplication>('application').regions ?? {});
-      nock(config.get<IApplication>('application').services.tokenTypesUrl).post('').reply(httpStatusCodes.OK, regions);
       const response = await requestSender.getRegions();
 
       expect(response.status).toBe(httpStatusCodes.OK);
@@ -191,8 +188,6 @@ describe('/search/control/tiles', function () {
     });
 
     it('should return 200 status code and all sources', async function () {
-      const sources = Object.keys(config.get<IApplication>('application').sources ?? {});
-      nock(config.get<IApplication>('application').services.tokenTypesUrl).post('').reply(httpStatusCodes.OK, sources);
       const response = await requestSender.getSources();
 
       expect(response.status).toBe(httpStatusCodes.OK);
@@ -211,7 +206,7 @@ describe('/search/control/tiles', function () {
       const requestParams: GetGeotextSearchParams = { query: 'airport', limit: 5, disable_fuzziness: false };
 
       // Intercept the request and simulate a network error
-      nock(config.get<IApplication>('application').services.tokenTypesUrl)
+      const nockScope = nock(config.get<IApplication>('application').services.tokenTypesUrl)
         .post('')
         .once()
         .replyWithError({ message: errorMessage, code: 'ECONNREFUSED' });
@@ -221,6 +216,8 @@ describe('/search/control/tiles', function () {
       expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
       expect(response.body).toHaveProperty('message', `NLP analyser is not available - ${errorMessage}`);
       // expect(response).toSatisfyApiSpec();
+
+      nockScope.done();
     });
 
     test.each<{ code: number; body: Body | undefined }>([
@@ -230,7 +227,7 @@ describe('/search/control/tiles', function () {
     ])('should return 500 status code when the NLP Analyzer service not responding as expected', async function ({ code, body }) {
       const requestParams: GetGeotextSearchParams = { query: 'airport', limit: 5, disable_fuzziness: false };
 
-      nock(config.get<IApplication>('application').services.tokenTypesUrl)
+      const nockScope = nock(config.get<IApplication>('application').services.tokenTypesUrl)
         .post('', { tokens: requestParams.query.split(' ') })
         .once()
         .reply(code, body);
@@ -242,12 +239,14 @@ describe('/search/control/tiles', function () {
       expect(response.body).toHaveProperty('message', expect.stringContaining('NLP analyser unexpected response:'));
 
       // expect(response).toSatisfyApiSpec();
+
+      nockScope.done();
     });
 
     it('should return 400 status code when NLP Analyzer returns no tokens or prediction', async function () {
       const requestParams: GetGeotextSearchParams = { query: 'airport', limit: 5, disable_fuzziness: false };
 
-      nock(config.get<IApplication>('application').services.tokenTypesUrl)
+      const nockScope = nock(config.get<IApplication>('application').services.tokenTypesUrl)
         .post('', { tokens: requestParams.query.split(' ') })
         .once()
         .reply(httpStatusCodes.OK, [{ tokens: [], prediction: [] }]);
@@ -257,6 +256,8 @@ describe('/search/control/tiles', function () {
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
       expect(response.body).toHaveProperty('message', 'No tokens or prediction');
       // expect(response).toSatisfyApiSpec();
+
+      nockScope.done();
     });
   });
 });

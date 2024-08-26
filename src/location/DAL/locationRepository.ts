@@ -23,7 +23,7 @@ const createGeotextRepository = (client: ElasticClient, logger: Logger) => {
 
       const { tokens, prediction } = response[0];
 
-      if (!tokens || !prediction) {
+      if (!tokens || !tokens.length || !prediction || !prediction.length) {
         logger.error('No tokens or prediction');
         throw new BadRequestError('No tokens or prediction');
       }
