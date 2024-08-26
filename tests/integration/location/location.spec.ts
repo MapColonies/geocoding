@@ -4,7 +4,7 @@ import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import { DataSource } from 'typeorm';
-import nock from 'nock';
+import nock, { Body } from 'nock';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { LATLON_CUSTOM_REPOSITORY_SYMBOL } from '../../../src/latLon/DAL/latLonRepository';
@@ -36,16 +36,26 @@ describe('/search/control/tiles', function () {
         { token: LATLON_CUSTOM_REPOSITORY_SYMBOL, provider: { useValue: {} } },
         { token: DataSource, provider: { useValue: {} } },
         { token: cronLoadTileLatLonDataSymbol, provider: { useValue: {} } },
+        { token: LATLON_CUSTOM_REPOSITORY_SYMBOL, provider: { useValue: {} } },
       ],
       useChild: true,
     });
 
     requestSender = new LocationRequestSender(app.app);
+    nock.restore();
   });
 
   describe('Happy Path', function () {
     it('should return 200 status code and airports', async function () {
       const requestParams: GetGeotextSearchParams = { query: 'airport', limit: 5, disable_fuzziness: false };
+      const tokenTypesUrlScope = nock(config.get<IApplication>('application').services.tokenTypesUrl)
+        .post('', { tokens: requestParams.query.split(' ') })
+        .reply(httpStatusCodes.OK, [
+          {
+            tokens: ['airport'],
+            prediction: ['essence'],
+          },
+        ]);
 
       const response = await requestSender.getQuery(requestParams);
 
@@ -64,6 +74,8 @@ describe('/search/control/tiles', function () {
           expect
         )
       );
+
+      tokenTypesUrlScope.done();
     });
 
     test.each<
@@ -85,6 +97,15 @@ describe('/search/control/tiles', function () {
     ])('it should test airports response with hierrarchy in %s', async ({ query, hierarchies, returnedFeatures }) => {
       const requestParams: GetGeotextSearchParams = { query: `airport, ${query}`, limit: 5, disable_fuzziness: false };
 
+      const tokenTypesUrlScope = nock(config.get<IApplication>('application').services.tokenTypesUrl)
+        .post('', { tokens: ['airport'] })
+        .reply(httpStatusCodes.OK, [
+          {
+            tokens: ['airport'],
+            prediction: ['essence'],
+          },
+        ]);
+
       const response = await requestSender.getQuery(requestParams);
 
       expect(response.status).toBe(httpStatusCodes.OK);
@@ -102,6 +123,8 @@ describe('/search/control/tiles', function () {
           expect
         )
       );
+
+      tokenTypesUrlScope.done();
     });
 
     test.each<
@@ -156,6 +179,26 @@ describe('/search/control/tiles', function () {
 
       tokenTypesUrlScope.done();
     });
+
+    it('should return 200 status code and all regions', async function () {
+      const regions = Object.keys(config.get<IApplication>('application').regions ?? {});
+      nock(config.get<IApplication>('application').services.tokenTypesUrl).post('').reply(httpStatusCodes.OK, regions);
+      const response = await requestSender.getRegions();
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      expect(response.body).toEqual(expect.arrayContaining(['USA']));
+      // expect(response).toSatisfyApiSpec();
+    });
+
+    it('should return 200 status code and all sources', async function () {
+      const sources = Object.keys(config.get<IApplication>('application').sources ?? {});
+      nock(config.get<IApplication>('application').services.tokenTypesUrl).post('').reply(httpStatusCodes.OK, sources);
+      const response = await requestSender.getSources();
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      expect(response.body).toEqual(expect.arrayContaining(['OSM', 'GOOGLE']));
+      // expect(response).toSatisfyApiSpec();
+    });
   });
   describe('Bad Path', function () {
     // All requests with status code 4XX-5XX
@@ -163,5 +206,57 @@ describe('/search/control/tiles', function () {
 
   describe('Sad Path', function () {
     // All requests with status code 4XX-5XX
+    it('should return 500 status code when the NLP Analyzer service is down due to network error', async function () {
+      const errorMessage = 'NLP Analyzer service is down';
+      const requestParams: GetGeotextSearchParams = { query: 'airport', limit: 5, disable_fuzziness: false };
+
+      // Intercept the request and simulate a network error
+      nock(config.get<IApplication>('application').services.tokenTypesUrl)
+        .post('')
+        .once()
+        .replyWithError({ message: errorMessage, code: 'ECONNREFUSED' });
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+      expect(response.body).toHaveProperty('message', `NLP analyser is not available - ${errorMessage}`);
+      // expect(response).toSatisfyApiSpec();
+    });
+
+    test.each<{ code: number; body: Body | undefined }>([
+      { code: httpStatusCodes.OK, body: [] },
+      { code: httpStatusCodes.OK, body: undefined },
+      { code: httpStatusCodes.NO_CONTENT, body: { message: 'bad request' } },
+    ])('should return 500 status code when the NLP Analyzer service not responding as expected', async function ({ code, body }) {
+      const requestParams: GetGeotextSearchParams = { query: 'airport', limit: 5, disable_fuzziness: false };
+
+      nock(config.get<IApplication>('application').services.tokenTypesUrl)
+        .post('', { tokens: requestParams.query.split(' ') })
+        .once()
+        .reply(code, body);
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+
+      expect(response.body).toHaveProperty('message', expect.stringContaining('NLP analyser unexpected response:'));
+
+      // expect(response).toSatisfyApiSpec();
+    });
+
+    it('should return 400 status code when NLP Analyzer returns no tokens or prediction', async function () {
+      const requestParams: GetGeotextSearchParams = { query: 'airport', limit: 5, disable_fuzziness: false };
+
+      nock(config.get<IApplication>('application').services.tokenTypesUrl)
+        .post('', { tokens: requestParams.query.split(' ') })
+        .once()
+        .reply(httpStatusCodes.OK, [{ tokens: [], prediction: [] }]);
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+      expect(response.body).toHaveProperty('message', 'No tokens or prediction');
+      // expect(response).toSatisfyApiSpec();
+    });
   });
 });

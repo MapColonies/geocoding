@@ -1,16 +1,19 @@
+//This file might be deprecated in the future
+/* istanbul ignore file */
 import { XMLParser } from 'fast-xml-parser';
 
 type Highlight = {
   em: string | string[];
   '#text': string;
 };
+
 const HIERARCHY_OF_INTEREST = 3;
 
 const HIGHLIGHT_XML_REGEX = /<em>|<\/em>/gi;
 
 const untagHighlight = (highlight: string) => highlight.replace(HIGHLIGHT_XML_REGEX, '');
 
-const calculateHighlightQuality = (highlight: string, queryWordCount: number) => {
+const calculateHighlightQuality = (highlight: string, queryWordCount: number): number => {
   const parser = new XMLParser({ numberParseOptions: { skipLike: /[0-9]+/, hex: false, leadingZeros: false } });
   const parsed = parser.parse(highlight) as Highlight;
 
@@ -32,9 +35,9 @@ const compareQualityThenLength = (
     highlight: string;
     quality: number;
   }
-) => a.quality - b.quality || a.highlight.length - b.highlight.length;
+): number => a.quality - b.quality || a.highlight.length - b.highlight.length;
 
-export const generateDisplayName = (highlights: string[], queryWordCount: number, name?: string) => {
+export const generateDisplayName = (highlights: string[], queryWordCount: number, name?: string): string | undefined => {
   const scored = highlights.map((highlight) => ({
     highlight,
     quality: calculateHighlightQuality(highlight, queryWordCount),

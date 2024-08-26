@@ -26,6 +26,7 @@ describe('/search/control/route', function () {
         { token: LATLON_CUSTOM_REPOSITORY_SYMBOL, provider: { useValue: {} } },
         { token: DataSource, provider: { useValue: {} } },
         { token: cronLoadTileLatLonDataSymbol, provider: { useValue: {} } },
+        { token: LATLON_CUSTOM_REPOSITORY_SYMBOL, provider: { useValue: {} } },
       ],
       useChild: true,
     });

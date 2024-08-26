@@ -2,7 +2,7 @@
 import { GeoJSON, Geometry, Point } from 'geojson';
 import { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import { StatusCodes } from 'http-status-codes';
-import axios, { AxiosResponse as Response } from 'axios';
+import axios, { AxiosError, AxiosResponse as Response } from 'axios';
 import { InternalServerError } from '../common/errors';
 import { GeoContext, IApplication } from '../common/interfaces';
 import { ConvertCamelToSnakeCase, convertUTMToWgs84 } from '../common/utils';
@@ -41,21 +41,13 @@ export const fetchNLPService = async <T>(endpoint: string, requestData: object):
   try {
     res = await axios.post(endpoint, requestData);
   } catch (err: unknown) {
-    if (axios.isAxiosError(err)) {
-      throw new InternalServerError(`NLP analyser is not available - ${err.message}`);
-    }
-    throw new InternalServerError('fetchNLPService: Unknown error' + JSON.stringify(err));
+    throw new InternalServerError(`NLP analyser is not available - ${(err as AxiosError).message}`);
   }
 
-  try {
-    // data = (await res.json()) as T[] | undefined;
-    data = res?.data as T[] | undefined;
-  } catch (_) {
-    throw new InternalServerError("Couldn't convert the response from NLP service to JSON");
-  }
+  data = res?.data as T[] | undefined;
 
   if (res?.status !== StatusCodes.OK || !data || data.length < 1 || !data[0]) {
-    throw new InternalServerError(JSON.stringify(data));
+    throw new InternalServerError(`NLP analyser unexpected response: ${JSON.stringify(data)}`);
   }
   return data;
 };
