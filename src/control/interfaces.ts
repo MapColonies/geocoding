@@ -1,6 +1,7 @@
 import { Feature } from 'geojson';
 import { estypes } from '@elastic/elasticsearch';
 import { CommonRequestParameters, FeatureCollection } from '../common/interfaces';
+import { RemoveUnderscore } from '../common/utils';
 
 export interface ControlResponse<T extends Feature, G = any> extends FeatureCollection<T> {
   geocoding?: {
@@ -13,5 +14,5 @@ export interface ControlResponse<T extends Feature, G = any> extends FeatureColl
       /* eslint-enable @typescript-eslint/naming-convention */
     };
   };
-  features: (T & Pick<estypes.SearchHit<T>, '_score'>)[];
+  features: (T & RemoveUnderscore<Pick<estypes.SearchHit<T>, '_score'>>)[];
 }

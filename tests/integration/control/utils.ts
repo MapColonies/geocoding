@@ -10,7 +10,7 @@ import { Tile } from '../../../src/control/tile/models/tile';
 
 const expectedObjectWithScore = <T extends Tile | Item | Route>(obj: T, expect: jest.Expect): ControlResponse<T>['features'][number] => ({
   ...obj,
-  _score: expect.any(Number) as number,
+  score: expect.any(Number) as number,
 });
 
 const expectedGeocodingElasticResponseMetrics = <T extends Tile | Item | Route>(

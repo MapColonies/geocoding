@@ -8,7 +8,7 @@ import { ElasticDbClientsConfig } from '../common/elastic/interfaces';
 import { Item } from '../control/item/models/item';
 import { Tile } from '../control/tile/models/tile';
 import { Route } from '../control/route/models/route';
-import { ConvertSnakeToCamelCase } from '../common/utils';
+import { ConvertSnakeToCamelCase, RemoveUnderscore } from '../common/utils';
 import { BBOX_LENGTH } from '../location/interfaces';
 import { CONTROL_FIELDS, ELASTIC_KEYWORDS } from './constants';
 import { ControlResponse } from './interfaces';
@@ -41,10 +41,10 @@ export const formatResponse = <T extends Item | Tile | Route>(
     },
   },
   features: [
-    ...(elasticResponse.hits.hits.map((item) => ({
-      ...item._source,
-      _score: item._score,
-    })) as (T & Pick<estypes.SearchHit<T>, '_score'>)[]),
+    ...(elasticResponse.hits.hits.map(({ _source: source, _score: score }) => ({
+      ...source,
+      score,
+    })) as (T & RemoveUnderscore<Pick<estypes.SearchHit<T>, '_score'>>)[]),
   ],
 });
 

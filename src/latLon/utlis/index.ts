@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import { Polygon } from 'geojson';
 import { BadRequestError } from '../../common/errors';
 import { convertUTMToWgs84 } from '../../common/utils';

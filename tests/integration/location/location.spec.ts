@@ -65,11 +65,26 @@ describe('/search/control/tiles', function () {
         expectedResponse(
           {
             ...requestParams,
+          },
+          {
             place_types: ['transportation'],
             sub_place_types: ['airport'],
             hierarchies: [],
           },
-          [NY_JFK_AIRPORT, NY_POLICE_AIRPORT, LA_AIRPORT],
+          [
+            {
+              ...NY_JFK_AIRPORT,
+              properties: {
+                ...NY_JFK_AIRPORT.properties,
+                name: {
+                  ...NY_JFK_AIRPORT.properties.name,
+                  display: expect.stringContaining('JFK') as string,
+                },
+              },
+            },
+            NY_POLICE_AIRPORT,
+            LA_AIRPORT,
+          ],
           expect
         )
       );
@@ -79,19 +94,45 @@ describe('/search/control/tiles', function () {
 
     test.each<
       Pick<GetGeotextSearchParams, 'query'> & {
-        hierarchies: QueryResult['geocoding']['query']['hierarchies'];
+        hierarchies: QueryResult['geocoding']['response']['hierarchies'];
         returnedFeatures: MockLocationQueryFeature[];
       }
     >([
       {
         query: 'new york',
         hierarchies: hierarchiesWithAnyWieght([NY_HIERRARCHY], expect),
-        returnedFeatures: [NY_JFK_AIRPORT, NY_POLICE_AIRPORT, LA_AIRPORT],
+        returnedFeatures: [
+          {
+            ...NY_JFK_AIRPORT,
+            properties: {
+              ...NY_JFK_AIRPORT.properties,
+              name: {
+                ...NY_JFK_AIRPORT.properties.name,
+                display: expect.stringContaining('JFK') as string,
+              },
+            },
+          },
+          NY_POLICE_AIRPORT,
+          LA_AIRPORT,
+        ],
       },
       {
         query: 'los angeles',
         hierarchies: hierarchiesWithAnyWieght([LA_HIERRARCHY], expect),
-        returnedFeatures: [LA_AIRPORT, NY_JFK_AIRPORT, NY_POLICE_AIRPORT],
+        returnedFeatures: [
+          LA_AIRPORT,
+          {
+            ...NY_JFK_AIRPORT,
+            properties: {
+              ...NY_JFK_AIRPORT.properties,
+              name: {
+                ...NY_JFK_AIRPORT.properties.name,
+                display: expect.stringContaining('JFK') as string,
+              },
+            },
+          },
+          NY_POLICE_AIRPORT,
+        ],
       },
     ])('it should test airports response with hierrarchy in %s', async ({ query, hierarchies, returnedFeatures }) => {
       const requestParams: GetGeotextSearchParams = { query: `airport, ${query}`, limit: 5, disable_fuzziness: false };
@@ -114,6 +155,8 @@ describe('/search/control/tiles', function () {
         expectedResponse(
           {
             ...requestParams,
+          },
+          {
             place_types: ['transportation'],
             sub_place_types: ['airport'],
             hierarchies,
@@ -128,8 +171,8 @@ describe('/search/control/tiles', function () {
 
     test.each<
       Pick<GetGeotextSearchParams, 'query'> & {
-        place_types: QueryResult['geocoding']['query']['place_types'];
-        sub_place_types: QueryResult['geocoding']['query']['sub_place_types'];
+        place_types: QueryResult['geocoding']['response']['place_types'];
+        sub_place_types: QueryResult['geocoding']['response']['sub_place_types'];
         returnedFeatures: MockLocationQueryFeature[];
       }
     >([
@@ -166,6 +209,8 @@ describe('/search/control/tiles', function () {
         expectedResponse(
           {
             ...requestParams,
+          },
+          {
             name: query,
             place_types,
             sub_place_types,

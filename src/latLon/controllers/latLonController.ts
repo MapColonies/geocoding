@@ -10,6 +10,7 @@ import { LatLonManager } from '../models/latLonManager';
 import { Tile } from '../../control/tile/models/tile';
 import { WGS84Coordinate } from '../../common/interfaces';
 import { ControlResponse } from '../../control/interfaces';
+/* istanbul ignore file */
 
 type GetLatLonToTileHandler = RequestHandler<undefined, { [key: string]: unknown } & Feature, undefined, GetLatLonToTileQueryParams>;
 

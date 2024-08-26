@@ -14,8 +14,6 @@ const createLatLonRepository = (dataSource: DataSource, logger: Logger) => {
         const result = await this.find();
         return result;
       } catch (error: unknown) {
-        //TODO: check if error is due to postgres client not being available
-        console.log(error);
         logger.error('Error in getAll function in latLonRepository', error);
         throw new ServiceUnavailableError('Postgres client is not available. As for, the getAll request cannot be executed.');
       }
