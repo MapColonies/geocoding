@@ -305,6 +305,41 @@ export const LA_WHITE_POINT_SCHOOL: MockLocationQueryFeature = {
   },
 };
 
+export const PARIS_WI_SCHOOL: MockLocationQueryFeature = {
+  type: 'Feature',
+  geometry: {
+    coordinates: [
+      [
+        [2.346441270696971, 48.88088750665477],
+        [2.3462780852304945, 48.88018258877358],
+        [2.347503576087604, 48.87999951892243],
+        [2.347737155284733, 48.88070864783427],
+        [2.346441270696971, 48.88088750665477],
+      ],
+    ],
+    type: 'Polygon',
+  },
+  properties: {
+    source: 'OSM',
+    layer: 'osm_schools',
+    source_id: ['dc02a3f9-156a-4f61-85bd-fd040cd322a3'],
+    name: {
+      en: ['Wi School Paris 9'],
+      fr: ['Ecole Wi Paris 9'],
+      default: ['Wi School Paris 9'],
+      display: 'Wi School Paris 9',
+    },
+    placetype: 'education',
+    sub_placetype: 'school',
+    regions: [
+      {
+        region: 'FRANCE',
+        sub_regions: ['Paris'],
+      },
+    ],
+  },
+};
+
 export const NY_HIERRARCHY: HierarchySearchHit = {
   geo_json: {
     coordinates: [
@@ -349,5 +384,28 @@ export const LA_HIERRARCHY: HierarchySearchHit = {
   placetype: 'city',
   region: 'USA',
   text: 'Los Angeles',
+  weight: 1.1,
+};
+
+export const PARIS_HIERRARCHY: HierarchySearchHit = {
+  geo_json: {
+    coordinates: [
+      [
+        [2.226678539753607, 49.06838747927134],
+        [1.9344166918067742, 48.906487548202136],
+        [2.014124468519668, 48.56855190252173],
+        [2.6536844864307625, 48.53463335095324],
+        [2.902296837606201, 48.82159183126478],
+        [2.6460932696008683, 49.0124047223114],
+        [2.384196288972504, 49.05097737411208],
+        [2.226678539753607, 49.06838747927134],
+      ],
+    ],
+    type: 'Polygon',
+  },
+  hierarchy: 'city',
+  placetype: 'city',
+  region: 'FRANCE',
+  text: 'Paris',
   weight: 1.1,
 };
