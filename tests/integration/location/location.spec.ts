@@ -22,6 +22,8 @@ import {
   NY_HIERRARCHY,
   LA_HIERRARCHY,
   MockLocationQueryFeature,
+  PARIS_WI_SCHOOL,
+  PARIS_HIERRARCHY,
 } from './mockObjects';
 import { expectedResponse, hierarchiesWithAnyWieght } from './utils';
 
@@ -270,7 +272,72 @@ describe('/search/control/tiles', function () {
       expect(response.body).toEqual(expect.arrayContaining(['OSM', 'GOOGLE']));
       // expect(response).toSatisfyApiSpec();
     });
+
+    it('should return 200 status code and ports from the corresponding source', async function () {
+      const requestParams: GetGeotextSearchParams = { query: 'port', source: ['google'], limit: 5, disable_fuzziness: false };
+      const tokenTypesUrlScope = nock(config.get<IApplication>('application').services.tokenTypesUrl)
+        .post('', { tokens: requestParams.query.split(' ') })
+        .reply(httpStatusCodes.OK, [
+          {
+            tokens: ['port'],
+            prediction: ['essence'],
+          },
+        ]);
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      // expect(response).toSatisfyApiSpec();
+
+      expect(response.body).toMatchObject<QueryResult>(
+        expectedResponse(
+          {
+            ...requestParams,
+            place_types: ['transportation'],
+            sub_place_types: ['port'],
+            hierarchies: [],
+          },
+          [GOOGLE_LA_PORT],
+          expect
+        )
+      );
+
+      tokenTypesUrlScope.done();
+    });
+
+    it('should return 200 status code and schools in specified region', async function () {
+      const requestParams: GetGeotextSearchParams = { query: 'school', region: ['france'], limit: 5, disable_fuzziness: false };
+      const tokenTypesUrlScope = nock(config.get<IApplication>('application').services.tokenTypesUrl)
+        .post('', { tokens: requestParams.query.split(' ') })
+        .reply(httpStatusCodes.OK, [
+          {
+            tokens: ['school'],
+            prediction: ['essence'],
+          },
+        ]);
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      // expect(response).toSatisfyApiSpec();
+
+      expect(response.body).toMatchObject<QueryResult>(
+        expectedResponse(
+          {
+            ...requestParams,
+            place_types: ['education'],
+            sub_place_types: ['school'],
+            hierarchies: [],
+          },
+          [PARIS_WI_SCHOOL],
+          expect
+        )
+      );
+
+      tokenTypesUrlScope.done();
+    });
   });
+
   describe('Bad Path', function () {
     // All requests with status code 4XX-5XX
     test.each<Pick<GetGeotextSearchParams, 'geo_context' | 'geo_context_mode'>>([
