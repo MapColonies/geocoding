@@ -3,12 +3,18 @@ import config from 'config';
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
+import Redis, { RedisOptions } from 'ioredis';
+import { DependencyContainer } from 'tsyringe';
+import { Application } from 'express';
 import { DataSource } from 'typeorm';
 import nock, { Body } from 'nock';
 import { getApp } from '../../../src/app';
-import { SERVICES } from '../../../src/common/constants';
+import { REDIS_SYMBOL, SERVICES } from '../../../src/common/constants';
 import { LATLON_CUSTOM_REPOSITORY_SYMBOL } from '../../../src/latLon/DAL/latLonRepository';
 import { cronLoadTileLatLonDataSymbol } from '../../../src/latLon/DAL/latLonDAL';
+import { RedisManager } from '../../../src/common/redis/redisManager';
+import { IDOMAIN_FIELDS_REPO_SYMBOL } from '../../../src/common/redis/domainFieldsRepository';
+import { createRedisConnection } from '../../../src/common/redis';
 import { GetGeotextSearchParams, QueryResult } from '../../../src/location/interfaces';
 import { GeoContextMode, IApplication } from '../../../src/common/interfaces';
 import { LocationRequestSender } from './helpers/requestSender';
@@ -29,6 +35,19 @@ import { expectedResponse, hierarchiesWithAnyWieght } from './utils';
 
 describe('/search/control/tiles', function () {
   let requestSender: LocationRequestSender;
+  let app: { app: Application; container?: DependencyContainer };
+  let redisConnection: Redis;
+
+  beforeAll(async function () {
+    redisConnection = await createRedisConnection(config.get<RedisOptions>('db'));
+    app = await getApp({
+      override: [
+        { token: REDIS_SYMBOL, provider: { useValue: redisConnection } },
+        { token: IDOMAIN_FIELDS_REPO_SYMBOL, provider: { useClass: RedisManager } },
+      ],
+      useChild: true,
+    });
+  });
 
   beforeEach(async function () {
     const app = await getApp({
@@ -44,6 +63,12 @@ describe('/search/control/tiles', function () {
     });
 
     requestSender = new LocationRequestSender(app.app);
+  });
+
+  afterAll(async function () {
+    if (!['end'].includes(redisConnection.status)) {
+      await redisConnection.quit();
+    }
   });
 
   describe('Happy Path', function () {
