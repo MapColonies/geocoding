@@ -86,6 +86,23 @@
       },
       "database": "POSTGRES_DB_NAME",
       "schema": "POSTGRES_DB_SCHEMA"
+    },
+    "redis": {
+      "host": "REDIS_HOST",
+      "port": {
+        "__name": "REDIS_PORT",
+        "__format": "number"
+      },
+      "db": {
+        "__name": "REDIS_INDEX",
+        "__format": "number"
+      },
+      "username": "REDIS_USERNAME",
+      "password": "REDIS_PASSWORD",
+      "maxRetriesPerRequest": {
+        "__name": "REDIS_MAX_RETRIES_PER_REQUEST",
+        "__format": "number"
+      }
     }
   },
   "application": {

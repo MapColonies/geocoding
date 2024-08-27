@@ -49,6 +49,10 @@ export interface IApplication {
     hierarchy: number;
     viewbox: number;
   };
+  hashKey: {
+    value?: string;
+    enabled: boolean;
+  };
   sources?: {
     [key: string]: string;
   };

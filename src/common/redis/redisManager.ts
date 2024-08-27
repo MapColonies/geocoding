@@ -1,0 +1,31 @@
+import Redis from 'ioredis';
+import { inject, injectable } from 'tsyringe';
+import { REDIS_SYMBOL, SERVICES } from '../constants';
+import { IApplication } from '../interfaces';
+import { IDomainFieldsRepository } from './domainFieldsRepository';
+
+@injectable()
+export class RedisManager implements IDomainFieldsRepository {
+  public getData: (fields: string[]) => Promise<(string | null)[]>;
+
+  public constructor(@inject(REDIS_SYMBOL) private readonly redis: Redis, @inject(SERVICES.APPLICATION) appConfig: IApplication) {
+    const { value, enabled } = appConfig.hashKey;
+    if (enabled && value !== undefined) {
+      this.getData = async (fields: string[]): Promise<(string | null)[]> => {
+        return this.redis.hmget(value, ...fields);
+      };
+    } else {
+      this.getData = async (fields: string[]): Promise<(string | null)[]> => {
+        return this.redis.mget(fields);
+      };
+    }
+  }
+
+  public async getFields(fields: string[]): Promise<(string | null)[]> {
+    try {
+      return await this.getData(fields);
+    } catch (e) {
+      throw new Error('redis: failed to fetch keys');
+    }
+  }
+}

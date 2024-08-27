@@ -71,6 +71,12 @@
       },
       "database": "postgres",
       "schema": "geocoder"
+    },
+    "redis": {
+      "host": "localhost",
+      "port": 6379,
+      "db": 0,
+      "maxRetriesPerRequest": 1
     }
   },
   "application": {
