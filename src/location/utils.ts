@@ -1,13 +1,12 @@
 // import fetch, { Response } from "node-fetch-commonjs";
-import { GeoJSON, Geometry, Point } from 'geojson';
+import { Geometry, Point } from 'geojson';
 import { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import { StatusCodes } from 'http-status-codes';
 import axios, { AxiosError, AxiosResponse as Response } from 'axios';
 import { InternalServerError } from '../common/errors';
 import { GeoContext, IApplication } from '../common/interfaces';
-import { ConvertCamelToSnakeCase, convertUTMToWgs84 } from '../common/utils';
-import { convertCamelToSnakeCase } from '../control/utils';
-import { BBOX_LENGTH, GetGeotextSearchParams, POINT_LENGTH, QueryResult, TextSearchParams } from './interfaces';
+import { convertUTMToWgs84 } from '../common/utils';
+import { QueryResult, TextSearchParams } from './interfaces';
 import { TextSearchHit } from './models/elasticsearchHits';
 import { generateDisplayName } from './parsing';
 
@@ -55,36 +54,16 @@ export const fetchNLPService = async <T>(endpoint: string, requestData: object):
 
 export const cleanQuery = (query: string): string[] => query.replace(FIND_QUOTES, '').split(FIND_SPECIAL);
 
-export const parseGeo = (input: string | GeoJSON | GeoContext): Geometry | undefined => {
-  //TODO: remove string | GeoJson as accepted types
+export const parseGeo = (input: GeoContext): Geometry | undefined => {
   //TODO: Add geojson validation
   //TODO: refactor this function
-  if (typeof input === 'string') {
-    const splitted = input.split(',');
-    const converted = splitted.map(Number);
-
-    if (converted.findIndex((x) => isNaN(x)) < 0) {
-      switch (splitted.length) {
-        case POINT_LENGTH:
-          // Point
-          return parsePoint(splitted);
-        case BBOX_LENGTH:
-          //BBOX
-          return parseBbox(splitted);
-        default:
-          return undefined;
-      }
-    }
-  } else if (input.bbox !== undefined) {
+  if (input.bbox !== undefined) {
     return parseBbox(input.bbox);
   } else if (
-    ((input as GeoContext).x !== undefined &&
-      (input as GeoContext).y !== undefined &&
-      (input as GeoContext).zone !== undefined &&
-      (input as GeoContext).zone !== undefined) ||
-    ((input as GeoContext).lon !== undefined && (input as GeoContext).lat !== undefined)
+    (input.x !== undefined && input.y !== undefined && input.zone !== undefined && input.zone !== undefined) ||
+    (input.lon !== undefined && input.lat !== undefined)
   ) {
-    const { x, y, zone, radius } = input as GeoContext;
+    const { x, y, zone, radius } = input;
     const { lon, lat } = x && y && zone ? convertUTMToWgs84(x, y, zone) : (input as Required<Pick<GeoContext, 'lat' | 'lon'>>);
 
     return { type: 'Circle', coordinates: (parsePoint([lon, lat]) as Point).coordinates, radius: `${radius ?? ''}` } as unknown as Geometry;
