@@ -318,6 +318,45 @@
     }
   },
   {
+    "_id": "dc02a3f9-156a-4f61-85bd-fd040cd322a3",
+    "_index": "geotext_index",
+    "_source": {
+      "source": "OSM",
+      "layer_name": "osm_schools",
+      "ingestion_timestamp": "2024-07-17 00:00:00",
+      "timestamp": "11/12/2023 00:00:00",
+      "source_id": ["{dc02a3f9-156a-4f61-85bd-fd040cd322a3}"],
+      "sensitivity": "non-sensitive",
+      "placetype": "education",
+      "sub_placetype": "school",
+      "wkt": "POLYGON ((2.346441270696971 48.88088750665477, 2.3462780852304945 48.88018258877358, 2.347503576087604 48.87999951892243, 2.347737155284733 48.88070864783427, 2.346441270696971 48.88088750665477))",
+      "geo_json": {
+        "coordinates": [
+          [
+            [2.346441270696971, 48.88088750665477],
+            [2.3462780852304945, 48.88018258877358],
+            [2.347503576087604, 48.87999951892243],
+            [2.347737155284733, 48.88070864783427],
+            [2.346441270696971, 48.88088750665477]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "centroid": {
+        "type": "Point",
+        "coordinates": [2.346966023961727, 48.88044772323158]
+      },
+      "geometry_type": "Polygon",
+      "geometry_hash": "791f6b24002bbc1d50cdea5015244da9 ",
+      "region": ["FRANCE"],
+      "sub_region": ["Paris"],
+      "name": "Wi School Paris 9",
+      "text": ["Wi School Paris 9"],
+      "translated_text": ["Ecole Wi Paris 9"],
+      "text_language": "en"
+    }
+  },
+  {
     "_id": "5a54ff54-53f6-4ad1-9d2a-cd20f333ee2b",
     "_index": "hierarchies_index",
     "_source": {
@@ -366,6 +405,31 @@
       "placetype": "city",
       "region": "USA",
       "text": "Los Angeles"
+    }
+  },
+  {
+    "_id": "a3f38afc-1ce6-443c-a302-a0103c2bcb7d",
+    "_index": "hierarchies_index",
+    "_source": {
+      "geo_json": {
+        "coordinates": [
+          [
+            [2.226678539753607, 49.06838747927134],
+            [1.9344166918067742, 48.906487548202136],
+            [2.014124468519668, 48.56855190252173],
+            [2.6536844864307625, 48.53463335095324],
+            [2.902296837606201, 48.82159183126478],
+            [2.6460932696008683, 49.0124047223114],
+            [2.384196288972504, 49.05097737411208],
+            [2.226678539753607, 49.06838747927134]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "hierarchy": "city",
+      "placetype": "city",
+      "region": "FRANCE",
+      "text": "Paris"
     }
   },
   {

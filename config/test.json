@@ -60,10 +60,12 @@
       "viewbox": 1.1
     },
     "sources": {
-      "OSM": "OSM"
+      "OSM": "OSM",
+      "GOOGLE": "GOOGLE"
     },
     "regions": {
-      "USA": ["New York", "Los Angeles"]
+      "USA": ["New York", "Los Angeles"],
+      "FRANCE": ["Paris"]
     },
     "nameTranslationsKeys": ["en", "fr"],
     "mainLanguageRegex": "[a-zA-Z]"
