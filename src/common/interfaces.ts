@@ -57,6 +57,9 @@ export interface IApplication {
   };
   nameTranslationsKeys: string[];
   mainLanguageRegex: string;
+  controlObjectDisplayNamePrefixes: {
+    [key: string]: string;
+  };
 }
 
 export enum GeoContextMode {

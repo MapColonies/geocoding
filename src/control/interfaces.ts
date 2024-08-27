@@ -1,4 +1,4 @@
-import { Feature } from 'geojson';
+import { Feature, GeoJsonProperties } from 'geojson';
 import { estypes } from '@elastic/elasticsearch';
 import { CommonRequestParameters, FeatureCollection } from '../common/interfaces';
 import { RemoveUnderscore } from '../common/utils';
@@ -15,14 +15,19 @@ export interface ControlResponse<T extends Feature, G = any> extends FeatureColl
     };
   };
   features: (T & {
-    matches: {
-      source: string;
-      layer: string;
-    }[];
-    names: {
-      [key: string]: string;
-      display: string;
-      default: string;
-    };
-  } & RemoveUnderscore<Pick<estypes.SearchHit<T>, '_score'>>)[];
+    properties: RemoveUnderscore<Pick<estypes.SearchHit<T>, '_score'>> &
+      GeoJsonProperties & {
+        matches: {
+          layer: string;
+          source: string;
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          source_id: string[];
+        }[];
+        name: {
+          [key: string]: string | string[] | undefined;
+          display: string;
+          default: string[];
+        };
+      };
+  })[];
 }

@@ -137,11 +137,13 @@ export const convertResult = (
       geometry: feature?.geo_json,
       score,
       properties: {
-        matches: {
-          layer: feature?.layer_name,
-          source: (sources ?? {})[feature?.source ?? ''] ?? feature?.source,
-          source_id: feature?.source_id.map((id) => id.replace(/(^\{)|(\}$)/g, '')), // TODO: check if to remove this
-        },
+        matches: [
+          {
+            layer: feature?.layer_name,
+            source: (sources ?? {})[feature?.source ?? ''] ?? feature?.source,
+            source_id: feature?.source_id.map((id) => id.replace(/(^\{)|(\}$)/g, '')), // TODO: check if to remove this
+          },
+        ],
         name: {
           [nameKeys[0]]: new RegExp(mainLanguageRegex).test(feature!.text[0]) ? allNames.shift() : allNames.pop(),
           [nameKeys[1]]: allNames.pop(),
