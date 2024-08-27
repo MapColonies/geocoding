@@ -68,7 +68,6 @@ export const parseGeo = (input: GeoContext): Geometry | undefined => {
 
     return { type: 'Circle', coordinates: (parsePoint([lon, lat]) as Point).coordinates, radius: `${radius ?? ''}` } as unknown as Geometry;
   }
-  return input as Geometry;
 };
 
 /* eslint-disable @typescript-eslint/naming-convention */

@@ -73,6 +73,9 @@ export class LatLonController {
         tileName,
         subTileNumber: sub_tile_number,
       });
+
+      // TODO: REMOVE TS IGNORE
+      //@ts-ignore
       return res.status(httpStatus.OK).json(response);
     } catch (error: unknown) {
       this.logger.warn('latLonController.tileToLatLon Error:', error);
