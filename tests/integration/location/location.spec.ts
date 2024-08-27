@@ -67,11 +67,26 @@ describe('/search/control/tiles', function () {
         expectedResponse(
           {
             ...requestParams,
+          },
+          {
             place_types: ['transportation'],
             sub_place_types: ['airport'],
             hierarchies: [],
           },
-          [NY_JFK_AIRPORT, NY_POLICE_AIRPORT, LA_AIRPORT],
+          [
+            {
+              ...NY_JFK_AIRPORT,
+              properties: {
+                ...NY_JFK_AIRPORT.properties,
+                name: {
+                  ...NY_JFK_AIRPORT.properties.name,
+                  display: expect.stringContaining('JFK') as string,
+                },
+              },
+            },
+            NY_POLICE_AIRPORT,
+            LA_AIRPORT,
+          ],
           expect
         )
       );
@@ -103,13 +118,25 @@ describe('/search/control/tiles', function () {
 
       expect(response.body).toMatchObject<QueryResult>(
         expectedResponse(
+          requestParams,
           {
-            ...requestParams,
             place_types: ['transportation'],
             sub_place_types: ['airport'],
             hierarchies: [],
           },
-          [NY_JFK_AIRPORT, NY_POLICE_AIRPORT],
+          [
+            {
+              ...NY_JFK_AIRPORT,
+              properties: {
+                ...NY_JFK_AIRPORT.properties,
+                name: {
+                  ...NY_JFK_AIRPORT.properties.name,
+                  display: expect.stringContaining('JFK') as string,
+                },
+              },
+            },
+            NY_POLICE_AIRPORT,
+          ],
           expect
         )
       );
@@ -336,8 +363,8 @@ describe('/search/control/tiles', function () {
 
       expect(response.body).toMatchObject<QueryResult>(
         expectedResponse(
+          requestParams,
           {
-            ...requestParams,
             place_types: ['transportation'],
             sub_place_types: ['port'],
             hierarchies: [],
@@ -368,8 +395,8 @@ describe('/search/control/tiles', function () {
 
       expect(response.body).toMatchObject<QueryResult>(
         expectedResponse(
+          requestParams,
           {
-            ...requestParams,
             place_types: ['education'],
             sub_place_types: ['school'],
             hierarchies: [],

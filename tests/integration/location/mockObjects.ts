@@ -314,9 +314,13 @@ export const PARIS_WI_SCHOOL: MockLocationQueryFeature = {
     type: 'Polygon',
   },
   properties: {
-    source: 'OSM',
-    layer: 'osm_schools',
-    source_id: ['dc02a3f9-156a-4f61-85bd-fd040cd322a3'],
+    matches: [
+      {
+        source: 'OSM',
+        layer: 'osm_schools',
+        source_id: ['dc02a3f9-156a-4f61-85bd-fd040cd322a3'],
+      },
+    ],
     name: {
       en: ['Wi School Paris 9'],
       fr: ['Ecole Wi Paris 9'],
@@ -328,7 +332,7 @@ export const PARIS_WI_SCHOOL: MockLocationQueryFeature = {
     regions: [
       {
         region: 'FRANCE',
-        sub_regions: ['Paris'],
+        sub_region_names: ['Paris'],
       },
     ],
   },
