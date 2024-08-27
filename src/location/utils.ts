@@ -7,8 +7,9 @@ import { InternalServerError } from '../common/errors';
 import { GeoContext, IApplication } from '../common/interfaces';
 import { ConvertCamelToSnakeCase, convertUTMToWgs84 } from '../common/utils';
 import { convertCamelToSnakeCase } from '../control/utils';
-import { BBOX_LENGTH, POINT_LENGTH, QueryResult, TextSearchParams } from './interfaces';
+import { BBOX_LENGTH, GetGeotextSearchParams, POINT_LENGTH, QueryResult, TextSearchParams } from './interfaces';
 import { TextSearchHit } from './models/elasticsearchHits';
+import { generateDisplayName } from './parsing';
 
 const FIND_QUOTES = /["']/g;
 
@@ -111,40 +112,47 @@ export const convertResult = (
   geocoding: {
     version: process.env.npm_package_version,
     query: {
-      ...(convertCamelToSnakeCase(params as unknown as Record<string, unknown>) as ConvertCamelToSnakeCase<TextSearchParams>),
+      query: params.query,
+      region: params.region,
+      source: params.source,
+      geo_context: params.geoContext,
+      geo_context_mode: params.geoContextMode,
+      disable_fuzziness: params.disableFuzziness,
+      limit: params.limit,
     },
     response: {
-      /* eslint-disable @typescript-eslint/naming-convention */
       results_count: results.hits.hits.length,
       max_score: results.hits.max_score ?? 0,
       match_latency_ms: results.took,
-      /* eslint-enable @typescript-eslint/naming-convention */
+      name: params.name ?? undefined,
+      place_types: params.placeTypes,
+      sub_place_types: params.subPlaceTypes,
+      hierarchies: params.hierarchies,
     },
   },
-  features: results.hits.hits.map(({ _source: feature, _score }, index): QueryResult['features'][number] => {
+  features: results.hits.hits.map(({ _source: feature, _score: score, highlight }, index): QueryResult['features'][number] => {
     const allNames = [feature!.text, feature!.translated_text || []];
     return {
       type: 'Feature',
       geometry: feature?.geo_json,
-      _score,
+      score,
       properties: {
-        rank: index + 1,
-        source: (sources ?? {})[feature?.source ?? ''] ?? feature?.source,
-        layer: feature?.layer_name,
-        source_id: feature?.source_id.map((id) => id.replace(/(^\{)|(\}$)/g, '')), // TODO: check if to remove this
+        matches: {
+          layer: feature?.layer_name,
+          source: (sources ?? {})[feature?.source ?? ''] ?? feature?.source,
+          source_id: feature?.source_id.map((id) => id.replace(/(^\{)|(\}$)/g, '')), // TODO: check if to remove this
+        },
         name: {
           [nameKeys[0]]: new RegExp(mainLanguageRegex).test(feature!.text[0]) ? allNames.shift() : allNames.pop(),
           [nameKeys[1]]: allNames.pop(),
           ['default']: [feature!.name],
-          // display: highlight ? generateDisplayName(highlight.text, params.query!.split(' ').length, params.name) : feature!.name,
-          display: feature!.name,
+          display: highlight ? generateDisplayName(highlight, params.query.split(' ').length, params.name) : feature!.name,
         },
-        // highlight,
         placetype: feature?.placetype, // TODO: check if to remove this
         sub_placetype: feature?.sub_placetype,
         regions: feature?.region.map((region) => ({
           region: region,
-          sub_regions: feature.sub_region.filter((sub_region) => (regionCollection ?? {})[region ?? '']?.includes(sub_region)),
+          sub_region_names: feature.sub_region.filter((sub_region) => (regionCollection ?? {})[region ?? '']?.includes(sub_region)),
         })),
       },
     };

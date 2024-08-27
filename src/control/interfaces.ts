@@ -14,5 +14,15 @@ export interface ControlResponse<T extends Feature, G = any> extends FeatureColl
       /* eslint-enable @typescript-eslint/naming-convention */
     };
   };
-  features: (T & RemoveUnderscore<Pick<estypes.SearchHit<T>, '_score'>>)[];
+  features: (T & {
+    matches: {
+      source: string;
+      layer: string;
+    }[];
+    names: {
+      [key: string]: string;
+      display: string;
+      default: string;
+    };
+  } & RemoveUnderscore<Pick<estypes.SearchHit<T>, '_score'>>)[];
 }
