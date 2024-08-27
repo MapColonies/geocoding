@@ -135,8 +135,8 @@ export const convertResult = (
     return {
       type: 'Feature',
       geometry: feature?.geo_json,
-      score,
       properties: {
+        score,
         matches: [
           {
             layer: feature?.layer_name,

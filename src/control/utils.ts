@@ -90,8 +90,8 @@ export const formatResponse = <T extends Tile | Item | Route>(
               default: [generatedDisplayName.at(LAST_ELEMENT_INDEX)],
               display: generatedDisplayName.join(' '),
             },
+            score,
           },
-          score,
         };
       }
     }) as ControlResponse<T>['features']),

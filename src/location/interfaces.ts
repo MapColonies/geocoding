@@ -38,7 +38,7 @@ export interface QueryResult {
       ConvertCamelToSnakeCase<Pick<TextSearchParams, 'name' | 'placeTypes' | 'subPlaceTypes' | 'hierarchies'>>
     >;
   };
-  features: ({
+  features: {
     type: string;
     geometry?: GeoJSON;
     properties: {
@@ -55,8 +55,8 @@ export interface QueryResult {
       placetype?: string;
       sub_placetype?: string;
       regions?: { region: string; sub_region_names: string[] }[];
-    };
-  } & RemoveUnderscore<Pick<estypes.SearchHit, '_score'>>)[];
+    } & RemoveUnderscore<Pick<estypes.SearchHit, '_score'>>;
+  }[];
 }
 /* eslint-enable @typescript-eslint/naming-convention */
 
