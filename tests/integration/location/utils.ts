@@ -6,8 +6,8 @@ const expectedObjectWithScore = (obj: MockLocationQueryFeature, expect: jest.Exp
   ...obj,
   properties: {
     ...obj.properties,
+    score: expect.any(Number) as number,
   },
-  score: expect.any(Number) as number,
 });
 
 const expectedGeocodingElasticResponseMetrics = (

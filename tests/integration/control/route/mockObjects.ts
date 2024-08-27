@@ -21,6 +21,7 @@ export const ROUTE_VIA_CAMILLUCCIA_A: Route = {
     OBJECT_COMMAND_NAME: 'via camillucciaA',
     ENTITY_HEB: 'route',
     TYPE: 'ROUTE',
+    LAYER_NAME: 'CONTROL.ROUTES',
   },
 };
 export const ROUTE_VIA_CAMILLUCCIA_B: Route = {
@@ -39,6 +40,7 @@ export const ROUTE_VIA_CAMILLUCCIA_B: Route = {
     OBJECT_COMMAND_NAME: 'via camillucciaB',
     ENTITY_HEB: 'route',
     TYPE: 'ROUTE',
+    LAYER_NAME: 'CONTROL.ROUTES',
   },
 };
 
@@ -52,7 +54,8 @@ export const CONTROL_POINT_OLIMPIADE_111: Route = {
     OBJECT_COMMAND_NAME: '111',
     ENTITY_HEB: 'control point',
     TIED_TO: 'olimpiade',
-    TYPE: 'ITEM',
+    TYPE: 'ITEM' as never,
+    LAYER_NAME: 'CONTROL_GIL_GDB.CTR_CONTROL_POINT_CROSS_N',
   },
 };
 
@@ -66,6 +69,7 @@ export const CONTROL_POINT_OLIMPIADE_112: Route = {
     OBJECT_COMMAND_NAME: '112',
     ENTITY_HEB: 'control point',
     TIED_TO: 'olimpiade',
-    TYPE: 'ITEM',
+    TYPE: 'ITEM' as never,
+    LAYER_NAME: 'CONTROL_GIL_GDB.CTR_CONTROL_POINT_CROSS_N',
   },
 };

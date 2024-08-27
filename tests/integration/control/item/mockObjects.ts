@@ -20,6 +20,7 @@ export const ITEM_1234: Item = {
     type: 'Polygon',
   },
   properties: {
+    LAYER_NAME: 'CONTROL.ITEMS',
     OBJECT_COMMAND_NAME: '1234',
     TILE_NAME: 'RIT',
     SUB_TILE_ID: '37',
@@ -50,6 +51,7 @@ export const ITEM_1235: Item = {
     type: 'Polygon',
   },
   properties: {
+    LAYER_NAME: 'CONTROL.ITEMS',
     OBJECT_COMMAND_NAME: '1235',
     TILE_NAME: 'RIT',
     SUB_TILE_ID: '37',
@@ -87,6 +89,7 @@ export const ITEM_1236: Item = {
     type: 'Polygon',
   },
   properties: {
+    LAYER_NAME: 'CONTROL.ITEMS',
     OBJECT_COMMAND_NAME: '1236',
     TILE_NAME: 'RIT',
     SUB_TILE_ID: '38',

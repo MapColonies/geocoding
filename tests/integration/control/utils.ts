@@ -8,9 +8,23 @@ import { Route } from '../../../src/control/route/models/route';
 import { GetTilesQueryParams } from '../../../src/control/tile/controllers/tileController';
 import { Tile } from '../../../src/control/tile/models/tile';
 
-const expectedObjectWithScore = <T extends Tile | Item | Route>(obj: T, expect: jest.Expect): ControlResponse<T>['features'][number] => ({
-  ...obj,
-  score: expect.any(Number) as number,
+const expectedObjectWithScore = <T extends Tile | Item | Route>(source: T, expect: jest.Expect): ControlResponse<T>['features'][number] => ({
+  ...source,
+  properties: {
+    ...source.properties,
+    score: expect.any(Number) as number,
+    matches: [
+      {
+        layer: expect.any(String) as string,
+        source: expect.any(String) as string,
+        source_id: [],
+      },
+    ],
+    name: {
+      default: [expect.any(String) as string],
+      display: expect.any(String) as string,
+    },
+  },
 });
 
 const expectedGeocodingElasticResponseMetrics = <T extends Tile | Item | Route>(
