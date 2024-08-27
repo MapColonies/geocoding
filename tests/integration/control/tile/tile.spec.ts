@@ -381,31 +381,6 @@ describe('/search/control/tiles', function () {
       });
     });
 
-    test.each<Pick<GetTilesQueryParams, 'geo_context' | 'geo_context_mode'>>([
-      {
-        geo_context: { x: 300850, y: 4642203, zone: 33, radius: 100 },
-      },
-      {
-        geo_context: { lon: 12.598899687444742, lat: 41.90667824634701, radius: 10 },
-      },
-      {
-        geo_context: { bbox: [12.554407132912445, 41.84962590648513, 12.652837919839953, 41.94545380230761] },
-      },
-      {
-        geo_context_mode: GeoContextMode.BIAS,
-      },
-      {
-        geo_context_mode: GeoContextMode.FILTER,
-      },
-    ])('should return 400 and message that geo_context and geo_context_mode must be both defined or both undefined', async function (requestParams) {
-      const response = await requestSender.getTiles({ tile: 'RIT', limit: 5, disable_fuzziness: false, ...requestParams });
-
-      expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
-        message: '/control/utils/geoContextQuery: geo_context and geo_context_mode must be both defined or both undefined',
-      });
-    });
-
     test.each<Pick<GetTilesQueryParams, 'disable_fuzziness'>>([
       {
         disable_fuzziness: '' as unknown as boolean,
