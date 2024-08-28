@@ -1,4 +1,4 @@
-// import fetch, { Response } from "node-fetch-commonjs";
+import https from 'https';
 import { Geometry, Point } from 'geojson';
 import { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import { StatusCodes } from 'http-status-codes';
@@ -13,6 +13,10 @@ import { generateDisplayName } from './parsing';
 const FIND_QUOTES = /["']/g;
 
 const FIND_SPECIAL = /[`!@#$%^&*()_\-+=|\\/,.<>:[\]{}\n\t\r\s;؛]+/g;
+
+const axiosInstance = axios.create({
+  httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+});
 
 const parsePoint = (split: string[] | number[]): Geometry => ({
   type: 'Point',
@@ -39,7 +43,7 @@ export const fetchNLPService = async <T>(endpoint: string, requestData: object):
   let res: Response | null = null,
     data: T[] | undefined | null = null;
   try {
-    res = await axios.post(endpoint, requestData);
+    res = await axiosInstance.post(endpoint, requestData);
   } catch (err: unknown) {
     throw new InternalServerError(`NLP analyser is not available - ${(err as AxiosError).message}`);
   }
