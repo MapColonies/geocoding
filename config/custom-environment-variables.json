@@ -104,6 +104,10 @@
       "__name": "NAME_TRANSLATION_KEYS",
       "__format": "json"
     },
+    "controlObjectDisplayNamePrefixes": {
+      "__name": "NAME_TRANSLATION_KEYS",
+      "__format": "json"
+    },
     "mainLanguageRegex": "MAIN_LANGUAGE_REGEX"
   }
 }
