@@ -49,3 +49,5 @@ export class NotImplementedError extends Error implements HttpError {
     super(message);
   }
 }
+
+export class TimeoutError extends Error {}

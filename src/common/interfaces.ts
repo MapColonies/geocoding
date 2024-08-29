@@ -1,4 +1,5 @@
 import { DataSourceOptions } from 'typeorm';
+import { RedisClientOptions } from 'redis';
 import { Feature, FeatureCollection as GeoJSONFeatureCollection } from 'geojson';
 
 export interface IConfig {
@@ -12,6 +13,13 @@ export interface OpenApiConfig {
   jsonPath: string;
   uiPath: string;
 }
+
+export type RedisConfig = {
+  host: string;
+  port: number;
+  enableSslAuth: boolean;
+  sslPaths: { ca: string; cert: string; key: string };
+} & RedisClientOptions;
 
 export type PostgresDbConfig = {
   enableSslAuth: boolean;

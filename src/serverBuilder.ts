@@ -16,6 +16,7 @@ import { ROUTE_ROUTER_SYMBOL } from './control/route/routes/routeRouter';
 import { LAT_LON_ROUTER_SYMBOL } from './latLon/routes/latLonRouter';
 import { GEOTEXT_SEARCH_ROUTER_SYMBOL } from './location/routes/locationRouter';
 import { cronLoadTileLatLonDataSymbol } from './latLon/DAL/latLonDAL';
+import { feedbackApiMiddlewareManager } from './common/middlewares/feedbackApi.middleware';
 
 @injectable()
 export class ServerBuilder {
@@ -29,7 +30,8 @@ export class ServerBuilder {
     @inject(ROUTE_ROUTER_SYMBOL) private readonly routeRouter: Router,
     @inject(LAT_LON_ROUTER_SYMBOL) private readonly latLonRouter: Router,
     @inject(GEOTEXT_SEARCH_ROUTER_SYMBOL) private readonly geotextRouter: Router,
-    @inject(cronLoadTileLatLonDataSymbol) private readonly cronLoadTileLatLonData: void
+    @inject(cronLoadTileLatLonDataSymbol) private readonly cronLoadTileLatLonData: void,
+    @inject(feedbackApiMiddlewareManager) private readonly feedbackApiMiddleware: feedbackApiMiddlewareManager
   ) {
     this.serverInstance = express();
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -55,12 +57,14 @@ export class ServerBuilder {
   }
 
   private buildRoutes(): void {
+    this.serverInstance.use(this.feedbackApiMiddleware.saveResponses);
     const router = Router();
+
     router.use('/lookup', this.latLonRouter);
     router.use('/location', this.geotextRouter);
     router.use('/control', this.buildControlRoutes());
 
-    this.serverInstance.use('/search/', router);
+    this.serverInstance.use('/search', router);
   }
 
   private buildControlRoutes(): Router {

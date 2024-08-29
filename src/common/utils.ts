@@ -1,6 +1,7 @@
 import proj4 from 'proj4';
 import { utmProjection, wgs84Projection } from './projections';
 import { WGS84Coordinate } from './interfaces';
+import { TimeoutError } from './errors';
 
 type SnakeToCamelCase<S extends string> = S extends `${infer T}_${infer U}` ? `${T}${Capitalize<SnakeToCamelCase<U>>}` : S;
 
@@ -78,4 +79,17 @@ export const validateTile = (tile: { tileName: string; subTileNumber: number[] }
     }
   }
   return true;
+};
+
+export const promiseTimeout = async <T>(ms: number, promise: Promise<T>): Promise<T> => {
+  // create a promise that rejects in <ms> milliseconds
+  const timeout = new Promise<T>((_, reject) => {
+    const id = setTimeout(() => {
+      clearTimeout(id);
+      reject(new TimeoutError(`Timed out in + ${ms} + ms.`));
+    }, ms);
+  });
+
+  // returns a race between our timeout and the passed in promise
+  return Promise.race([promise, timeout]);
 };

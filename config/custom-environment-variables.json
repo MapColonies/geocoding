@@ -93,14 +93,19 @@
         "__name": "REDIS_PORT",
         "__format": "number"
       },
-      "db": {
-        "__name": "REDIS_INDEX",
-        "__format": "number"
-      },
       "username": "REDIS_USERNAME",
       "password": "REDIS_PASSWORD",
-      "maxRetriesPerRequest": {
-        "__name": "REDIS_MAX_RETRIES_PER_REQUEST",
+      "enableSslAuth": {
+        "__name": "REDIS_ENABLE_SSL_AUTH",
+        "__format": "boolean"
+      },
+      "sslPaths": {
+        "ca": "REDIS_CA_PATH",
+        "key": "REDIS_KEY_PATH",
+        "cert": "REDIS_CERT_PATH"
+      },
+      "database": {
+        "__name": "REDIS_DATABASE",
         "__format": "number"
       }
     }

@@ -1,17 +1,16 @@
 import config from 'config';
-import Redis, { RedisOptions } from 'ioredis';
 import { getOtelMixin } from '@map-colonies/telemetry';
 import { DataSource } from 'typeorm';
 import { instancePerContainerCachingFactory } from 'tsyringe';
 import { trace, metrics as OtelMetrics } from '@opentelemetry/api';
+import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
 import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { Metrics } from '@map-colonies/telemetry';
-import { SERVICES, SERVICE_NAME, REDIS_SYMBOL } from './common/constants';
+import { HEALTHCHECK, SERVICES, SERVICE_NAME } from './common/constants';
 import { tracing } from './common/tracing';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
 import { elasticClientFactory, ElasticClients } from './common/elastic';
-import { RedisManager } from './common/redis/redisManager';
 import { IApplication } from './common/interfaces';
 import { TILE_REPOSITORY_SYMBOL, tileRepositoryFactory } from './control/tile/DAL/tileRepository';
 import { TILE_ROUTER_SYMBOL, tileRouterFactory } from './control/tile/routes/tileRouter';
@@ -25,8 +24,8 @@ import { GEOTEXT_REPOSITORY_SYMBOL, geotextRepositoryFactory } from './location/
 import { GEOTEXT_SEARCH_ROUTER_SYMBOL, geotextSearchRouterFactory } from './location/routes/locationRouter';
 import { cronLoadTileLatLonDataFactory, cronLoadTileLatLonDataSymbol } from './latLon/DAL/latLonDAL';
 import { ITEM_REPOSITORY_SYMBOL, itemRepositoryFactory } from './control/item/DAL/itemRepository';
-import { createRedisConnection } from './common/redis/index';
-import { IDOMAIN_FIELDS_REPO_SYMBOL } from './common/redis/domainFieldsRepository';
+import { healthCheckFunctionFactory, RedisClient, redisClientFactory } from './common/redis';
+import { HealthCheck } from '@godaddy/terminus';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -34,6 +33,8 @@ export interface RegisterOptions {
 }
 
 export const registerExternalValues = async (options?: RegisterOptions): Promise<DependencyContainer> => {
+  const cleanupRegistry = new CleanupRegistry();
+
   const loggerConfig = config.get<LoggerOptions>('telemetry.logger');
   const logger = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, mixin: getOtelMixin() });
 
@@ -44,8 +45,6 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
   const tracer = trace.getTracer(SERVICE_NAME);
 
   const applicationConfig: IApplication = config.get<IApplication>('application');
-
-  let redisConnection: Redis | undefined;
 
   const dependencies: InjectionObject<unknown>[] = [
     { token: SERVICES.CONFIG, provider: { useValue: config } },
@@ -84,26 +83,21 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
       },
     },
     {
-      token: REDIS_SYMBOL,
+      token: SERVICES.REDIS,
+      provider: { useFactory: instancePerContainerCachingFactory(redisClientFactory) },
+      postInjectionHook: async (deps: DependencyContainer): Promise<void> => {
+        const redis = deps.resolve<RedisClient>(SERVICES.REDIS);
+        cleanupRegistry.register({ func: redis.disconnect.bind(redis), id: SERVICES.REDIS });
+        await redis.connect();
+      },
+    },
+    {
+      token: HEALTHCHECK,
       provider: {
-        useFactory: instancePerContainerCachingFactory(async () => {
-          redisConnection = await createRedisConnection(config.get<RedisOptions>('db'));
-
-          redisConnection.on('connect', () => {
-            logger.info(`redis client is connected.`);
-          });
-
-          redisConnection.on('error', (err: Error) => {
-            logger.error({ err: err, msg: 'redis client got an error' });
-          });
-
-          redisConnection.on('reconnecting', (delay: number) => {
-            logger.info(`redis client reconnecting, next reconnection attemp in ${delay}ms`);
-          });
-          container.register(SERVICES.LOGGER, { useValue: logger });
-          container.register(IDOMAIN_FIELDS_REPO_SYMBOL, { useClass: RedisManager });
-          return redisConnection;
-        }),
+        useFactory: (container): HealthCheck => {
+          const redis = container.resolve<RedisClient>(SERVICES.REDIS);
+          return healthCheckFunctionFactory(redis);
+        },
       },
     },
     { token: TILE_REPOSITORY_SYMBOL, provider: { useFactory: tileRepositoryFactory } },
@@ -127,20 +121,8 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
       provider: {
         useFactory: instancePerContainerCachingFactory(async (): Promise<void> => {
           const promises: Promise<void>[] = [tracing.stop(), metrics.stop()];
-          if (redisConnection !== undefined) {
-            redisConnection.disconnect();
-
-            const promisifyQuit = new Promise<void>((resolve) => {
-              redisConnection = redisConnection as Redis;
-              redisConnection.once('end', () => {
-                resolve();
-              });
-              void redisConnection.quit();
-            });
-            promises.push(promisifyQuit);
-          }
-          await Promise.all(promises);
         }),
+        useValue: cleanupRegistry.trigger.bind(cleanupRegistry),
       },
     },
   ];

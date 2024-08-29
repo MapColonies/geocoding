@@ -75,8 +75,15 @@
     "redis": {
       "host": "localhost",
       "port": 6379,
-      "db": 0,
-      "maxRetriesPerRequest": 1
+      "username": "",
+      "password": "",
+      "enableSslAuth": false,
+      "sslPaths": {
+        "ca": "",
+        "key": "",
+        "cert": ""
+      },
+      "database": 0
     }
   },
   "application": {

@@ -16,6 +16,7 @@ export const SERVICES: Record<string, symbol> = {
   METER: Symbol('Meter'),
   APPLICATION: Symbol('Application'),
   ELASTIC_CLIENTS: Symbol('ElasticClients'),
+  REDIS: Symbol('Redis'),
 };
 /* eslint-enable @typescript-eslint/naming-convention */
 
@@ -24,4 +25,3 @@ export const HEALTHCHECK = Symbol('healthcheck');
 export const REDIS_SYMBOL = Symbol('REDIS');
 
 export const elasticConfigPath = 'db.elastic';
-export const REDIS_KEYS_SEPARATOR = ':';
