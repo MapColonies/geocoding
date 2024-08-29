@@ -57,10 +57,6 @@ export interface IApplication {
     hierarchy: number;
     viewbox: number;
   };
-  hashKey: {
-    value?: string;
-    enabled: boolean;
-  };
   sources?: {
     [key: string]: string;
   };
@@ -74,6 +70,12 @@ export interface IApplication {
 export enum GeoContextMode {
   FILTER = 'filter',
   BIAS = 'bias',
+}
+
+export interface GeocodingResponse {
+  userId: string;
+  response: JSON;
+  respondedAt: Date;
 }
 
 /* eslint-disable @typescript-eslint/naming-convention */
