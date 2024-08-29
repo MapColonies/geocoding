@@ -5,16 +5,19 @@ import { inject, injectable } from 'tsyringe';
 import { RedisClient } from '../redis';
 import * as crypto from 'node:crypto';
 import { GeocodingResponse } from '../interfaces';
+import { RedisClientType } from '@redis/client';
+import { RedisModules, RedisFunctions, RedisScripts } from 'redis';
 
 @injectable()
 export class feedbackApiMiddlewareManager {
   public constructor(@inject(SERVICES.LOGGER) private readonly logger: Logger, @inject(SERVICES.REDIS) private readonly redis: RedisClient) {}
 
   saveResponses = async (req: Request, res: Response, next: NextFunction) => {
-    this.logger.info({ msg: 'saving response to redis' });
     const reqId = crypto.randomUUID();
-    const redisClient = this.redis
+    const redisClient = this.redis;
+    const logger = this.logger;
 
+    logger.info({ msg: 'saving response to redis' });
     // let response: JSON = JSON.parse('{}');
     let geocodingResponseDetails: GeocodingResponse = {
       userId: req.headers['x-user-id'] as string,
@@ -25,14 +28,31 @@ export class feedbackApiMiddlewareManager {
     const originalJson = res.json;
     const logJson = async function (this: Response<any>, body: any): Promise<Response<any, Record<string, any>>> {
       console.log('Response:', body);
-      //   response = await body;
       geocodingResponseDetails.response = await body;
-      await redisClient.set(reqId, JSON.stringify(geocodingResponseDetails));
+
+      try {
+        await redisClient.setEx(reqId, 300, JSON.stringify(geocodingResponseDetails));
+        logger.info({ msg: 'saving response to redis' });
+      } catch (err) {
+        logger.error('Error setting key:', err);
+      }
+
+      //await setKeyWithTTL(reqId, JSON.stringify(geocodingResponseDetails), redisClient);
 
       return originalJson.call(this, body);
     };
-
     res.json = logJson as unknown as Response['json'];
     next();
   };
+}
+
+async function setKeyWithTTL(key: string, value: string, redis: RedisClient) {
+  try {
+    await redis.set(key, value, {
+      EX: 300, // 5 minutes in seconds
+    });
+    console.log(`Key '${key}' set with a TTL of 5 minutes.`);
+  } catch (err) {
+    console.error('Error setting key:', err);
+  }
 }
