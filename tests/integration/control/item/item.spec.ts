@@ -3,12 +3,8 @@ import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import { DataSource } from 'typeorm';
-import config from 'config';
-import Redis, { RedisOptions } from 'ioredis';
-import { DependencyContainer } from 'tsyringe';
-import { Application } from 'express';
 import { getApp } from '../../../../src/app';
-import { REDIS_SYMBOL, SERVICES } from '../../../../src/common/constants';
+import { SERVICES } from '../../../../src/common/constants';
 import { GetItemsQueryParams } from '../../../../src/control/item/controllers/itemController';
 import { Item } from '../../../../src/control/item/models/item';
 import { ControlResponse } from '../../../../src/control/interfaces';
@@ -16,30 +12,14 @@ import { CommonRequestParameters, GeoContext, GeoContextMode } from '../../../..
 import { LATLON_CUSTOM_REPOSITORY_SYMBOL } from '../../../../src/latLon/DAL/latLonRepository';
 import { cronLoadTileLatLonDataSymbol } from '../../../../src/latLon/DAL/latLonDAL';
 import { expectedResponse } from '../utils';
-import { RedisManager } from '../../../../src/common/redis/redisManager';
-import { IDOMAIN_FIELDS_REPO_SYMBOL } from '../../../../src/common/redis/domainFieldsRepository';
-import { createRedisConnection } from '../../../../src/common/redis';
 import { ItemRequestSender } from './helpers/requestSender';
 import { ITEM_1234, ITEM_1235, ITEM_1236 } from './mockObjects';
 
 describe('/search/control/items', function () {
   let requestSender: ItemRequestSender;
-  let app: { app: Application; container?: DependencyContainer };
-  let redisConnection: Redis;
-
-  beforeAll(async function () {
-    redisConnection = await createRedisConnection(config.get<RedisOptions>('db'));
-    app = await getApp({
-      override: [
-        { token: REDIS_SYMBOL, provider: { useValue: redisConnection } },
-        { token: IDOMAIN_FIELDS_REPO_SYMBOL, provider: { useClass: RedisManager } },
-      ],
-      useChild: true,
-    });
-  });
 
   beforeEach(async function () {
-    app = await getApp({
+    const app = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
@@ -52,12 +32,6 @@ describe('/search/control/items', function () {
     });
 
     requestSender = new ItemRequestSender(app.app);
-  });
-
-  afterAll(async function () {
-    if (!['end'].includes(redisConnection.status)) {
-      await redisConnection.quit();
-    }
   });
 
   describe('Happy Path', function () {

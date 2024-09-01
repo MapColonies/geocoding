@@ -5,8 +5,6 @@ import { inject, injectable } from 'tsyringe';
 import { RedisClient } from '../redis';
 import * as crypto from 'node:crypto';
 import { GeocodingResponse } from '../interfaces';
-import { RedisClientType } from '@redis/client';
-import { RedisModules, RedisFunctions, RedisScripts } from 'redis';
 
 @injectable()
 export class feedbackApiMiddlewareManager {
@@ -18,7 +16,6 @@ export class feedbackApiMiddlewareManager {
     const logger = this.logger;
 
     logger.info({ msg: 'saving response to redis' });
-    // let response: JSON = JSON.parse('{}');
     let geocodingResponseDetails: GeocodingResponse = {
       userId: req.headers['x-user-id'] as string,
       response: JSON.parse('{}'),
@@ -27,7 +24,7 @@ export class feedbackApiMiddlewareManager {
 
     const originalJson = res.json;
     const logJson = async function (this: Response<any>, body: any): Promise<Response<any, Record<string, any>>> {
-      console.log('Response:', body);
+      //   console.log('Response:', body);
       geocodingResponseDetails.response = await body;
 
       try {

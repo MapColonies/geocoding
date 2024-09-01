@@ -13,6 +13,7 @@ module.exports = {
     '!*/common/**',
     '!**/controllers/**',
     '!**/routes/**',
+    '!**/redis/**',
     '!<rootDir>/src/*',
   ],
   coverageDirectory: '<rootDir>/coverage',
