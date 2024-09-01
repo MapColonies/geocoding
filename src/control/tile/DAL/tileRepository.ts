@@ -1,4 +1,3 @@
-import { Logger } from '@map-colonies/js-logger';
 import { estypes } from '@elastic/elasticsearch';
 import { FactoryFunction } from 'tsyringe';
 import { ElasticClient, ElasticClients } from '../../../common/elastic';
@@ -10,7 +9,7 @@ import { additionalControlSearchProperties } from '../../utils';
 import { queryForTiles, queryForSubTiles, TileQueryParams } from './queries';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-const createTileRepository = (client: ElasticClient, config: IConfig, logger: Logger) => {
+const createTileRepository = (client: ElasticClient, config: IConfig) => {
   return {
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     async getTiles(tileQueryParams: TileQueryParams & Required<Pick<TileQueryParams, 'tile'>>, size: number): Promise<estypes.SearchResponse<Tile>> {
@@ -30,11 +29,7 @@ const createTileRepository = (client: ElasticClient, config: IConfig, logger: Lo
 export type TileRepository = ReturnType<typeof createTileRepository>;
 
 export const tileRepositoryFactory: FactoryFunction<TileRepository> = (depContainer) => {
-  return createTileRepository(
-    depContainer.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS).control,
-    depContainer.resolve<IConfig>(SERVICES.CONFIG),
-    depContainer.resolve<Logger>(SERVICES.LOGGER)
-  );
+  return createTileRepository(depContainer.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS).control, depContainer.resolve<IConfig>(SERVICES.CONFIG));
 };
 
 export const TILE_REPOSITORY_SYMBOL = Symbol('TILE_REPOSITORY_SYMBOL');

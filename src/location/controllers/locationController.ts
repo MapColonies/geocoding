@@ -50,11 +50,11 @@ export class GeotextSearchController {
     }
   };
 
-  public getRegions: GetRegionshHandler = (req, res, next) => {
+  public getRegions: GetRegionshHandler = (req, res) => {
     return res.status(httpStatus.OK).json(this.manager.regions());
   };
 
-  public getSources: GetSourcesHandler = (req, res, next) => {
+  public getSources: GetSourcesHandler = (req, res) => {
     return res.status(httpStatus.OK).json(this.manager.sources());
   };
 }

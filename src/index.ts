@@ -7,7 +7,7 @@ import { DependencyContainer } from 'tsyringe';
 import { createTerminus } from '@godaddy/terminus';
 import { Logger } from '@map-colonies/js-logger';
 import config from 'config';
-import { DEFAULT_SERVER_PORT, HEALTHCHECK, ON_SIGNAL, SERVICES } from './common/constants';
+import { DEFAULT_SERVER_PORT, ON_SIGNAL, SERVICES } from './common/constants';
 import { getApp } from './app';
 
 let depContainer: DependencyContainer | undefined;

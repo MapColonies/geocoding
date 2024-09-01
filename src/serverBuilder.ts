@@ -16,7 +16,7 @@ import { ROUTE_ROUTER_SYMBOL } from './control/route/routes/routeRouter';
 import { LAT_LON_ROUTER_SYMBOL } from './latLon/routes/latLonRouter';
 import { GEOTEXT_SEARCH_ROUTER_SYMBOL } from './location/routes/locationRouter';
 import { cronLoadTileLatLonDataSymbol } from './latLon/DAL/latLonDAL';
-import { feedbackApiMiddlewareManager } from './common/middlewares/feedbackApi.middleware';
+import { FeedbackApiMiddlewareManager } from './common/middlewares/feedbackApi.middleware';
 
 @injectable()
 export class ServerBuilder {
@@ -31,7 +31,7 @@ export class ServerBuilder {
     @inject(LAT_LON_ROUTER_SYMBOL) private readonly latLonRouter: Router,
     @inject(GEOTEXT_SEARCH_ROUTER_SYMBOL) private readonly geotextRouter: Router,
     @inject(cronLoadTileLatLonDataSymbol) private readonly cronLoadTileLatLonData: void,
-    @inject(feedbackApiMiddlewareManager) private readonly feedbackApiMiddleware: feedbackApiMiddlewareManager
+    @inject(FeedbackApiMiddlewareManager) private readonly feedbackApiMiddleware: FeedbackApiMiddlewareManager
   ) {
     this.serverInstance = express();
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions

@@ -2,10 +2,10 @@
 /* istanbul ignore file */
 import { XMLParser } from 'fast-xml-parser';
 
-type Highlight = {
+interface Highlight {
   em: string | string[];
   '#text': string;
-};
+}
 
 const HIERARCHY_OF_INTEREST = 3;
 

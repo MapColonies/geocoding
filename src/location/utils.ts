@@ -144,7 +144,7 @@ export const convertResult = (
         sub_placetype: feature?.sub_placetype,
         regions: feature?.region.map((region) => ({
           region: region,
-          sub_regions: feature.sub_region.filter((sub_region) => (regionCollection ?? {})[region ?? '']?.includes(sub_region)),
+          sub_regions: feature.sub_region.filter((sub_region) => (regionCollection ?? {})[region ?? ''].includes(sub_region)),
         })),
       },
     };

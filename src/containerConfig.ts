@@ -7,6 +7,7 @@ import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
 import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { Metrics } from '@map-colonies/telemetry';
+import { HealthCheck } from '@godaddy/terminus';
 import { HEALTHCHECK, SERVICES, SERVICE_NAME } from './common/constants';
 import { tracing } from './common/tracing';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
@@ -25,7 +26,6 @@ import { GEOTEXT_SEARCH_ROUTER_SYMBOL, geotextSearchRouterFactory } from './loca
 import { cronLoadTileLatLonDataFactory, cronLoadTileLatLonDataSymbol } from './latLon/DAL/latLonDAL';
 import { ITEM_REPOSITORY_SYMBOL, itemRepositoryFactory } from './control/item/DAL/itemRepository';
 import { healthCheckFunctionFactory, RedisClient, redisClientFactory } from './common/redis';
-import { HealthCheck } from '@godaddy/terminus';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -58,7 +58,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
       postInjectionHook: async (deps: DependencyContainer): Promise<void> => {
         const elasticClients = deps.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
         try {
-          const response = await Promise.all([elasticClients.control?.ping(), elasticClients.geotext?.ping()]);
+          const response = await Promise.all([elasticClients.control.ping(), elasticClients.geotext.ping()]);
           response.forEach((res) => {
             if (!res) {
               logger.error('Failed to connect to Elasticsearch', res);
@@ -119,10 +119,11 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     {
       token: 'onSignal',
       provider: {
-        useFactory: instancePerContainerCachingFactory(async (): Promise<void> => {
-          const promises: Promise<void>[] = [tracing.stop(), metrics.stop()];
-        }),
-        useValue: cleanupRegistry.trigger.bind(cleanupRegistry),
+        useValue: {
+          useValue: async (): Promise<void> => {
+            await Promise.all([tracing.stop(), metrics.stop()]);
+          },
+        },
       },
     },
   ];

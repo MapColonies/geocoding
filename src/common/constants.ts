@@ -24,4 +24,5 @@ export const ON_SIGNAL = Symbol('onSignal');
 export const HEALTHCHECK = Symbol('healthcheck');
 export const REDIS_SYMBOL = Symbol('REDIS');
 
+export const REDIS_TTL = 300;
 export const elasticConfigPath = 'db.elastic';
