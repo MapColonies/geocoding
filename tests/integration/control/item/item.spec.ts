@@ -2,15 +2,14 @@
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
-import { DataSource } from 'typeorm';
 import { getApp } from '../../../../src/app';
 import { SERVICES } from '../../../../src/common/constants';
 import { GetItemsQueryParams } from '../../../../src/control/item/controllers/itemController';
 import { Item } from '../../../../src/control/item/models/item';
 import { ControlResponse } from '../../../../src/control/interfaces';
 import { CommonRequestParameters, GeoContext, GeoContextMode } from '../../../../src/common/interfaces';
-import { LATLON_CUSTOM_REPOSITORY_SYMBOL } from '../../../../src/latLon/DAL/latLonRepository';
 import { cronLoadTileLatLonDataSymbol } from '../../../../src/latLon/DAL/latLonDAL';
+import { S3_REPOSITORY_SYMBOL } from '../../../../src/common/s3/s3Repository';
 import { expectedResponse } from '../utils';
 import { ItemRequestSender } from './helpers/requestSender';
 import { ITEM_1234, ITEM_1235, ITEM_1236 } from './mockObjects';
@@ -23,10 +22,9 @@ describe('/search/control/items', function () {
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
-        { token: LATLON_CUSTOM_REPOSITORY_SYMBOL, provider: { useValue: {} } },
-        { token: DataSource, provider: { useValue: {} } },
+        { token: S3_REPOSITORY_SYMBOL, provider: { useValue: {} } },
+        { token: SERVICES.S3_CLIENT, provider: { useValue: {} } },
         { token: cronLoadTileLatLonDataSymbol, provider: { useValue: {} } },
-        { token: LATLON_CUSTOM_REPOSITORY_SYMBOL, provider: { useValue: {} } },
       ],
       useChild: true,
     });
