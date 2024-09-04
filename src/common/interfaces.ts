@@ -1,4 +1,3 @@
-import { DataSourceOptions } from 'typeorm';
 import { Feature, FeatureCollection as GeoJSONFeatureCollection } from 'geojson';
 
 export interface IConfig {
@@ -12,11 +11,6 @@ export interface OpenApiConfig {
   jsonPath: string;
   uiPath: string;
 }
-
-export type PostgresDbConfig = {
-  enableSslAuth: boolean;
-  sslPaths: { ca: string; cert: string; key: string };
-} & DataSourceOptions;
 
 export interface GeoContext {
   bbox?: number[];
