@@ -6,7 +6,9 @@ import { trace, metrics as OtelMetrics } from '@opentelemetry/api';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
 import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { Metrics } from '@map-colonies/telemetry';
-import { SERVICES, SERVICE_NAME } from './common/constants';
+import { CleanupRegistry } from '@map-colonies/cleanup-registry';
+import { ScheduledTask } from 'node-cron';
+import { HEALTHCHECK, ON_SIGNAL, SERVICES, SERVICE_NAME } from './common/constants';
 import { tracing } from './common/tracing';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
 import { elasticClientFactory, ElasticClients } from './common/elastic';
@@ -23,6 +25,7 @@ import { cronLoadTileLatLonDataFactory, cronLoadTileLatLonDataSymbol } from './l
 import { ITEM_REPOSITORY_SYMBOL, itemRepositoryFactory } from './control/item/DAL/itemRepository';
 import { s3ClientFactory } from './common/s3';
 import { S3_REPOSITORY_SYMBOL, s3RepositoryFactory } from './common/s3/s3Repository';
+import { healthCheckFactory } from './common/utils';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -30,83 +33,108 @@ export interface RegisterOptions {
 }
 
 export const registerExternalValues = async (options?: RegisterOptions): Promise<DependencyContainer> => {
-  const loggerConfig = config.get<LoggerOptions>('telemetry.logger');
-  const logger = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, mixin: getOtelMixin() });
+  const cleanupRegistry = new CleanupRegistry();
+  try {
+    const loggerConfig = config.get<LoggerOptions>('telemetry.logger');
+    const logger = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, mixin: getOtelMixin() });
+    const cleanupRegistryLogger = logger.child({ subComponent: 'cleanupRegistry' });
 
-  const metrics = new Metrics();
-  metrics.start();
+    cleanupRegistry.on('itemFailed', (id, error, msg) => cleanupRegistryLogger.error({ msg, itemId: id, err: error }));
+    cleanupRegistry.on('finished', (status) => cleanupRegistryLogger.info({ msg: `cleanup registry finished cleanup`, status }));
 
-  tracing.start();
-  const tracer = trace.getTracer(SERVICE_NAME);
+    const metrics = new Metrics();
+    cleanupRegistry.register({ func: metrics.stop.bind(metrics), id: SERVICES.METER });
+    metrics.start();
 
-  const applicationConfig: IApplication = config.get<IApplication>('application');
+    cleanupRegistry.register({ func: tracing.stop.bind(tracing), id: SERVICES.TRACER });
+    tracing.start();
+    const tracer = trace.getTracer(SERVICE_NAME);
 
-  const dependencies: InjectionObject<unknown>[] = [
-    { token: SERVICES.CONFIG, provider: { useValue: config } },
-    { token: SERVICES.LOGGER, provider: { useValue: logger } },
-    { token: SERVICES.TRACER, provider: { useValue: tracer } },
-    { token: SERVICES.METER, provider: { useValue: OtelMetrics.getMeterProvider().getMeter(SERVICE_NAME) } },
-    { token: SERVICES.APPLICATION, provider: { useValue: applicationConfig } },
-    {
-      token: SERVICES.ELASTIC_CLIENTS,
-      provider: { useFactory: instancePerContainerCachingFactory(elasticClientFactory) },
-      postInjectionHook: async (deps: DependencyContainer): Promise<void> => {
-        const elasticClients = deps.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
-        try {
-          const response = await Promise.all([elasticClients.control?.ping(), elasticClients.geotext?.ping()]);
-          response.forEach((res) => {
-            if (!res) {
-              logger.error('Failed to connect to Elasticsearch', res);
-            }
-          });
-        } catch (err) {
-          logger.error('Failed to connect to Elasticsearch', err);
-        }
-      },
-    },
-    {
-      token: SERVICES.S3_CLIENT,
-      provider: { useFactory: s3ClientFactory },
-      postInjectionHook: async (deps: DependencyContainer): Promise<void> => {
-        const s3Client = deps.resolve<S3Client>(SERVICES.S3_CLIENT);
-        try {
-          await s3Client.send(new ListBucketsCommand({}));
-          logger.info('Connected to S3');
-        } catch (err) {
-          logger.error('Failed to connect to S3', err);
-        }
-      },
-    },
-    {
-      token: S3_REPOSITORY_SYMBOL,
-      provider: { useFactory: s3RepositoryFactory },
-    },
-    { token: TILE_REPOSITORY_SYMBOL, provider: { useFactory: tileRepositoryFactory } },
-    { token: TILE_ROUTER_SYMBOL, provider: { useFactory: tileRouterFactory } },
-    { token: ITEM_REPOSITORY_SYMBOL, provider: { useFactory: itemRepositoryFactory } },
-    { token: ITEM_ROUTER_SYMBOL, provider: { useFactory: itemRouterFactory } },
-    { token: ROUTE_REPOSITORY_SYMBOL, provider: { useFactory: routeRepositoryFactory } },
-    { token: ROUTE_ROUTER_SYMBOL, provider: { useFactory: routeRouterFactory } },
-    { token: LAT_LON_ROUTER_SYMBOL, provider: { useFactory: latLonRouterFactory } },
-    { token: GEOTEXT_REPOSITORY_SYMBOL, provider: { useFactory: geotextRepositoryFactory } },
-    { token: GEOTEXT_SEARCH_ROUTER_SYMBOL, provider: { useFactory: geotextSearchRouterFactory } },
-    {
-      token: cronLoadTileLatLonDataSymbol,
-      provider: {
-        useFactory: cronLoadTileLatLonDataFactory,
-      },
-    },
-    {
-      token: 'onSignal',
-      provider: {
-        useValue: {
-          useValue: async (): Promise<void> => {
-            await Promise.all([tracing.stop(), metrics.stop()]);
-          },
+    const applicationConfig: IApplication = config.get<IApplication>('application');
+
+    const dependencies: InjectionObject<unknown>[] = [
+      { token: SERVICES.CONFIG, provider: { useValue: config } },
+      { token: SERVICES.LOGGER, provider: { useValue: logger } },
+      { token: SERVICES.TRACER, provider: { useValue: tracer } },
+      { token: SERVICES.METER, provider: { useValue: OtelMetrics.getMeterProvider().getMeter(SERVICE_NAME) } },
+      { token: SERVICES.APPLICATION, provider: { useValue: applicationConfig } },
+      { token: HEALTHCHECK, provider: { useFactory: healthCheckFactory } },
+      {
+        token: ON_SIGNAL,
+        provider: {
+          useValue: cleanupRegistry.trigger.bind(cleanupRegistry),
         },
       },
-    },
-  ];
-  const container = await registerDependencies(dependencies, options?.override, options?.useChild);
-  return container;
+      {
+        token: SERVICES.ELASTIC_CLIENTS,
+        provider: { useFactory: instancePerContainerCachingFactory(elasticClientFactory) },
+        postInjectionHook: async (deps: DependencyContainer): Promise<void> => {
+          const elasticClients = deps.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
+          try {
+            const response = await Promise.all([elasticClients.control?.ping(), elasticClients.geotext?.ping()]);
+            response.forEach((res) => {
+              if (!res) {
+                logger.error('Failed to connect to Elasticsearch', res);
+              }
+            });
+            cleanupRegistry.register({
+              func: async () => {
+                await elasticClients.control.close();
+                await elasticClients.geotext.close();
+              },
+              id: SERVICES.ELASTIC_CLIENTS,
+            });
+          } catch (err) {
+            logger.error('Failed to connect to Elasticsearch', err);
+          }
+        },
+      },
+      {
+        token: SERVICES.S3_CLIENT,
+        provider: { useFactory: s3ClientFactory },
+        postInjectionHook: async (deps: DependencyContainer): Promise<void> => {
+          const s3Client = deps.resolve<S3Client>(SERVICES.S3_CLIENT);
+          try {
+            await s3Client.send(new ListBucketsCommand({}));
+            logger.info('Connected to S3');
+          } catch (err) {
+            logger.error('Failed to connect to S3', err);
+          }
+          cleanupRegistry.register({ func: async () => s3Client.destroy(), id: SERVICES.S3_CLIENT });
+        },
+      },
+      {
+        token: S3_REPOSITORY_SYMBOL,
+        provider: { useFactory: s3RepositoryFactory },
+      },
+      { token: TILE_REPOSITORY_SYMBOL, provider: { useFactory: tileRepositoryFactory } },
+      { token: TILE_ROUTER_SYMBOL, provider: { useFactory: tileRouterFactory } },
+      { token: ITEM_REPOSITORY_SYMBOL, provider: { useFactory: itemRepositoryFactory } },
+      { token: ITEM_ROUTER_SYMBOL, provider: { useFactory: itemRouterFactory } },
+      { token: ROUTE_REPOSITORY_SYMBOL, provider: { useFactory: routeRepositoryFactory } },
+      { token: ROUTE_ROUTER_SYMBOL, provider: { useFactory: routeRouterFactory } },
+      { token: LAT_LON_ROUTER_SYMBOL, provider: { useFactory: latLonRouterFactory } },
+      { token: GEOTEXT_REPOSITORY_SYMBOL, provider: { useFactory: geotextRepositoryFactory } },
+      { token: GEOTEXT_SEARCH_ROUTER_SYMBOL, provider: { useFactory: geotextSearchRouterFactory } },
+      {
+        token: cronLoadTileLatLonDataSymbol,
+        provider: {
+          useFactory: cronLoadTileLatLonDataFactory,
+        },
+        postInjectionHook: async (deps: DependencyContainer): Promise<void> => {
+          const cronLoadTileLatLonData = deps.resolve<ScheduledTask>(cronLoadTileLatLonDataSymbol);
+          cronLoadTileLatLonData.start();
+          cleanupRegistry.register({
+            func: async () => cronLoadTileLatLonData.stop.bind(cronLoadTileLatLonData),
+            id: cronLoadTileLatLonDataSymbol,
+          });
+        },
+      },
+    ];
+    const container = await registerDependencies(dependencies, options?.override, options?.useChild);
+    return container;
+  } catch (error) {
+    await cleanupRegistry.trigger();
+    throw error;
+  }
 };
