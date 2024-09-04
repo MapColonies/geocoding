@@ -7,18 +7,12 @@ import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
 import { LatLonManager } from '../models/latLonManager';
-import { Tile } from '../../control/tile/models/tile';
 import { WGS84Coordinate } from '../../common/interfaces';
-import { ControlResponse } from '../../control/interfaces';
 /* istanbul ignore file */
 
 type GetLatLonToTileHandler = RequestHandler<undefined, { [key: string]: unknown } & Feature, undefined, GetLatLonToTileQueryParams>;
 
-type GetTileToLatLonHandler = RequestHandler<undefined, ControlResponse<Tile>, undefined, GetTileToLatLonQueryParams>;
-
 type GetLatLonToMgrsHandler = RequestHandler<undefined, { [key: string]: unknown } & Feature, undefined, GetLatLonToMgrsQueryParams>;
-
-type GetMgrsToLatLonHandler = RequestHandler<undefined, WGS84Coordinate, undefined, GetMgrsToLatLonQueryParams>;
 
 type GetCoordinatesHandler = RequestHandler<
   undefined,
@@ -29,16 +23,8 @@ type GetCoordinatesHandler = RequestHandler<
 
 export interface GetLatLonToTileQueryParams extends WGS84Coordinate {}
 
-export interface GetTileToLatLonQueryParams {
-  tile: string;
-  sub_tile_number: number[];
-}
-
 export interface GetLatLonToMgrsQueryParams extends WGS84Coordinate {
   accuracy?: number;
-}
-export interface GetMgrsToLatLonQueryParams {
-  mgrs: string;
 }
 
 @injectable()
@@ -65,24 +51,6 @@ export class LatLonController {
     }
   };
 
-  public tileToLatLon: GetTileToLatLonHandler = async (req, res, next) => {
-    try {
-      const { tile: tileName, sub_tile_number } = req.query;
-
-      const response = await this.manager.tileToLatLon({
-        tileName,
-        subTileNumber: sub_tile_number,
-      });
-
-      // TODO: REMOVE TS IGNORE
-      //@ts-ignore
-      return res.status(httpStatus.OK).json(response);
-    } catch (error: unknown) {
-      this.logger.warn('latLonController.tileToLatLon Error:', error);
-      next(error);
-    }
-  };
-
   public latlonToMgrs: GetLatLonToMgrsHandler = (req, res, next) => {
     try {
       const { lat, lon, accuracy } = req.query;
@@ -92,19 +60,6 @@ export class LatLonController {
       return res.status(httpStatus.OK).json(response);
     } catch (error: unknown) {
       this.logger.warn('latLonController.latlonToMgrs Error:', error);
-      next(error);
-    }
-  };
-
-  public mgrsToLatlon: GetMgrsToLatLonHandler = (req, res, next) => {
-    try {
-      const { mgrs } = req.query;
-
-      const response = this.manager.mgrsToLatLon(mgrs);
-
-      return res.status(httpStatus.OK).json(response);
-    } catch (error: unknown) {
-      this.logger.warn('latLonController.mgrsToLatlon Error:', error);
       next(error);
     }
   };
