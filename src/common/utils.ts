@@ -1,5 +1,10 @@
 import utm from 'utm-latlng';
+import { ListBucketsCommand, S3Client } from '@aws-sdk/client-s3';
+import { DependencyContainer, FactoryFunction } from 'tsyringe';
+import { Logger } from '@map-colonies/js-logger';
 import { WGS84Coordinate } from './interfaces';
+import { SERVICES } from './constants';
+import { ElasticClients } from './elastic';
 
 type SnakeToCamelCase<S extends string> = S extends `${infer T}_${infer U}` ? `${T}${Capitalize<SnakeToCamelCase<U>>}` : S;
 
@@ -71,16 +76,22 @@ export const convertUTMToWgs84 = (x: number, y: number, zone: number): WGS84Coor
   return { lat, lon };
 };
 
-export const validateTile = (tile: { tileName: string; subTileNumber: number[] }): boolean => {
-  if (!tile.tileName || !Array.isArray(tile.subTileNumber) || tile.subTileNumber.length !== 3) {
-    return false;
-  }
-  //regex = /^-?d+$/;
-  const regex = /^(\d\d)$/;
-  for (const subTileNumber of tile.subTileNumber) {
-    if (!regex.test(`${subTileNumber}`)) {
-      return false;
+export const healthCheckFactory: FactoryFunction<void> = (container: DependencyContainer): void => {
+  const logger = container.resolve<Logger>(SERVICES.LOGGER);
+  const elasticClients = container.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
+  const s3Client = container.resolve<S3Client>(SERVICES.S3_CLIENT);
+  logger.info('Healthcheck is running');
+
+  try {
+    for (const [key, client] of Object.entries(elasticClients)) {
+      logger.info(`Checking health of ${key}`);
+      void client.cluster.health({});
     }
+
+    void s3Client.send(new ListBucketsCommand({}));
+
+    logger.info('healthcheck passed');
+  } catch (error) {
+    logger.error(`Healthcheck failed. Error: ${(error as Error).message}`);
   }
-  return true;
 };
