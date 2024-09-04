@@ -1,6 +1,6 @@
 import config from 'config';
 import { getOtelMixin } from '@map-colonies/telemetry';
-import { DataSource } from 'typeorm';
+import { ListBucketsCommand, S3Client } from '@aws-sdk/client-s3';
 import { instancePerContainerCachingFactory } from 'tsyringe';
 import { trace, metrics as OtelMetrics } from '@opentelemetry/api';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
@@ -16,13 +16,13 @@ import { TILE_ROUTER_SYMBOL, tileRouterFactory } from './control/tile/routes/til
 import { ITEM_ROUTER_SYMBOL, itemRouterFactory } from './control/item/routes/itemRouter';
 import { ROUTE_REPOSITORY_SYMBOL, routeRepositoryFactory } from './control/route/DAL/routeRepository';
 import { ROUTE_ROUTER_SYMBOL, routeRouterFactory } from './control/route/routes/routeRouter';
-import { postgresClientFactory } from './common/postgresql';
-import { LATLON_CUSTOM_REPOSITORY_SYMBOL, latLonRepositoryFactory } from './latLon/DAL/latLonRepository';
 import { LAT_LON_ROUTER_SYMBOL, latLonRouterFactory } from './latLon/routes/latLonRouter';
 import { GEOTEXT_REPOSITORY_SYMBOL, geotextRepositoryFactory } from './location/DAL/locationRepository';
 import { GEOTEXT_SEARCH_ROUTER_SYMBOL, geotextSearchRouterFactory } from './location/routes/locationRouter';
 import { cronLoadTileLatLonDataFactory, cronLoadTileLatLonDataSymbol } from './latLon/DAL/latLonDAL';
 import { ITEM_REPOSITORY_SYMBOL, itemRepositoryFactory } from './control/item/DAL/itemRepository';
+import { s3ClientFactory } from './common/s3';
+import { S3_REPOSITORY_SYMBOL, s3RepositoryFactory } from './common/s3/s3Repository';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -65,17 +65,21 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
       },
     },
     {
-      token: DataSource,
-      provider: { useFactory: postgresClientFactory },
+      token: SERVICES.S3_CLIENT,
+      provider: { useFactory: s3ClientFactory },
       postInjectionHook: async (deps: DependencyContainer): Promise<void> => {
-        const connection = deps.resolve<DataSource>(DataSource);
+        const s3Client = deps.resolve<S3Client>(SERVICES.S3_CLIENT);
         try {
-          await connection.initialize();
-          logger.info('Connected to Postgres');
+          await s3Client.send(new ListBucketsCommand({}));
+          logger.info('Connected to S3');
         } catch (err) {
-          logger.error('Failed to connect to Postgres', err);
+          logger.error('Failed to connect to S3', err);
         }
       },
+    },
+    {
+      token: S3_REPOSITORY_SYMBOL,
+      provider: { useFactory: s3RepositoryFactory },
     },
     { token: TILE_REPOSITORY_SYMBOL, provider: { useFactory: tileRepositoryFactory } },
     { token: TILE_ROUTER_SYMBOL, provider: { useFactory: tileRouterFactory } },
@@ -83,7 +87,6 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     { token: ITEM_ROUTER_SYMBOL, provider: { useFactory: itemRouterFactory } },
     { token: ROUTE_REPOSITORY_SYMBOL, provider: { useFactory: routeRepositoryFactory } },
     { token: ROUTE_ROUTER_SYMBOL, provider: { useFactory: routeRouterFactory } },
-    { token: LATLON_CUSTOM_REPOSITORY_SYMBOL, provider: { useFactory: latLonRepositoryFactory } },
     { token: LAT_LON_ROUTER_SYMBOL, provider: { useFactory: latLonRouterFactory } },
     { token: GEOTEXT_REPOSITORY_SYMBOL, provider: { useFactory: geotextRepositoryFactory } },
     { token: GEOTEXT_SEARCH_ROUTER_SYMBOL, provider: { useFactory: geotextSearchRouterFactory } },
