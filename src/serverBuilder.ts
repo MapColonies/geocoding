@@ -56,11 +56,11 @@ export class ServerBuilder {
 
   private buildRoutes(): void {
     const router = Router();
-    router.use('/lookup', this.latLonRouter);
     router.use('/location', this.geotextRouter);
     router.use('/control', this.buildControlRoutes());
 
     this.serverInstance.use('/search/', router);
+    this.serverInstance.use('/lookup', this.latLonRouter);
   }
 
   private buildControlRoutes(): Router {
