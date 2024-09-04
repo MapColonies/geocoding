@@ -26,7 +26,7 @@ import {
 } from './mockObjects';
 import { expectedResponse, hierarchiesWithAnyWieght } from './utils';
 
-describe('/search/control/tiles', function () {
+describe('/search/location', function () {
   let requestSender: LocationRequestSender;
 
   beforeEach(async function () {
