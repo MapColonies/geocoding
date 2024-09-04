@@ -55,20 +55,19 @@
         }
       }
     },
-    "postgresql": {
-      "type": "postgres",
-      "host": "localhost",
-      "port": 5432,
-      "username": "postgres",
-      "password": "postgres",
-      "enableSslAuth": false,
-      "sslPaths": {
-        "ca": "",
-        "key": "",
-        "cert": ""
+    "s3": {
+      "endpoint": "http://localhost:9000",
+      "credentials": {
+        "accessKeyId": "O8JnyGPmTtIz69uZihyh",
+        "secretAccessKey": "1uzitcz85XFpZ8oxedJMoQpCuDSiJrhfDPbAvPOM"
       },
-      "database": "postgres",
-      "schema": "geocoding"
+      "region": "local",
+      "files": {
+        "latLonConvertionTable": {
+          "bucket": "geocoding",
+          "fileName": "table.json"
+        }
+      }
     }
   },
   "application": {
