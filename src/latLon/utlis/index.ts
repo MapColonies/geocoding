@@ -1,10 +1,10 @@
 /* istanbul ignore file */
 import { Polygon } from 'geojson';
 import { BadRequestError } from '../../common/errors';
-import { convertUTMToWgs84 } from '../../common/utils';
-import { LatLon } from '../DAL/latLon';
+import { ConvertCamelToSnakeCase, convertUTMToWgs84 } from '../../common/utils';
 import { FeatureCollection } from '../../common/interfaces';
 import { Tile } from '../../control/tile/models/tile';
+import { LatLon } from '../models/latLon';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 const geoJsonObjectTemplate = (): FeatureCollection<Tile> => ({
@@ -26,14 +26,14 @@ const geoJsonObjectTemplate = (): FeatureCollection<Tile> => ({
 
 export const convertTilesToUTM = (
   tile: { tileName: string; subTileNumber: number[] },
-  tileObject: LatLon
+  tileObject: ConvertCamelToSnakeCase<LatLon>
 ): {
   x: number;
   y: number;
   zone: number;
 } => {
-  const xCoordinate = parseInt(tileObject.minX);
-  const yCoordinate = parseInt(tileObject.minY);
+  const xCoordinate = parseInt(tileObject.min_x);
+  const yCoordinate = parseInt(tileObject.min_y);
 
   const xCoordinatePart = tile.subTileNumber
     .map((x) => {
@@ -50,14 +50,14 @@ export const convertTilesToUTM = (
 };
 
 export const validateResult = (
-  tile: LatLon,
+  tile: ConvertCamelToSnakeCase<LatLon>,
   utmCoor: {
     x: number;
     y: number;
     zone: number;
   }
 ): void => {
-  if (tile.extMinX > utmCoor.x || tile.extMaxX < utmCoor.x || tile.extMinY > utmCoor.y || tile.extMaxY < utmCoor.y) {
+  if (tile.ext_min_x > utmCoor.x || tile.ext_max_x < utmCoor.x || tile.ext_min_y > utmCoor.y || tile.ext_max_y < utmCoor.y) {
     throw new BadRequestError("Tile is found, sub tile is not in tile's extent");
   }
 };

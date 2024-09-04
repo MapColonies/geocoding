@@ -1,15 +1,18 @@
+import fs from 'fs';
 import { Logger } from '@map-colonies/js-logger';
 import cron from 'node-cron';
 import { FactoryFunction, inject, injectable } from 'tsyringe';
 import { InternalServerError } from '../../common/errors';
 import { IApplication } from '../../common/interfaces';
 import { SERVICES } from '../../common/constants';
-import { LATLON_CUSTOM_REPOSITORY_SYMBOL, LatLonRepository } from './latLonRepository';
-import { LatLon as LatLonDb } from './latLon';
+import { LatLon as ILatLon } from '../models/latLon';
+import { ConvertCamelToSnakeCase } from '../../common/utils';
+import { S3_REPOSITORY_SYMBOL, S3Repository } from '../../common/s3/s3Repository';
 
+type LatLon = ConvertCamelToSnakeCase<ILatLon>;
 @injectable()
 export class LatLonDAL {
-  private readonly latLonMap: Map<string, LatLonDb>;
+  private readonly latLonMap: Map<string, LatLon>;
   private onGoingUpdate: boolean;
   private dataLoad:
     | {
@@ -22,9 +25,9 @@ export class LatLonDAL {
 
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(LATLON_CUSTOM_REPOSITORY_SYMBOL) private readonly latLonRepository: LatLonRepository
+    @inject(S3_REPOSITORY_SYMBOL) private readonly latLonRepository: S3Repository
   ) {
-    this.latLonMap = new Map<string, LatLonDb>();
+    this.latLonMap = new Map<string, LatLon>();
     this.onGoingUpdate = true;
     this.dataLoad = undefined;
     this.dataLoadError = false;
@@ -70,7 +73,7 @@ export class LatLonDAL {
     }
   }
 
-  public async latLonToTile({ x, y, zone }: { x: number; y: number; zone: number }): Promise<LatLonDb | undefined> {
+  public async latLonToTile({ x, y, zone }: { x: number; y: number; zone: number }): Promise<LatLon | undefined> {
     if (this.dataLoadError) {
       throw new InternalServerError('Lat-lon to tile data currently not available');
     }
@@ -78,7 +81,7 @@ export class LatLonDAL {
     return this.latLonMap.get(`${x},${y},${zone}`);
   }
 
-  public async tileToLatLon(tileName: string): Promise<LatLonDb | undefined> {
+  public async tileToLatLon(tileName: string): Promise<LatLon | undefined> {
     if (this.dataLoadError) {
       throw new InternalServerError('Tile to lat-lon data currently not available');
     }
@@ -96,10 +99,11 @@ export class LatLonDAL {
 
     this.clearLatLonMap();
 
-    const latLonData = await this.latLonRepository.getAll();
+    const latLonDataPath = await this.latLonRepository.downloadFile('latLonConvertionTable');
+    const { items: latLonData } = JSON.parse(fs.readFileSync(latLonDataPath, 'utf8')) as { items: LatLon[] };
+
     latLonData.forEach((latLon) => {
-      this.latLonMap.set(latLon.tileName, latLon);
-      this.latLonMap.set(`${latLon.minX},${latLon.minY},${latLon.zone}`, latLon);
+      this.latLonMap.set(`${latLon.min_x},${latLon.min_y},${latLon.zone}`, latLon);
     });
     this.logger.debug('latLon data loaded');
   }

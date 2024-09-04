@@ -1,5 +1,4 @@
 export interface LatLon {
-  primaryKey: number;
   tileName: string;
   zone: string;
   minX: string;
