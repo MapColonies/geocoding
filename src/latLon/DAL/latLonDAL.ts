@@ -41,6 +41,10 @@ export class LatLonDAL {
   public getOnGoingUpdate(): boolean {
     return this.onGoingUpdate;
   }
+
+  public getIsDataLoadError(): boolean {
+    return this.dataLoadError;
+  }
   /* istanbul ignore end */
 
   public async init(): Promise<void> {
@@ -74,19 +78,11 @@ export class LatLonDAL {
   }
 
   public async latLonToTile({ x, y, zone }: { x: number; y: number; zone: number }): Promise<LatLon | undefined> {
-    if (this.dataLoadError) {
+    if (this.getIsDataLoadError()) {
       throw new InternalServerError('Lat-lon to tile data currently not available');
     }
     await this.dataLoad?.promise;
     return this.latLonMap.get(`${x},${y},${zone}`);
-  }
-
-  public async tileToLatLon(tileName: string): Promise<LatLon | undefined> {
-    if (this.dataLoadError) {
-      throw new InternalServerError('Tile to lat-lon data currently not available');
-    }
-    await this.dataLoad?.promise;
-    return this.latLonMap.get(tileName);
   }
 
   private clearLatLonMap(): void {
