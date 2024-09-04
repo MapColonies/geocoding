@@ -100,18 +100,25 @@ export class LatLonDAL {
     this.clearLatLonMap();
 
     const latLonDataPath = await this.latLonRepository.downloadFile('latLonConvertionTable');
-    const { items: latLonData } = JSON.parse(fs.readFileSync(latLonDataPath, 'utf8')) as { items: LatLon[] };
+
+    const { items: latLonData } = JSON.parse(await fs.promises.readFile(latLonDataPath, 'utf8')) as { items: LatLon[] };
 
     latLonData.forEach((latLon) => {
       this.latLonMap.set(`${latLon.min_x},${latLon.min_y},${latLon.zone}`, latLon);
     });
-    this.logger.debug('latLon data loaded');
+
+    try {
+      await fs.promises.unlink(latLonDataPath);
+    } catch (error) {
+      this.logger.error(`Failed to delete latLonData file ${latLonDataPath}. Error: ${(error as Error).message}`);
+    }
+    this.logger.info('cronLoadTileLatLonData: update completed');
   }
 }
 
 export const cronLoadTileLatLonDataSymbol = Symbol('cronLoadTileLatLonDataSymbol');
 
-export const cronLoadTileLatLonDataFactory: FactoryFunction<void> = (dependencyContainer) => {
+export const cronLoadTileLatLonDataFactory: FactoryFunction<cron.ScheduledTask> = (dependencyContainer) => {
   const latLonDAL = dependencyContainer.resolve<LatLonDAL>(LatLonDAL);
   const logger = dependencyContainer.resolve<Logger>(SERVICES.LOGGER);
   const cronPattern: string | undefined = dependencyContainer.resolve<IApplication>(SERVICES.APPLICATION).cronLoadTileLatLonDataPattern;
@@ -122,18 +129,16 @@ export const cronLoadTileLatLonDataFactory: FactoryFunction<void> = (dependencyC
   }
 
   /* istanbul ignore next */
-  cron.schedule(cronPattern, () => {
+  const scheduledTask = cron.schedule(cronPattern, () => {
     if (!latLonDAL.getOnGoingUpdate()) {
       logger.info('cronLoadTileLatLonData: starting update');
-      latLonDAL
-        .init()
-        .then(() => logger.info('cronLoadTileLatLonData: update completed'))
-        .catch((error) => {
-          logger.error('cronLoadTileLatLonData: update failed', error);
-        });
+      latLonDAL.init().catch((error) => {
+        logger.error('cronLoadTileLatLonData: update failed', error);
+      });
     } else {
       logger.info('cronLoadTileLatLonData: update is already in progress');
     }
   });
+  return scheduledTask;
   /* istanbul ignore end */
 };
