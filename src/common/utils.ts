@@ -66,6 +66,7 @@ export const convertWgs84ToUTM = (
 /* eslint-enable @typescript-eslint/naming-convention */
 
 export const convertUTMToWgs84 = (x: number, y: number, zone: number): WGS84Coordinate => {
+  //TODO: change ZONE Letter to relevent letter. Currently it is hardcoded to 'N'
   const { lat, lng: lon } = new utm().convertUtmToLatLng(x, y, zone, 'N') as { lat: number; lng: number };
   return { lat, lon };
 };
