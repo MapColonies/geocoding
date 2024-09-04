@@ -1,11 +1,11 @@
 import { IConfig } from 'config';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
-import { Feature } from 'geojson';
+import { BBox, Feature } from 'geojson';
 import * as mgrs from 'mgrs';
 import { SERVICES } from '../../common/constants';
 import { LatLonDAL } from '../DAL/latLonDAL';
-import { convertWgs84ToUTM, validateTile, validateWGS84Coordinate } from '../../common/utils';
+import { convertUTMToWgs84, convertWgs84ToUTM, validateTile, validateWGS84Coordinate } from '../../common/utils';
 import { convertTilesToUTM, getSubTileByBottomLeftUtmCoor, validateResult } from '../utlis';
 import { BadRequestError } from '../../common/errors';
 import { Tile } from '../../control/tile/models/tile';
@@ -50,27 +50,37 @@ export class LatLonManager {
       throw new BadRequestError('The coordinate is outside the grid extent');
     }
 
-    const xNumber = Math.abs(Math.trunc((coordinatesUTM.x % 10000) / 10) * 10)
+    const xNumber = Math.abs(Math.trunc((utm.Easting % 10000) / 10) * 10)
       .toString()
       .padStart(4, '0');
-    const yNumber = Math.abs(Math.trunc((coordinatesUTM.y % 10000) / 10) * 10)
+    const yNumber = Math.abs(Math.trunc((utm.Northing % 10000) / 10) * 10)
       .toString()
       .padStart(4, '0');
 
+    const bbox = [
+      ...(
+        Object.values(convertUTMToWgs84(tileCoordinateData.ext_min_x, tileCoordinateData.ext_min_y, +tileCoordinateData.zone)) as number[]
+      ).reverse(),
+      ...(
+        Object.values(convertUTMToWgs84(tileCoordinateData.ext_max_x, tileCoordinateData.ext_max_y, +tileCoordinateData.zone)) as number[]
+      ).reverse(),
+    ] as BBox;
+
     return {
       type: 'Feature',
-      properties: {},
+      properties: {
+        tileName: tileCoordinateData.tile_name,
+        subTileNumber: new Array(3).fill('').map(function (value, i) {
+          return xNumber[i] + yNumber[i];
+        }),
+      },
       geometry: parseGeo({
-        bbox: [tileCoordinateData.extMinX, tileCoordinateData.extMinY, tileCoordinateData.extMaxX, tileCoordinateData.extMaxY],
+        bbox,
       }) ?? {
         type: 'Point',
         coordinates: [lon, lat],
       },
-      bbox: [tileCoordinateData.extMinX, tileCoordinateData.extMinY, tileCoordinateData.extMaxX, tileCoordinateData.extMaxY],
-      tileName: tileCoordinateData.tileName,
-      subTileNumber: new Array(3).fill('').map(function (value, i) {
-        return +(xNumber[i] + yNumber[i]);
-      }),
+      bbox,
     };
   }
 
@@ -97,15 +107,23 @@ export class LatLonManager {
   }
 
   public latLonToMGRS({ lat, lon, accuracy = 5 }: { lat: number; lon: number; accuracy?: number }): { [key: string]: unknown } & Feature {
+    const accuracyString: Record<number, string> = {
+      [0]: '100km',
+      [1]: '10km',
+      [2]: '1km',
+      [3]: '100m',
+      [4]: '10m',
+      [5]: '1m',
+    };
     return {
       type: 'Feature',
-      mgrs: mgrs.forward([lon, lat], accuracy),
       geometry: {
         type: 'Point',
         coordinates: [lon, lat],
       },
       properties: {
-        accuracy,
+        accuracy: accuracyString[accuracy],
+        mgrs: mgrs.forward([lon, lat], accuracy),
       },
     };
   }
