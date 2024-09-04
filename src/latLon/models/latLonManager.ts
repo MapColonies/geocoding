@@ -62,19 +62,24 @@ export class LatLonManager {
 
     return {
       type: 'Feature',
-      properties: {
-        tileName: tileCoordinateData.tile_name,
-        subTileNumber: new Array(3).fill('').map(function (value, i) {
-          return xNumber[i] + yNumber[i];
-        }),
+      query: {
+        lat,
+        lon,
       },
+      response: {},
+      bbox,
       geometry: parseGeo({
         bbox,
       }) ?? {
         type: 'Point',
         coordinates: [lon, lat],
       },
-      bbox,
+      properties: {
+        tileName: tileCoordinateData.tile_name,
+        subTileNumber: new Array(3).fill('').map(function (value, i) {
+          return xNumber[i] + yNumber[i];
+        }),
+      },
     };
   }
 
@@ -89,6 +94,11 @@ export class LatLonManager {
     };
     return {
       type: 'Feature',
+      query: {
+        lat,
+        lon,
+      },
+      response: {},
       geometry: {
         type: 'Point',
         coordinates: [lon, lat],
