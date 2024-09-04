@@ -1,5 +1,4 @@
-import proj4 from 'proj4';
-import { utmProjection, wgs84Projection } from './projections';
+import utm from 'utm-latlng';
 import { WGS84Coordinate } from './interfaces';
 
 type SnakeToCamelCase<S extends string> = S extends `${infer T}_${infer U}` ? `${T}${Capitalize<SnakeToCamelCase<U>>}` : S;
@@ -53,21 +52,22 @@ export const convertWgs84ToUTM = (
       Northing: number;
       ZoneNumber: number;
     } => {
-  const zone = Math.floor((longitude + 180) / 6) + 1;
-
-  const [easting, northing] = proj4(wgs84Projection, utmProjection(zone), [longitude, latitude]);
-
-  return {
-    Easting: +easting.toFixed(utmPrecision),
-    Northing: +northing.toFixed(utmPrecision),
-    ZoneNumber: zone,
+  //@ts-expect-error: utm has problem with types. Need to ignore ts error here
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const UTMcoordinates = new utm().convertLatLngToUtm(latitude, longitude, utmPrecision) as {
+    Easting: number;
+    Northing: number;
+    ZoneNumber: number;
+    ZoneLetter: string;
   };
+
+  return UTMcoordinates;
 };
 /* eslint-enable @typescript-eslint/naming-convention */
 
 export const convertUTMToWgs84 = (x: number, y: number, zone: number): WGS84Coordinate => {
-  const [longitude, latitude] = proj4(utmProjection(zone), wgs84Projection, [x, y]);
-  return { lat: latitude, lon: longitude };
+  const { lat, lng: lon } = new utm().convertUtmToLatLng(x, y, zone, 'N') as { lat: number; lng: number };
+  return { lat, lon };
 };
 
 export const validateTile = (tile: { tileName: string; subTileNumber: number[] }): boolean => {
