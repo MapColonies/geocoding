@@ -5,11 +5,9 @@ import { BBox, Feature } from 'geojson';
 import * as mgrs from 'mgrs';
 import { SERVICES } from '../../common/constants';
 import { LatLonDAL } from '../DAL/latLonDAL';
-import { convertUTMToWgs84, convertWgs84ToUTM, validateTile, validateWGS84Coordinate } from '../../common/utils';
-import { convertTilesToUTM, getSubTileByBottomLeftUtmCoor, validateResult } from '../utlis';
+import { convertUTMToWgs84, convertWgs84ToUTM, validateWGS84Coordinate } from '../../common/utils';
 import { BadRequestError } from '../../common/errors';
-import { Tile } from '../../control/tile/models/tile';
-import { FeatureCollection, WGS84Coordinate } from '../../common/interfaces';
+import { WGS84Coordinate } from '../../common/interfaces';
 import { parseGeo } from '../../location/utils';
 
 @injectable()
@@ -80,28 +78,6 @@ export class LatLonManager {
     };
   }
 
-  public async tileToLatLon({ tileName, subTileNumber }: { tileName: string; subTileNumber: number[] }): Promise<FeatureCollection<Tile>> {
-    if (!validateTile({ tileName, subTileNumber })) {
-      const message = "Invalid tile, check that 'tileName' and 'subTileNumber' exists and subTileNumber is array of size 3 with positive integers";
-      this.logger.warn(`LatLonManager.tileToLatLon: ${message}`);
-      throw new BadRequestError(message);
-    }
-
-    const tile = await this.latLonDAL.tileToLatLon(tileName);
-
-    if (!tile) {
-      const meessage = 'Tile not found';
-      this.logger.warn(`LatLonManager.tileToLatLon: ${meessage}`);
-      throw new BadRequestError(meessage);
-    }
-
-    const utmCoor = convertTilesToUTM({ tileName, subTileNumber }, tile);
-    validateResult(tile, utmCoor);
-
-    const geojsonRes = getSubTileByBottomLeftUtmCoor(utmCoor, { tileName, subTileNumber });
-    return geojsonRes;
-  }
-
   public latLonToMGRS({ lat, lon, accuracy = 5 }: { lat: number; lon: number; accuracy?: number }): { [key: string]: unknown } & Feature {
     const accuracyString: Record<number, string> = {
       [0]: '100km',
@@ -122,10 +98,5 @@ export class LatLonManager {
         mgrs: mgrs.forward([lon, lat], accuracy),
       },
     };
-  }
-
-  public mgrsToLatLon(mgrsStr: string): { lat: number; lon: number } {
-    const [lon, lat] = mgrs.toPoint(mgrsStr);
-    return { lat, lon };
   }
 }
