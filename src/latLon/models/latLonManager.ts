@@ -14,15 +14,11 @@ import { parseGeo } from '../../location/utils';
 
 @injectable()
 export class LatLonManager {
-  private readonly dbSchema: string;
-
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(LatLonDAL) private readonly latLonDAL: LatLonDAL,
     @inject(SERVICES.CONFIG) private readonly config: IConfig
-  ) {
-    this.dbSchema = this.config.get('db.postgresql.schema');
-  }
+  ) {}
 
   public async latLonToTile({ lat, lon }: WGS84Coordinate): Promise<{ [key: string]: unknown } & Feature> {
     if (!validateWGS84Coordinate({ lat, lon })) {
