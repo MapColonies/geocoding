@@ -14,6 +14,7 @@ export const SERVICES: Record<string, symbol> = {
   METER: Symbol('Meter'),
   APPLICATION: Symbol('Application'),
   ELASTIC_CLIENTS: Symbol('ElasticClients'),
+  S3_CLIENT: Symbol('S3Client'),
 };
 /* eslint-enable @typescript-eslint/naming-convention */
 
