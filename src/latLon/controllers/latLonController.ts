@@ -24,7 +24,7 @@ type GetCoordinatesHandler = RequestHandler<
   undefined,
   { [key: string]: unknown } & Feature,
   undefined,
-  WGS84Coordinate & { target_gird: 'control' | 'MGRS' }
+  WGS84Coordinate & { target_grid: 'control' | 'MGRS' }
 >;
 
 export interface GetLatLonToTileQueryParams extends WGS84Coordinate {}
@@ -111,7 +111,7 @@ export class LatLonController {
 
   public getCoordinates: GetCoordinatesHandler = async (req, res, next) => {
     try {
-      const { lat, lon, target_gird } = req.query;
+      const { lat, lon, target_grid } = req.query;
 
       let response:
         | ({
@@ -119,7 +119,7 @@ export class LatLonController {
           } & Feature)
         | undefined = undefined;
 
-      if (target_gird === 'control') {
+      if (target_grid === 'control') {
         response = await this.manager.latLonToTile({ lat, lon });
       } else {
         response = this.manager.latLonToMGRS({ lat, lon });
