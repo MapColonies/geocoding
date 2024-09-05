@@ -1,0 +1,72 @@
+import { IConfig } from 'config';
+import { Logger } from '@map-colonies/js-logger';
+import { inject, injectable } from 'tsyringe';
+import { SERVICES, elasticConfigPath } from '../../common/constants';
+import { GEOTEXT_REPOSITORY_SYMBOL, GeotextRepository } from '../DAL/locationRepository';
+import { GetGeotextSearchParams, QueryResult, TextSearchParams } from '../interfaces';
+import { convertResult } from '../utils';
+import { IApplication } from '../../common/interfaces';
+import { ElasticDbClientsConfig } from '../../common/elastic/interfaces';
+import { ConvertSnakeToCamelCase } from '../../common/utils';
+
+@injectable()
+export class GeotextSearchManager {
+  public constructor(
+    @inject(SERVICES.LOGGER) private readonly logger: Logger,
+    @inject(SERVICES.APPLICATION) private readonly appConfig: IApplication,
+    @inject(SERVICES.CONFIG) private readonly config: IConfig,
+    @inject(GEOTEXT_REPOSITORY_SYMBOL) private readonly geotextRepository: GeotextRepository
+  ) {}
+
+  public async search(params: ConvertSnakeToCamelCase<GetGeotextSearchParams>): Promise<QueryResult> {
+    const extractNameEndpoint = this.appConfig.services.tokenTypesUrl;
+    const {
+      geotext: geotextIndex,
+      placetypes: placetypesIndex,
+      hierarchies: hierarchiesIndex,
+    } = this.config.get<ElasticDbClientsConfig>(elasticConfigPath).geotext.properties.index as {
+      [key: string]: string;
+    };
+    const hierarchyBoost = this.appConfig.elasticQueryBoosts.hierarchy;
+
+    const [query, ...hierarchyQuery] = params.query.split(',');
+
+    const promises = Promise.all([
+      this.geotextRepository.extractName(extractNameEndpoint, query),
+      this.geotextRepository.generatePlacetype(placetypesIndex, query, params.disableFuzziness),
+      this.geotextRepository.extractHierarchy(hierarchiesIndex, hierarchyQuery.join(','), hierarchyBoost, params.disableFuzziness),
+    ]);
+
+    const [name, { placeTypes, subPlaceTypes }, hierarchies] = await promises;
+
+    const searchParams: TextSearchParams = {
+      ...params,
+      name,
+      placeTypes,
+      subPlaceTypes,
+      hierarchies,
+    };
+
+    const esResult = await this.geotextRepository.geotextSearch(
+      geotextIndex,
+      searchParams,
+      this.config.get<ElasticDbClientsConfig>(elasticConfigPath).geotext.properties.textTermLanguage,
+      this.appConfig.elasticQueryBoosts
+    );
+
+    return convertResult(searchParams, esResult, {
+      sources: this.appConfig.sources,
+      regionCollection: this.appConfig.regions,
+      nameKeys: this.appConfig.nameTranslationsKeys,
+      mainLanguageRegex: this.appConfig.mainLanguageRegex,
+    });
+  }
+
+  public regions(): string[] {
+    return Object.keys(this.appConfig.regions ?? {});
+  }
+
+  public sources(): string[] {
+    return Object.keys(this.appConfig.sources ?? {});
+  }
+}

@@ -1,5 +1,3 @@
-import { Client, ClientOptions } from '@elastic/elasticsearch';
-import { DataSourceOptions } from 'typeorm';
 import { Feature, FeatureCollection as GeoJSONFeatureCollection } from 'geojson';
 
 export interface IConfig {
@@ -14,21 +12,14 @@ export interface OpenApiConfig {
   uiPath: string;
 }
 
-export type PostgresDbConfig = {
-  enableSslAuth: boolean;
-  sslPaths: { ca: string; cert: string; key: string };
-} & DataSourceOptions;
-
 export interface GeoContext {
   bbox?: number[];
   radius?: number;
   lon?: number;
   lat?: number;
-}
-
-export interface Geometry {
-  type: string;
-  coordinates: number[][][];
+  x?: number;
+  y?: number;
+  zone?: number;
 }
 
 export interface FeatureCollection<T extends Feature> extends GeoJSONFeatureCollection {
@@ -60,4 +51,21 @@ export interface IApplication {
   };
   nameTranslationsKeys: string[];
   mainLanguageRegex: string;
+  controlObjectDisplayNamePrefixes: {
+    [key: string]: string;
+  };
 }
+
+export enum GeoContextMode {
+  FILTER = 'filter',
+  BIAS = 'bias',
+}
+
+/* eslint-disable @typescript-eslint/naming-convention */
+export interface CommonRequestParameters {
+  geo_context?: GeoContext;
+  geo_context_mode?: GeoContextMode;
+  limit: number;
+  disable_fuzziness: boolean;
+}
+/* eslint-enable @typescript-eslint/naming-convention */

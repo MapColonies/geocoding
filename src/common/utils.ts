@@ -1,31 +1,30 @@
-import { estypes } from '@elastic/elasticsearch';
-import proj4 from 'proj4';
-import { Item } from '../item/models/item';
-import { Tile } from '../tile/models/tile';
-import { Route } from '../route/models/route';
-import { elasticConfigPath } from './constants';
-import { utmProjection, wgs84Projection } from './projections';
-import { FeatureCollection, IConfig, WGS84Coordinate } from './interfaces';
+import utm from 'utm-latlng';
+import { ListBucketsCommand, S3Client } from '@aws-sdk/client-s3';
+import { DependencyContainer, FactoryFunction } from 'tsyringe';
+import { Logger } from '@map-colonies/js-logger';
+import { WGS84Coordinate } from './interfaces';
+import { SERVICES } from './constants';
 import { ElasticClients } from './elastic';
-import { ElasticDbClientsConfig } from './elastic/interfaces';
 
-export const formatResponse = <T extends Item | Tile | Route>(elasticResponse: estypes.SearchResponse<T>): FeatureCollection<T> => ({
-  type: 'FeatureCollection',
-  features: [
-    ...(elasticResponse.hits.hits.map((item) => {
-      const source = item._source;
-      if (source?.properties) {
-        Object.keys(source.properties).forEach((key) => {
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          if (source.properties !== null && source.properties[key as keyof typeof source.properties] == null) {
-            delete source.properties[key as keyof typeof source.properties];
-          }
-        });
-      }
-      return source;
-    }) as T[]),
-  ],
-});
+type SnakeToCamelCase<S extends string> = S extends `${infer T}_${infer U}` ? `${T}${Capitalize<SnakeToCamelCase<U>>}` : S;
+
+type CamelToSnakeCase<S extends string> = S extends `${infer T}${infer U}`
+  ? U extends Uncapitalize<U>
+    ? `${Lowercase<T>}${CamelToSnakeCase<U>}`
+    : `${Lowercase<T>}_${CamelToSnakeCase<Uncapitalize<U>>}`
+  : S;
+
+export type ConvertSnakeToCamelCase<T> = {
+  [K in keyof T as SnakeToCamelCase<K & string>]: T[K];
+};
+
+export type ConvertCamelToSnakeCase<T> = {
+  [K in keyof T as CamelToSnakeCase<K & string>]: T[K];
+};
+
+export type RemoveUnderscore<T> = {
+  [K in keyof T as K extends `_${infer Rest}` ? Rest : K]: T[K];
+};
 
 export const validateWGS84Coordinate = (coordinate: { lon: number; lat: number }): boolean => {
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
@@ -49,8 +48,7 @@ export const validateWGS84Coordinate = (coordinate: { lon: number; lat: number }
 
 /* eslint-disable @typescript-eslint/naming-convention */
 export const convertWgs84ToUTM = (
-  latitude: number,
-  longitude: number,
+  { longitude, latitude }: { longitude: number; latitude: number },
   utmPrecision = 0
 ):
   | string
@@ -59,33 +57,41 @@ export const convertWgs84ToUTM = (
       Northing: number;
       ZoneNumber: number;
     } => {
-  const zone = Math.floor((longitude + 180) / 6) + 1;
-
-  const [easting, northing] = proj4(wgs84Projection, utmProjection(zone), [longitude, latitude]);
-
-  return {
-    Easting: +easting.toFixed(utmPrecision),
-    Northing: +northing.toFixed(utmPrecision),
-    ZoneNumber: zone,
+  //@ts-expect-error: utm has problem with types. Need to ignore ts error here
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const UTMcoordinates = new utm().convertLatLngToUtm(latitude, longitude, utmPrecision) as {
+    Easting: number;
+    Northing: number;
+    ZoneNumber: number;
+    ZoneLetter: string;
   };
+
+  return UTMcoordinates;
 };
 /* eslint-enable @typescript-eslint/naming-convention */
 
 export const convertUTMToWgs84 = (x: number, y: number, zone: number): WGS84Coordinate => {
-  const [longitude, latitude] = proj4(utmProjection(zone), wgs84Projection, [x, y]);
-  return { lat: latitude, lon: longitude };
+  //TODO: change ZONE Letter to relevent letter. Currently it is hardcoded to 'N'
+  const { lat, lng: lon } = new utm().convertUtmToLatLng(x, y, zone, 'N') as { lat: number; lng: number };
+  return { lat, lon };
 };
 
-export const validateTile = (tile: { tileName: string; subTileNumber: number[] }): boolean => {
-  if (!tile.tileName || !Array.isArray(tile.subTileNumber) || tile.subTileNumber.length !== 3) {
-    return false;
-  }
-  //regex = /^-?d+$/;
-  const regex = /^(\d\d)$/;
-  for (const subTileNumber of tile.subTileNumber) {
-    if (!regex.test(`${subTileNumber}`)) {
-      return false;
+export const healthCheckFactory: FactoryFunction<void> = (container: DependencyContainer): void => {
+  const logger = container.resolve<Logger>(SERVICES.LOGGER);
+  const elasticClients = container.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
+  const s3Client = container.resolve<S3Client>(SERVICES.S3_CLIENT);
+  logger.info('Healthcheck is running');
+
+  try {
+    for (const [key, client] of Object.entries(elasticClients)) {
+      logger.info(`Checking health of ${key}`);
+      void client.cluster.health({});
     }
+
+    void s3Client.send(new ListBucketsCommand({}));
+
+    logger.info('healthcheck passed');
+  } catch (error) {
+    logger.error(`Healthcheck failed. Error: ${(error as Error).message}`);
   }
-  return true;
 };

@@ -67,25 +67,17 @@
         }
       }
     },
-    "postgresql": {
-      "host": "POSTGRES_URL",
-      "port": {
-        "__name": "POSTGRES_PORT",
-        "__format": "number"
+    "s3": {
+      "endpoint": "S3_ENDPOINT",
+      "credentials": {
+        "accessKeyId": "S3_ACCESS_KEY",
+        "secretAccessKey": "S3_SECRET_KEY"
       },
-      "username": "POSTGRES_USERNAME",
-      "password": "POSTGRES_PASSWORD",
-      "enableSslAuth": {
-        "__name": "POSTGRES_ENABLE_SLL_AUTH",
-        "__format": "boolean"
-      },
-      "sslPaths": {
-        "ca": "POSTGRES_CA_PATH",
-        "key": "POSTGRES_KEY_PATH",
-        "cert": "POSTGRES_CERT_PATH"
-      },
-      "database": "POSTGRES_DB_NAME",
-      "schema": "POSTGRES_DB_SCHEMA"
+      "region": "S3_REGION",
+      "files": {
+        "__name": "S3_FILES_DATA",
+        "__format": "json"
+      }
     }
   },
   "application": {
@@ -102,6 +94,10 @@
     },
     "nameTranslationsKeys": {
       "__name": "NAME_TRANSLATION_KEYS",
+      "__format": "json"
+    },
+    "controlObjectDisplayNamePrefixes": {
+      "__name": "CONTROL_DISPLAY_KEY_TRANSLATIONS",
       "__format": "json"
     },
     "mainLanguageRegex": "MAIN_LANGUAGE_REGEX"

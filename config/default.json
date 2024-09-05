@@ -30,20 +30,19 @@
       "control": {
         "node": "http://localhost:9200",
         "auth": {
-          "username": "control",
-          "password": "password"
+          "username": "elastic",
+          "password": "changeme"
         },
         "requestTimeout": 60000,
         "properties": {
-          "index": "control_index",
-          "defaultResponseLimit": 3
+          "index": "control_gil_v5"
         }
       },
       "geotext": {
         "node": "http://localhost:9200",
         "auth": {
-          "username": "geotext",
-          "password": "password"
+          "username": "elastic",
+          "password": "changeme"
         },
         "requestTimeout": 60000,
         "properties": {
@@ -52,30 +51,29 @@
             "placetypes": "placetypes_index",
             "hierarchies": "hierarchies_index"
           },
-          "defaultResponseLimit": 3,
           "textTermLanguage": "en"
         }
       }
     },
-    "postgresql": {
-      "type": "postgres",
-      "host": "localhost",
-      "port": 5432,
-      "username": "postgres",
-      "password": "postgres",
-      "enableSslAuth": false,
-      "sslPaths": {
-        "ca": "",
-        "key": "",
-        "cert": ""
+    "s3": {
+      "endpoint": "http://localhost:9000",
+      "credentials": {
+        "accessKeyId": "O8JnyGPmTtIz69uZihyh",
+        "secretAccessKey": "1uzitcz85XFpZ8oxedJMoQpCuDSiJrhfDPbAvPOM"
       },
-      "database": "postgres",
-      "schema": "geocoder"
+      "forcePathStyle": true,
+      "region": "local",
+      "files": {
+        "latLonConvertionTable": {
+          "bucket": "geocoding",
+          "fileName": "table.json"
+        }
+      }
     }
   },
   "application": {
     "services": {
-      "tokenTypesUrl": "http://NLP_ANALYSES"
+      "tokenTypesUrl": "http://localhost:5001/NLP_ANALYSES"
     },
     "cronLoadTileLatLonDataPattern": "0 * * * *",
     "elasticQueryBoosts": {
@@ -86,10 +84,20 @@
       "viewbox": 1.1
     },
     "sources": {
-      "SOURCE_A": "a",
-      "SOURCE_B": "b"
+      "OSM": "OSM",
+      "GOOGLE": "GOOGLE"
     },
-    "regions": {},
+    "regions": {
+      "USA": ["New York", "Los Angeles"],
+      "FRANCE": ["Paris"]
+    },
+    "controlObjectDisplayNamePrefixes": {
+      "TILE": "Tile",
+      "SUB_TILE": "Sub Tile",
+      "ROUTE": "Route",
+      "ITEM": "Item",
+      "CONTROL_POINT": "Control Point"
+    },
     "nameTranslationsKeys": ["en", "fr"],
     "mainLanguageRegex": "[a-zA-Z]"
   }

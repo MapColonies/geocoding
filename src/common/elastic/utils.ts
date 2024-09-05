@@ -1,24 +1,12 @@
 import { estypes } from '@elastic/elasticsearch';
-import { IConfig, WGS84Coordinate } from '../interfaces';
-import { InternalServerError } from '../errors';
-import { elasticConfigPath, CONTROL_FIELDS } from '../constants';
-import { ElasticDbClientsConfig } from './interfaces';
-import { ElasticClient, ElasticClients } from './index';
-
-export const getElasticClientQuerySize = (config: IConfig, key: keyof ElasticClients): number => {
-  return config.get<ElasticDbClientsConfig>(elasticConfigPath)[key].properties.defaultResponseLimit;
-};
-
-/* eslint-disable @typescript-eslint/naming-convention */
-export const additionalControlSearchProperties = (config: IConfig, size: number): { size: number; index: string; _source: string[] } => ({
-  size,
-  index: config.get<ElasticDbClientsConfig>(elasticConfigPath).control.properties.index as string,
-  _source: CONTROL_FIELDS,
-});
-/* eslint-enable @typescript-eslint/naming-convention */
+import { WGS84Coordinate } from '../interfaces';
+import { ServiceUnavailableError } from '../errors';
+import { ElasticClient } from './index';
 
 export const queryElastic = async <T>(client: ElasticClient, body: estypes.SearchRequest): Promise<estypes.SearchResponse<T>> => {
-  const clientNotAvailableError = new InternalServerError('Elasticsearch client is not available');
+  const clientNotAvailableError = new ServiceUnavailableError(
+    'Elasticsearch client is not available. As for, the search request cannot be executed.'
+  );
   try {
     if (!(await client.ping())) {
       throw clientNotAvailableError;

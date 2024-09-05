@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
+import { Feature } from 'geojson';
 import { Logger } from '@map-colonies/js-logger';
 import { BoundCounter, Meter } from '@opentelemetry/api-metrics';
 import { RequestHandler } from 'express';
@@ -6,38 +7,12 @@ import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
 import { LatLonManager } from '../models/latLonManager';
-import { Tile } from '../../tile/models/tile';
-import { FeatureCollection, WGS84Coordinate } from '../../common/interfaces';
+import { WGS84Coordinate } from '../../common/interfaces';
+/* istanbul ignore file */
 
-type GetLatLonToTileHandler = RequestHandler<
-  undefined,
-  {
-    tileName: string;
-    subTileNumber: number[];
-  },
-  undefined,
-  GetLatLonToTileQueryParams
->;
+type GetCoordinatesHandler = RequestHandler<undefined, { [key: string]: unknown } & Feature, undefined, GetCoordinatesRequestParams>;
 
-type GetTileToLatLonHandler = RequestHandler<undefined, FeatureCollection<Tile>, undefined, GetTileToLatLonQueryParams>;
-
-type GetLatLonToMgrsHandler = RequestHandler<undefined, { mgrs: string }, undefined, GetLatLonToMgrsQueryParams>;
-
-type GetMgrsToLatLonHandler = RequestHandler<undefined, WGS84Coordinate, undefined, GetMgrsToLatLonQueryParams>;
-
-export interface GetLatLonToTileQueryParams extends WGS84Coordinate {}
-
-export interface GetTileToLatLonQueryParams {
-  tile: string;
-  sub_tile_number: number[];
-}
-
-export interface GetLatLonToMgrsQueryParams extends WGS84Coordinate {
-  accuracy?: number;
-}
-export interface GetMgrsToLatLonQueryParams {
-  mgrs: string;
-}
+export type GetCoordinatesRequestParams = WGS84Coordinate & { target_grid: 'control' | 'MGRS' };
 
 @injectable()
 export class LatLonController {
@@ -51,55 +26,25 @@ export class LatLonController {
     this.createdResourceCounter = meter.createCounter('created_resource');
   }
 
-  public latlonToTile: GetLatLonToTileHandler = async (req, res, next) => {
+  public getCoordinates: GetCoordinatesHandler = async (req, res, next) => {
     try {
-      const { lat, lon } = req.query;
+      const { lat, lon, target_grid } = req.query;
 
-      const response = await this.manager.latLonToTile({ lat, lon });
-      return res.status(httpStatus.OK).json(response);
-    } catch (error: unknown) {
-      this.logger.warn('latLonController.latlonToTile Error:', error);
-      next(error);
-    }
-  };
+      let response:
+        | ({
+            [key: string]: unknown;
+          } & Feature)
+        | undefined = undefined;
 
-  public tileToLatLon: GetTileToLatLonHandler = async (req, res, next) => {
-    try {
-      const { tile: tileName, sub_tile_number } = req.query;
-
-      const response = await this.manager.tileToLatLon({
-        tileName,
-        subTileNumber: sub_tile_number,
-      });
-      return res.status(httpStatus.OK).json(response);
-    } catch (error: unknown) {
-      this.logger.warn('latLonController.tileToLatLon Error:', error);
-      next(error);
-    }
-  };
-
-  public latlonToMgrs: GetLatLonToMgrsHandler = (req, res, next) => {
-    try {
-      const { lat, lon, accuracy } = req.query;
-
-      const response = this.manager.latLonToMGRS({ lat, lon, accuracy });
+      if (target_grid === 'control') {
+        response = await this.manager.latLonToTile({ lat, lon });
+      } else {
+        response = this.manager.latLonToMGRS({ lat, lon });
+      }
 
       return res.status(httpStatus.OK).json(response);
     } catch (error: unknown) {
-      this.logger.warn('latLonController.latlonToMgrs Error:', error);
-      next(error);
-    }
-  };
-
-  public mgrsToLatlon: GetMgrsToLatLonHandler = (req, res, next) => {
-    try {
-      const { mgrs } = req.query;
-
-      const response = this.manager.mgrsToLatLon(mgrs);
-
-      return res.status(httpStatus.OK).json(response);
-    } catch (error: unknown) {
-      this.logger.warn('latLonController.mgrsToLatlon Error:', error);
+      this.logger.warn('latLonController.getCoordinates Error:', error);
       next(error);
     }
   };

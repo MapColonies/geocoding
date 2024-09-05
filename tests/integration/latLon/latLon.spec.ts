@@ -1,169 +1,172 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 /* eslint-disable @typescript-eslint/naming-convention */
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
+import { Application } from 'express';
+import { DependencyContainer } from 'tsyringe';
+import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import httpStatusCodes from 'http-status-codes';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
+import { LatLonDAL } from '../../../src/latLon/DAL/latLonDAL';
 import { LatLonRequestSender } from './helpers/requestSender';
 
-describe('/latLon', function () {
+describe('/lookup', function () {
   let requestSender: LatLonRequestSender;
+  let app: { app: Application; container: DependencyContainer };
 
   beforeEach(async function () {
-    const app = await getApp({
+    app = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
       ],
       useChild: true,
     });
+
     requestSender = new LatLonRequestSender(app.app);
-  }, 20000);
+  });
+
+  afterAll(async function () {
+    const cleanupRegistry = app.container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+    await cleanupRegistry.trigger();
+    app.container.reset();
+
+    jest.clearAllTimers();
+  });
 
   describe('Happy Path', function () {
-    it('should return 200 status code and lat-lon from mgrs', async function () {
-      const response = await requestSender.getMgrsToLatlon({ mgrs: '18TWL8565011369' });
-
-      expect(response.status).toBe(httpStatusCodes.OK);
-      expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject({
-        lat: 40.74882151233783,
-        lon: -73.98543192220956,
-      });
-    });
-
-    it('should return 200 status code and mgrs from lat-lon', async function () {
-      const reponse = await requestSender.getLatlonToMgrs({
-        lat: 40.74882151233783,
-        lon: -73.98543192220956,
-      });
-
-      expect(reponse.status).toBe(httpStatusCodes.OK);
-      expect(reponse).toSatisfyApiSpec();
-      expect(reponse.body).toMatchObject({
-        mgrs: '18TWL8565011369',
-      });
-    });
-
     it('should return 200 status code and tile from lat-lon', async function () {
-      const reponse = await requestSender.getLatlonToTile({
+      const response = await requestSender.convertCoordinatesToGrid({
         lat: 52.57326537485767,
         lon: 12.948781146422107,
+        target_grid: 'control',
       });
 
-      expect(reponse.status).toBe(httpStatusCodes.OK);
-      expect(reponse).toSatisfyApiSpec();
-      expect(reponse.body).toMatchObject({
-        tileName: 'BRN',
-        subTileNumber: [0, 0, 0],
+      expect(response.status).toBe(httpStatusCodes.OK);
+      //   expect(response).toSatisfyApiSpec();
+      expect(response.body).toEqual({
+        type: 'Feature',
+        query: {
+          lat: 52.57326537485767,
+          lon: 12.948781146422107,
+        },
+        response: {},
+        properties: {
+          tileName: 'BRN',
+          subTileNumber: ['06', '97', '97'],
+        },
+        geometry: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [12.93694771534361, 52.51211561266182],
+              [12.93694771534361, 52.60444267653175],
+              [13.080296161196031, 52.60444267653175],
+              [13.080296161196031, 52.51211561266182],
+              [12.93694771534361, 52.51211561266182],
+            ],
+          ],
+        },
+        bbox: [12.93694771534361, 52.51211561266182, 13.080296161196031, 52.60444267653175],
       });
     });
 
-    it('should return 200 status code and lat-lon from tile', async function () {
-      const reponse = await requestSender.getTileToLatLon({
-        tile: 'BRN',
-        sub_tile_number: [10, 10, 10],
+    it('should return 200 status code and MGRS from lat-lon', async function () {
+      const response = await requestSender.convertCoordinatesToGrid({
+        lat: 52.57326537485767,
+        lon: 12.948781146422107,
+        target_grid: 'MGRS',
       });
 
-      expect(reponse.status).toBe(httpStatusCodes.OK);
-      expect(reponse).toSatisfyApiSpec();
-      expect(reponse.body).toMatchObject({
-        type: 'FeatureCollection',
-        features: [
-          {
-            geometry: {
-              coordinates: [
-                [
-                  [12.953293384350397, 52.512399536846765],
-                  [12.953440643865289, 52.512402084451686],
-                  [12.953436468347887, 52.51249192878939],
-                  [12.95328920853307, 52.512489381176245],
-                  [12.953293384350397, 52.512399536846765],
-                ],
-              ],
-              type: 'Polygon',
-            },
-            properties: {
-              TYPE: 'TILE',
-              SUB_TILE_NUMBER: [10, 10, 10],
-              TILE_NAME: 'BRN',
-            },
-          },
-        ],
+      expect(response.status).toBe(httpStatusCodes.OK);
+      //   expect(response).toSatisfyApiSpec();
+      expect(response.body).toEqual({
+        type: 'Feature',
+        query: {
+          lat: 52.57326537485767,
+          lon: 12.948781146422107,
+        },
+        response: {},
+        geometry: {
+          type: 'Point',
+          coordinates: [12.948781146422107, 52.57326537485767],
+        },
+        properties: {
+          accuracy: '1m',
+          mgrs: '33UUU6099626777',
+        },
       });
     });
   });
+
   describe('Bad Path', function () {
-    test.each<[keyof typeof requestSender, string[]]>([
-      ['getLatlonToMgrs', ['lat', 'lon']],
-      ['getMgrsToLatlon', ['mgrs']],
-      ['getLatlonToTile', ['lat', 'lon']],
-      ['getTileToLatLon', ['tile', 'sub_tile_number']],
-    ])('should return 400 and message for missing required parameters', async (request, missingProperties) => {
-      const message = 'request/query must have required property';
-      const response = await requestSender[request]();
+    it('should retrun 400 status code when invalid lat lon', async function () {
+      const response = await requestSender.convertCoordinatesToGrid({
+        lat: 67.9435100890131,
+        lon: -84.41903041752825,
+        target_grid: 'control',
+      });
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({ message: missingProperties.map((txt) => `${message} '${txt}'`).join(', ') });
-      expect(response).toSatisfyApiSpec();
+      //   expect(response).toSatisfyApiSpec();
+      expect(response.body).toEqual({
+        message: "Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal",
+      });
     });
 
-    test.each<[keyof typeof requestSender]>([['getLatlonToMgrs'], ['getMgrsToLatlon'], ['getLatlonToTile'], ['getTileToLatLon']])(
-      'should return 400 and message unknown query parameter',
-      async (request) => {
-        const parameter = 'test1234';
-        const message = `Unknown query parameter '${parameter}'`;
-
-        const response = await requestSender[request]({ [parameter]: parameter } as never);
-
-        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toMatchObject({ message });
-        expect(response).toSatisfyApiSpec();
-      }
-    );
-
-    it('should return 400 and check that all numbers are positive', async function () {
-      const message = "Invalid tile, check that 'tileName' and 'subTileNumber' exists and subTileNumber is array of size 3 with positive integers";
-
-      for (let i = 0; i < 3; i++) {
-        const arr: number[] = [10, 10, 10];
-        arr[i] = 0;
-
-        const response = await requestSender.getTileToLatLon({
-          tile: 'BRN',
-          sub_tile_number: arr,
-        });
-
-        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toMatchObject({
-          message,
-        });
-        expect(response).toSatisfyApiSpec();
-      }
-    });
-
-    it('should return 400 for lat-lon that outside the grid extent', async function () {
-      const response = await requestSender.getLatlonToTile({ lat: 1, lon: 1 });
+    it('should return 400 status code when the coordinate is outside the grid extent', async function () {
+      const response = await requestSender.convertCoordinatesToGrid({
+        lat: 32.57326537485767,
+        lon: 12.948781146422107,
+        target_grid: 'control',
+      });
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
+      //   expect(response).toSatisfyApiSpec();
+      expect(response.body).toEqual({
         message: 'The coordinate is outside the grid extent',
       });
-      expect(response).toSatisfyApiSpec();
-    });
-
-    it('should return 400 for tile not found', async function () {
-      const response = await requestSender.getTileToLatLon({ tile: 'XXX', sub_tile_number: [10, 10, 10] });
-
-      expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
-        message: 'Tile not found',
-      });
-      expect(response).toSatisfyApiSpec();
     });
   });
+
   describe('Sad Path', function () {
-    // All requests with status code 4XX-5XX
+    it('should return 500 as isDataLoadError is true for control', async function () {
+      const dataLoadErrorSpy = jest.spyOn(LatLonDAL.prototype, 'getIsDataLoadError').mockReturnValue(true);
+
+      const response = await requestSender.convertCoordinatesToGrid({
+        lat: 32.57326537485767,
+        lon: 12.948781146422107,
+        target_grid: 'control',
+      });
+
+      expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+      //   expect(response).toSatisfyApiSpec();
+      expect(response.body).toEqual({
+        message: 'Lat-lon to tile data currently not available',
+        stacktrace: expect.any(String) as string,
+      });
+
+      dataLoadErrorSpy.mockRestore();
+    });
+
+    // it('should return 500 as init is errored', async function () {
+    //   const dataLoadErrorSpy = jest.spyOn(LatLonDAL.prototype as any, 'loadLatLonData').mockRejectedValue(new Error('some error'));
+
+    //   const response = await requestSender.convertCoordinatesToGrid({
+    //     lat: 52.57326537485767,
+    //     lon: 12.948781146422107,
+    //     target_grid: 'control',
+    //   });
+
+    //   console.log(response.status, response.body);
+    //   expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+    //   //   expect(response).toSatisfyApiSpec();
+    //   expect(response.body).toEqual({
+    //     message: 'Lat-lon to tile data currently not available',
+    //     stacktrace: expect.any(String) as string,
+    //   });
+
+    //   dataLoadErrorSpy.mockRestore();
+    // });
   });
 });

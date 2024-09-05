@@ -26,8 +26,24 @@ export class InternalServerError extends Error implements HttpError {
   }
 }
 
+export class ServiceUnavailableError extends Error implements HttpError {
+  public readonly status = httpStatus.SERVICE_UNAVAILABLE;
+
+  public constructor(message: string) {
+    super(message);
+  }
+}
+
 export class NotFoundError extends Error implements HttpError {
   public readonly status = httpStatus.NOT_FOUND;
+
+  public constructor(message: string) {
+    super(message);
+  }
+}
+
+export class NotImplementedError extends Error implements HttpError {
+  public readonly status = httpStatus.NOT_IMPLEMENTED;
 
   public constructor(message: string) {
     super(message);
