@@ -28,18 +28,18 @@
   "db": {
     "elastic": {
       "control": {
-        "node": "http://localhost:9200",
+        "node": "http://control_elastic:9200",
         "auth": {
           "username": "elastic",
           "password": "changeme"
         },
         "requestTimeout": 60000,
         "properties": {
-          "index": "control_gil_v5"
+          "index": "control_index"
         }
       },
       "geotext": {
-        "node": "http://localhost:9200",
+        "node": "http://geotext_elastic:9200",
         "auth": {
           "username": "elastic",
           "password": "changeme"
@@ -56,10 +56,10 @@
       }
     },
     "s3": {
-      "endpoint": "http://localhost:9000",
+      "endpoint": "http://s3:9000",
       "credentials": {
-        "accessKeyId": "O8JnyGPmTtIz69uZihyh",
-        "secretAccessKey": "1uzitcz85XFpZ8oxedJMoQpCuDSiJrhfDPbAvPOM"
+        "accessKeyId": "accessKeyId",
+        "secretAccessKey": "secretAccessKey"
       },
       "forcePathStyle": true,
       "region": "local",
@@ -73,7 +73,7 @@
   },
   "application": {
     "services": {
-      "tokenTypesUrl": "http://localhost:5001/NLP_ANALYSES"
+      "tokenTypesUrl": "http://NLP_ANALYSES"
     },
     "cronLoadTileLatLonDataPattern": "0 * * * *",
     "elasticQueryBoosts": {
@@ -83,22 +83,10 @@
       "hierarchy": 1.1,
       "viewbox": 1.1
     },
-    "sources": {
-      "OSM": "OSM",
-      "GOOGLE": "GOOGLE"
-    },
-    "regions": {
-      "USA": ["New York", "Los Angeles"],
-      "FRANCE": ["Paris"]
-    },
-    "controlObjectDisplayNamePrefixes": {
-      "TILE": "Tile",
-      "SUB_TILE": "Sub Tile",
-      "ROUTE": "Route",
-      "ITEM": "Item",
-      "CONTROL_POINT": "Control Point"
-    },
-    "nameTranslationsKeys": ["en", "fr"],
+    "sources": {},
+    "regions": {},
+    "controlObjectDisplayNamePrefixes": {},
+    "nameTranslationsKeys": [],
     "mainLanguageRegex": "[a-zA-Z]"
   }
 }
