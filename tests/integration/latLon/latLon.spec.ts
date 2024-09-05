@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { IConfig } from 'config';
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { PutObjectCommand, CreateBucketCommand, DeleteBucketCommand, DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
@@ -8,11 +8,13 @@ import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { S3Config, s3ConfigPath } from '../../../src/common/s3';
 import mockDataJson from '../../../devScripts/latLonConvertions.json';
-import { LatLonRequestSender } from './helpers/requestSender';
 import { LatLonDAL } from '../../../src/latLon/DAL/latLonDAL';
+import { LatLonRequestSender } from './helpers/requestSender';
 
 describe('/lookup', function () {
   let requestSender: LatLonRequestSender;
+  let s3Client: S3Client;
+  let s3Config: S3Config | undefined;
 
   beforeAll(async function () {
     const app = await getApp({
@@ -23,9 +25,9 @@ describe('/lookup', function () {
       useChild: true,
     });
     const config = app.container.resolve<IConfig>(SERVICES.CONFIG);
-    const s3Client = app.container.resolve<S3Client>(SERVICES.S3_CLIENT);
+    s3Client = app.container.resolve<S3Client>(SERVICES.S3_CLIENT);
 
-    const s3Config = config.get<S3Config | undefined>(s3ConfigPath);
+    s3Config = config.get<S3Config | undefined>(s3ConfigPath);
 
     if (s3Config === undefined || s3Config.files.latLonConvertionTable === undefined) {
       throw new Error('S3 configuration is missing');
@@ -33,14 +35,34 @@ describe('/lookup', function () {
 
     const { bucket: Bucket, fileName: Key } = s3Config.files.latLonConvertionTable;
 
-    const command = new PutObjectCommand({
-      Bucket,
-      Key,
-      Body: Buffer.from(JSON.stringify(mockDataJson), 'utf-8'),
-    });
+    try {
+      await s3Client.send(new CreateBucketCommand({ Bucket, ACL: 'public-read' }));
+    } catch (error) {
+      console.error(error);
+    }
 
     try {
-      await s3Client.send(command);
+      await s3Client.send(
+        new PutObjectCommand({
+          Bucket,
+          Key,
+          Body: Buffer.from(JSON.stringify(mockDataJson), 'utf-8'),
+        })
+      );
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  });
+
+  afterAll(async function () {
+    try {
+      if (s3Config?.files.latLonConvertionTable !== undefined) {
+        await s3Client.send(
+          new DeleteObjectCommand({ Bucket: s3Config.files.latLonConvertionTable.bucket, Key: s3Config.files.latLonConvertionTable.fileName })
+        );
+        await s3Client.send(new DeleteBucketCommand({ Bucket: s3Config.files.latLonConvertionTable.bucket }));
+      }
     } catch (error) {
       console.error(error);
       throw error;
