@@ -60,7 +60,7 @@ jobs:
 
         minio:
           # Docker Hub image
-          image: quay.io/minio/minio:RELEASE.2024-05-28T17-19-04Z
+          image: minio/minio:edge-cicd
           env:
             MINIO_ROOT_USER: minio
             MINIO_ROOT_PASSWORD: minio
