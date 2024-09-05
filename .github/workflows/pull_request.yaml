@@ -63,7 +63,7 @@ jobs:
           image: minio/minio:edge-cicd
           env:
             MINIO_ROOT_USER: minio
-            MINIO_ROOT_PASSWORD: minio
+            MINIO_ROOT_PASSWORD: minio123
           ports:
             - 9000:9000
           # Set health checks to wait until elastic has started
