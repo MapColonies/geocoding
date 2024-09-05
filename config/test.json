@@ -36,6 +36,7 @@
         "secretAccessKey": "1uzitcz85XFpZ8oxedJMoQpCuDSiJrhfDPbAvPOM"
       },
       "region": "local",
+      "forcePathStyle": true,
       "files": {
         "latLonConvertionTable": {
           "bucket": "geocoding",

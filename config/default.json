@@ -61,6 +61,7 @@
         "accessKeyId": "O8JnyGPmTtIz69uZihyh",
         "secretAccessKey": "1uzitcz85XFpZ8oxedJMoQpCuDSiJrhfDPbAvPOM"
       },
+      "forcePathStyle": true,
       "region": "local",
       "files": {
         "latLonConvertionTable": {
