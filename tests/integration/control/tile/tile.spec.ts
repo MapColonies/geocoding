@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
+import { DependencyContainer } from 'tsyringe';
+import { Application } from 'express';
+import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import httpStatusCodes from 'http-status-codes';
 import { getApp } from '../../../../src/app';
 import { SERVICES } from '../../../../src/common/constants';
@@ -16,9 +19,10 @@ import { RIC_TILE, RIT_TILE, SUB_TILE_65, SUB_TILE_66 } from './mockObjects';
 
 describe('/search/control/tiles', function () {
   let requestSender: TileRequestSender;
+  let app: { app: Application; container: DependencyContainer };
 
   beforeEach(async function () {
-    const app = await getApp({
+    app = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
@@ -30,6 +34,14 @@ describe('/search/control/tiles', function () {
     });
 
     requestSender = new TileRequestSender(app.app);
+  });
+
+  afterAll(async function () {
+    const cleanupRegistry = app.container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+    await cleanupRegistry.trigger();
+    app.container.reset();
+
+    jest.clearAllTimers();
   });
 
   describe('Happy Path', function () {

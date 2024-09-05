@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import config from 'config';
+import { DependencyContainer } from 'tsyringe';
+import { Application } from 'express';
+import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
@@ -28,9 +31,10 @@ import { expectedResponse, hierarchiesWithAnyWieght } from './utils';
 
 describe('/search/location', function () {
   let requestSender: LocationRequestSender;
+  let app: { app: Application; container: DependencyContainer };
 
   beforeEach(async function () {
-    const app = await getApp({
+    app = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
@@ -42,6 +46,15 @@ describe('/search/location', function () {
     });
 
     requestSender = new LocationRequestSender(app.app);
+  });
+
+  afterAll(async function () {
+    const cleanupRegistry = app.container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+    await cleanupRegistry.trigger();
+    nock.cleanAll();
+    app.container.reset();
+
+    jest.clearAllTimers();
   });
 
   describe('Happy Path', function () {

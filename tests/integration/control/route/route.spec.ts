@@ -2,6 +2,9 @@
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
+import { Application } from 'express';
+import { DependencyContainer } from 'tsyringe';
+import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import { getApp } from '../../../../src/app';
 import { SERVICES } from '../../../../src/common/constants';
 import { GetRoutesQueryParams } from '../../../../src/control/route/controllers/routeController';
@@ -16,9 +19,10 @@ import { ROUTE_VIA_CAMILLUCCIA_A, ROUTE_VIA_CAMILLUCCIA_B, CONTROL_POINT_OLIMPIA
 
 describe('/search/control/route', function () {
   let requestSender: RouteRequestSender;
+  let app: { app: Application; container: DependencyContainer };
 
   beforeEach(async function () {
-    const app = await getApp({
+    app = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
@@ -30,6 +34,14 @@ describe('/search/control/route', function () {
     });
 
     requestSender = new RouteRequestSender(app.app);
+  });
+
+  afterAll(async function () {
+    const cleanupRegistry = app.container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+    await cleanupRegistry.trigger();
+    app.container.reset();
+
+    jest.clearAllTimers();
   });
 
   describe('Happy Path', function () {

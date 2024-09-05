@@ -1,76 +1,21 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { IConfig } from 'config';
-import { PutObjectCommand, CreateBucketCommand, DeleteBucketCommand, DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
+import { Application } from 'express';
+import { DependencyContainer } from 'tsyringe';
+import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import httpStatusCodes from 'http-status-codes';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
-import { S3Config, s3ConfigPath } from '../../../src/common/s3';
-import mockDataJson from '../../../devScripts/latLonConvertions.json';
 import { LatLonDAL } from '../../../src/latLon/DAL/latLonDAL';
 import { LatLonRequestSender } from './helpers/requestSender';
 
 describe('/lookup', function () {
   let requestSender: LatLonRequestSender;
-  let s3Client: S3Client;
-  let s3Config: S3Config | undefined;
-
-  beforeAll(async function () {
-    const app = await getApp({
-      override: [
-        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
-        { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
-      ],
-      useChild: true,
-    });
-    const config = app.container.resolve<IConfig>(SERVICES.CONFIG);
-    s3Client = app.container.resolve<S3Client>(SERVICES.S3_CLIENT);
-
-    s3Config = config.get<S3Config | undefined>(s3ConfigPath);
-
-    if (s3Config === undefined || s3Config.files.latLonConvertionTable === undefined) {
-      throw new Error('S3 configuration is missing');
-    }
-
-    const { bucket: Bucket, fileName: Key } = s3Config.files.latLonConvertionTable;
-
-    try {
-      await s3Client.send(new CreateBucketCommand({ Bucket, ACL: 'public-read' }));
-    } catch (error) {
-      console.error(error);
-    }
-
-    try {
-      await s3Client.send(
-        new PutObjectCommand({
-          Bucket,
-          Key,
-          Body: Buffer.from(JSON.stringify(mockDataJson), 'utf-8'),
-        })
-      );
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  });
-
-  afterAll(async function () {
-    try {
-      if (s3Config?.files.latLonConvertionTable !== undefined) {
-        await s3Client.send(
-          new DeleteObjectCommand({ Bucket: s3Config.files.latLonConvertionTable.bucket, Key: s3Config.files.latLonConvertionTable.fileName })
-        );
-        await s3Client.send(new DeleteBucketCommand({ Bucket: s3Config.files.latLonConvertionTable.bucket }));
-      }
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  });
+  let app: { app: Application; container: DependencyContainer };
 
   beforeEach(async function () {
-    const app = await getApp({
+    app = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
@@ -79,6 +24,14 @@ describe('/lookup', function () {
     });
 
     requestSender = new LatLonRequestSender(app.app);
+  });
+
+  afterAll(async function () {
+    const cleanupRegistry = app.container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+    await cleanupRegistry.trigger();
+    app.container.reset();
+
+    jest.clearAllTimers();
   });
 
   describe('Happy Path', function () {

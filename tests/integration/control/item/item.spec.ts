@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
+import { CleanupRegistry } from '@map-colonies/cleanup-registry';
+import { Application } from 'express';
+import { DependencyContainer } from 'tsyringe';
 import httpStatusCodes from 'http-status-codes';
 import { getApp } from '../../../../src/app';
 import { SERVICES } from '../../../../src/common/constants';
@@ -16,9 +19,10 @@ import { ITEM_1234, ITEM_1235, ITEM_1236 } from './mockObjects';
 
 describe('/search/control/items', function () {
   let requestSender: ItemRequestSender;
+  let app: { app: Application; container: DependencyContainer };
 
   beforeEach(async function () {
-    const app = await getApp({
+    app = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
@@ -30,6 +34,14 @@ describe('/search/control/items', function () {
     });
 
     requestSender = new ItemRequestSender(app.app);
+  });
+
+  afterAll(async function () {
+    const cleanupRegistry = app.container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+    await cleanupRegistry.trigger();
+    app.container.reset();
+
+    jest.clearAllTimers();
   });
 
   describe('Happy Path', function () {
