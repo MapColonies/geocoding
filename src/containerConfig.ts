@@ -11,7 +11,7 @@ import { ScheduledTask } from 'node-cron';
 import { HEALTHCHECK, ON_SIGNAL, SERVICES, SERVICE_NAME } from './common/constants';
 import { tracing } from './common/tracing';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
-import { elasticClientFactory, ElasticClients } from './common/elastic';
+import { elasticClientsFactory, ElasticClients } from './common/elastic';
 import { IApplication } from './common/interfaces';
 import { TILE_REPOSITORY_SYMBOL, tileRepositoryFactory } from './control/tile/DAL/tileRepository';
 import { TILE_ROUTER_SYMBOL, tileRouterFactory } from './control/tile/routes/tileRouter';
@@ -62,12 +62,15 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
       {
         token: ON_SIGNAL,
         provider: {
-          useValue: cleanupRegistry.trigger.bind(cleanupRegistry),
+          useFactory: instancePerContainerCachingFactory((container) => {
+            const cleanupRegistry = container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+            return cleanupRegistry.trigger.bind(cleanupRegistry);
+          }),
         },
       },
       {
         token: SERVICES.ELASTIC_CLIENTS,
-        provider: { useFactory: instancePerContainerCachingFactory(elasticClientFactory) },
+        provider: { useFactory: instancePerContainerCachingFactory(elasticClientsFactory) },
         postInjectionHook: async (deps: DependencyContainer): Promise<void> => {
           const elasticClients = deps.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
           try {
@@ -100,12 +103,22 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
           } catch (err) {
             logger.error('Failed to connect to S3', err);
           }
-          cleanupRegistry.register({ func: async () => s3Client.destroy(), id: SERVICES.S3_CLIENT });
+          cleanupRegistry.register({
+            func: async () => {
+              s3Client.destroy();
+              return Promise.resolve();
+            },
+            id: SERVICES.S3_CLIENT,
+          });
         },
       },
       {
         token: S3_REPOSITORY_SYMBOL,
         provider: { useFactory: s3RepositoryFactory },
+      },
+      {
+        token: SERVICES.CLEANUP_REGISTRY,
+        provider: { useValue: cleanupRegistry },
       },
       { token: TILE_REPOSITORY_SYMBOL, provider: { useFactory: tileRepositoryFactory } },
       { token: TILE_ROUTER_SYMBOL, provider: { useFactory: tileRouterFactory } },
@@ -125,7 +138,10 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
           const cronLoadTileLatLonData = deps.resolve<ScheduledTask>(cronLoadTileLatLonDataSymbol);
           cronLoadTileLatLonData.start();
           cleanupRegistry.register({
-            func: async () => cronLoadTileLatLonData.stop.bind(cronLoadTileLatLonData),
+            func: async () => {
+              cronLoadTileLatLonData.stop();
+              return Promise.resolve();
+            },
             id: cronLoadTileLatLonDataSymbol,
           });
         },
