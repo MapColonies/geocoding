@@ -9,7 +9,7 @@
         },
         "requestTimeout": 60000,
         "properties": {
-          "index": "control_gil_v5"
+          "index": "control_gil_v5_test"
         }
       },
       "geotext": {
@@ -21,9 +21,9 @@
         "requestTimeout": 60000,
         "properties": {
           "index": {
-            "geotext": "geotext_index",
-            "placetypes": "placetypes_index",
-            "hierarchies": "hierarchies_index"
+            "geotext": "geotext_index_test",
+            "placetypes": "placetypes_index_test",
+            "hierarchies": "hierarchies_index_test"
           },
           "textTermLanguage": "en"
         }
@@ -32,14 +32,14 @@
     "s3": {
       "endpoint": "http://localhost:9000",
       "credentials": {
-        "accessKeyId": "O8JnyGPmTtIz69uZihyh",
-        "secretAccessKey": "1uzitcz85XFpZ8oxedJMoQpCuDSiJrhfDPbAvPOM"
+        "accessKeyId": "minio",
+        "secretAccessKey": "minio123"
       },
       "region": "local",
       "forcePathStyle": true,
       "files": {
         "latLonConvertionTable": {
-          "bucket": "geocoding",
+          "bucket": "geocoding-test",
           "fileName": "table.json"
         }
       }
