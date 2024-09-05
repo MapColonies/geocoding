@@ -3,28 +3,31 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import crypto from 'crypto';
 import { Client } from '@elastic/elasticsearch';
-import config from '../config/default.json';
+import { ElasticDbClientsConfig } from '../src/common/elastic/interfaces';
+import { elasticConfigPath } from '../src/common/constants';
+import { IConfig } from '../src/common/interfaces';
 import controlData from './controlElasticsearchData.json';
 import geotextData from './geotextElasticsearchData.json';
 
-const main = async (): Promise<void> => {
-  const controlClient = new Client({ ...config.db.elastic.control });
-  const geotextClient = new Client({ ...config.db.elastic.geotext });
+const main = async (config: IConfig): Promise<void> => {
+  const elasticConfig = config.get<ElasticDbClientsConfig>(elasticConfigPath);
+  const controlClient = new Client({ ...elasticConfig.control });
+  const geotextClient = new Client({ ...elasticConfig.geotext });
 
   for (const { client, index, key } of [
     {
       client: controlClient,
-      index: config.db.elastic.control.properties.index,
+      index: elasticConfig.control.properties.index as string,
       key: 'geometry',
     },
     {
       client: geotextClient,
-      index: config.db.elastic.geotext.properties.index.geotext,
+      index: (elasticConfig.geotext.properties.index as { [key: string]: string }).geotext,
       key: 'geo_json',
     },
     {
       client: geotextClient,
-      index: config.db.elastic.geotext.properties.index.hierarchies,
+      index: (elasticConfig.geotext.properties.index as { [key: string]: string }).hierarchies,
       key: 'geo_json',
     },
   ]) {
@@ -44,7 +47,7 @@ const main = async (): Promise<void> => {
 
   for (const item of controlData) {
     await controlClient.index({
-      index: config.db.elastic.control.properties.index,
+      index: elasticConfig.control.properties.index as string,
       id: crypto.randomUUID(),
       body: item._source,
     });
@@ -52,7 +55,8 @@ const main = async (): Promise<void> => {
 
   for (const item of geotextData) {
     await geotextClient.index({
-      index: item._index,
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      index: (elasticConfig.geotext.properties.index as { [key: string]: string })[item._index] as string,
       id: crypto.randomUUID(),
       body: {
         ...item._source,
