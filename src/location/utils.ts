@@ -1,5 +1,5 @@
 import https from 'https';
-import { Geometry, Point } from 'geojson';
+import { BBox, Geometry, Point } from 'geojson';
 import { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import { StatusCodes } from 'http-status-codes';
 import axios, { AxiosError, AxiosResponse as Response } from 'axios';
@@ -23,7 +23,7 @@ const parsePoint = (split: string[] | number[]): Geometry => ({
   coordinates: split.map(Number),
 });
 
-const parseBbox = (split: string[] | number[]): Geometry => {
+const parseBbox = (split: [string, string, string, string] | BBox): Geometry => {
   const [xMin, yMin, xMax, yMax] = split.map(Number);
   return {
     type: 'Polygon',

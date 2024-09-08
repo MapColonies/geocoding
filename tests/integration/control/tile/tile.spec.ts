@@ -5,6 +5,7 @@ import { DependencyContainer } from 'tsyringe';
 import { Application } from 'express';
 import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import httpStatusCodes from 'http-status-codes';
+import { BBox } from 'geojson';
 import { getApp } from '../../../../src/app';
 import { SERVICES } from '../../../../src/common/constants';
 import { GetTilesQueryParams } from '../../../../src/control/tile/controllers/tileController';
@@ -341,7 +342,7 @@ describe('/search/control/tiles', function () {
           tile: 'RIT',
           limit: 5,
           disable_fuzziness: false,
-          geo_context: { bbox },
+          geo_context: { bbox: bbox as BBox },
           geo_context_mode: GeoContextMode.FILTER,
         });
 

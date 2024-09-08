@@ -1,4 +1,4 @@
-import { Feature, FeatureCollection as GeoJSONFeatureCollection } from 'geojson';
+import { BBox, Feature, FeatureCollection as GeoJSONFeatureCollection } from 'geojson';
 
 export interface IConfig {
   get: <T>(setting: string) => T;
@@ -13,7 +13,7 @@ export interface OpenApiConfig {
 }
 
 export interface GeoContext {
-  bbox?: number[];
+  bbox?: BBox;
   radius?: number;
   lon?: number;
   lat?: number;
