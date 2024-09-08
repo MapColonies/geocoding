@@ -26,6 +26,7 @@ import { ITEM_REPOSITORY_SYMBOL, itemRepositoryFactory } from './control/item/DA
 import { s3ClientFactory } from './common/s3';
 import { S3_REPOSITORY_SYMBOL, s3RepositoryFactory } from './common/s3/s3Repository';
 import { healthCheckFactory } from './common/utils';
+import { MGRS_ROUTER_SYMBOL, mgrsRouterFactory } from './mgrs/routers/mgrsRouter';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -129,6 +130,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
       { token: LAT_LON_ROUTER_SYMBOL, provider: { useFactory: latLonRouterFactory } },
       { token: GEOTEXT_REPOSITORY_SYMBOL, provider: { useFactory: geotextRepositoryFactory } },
       { token: GEOTEXT_SEARCH_ROUTER_SYMBOL, provider: { useFactory: geotextSearchRouterFactory } },
+      { token: MGRS_ROUTER_SYMBOL, provider: { useFactory: mgrsRouterFactory } },
       {
         token: cronLoadTileLatLonDataSymbol,
         provider: {
