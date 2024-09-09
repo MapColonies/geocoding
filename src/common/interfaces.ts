@@ -74,7 +74,8 @@ export enum GeoContextMode {
 
 export interface GeocodingResponse {
   userId: string;
-  apiKey: string
+  apiKey: string;
+  site: string;
   response: JSON;
   respondedAt: Date;
 }

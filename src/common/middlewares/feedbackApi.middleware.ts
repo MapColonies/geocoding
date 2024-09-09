@@ -2,7 +2,7 @@ import * as crypto from 'node:crypto';
 import { Request, Response, NextFunction } from 'express';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
-import { REDIS_TTL, SERVICES } from '../constants';
+import { REDIS_TTL, SERVICES, siteIndex } from '../constants';
 import { RedisClient } from '../redis';
 import { GeocodingResponse } from '../interfaces';
 
@@ -16,10 +16,14 @@ export class FeedbackApiMiddlewareManager {
     const redisClient = this.redis;
     const logger = this.logger;
 
+    const s3Endpoint = ''; //s3 endpoint from default
+    const drSite = s3Endpoint.split('.');
+
     logger.info({ msg: 'saving response to redis' });
     const geocodingResponseDetails: GeocodingResponse = {
       userId: req.headers['x-user-id'] as string,
       apiKey: req.headers['x-api-key'] as string,
+      site: drSite[siteIndex],
       response: JSON.parse('{}') as JSON,
       respondedAt: new Date(),
     };
