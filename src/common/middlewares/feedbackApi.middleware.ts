@@ -12,7 +12,7 @@ export class FeedbackApiMiddlewareManager {
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   public saveResponses = (req: Request, res: Response, next: NextFunction) => {
-    const reqId = crypto.randomUUID();
+    const reqId = res.getHeader('request-id');
     const redisClient = this.redis;
     const logger = this.logger;
 
@@ -29,28 +29,21 @@ export class FeedbackApiMiddlewareManager {
       geocodingResponseDetails.response = body;
 
       try {
-        await redisClient.setEx(reqId, REDIS_TTL, JSON.stringify(geocodingResponseDetails));
+        await redisClient.setEx(reqId as string, REDIS_TTL, JSON.stringify(geocodingResponseDetails));
         logger.info({ msg: 'saving response to redis' });
       } catch (err) {
         logger.error('Error setting key:', err);
       }
-
-      //await setKeyWithTTL(reqId, JSON.stringify(geocodingResponseDetails), redisClient);
-
       return originalJson.call(this, body);
     };
     res.json = logJson as unknown as Response['json'];
     next();
   };
-}
 
-// async function setKeyWithTTL(key: string, value: string, redis: RedisClient) {
-//   try {
-//     await redis.set(key, value, {
-//       EX: 300, // 5 minutes in seconds
-//     });
-//     console.log(`Key '${key}' set with a TTL of 5 minutes.`);
-//   } catch (err) {
-//     console.error('Error setting key:', err);
-//   }
-// }
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  public setRequestId = (req: Request, res: Response, next: NextFunction) => {
+    const reqId = crypto.randomUUID();
+    res.append('request-id', reqId);
+    next();
+  };
+}

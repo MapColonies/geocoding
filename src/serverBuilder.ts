@@ -93,6 +93,8 @@ export class ServerBuilder {
     const apiSpecPath = this.config.get<string>('openapiConfig.filePath');
     this.serverInstance.use(OpenApiMiddleware({ apiSpec: apiSpecPath, validateRequests: true, ignorePaths: ignorePathRegex }));
     this.serverInstance.disable('x-powered-by');
+
+    this.serverInstance.use(this.feedbackApiMiddleware.setRequestId);
   }
 
   private registerPostRoutesMiddleware(): void {
