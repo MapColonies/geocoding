@@ -19,6 +19,7 @@ export class FeedbackApiMiddlewareManager {
     logger.info({ msg: 'saving response to redis' });
     const geocodingResponseDetails: GeocodingResponse = {
       userId: req.headers['x-user-id'] as string,
+      apiKey: req.headers['x-api-key'] as string,
       response: JSON.parse('{}') as JSON,
       respondedAt: new Date(),
     };
