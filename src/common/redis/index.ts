@@ -1,11 +1,9 @@
 import { readFileSync } from 'fs';
-import { ILogger } from '@map-colonies/detiler-common';
-import { HealthCheck } from '@godaddy/terminus';
+import { Logger } from '@map-colonies/js-logger';
 import { createClient, RedisClientOptions } from 'redis';
 import { DependencyContainer, FactoryFunction } from 'tsyringe';
 import { SERVICES } from '../constants';
 import { RedisConfig, IConfig } from '../interfaces';
-import { promiseTimeout } from '../utils';
 
 const DEFAULT_LIMIT_FROM = 0;
 const DEFAULT_LIMIT_SIZE = 1000;
@@ -33,7 +31,7 @@ export const DEFAULT_LIMIT = { from: DEFAULT_LIMIT_FROM, size: DEFAULT_LIMIT_SIZ
 export type RedisClient = ReturnType<typeof createClient>;
 
 export const redisClientFactory: FactoryFunction<RedisClient> = (container: DependencyContainer): RedisClient => {
-  const logger = container.resolve<ILogger>(SERVICES.LOGGER);
+  const logger = container.resolve<Logger>(SERVICES.LOGGER);
   const config = container.resolve<IConfig>(SERVICES.CONFIG);
   const dbConfig = config.get<RedisConfig>('db.redis');
   const connectionOptions = createConnectionOptions(dbConfig);
@@ -46,13 +44,4 @@ export const redisClientFactory: FactoryFunction<RedisClient> = (container: Depe
     .on('ready', (...args) => logger.debug({ msg: 'redis client is ready', ...args }));
 
   return redisClient;
-};
-
-export const healthCheckFunctionFactory = (redis: RedisClient): HealthCheck => {
-  return async (): Promise<void> => {
-    const check = redis.ping().then(() => {
-      return;
-    });
-    return promiseTimeout<void>(CONNECTION_TIMEOUT, check);
-  };
 };
