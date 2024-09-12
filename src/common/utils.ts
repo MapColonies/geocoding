@@ -6,6 +6,7 @@ import { WGS84Coordinate } from './interfaces';
 import { TimeoutError } from './errors';
 import { SERVICES } from './constants';
 import { ElasticClients } from './elastic';
+import { RedisClient } from './redis';
 
 type SnakeToCamelCase<S extends string> = S extends `${infer T}_${infer U}` ? `${T}${Capitalize<SnakeToCamelCase<U>>}` : S;
 
@@ -81,6 +82,8 @@ export const healthCheckFactory: FactoryFunction<void> = (container: DependencyC
   const logger = container.resolve<Logger>(SERVICES.LOGGER);
   const elasticClients = container.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
   const s3Client = container.resolve<S3Client>(SERVICES.S3_CLIENT);
+  const redis = container.resolve<RedisClient>(SERVICES.REDIS);
+
   logger.info('Healthcheck is running');
 
   try {
@@ -90,6 +93,8 @@ export const healthCheckFactory: FactoryFunction<void> = (container: DependencyC
     }
 
     void s3Client.send(new ListBucketsCommand({}));
+
+    void redis.ping();
 
     logger.info('healthcheck passed');
   } catch (error) {
