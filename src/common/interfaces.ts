@@ -1,4 +1,3 @@
-import { DataSourceOptions } from 'typeorm';
 import { RedisClientOptions } from 'redis';
 import { BBox, Feature, FeatureCollection as GeoJSONFeatureCollection } from 'geojson';
 
@@ -20,11 +19,6 @@ export type RedisConfig = {
   enableSslAuth: boolean;
   sslPaths: { ca: string; cert: string; key: string };
 } & RedisClientOptions;
-
-export type PostgresDbConfig = {
-  enableSslAuth: boolean;
-  sslPaths: { ca: string; cert: string; key: string };
-} & DataSourceOptions;
 
 export interface GeoContext {
   bbox?: BBox;
