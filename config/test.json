@@ -56,35 +56,36 @@
         "cert": ""
       },
       "database": 1
-  },
-  "application": {
-    "services": {
-      "tokenTypesUrl": "http://localhost:5001/NLP_ANALYSES"
     },
-    "cronLoadTileLatLonDataPattern": "0 * * * *",
-    "elasticQueryBoosts": {
-      "name": 1.1,
-      "placeType": 1.1,
-      "subPlaceType": 1.1,
-      "hierarchy": 1.1,
-      "viewbox": 1.1
-    },
-    "sources": {
-      "OSM": "OSM",
-      "GOOGLE": "GOOGLE"
-    },
-    "regions": {
-      "USA": ["New York", "Los Angeles"],
-      "FRANCE": ["Paris"]
-    },
-    "controlObjectDisplayNamePrefixes": {
-      "TILE": "Tile",
-      "SUB_TILE": "Sub Tile",
-      "ROUTE": "Route",
-      "ITEM": "Item",
-      "CONTROL_POINT": "Control Point"
-    },
-    "nameTranslationsKeys": ["en", "fr"],
-    "mainLanguageRegex": "[a-zA-Z]"
+    "application": {
+      "services": {
+        "tokenTypesUrl": "http://localhost:5001/NLP_ANALYSES"
+      },
+      "cronLoadTileLatLonDataPattern": "0 * * * *",
+      "elasticQueryBoosts": {
+        "name": 1.1,
+        "placeType": 1.1,
+        "subPlaceType": 1.1,
+        "hierarchy": 1.1,
+        "viewbox": 1.1
+      },
+      "sources": {
+        "OSM": "OSM",
+        "GOOGLE": "GOOGLE"
+      },
+      "regions": {
+        "USA": ["New York", "Los Angeles"],
+        "FRANCE": ["Paris"]
+      },
+      "controlObjectDisplayNamePrefixes": {
+        "TILE": "Tile",
+        "SUB_TILE": "Sub Tile",
+        "ROUTE": "Route",
+        "ITEM": "Item",
+        "CONTROL_POINT": "Control Point"
+      },
+      "nameTranslationsKeys": ["en", "fr"],
+      "mainLanguageRegex": "[a-zA-Z]"
+    }
   }
 }
