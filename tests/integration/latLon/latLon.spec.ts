@@ -43,18 +43,21 @@ describe('/lookup', function () {
       });
 
       expect(response.status).toBe(httpStatusCodes.OK);
-      //   expect(response).toSatisfyApiSpec();
+      expect(response).toSatisfyApiSpec();
       expect(response.body).toEqual({
         type: 'Feature',
-        query: {
-          lat: 52.57326537485767,
-          lon: 12.948781146422107,
+        geocoding: {
+          query: {
+            lat: 52.57326537485767,
+            lon: 12.948781146422107,
+          },
+          response: {
+            max_score: 1,
+            results_count: 1,
+            match_latency_ms: 0,
+          },
         },
-        response: {},
-        properties: {
-          tileName: 'BRN',
-          subTileNumber: ['06', '97', '97'],
-        },
+        bbox: [12.93694771534361, 52.51211561266182, 13.080296161196031, 52.60444267653175],
         geometry: {
           type: 'Polygon',
           coordinates: [
@@ -67,7 +70,11 @@ describe('/lookup', function () {
             ],
           ],
         },
-        bbox: [12.93694771534361, 52.51211561266182, 13.080296161196031, 52.60444267653175],
+        properties: {
+          name: 'BRN',
+          tileName: 'BRN',
+          subTileNumber: ['06', '97', '97'],
+        },
       });
     });
 
@@ -79,19 +86,27 @@ describe('/lookup', function () {
       });
 
       expect(response.status).toBe(httpStatusCodes.OK);
-      //   expect(response).toSatisfyApiSpec();
+      expect(response).toSatisfyApiSpec();
       expect(response.body).toEqual({
         type: 'Feature',
-        query: {
-          lat: 52.57326537485767,
-          lon: 12.948781146422107,
+        geocoding: {
+          query: {
+            lat: 52.57326537485767,
+            lon: 12.948781146422107,
+          },
+          response: {
+            max_score: 1,
+            results_count: 1,
+            match_latency_ms: 0,
+          },
         },
-        response: {},
+        bbox: [12.948777289238832, 52.57325754975297, 12.948791616108007, 52.57326678960368],
         geometry: {
           type: 'Point',
           coordinates: [12.948781146422107, 52.57326537485767],
         },
         properties: {
+          name: '33UUU6099626777',
           accuracy: '1m',
           mgrs: '33UUU6099626777',
         },
@@ -108,7 +123,7 @@ describe('/lookup', function () {
       });
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      //   expect(response).toSatisfyApiSpec();
+      // expect(response).toSatisfyApiSpec();
       expect(response.body).toEqual({
         message: "Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal",
       });
