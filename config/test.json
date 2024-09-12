@@ -9,8 +9,7 @@
         },
         "requestTimeout": 60000,
         "properties": {
-          "index": "control_index",
-          "defaultResponseLimit": 3
+          "index": "control_gil_v5_test"
         }
       },
       "geotext": {
@@ -22,29 +21,28 @@
         "requestTimeout": 60000,
         "properties": {
           "index": {
-            "geotext": "geotext_index",
-            "placetypes": "placetypes_index",
-            "hierarchies": "hierarchies_index"
+            "geotext": "geotext_index_test",
+            "placetypes": "placetypes_index_test",
+            "hierarchies": "hierarchies_index_test"
           },
-          "defaultResponseLimit": 3,
           "textTermLanguage": "en"
         }
       }
     },
-    "postgresql": {
-      "type": "postgres",
-      "host": "localhost",
-      "port": 5432,
-      "username": "postgres",
-      "password": "postgres",
-      "enableSslAuth": false,
-      "sslPaths": {
-        "ca": "",
-        "key": "",
-        "cert": ""
+    "s3": {
+      "endpoint": "http://localhost:9000",
+      "credentials": {
+        "accessKeyId": "minio",
+        "secretAccessKey": "minio123"
       },
-      "database": "postgres",
-      "schema": "geocoder"
+      "region": "local",
+      "forcePathStyle": true,
+      "files": {
+        "latLonConvertionTable": {
+          "bucket": "geocoding-test",
+          "fileName": "table.json"
+        }
+      }
     },
     "redis": {
       "host": "localhost",
@@ -57,8 +55,7 @@
         "key": "",
         "cert": ""
       },
-      "database": 0
-    }
+      "database": 1
   },
   "application": {
     "services": {
@@ -79,6 +76,13 @@
     "regions": {
       "USA": ["New York", "Los Angeles"],
       "FRANCE": ["Paris"]
+    },
+    "controlObjectDisplayNamePrefixes": {
+      "TILE": "Tile",
+      "SUB_TILE": "Sub Tile",
+      "ROUTE": "Route",
+      "ITEM": "Item",
+      "CONTROL_POINT": "Control Point"
     },
     "nameTranslationsKeys": ["en", "fr"],
     "mainLanguageRegex": "[a-zA-Z]"

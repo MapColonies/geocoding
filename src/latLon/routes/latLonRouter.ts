@@ -6,11 +6,7 @@ const latLonRouterFactory: FactoryFunction<Router> = (dependencyContainer) => {
   const router = Router();
   const controller = dependencyContainer.resolve(LatLonController);
 
-  router.get('/latlonToTile', controller.latlonToTile);
-  router.get('/tileToLatLon', controller.tileToLatLon);
-  router.get('/latlonToMgrs', controller.latlonToMgrs);
-  router.get('/mgrsToLatlon', controller.mgrsToLatlon);
-  router.get('coordinates', controller.getCoordinates);
+  router.get('/coordinates', controller.getCoordinates);
 
   return router;
 };

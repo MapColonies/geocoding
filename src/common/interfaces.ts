@@ -1,6 +1,6 @@
 import { DataSourceOptions } from 'typeorm';
 import { RedisClientOptions } from 'redis';
-import { Feature, FeatureCollection as GeoJSONFeatureCollection } from 'geojson';
+import { BBox, Feature, FeatureCollection as GeoJSONFeatureCollection } from 'geojson';
 
 export interface IConfig {
   get: <T>(setting: string) => T;
@@ -27,7 +27,7 @@ export type PostgresDbConfig = {
 } & DataSourceOptions;
 
 export interface GeoContext {
-  bbox?: number[];
+  bbox?: BBox;
   radius?: number;
   lon?: number;
   lat?: number;
@@ -65,6 +65,9 @@ export interface IApplication {
   };
   nameTranslationsKeys: string[];
   mainLanguageRegex: string;
+  controlObjectDisplayNamePrefixes: {
+    [key: string]: string;
+  };
 }
 
 export enum GeoContextMode {

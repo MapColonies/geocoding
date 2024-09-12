@@ -6,7 +6,7 @@ import { SERVICES } from '../../../common/constants';
 import { ITEM_REPOSITORY_SYMBOL, ItemRepository } from '../DAL/itemRepository';
 import { ItemQueryParams } from '../DAL/queries';
 import { formatResponse } from '../../utils';
-import { FeatureCollection } from '../../../common/interfaces';
+import { FeatureCollection, IApplication } from '../../../common/interfaces';
 import { Item } from './item';
 
 @injectable()
@@ -14,6 +14,7 @@ export class ItemManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(SERVICES.CONFIG) private readonly config: IConfig,
+    @inject(SERVICES.APPLICATION) private readonly application: IApplication,
     @inject(ITEM_REPOSITORY_SYMBOL) private readonly itemRepository: ItemRepository
   ) {}
 
@@ -22,6 +23,6 @@ export class ItemManager {
     let elasticResponse: estypes.SearchResponse<Item> | undefined = undefined;
     elasticResponse = await this.itemRepository.getItems(itemQueryParams, limit);
 
-    return formatResponse(elasticResponse, itemQueryParams);
+    return formatResponse(elasticResponse, itemQueryParams, this.application.controlObjectDisplayNamePrefixes);
   }
 }

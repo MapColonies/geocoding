@@ -6,7 +6,7 @@ import { SERVICES } from '../../../common/constants';
 import { TILE_REPOSITORY_SYMBOL, TileRepository } from '../DAL/tileRepository';
 import { formatResponse } from '../../utils';
 import { TileQueryParams } from '../DAL/queries';
-import { FeatureCollection } from '../../../common/interfaces';
+import { FeatureCollection, IApplication } from '../../../common/interfaces';
 import { BadRequestError, NotImplementedError } from '../../../common/errors';
 import { Tile } from './tile';
 
@@ -15,6 +15,7 @@ export class TileManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(SERVICES.CONFIG) private readonly config: IConfig,
+    @inject(SERVICES.APPLICATION) private readonly application: IApplication,
     @inject(TILE_REPOSITORY_SYMBOL) private readonly tileRepository: TileRepository
   ) {}
 
@@ -41,6 +42,6 @@ export class TileManager {
       elasticResponse = await this.tileRepository.getTiles(tileQueryParams as TileQueryParams & Required<Pick<TileQueryParams, 'tile'>>, limit);
     }
 
-    return formatResponse(elasticResponse, tileQueryParams);
+    return formatResponse(elasticResponse, tileQueryParams, this.application.controlObjectDisplayNamePrefixes);
   }
 }

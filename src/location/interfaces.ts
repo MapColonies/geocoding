@@ -1,7 +1,7 @@
 import type { GeoJSON } from 'geojson';
 import { estypes } from '@elastic/elasticsearch';
 import { CommonRequestParameters } from '../common/interfaces';
-import { ConvertCamelToSnakeCase, ConvertSnakeToCamelCase } from '../common/utils';
+import { ConvertCamelToSnakeCase, ConvertSnakeToCamelCase, RemoveUnderscore } from '../common/utils';
 import { HierarchySearchHit } from './models/elasticsearchHits';
 
 export interface PlaceType {
@@ -33,28 +33,30 @@ export interface QueryResult {
   type: string;
   geocoding: {
     version?: string;
-    query: ConvertCamelToSnakeCase<TextSearchParams>;
-    response: { max_score: number; results_count: number; match_latency_ms: number };
+    query: ConvertCamelToSnakeCase<GetGeotextSearchParams>;
+    response: { max_score: number; results_count: number; match_latency_ms: number } & Partial<
+      ConvertCamelToSnakeCase<Pick<TextSearchParams, 'name' | 'placeTypes' | 'subPlaceTypes' | 'hierarchies'>>
+    >;
   };
-  features: ({
+  features: {
     type: string;
     geometry?: GeoJSON;
     properties: {
-      rank: number;
-      source?: string;
-      source_id?: string[];
-      layer?: string;
+      matches: {
+        source?: string;
+        source_id?: string[];
+        layer?: string;
+      }[];
       name: {
         [key: string]: string | string[] | undefined;
+        display: string;
+        default: string[];
       };
-      highlight?: Record<string, string[]>;
       placetype?: string;
       sub_placetype?: string;
-      region?: string[];
-      sub_region?: string[];
-      regions?: { region: string; sub_regions: string[] }[];
-    };
-  } & Pick<estypes.SearchHit, '_score'>)[];
+      regions?: { region: string; sub_region_names: string[] }[];
+    } & RemoveUnderscore<Pick<estypes.SearchHit, '_score'>>;
+  }[];
 }
 /* eslint-enable @typescript-eslint/naming-convention */
 

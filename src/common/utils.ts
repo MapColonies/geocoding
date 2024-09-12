@@ -1,7 +1,11 @@
-import proj4 from 'proj4';
-import { utmProjection, wgs84Projection } from './projections';
+import utm from 'utm-latlng';
+import { ListBucketsCommand, S3Client } from '@aws-sdk/client-s3';
+import { DependencyContainer, FactoryFunction } from 'tsyringe';
+import { Logger } from '@map-colonies/js-logger';
 import { WGS84Coordinate } from './interfaces';
 import { TimeoutError } from './errors';
+import { SERVICES } from './constants';
+import { ElasticClients } from './elastic';
 
 type SnakeToCamelCase<S extends string> = S extends `${infer T}_${infer U}` ? `${T}${Capitalize<SnakeToCamelCase<U>>}` : S;
 
@@ -17,6 +21,10 @@ export type ConvertSnakeToCamelCase<T> = {
 
 export type ConvertCamelToSnakeCase<T> = {
   [K in keyof T as CamelToSnakeCase<K & string>]: T[K];
+};
+
+export type RemoveUnderscore<T> = {
+  [K in keyof T as K extends `_${infer Rest}` ? Rest : K]: T[K];
 };
 
 export const validateWGS84Coordinate = (coordinate: { lon: number; lat: number }): boolean => {
@@ -50,35 +58,43 @@ export const convertWgs84ToUTM = (
       Northing: number;
       ZoneNumber: number;
     } => {
-  const zone = Math.floor((longitude + 180) / 6) + 1;
-
-  const [easting, northing] = proj4(wgs84Projection, utmProjection(zone), [longitude, latitude]);
-
-  return {
-    Easting: +easting.toFixed(utmPrecision),
-    Northing: +northing.toFixed(utmPrecision),
-    ZoneNumber: zone,
+  //@ts-expect-error: utm has problem with types. Need to ignore ts error here
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const UTMcoordinates = new utm().convertLatLngToUtm(latitude, longitude, utmPrecision) as {
+    Easting: number;
+    Northing: number;
+    ZoneNumber: number;
+    ZoneLetter: string;
   };
+
+  return UTMcoordinates;
 };
 /* eslint-enable @typescript-eslint/naming-convention */
 
 export const convertUTMToWgs84 = (x: number, y: number, zone: number): WGS84Coordinate => {
-  const [longitude, latitude] = proj4(utmProjection(zone), wgs84Projection, [x, y]);
-  return { lat: latitude, lon: longitude };
+  //TODO: change ZONE Letter to relevent letter. Currently it is hardcoded to 'N'
+  const { lat, lng: lon } = new utm().convertUtmToLatLng(x, y, zone, 'N') as { lat: number; lng: number };
+  return { lat, lon };
 };
 
-export const validateTile = (tile: { tileName: string; subTileNumber: number[] }): boolean => {
-  if (!tile.tileName || !Array.isArray(tile.subTileNumber) || tile.subTileNumber.length !== 3) {
-    return false;
-  }
-  //regex = /^-?d+$/;
-  const regex = /^(\d\d)$/;
-  for (const subTileNumber of tile.subTileNumber) {
-    if (!regex.test(`${subTileNumber}`)) {
-      return false;
+export const healthCheckFactory: FactoryFunction<void> = (container: DependencyContainer): void => {
+  const logger = container.resolve<Logger>(SERVICES.LOGGER);
+  const elasticClients = container.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
+  const s3Client = container.resolve<S3Client>(SERVICES.S3_CLIENT);
+  logger.info('Healthcheck is running');
+
+  try {
+    for (const [key, client] of Object.entries(elasticClients)) {
+      logger.info(`Checking health of ${key}`);
+      void client.cluster.health({});
     }
+
+    void s3Client.send(new ListBucketsCommand({}));
+
+    logger.info('healthcheck passed');
+  } catch (error) {
+    logger.error(`Healthcheck failed. Error: ${(error as Error).message}`);
   }
-  return true;
 };
 
 export const promiseTimeout = async <T>(ms: number, promise: Promise<T>): Promise<T> => {

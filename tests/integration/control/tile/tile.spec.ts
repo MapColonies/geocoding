@@ -1,15 +1,18 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
+import { DependencyContainer } from 'tsyringe';
+import { Application } from 'express';
+import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import httpStatusCodes from 'http-status-codes';
-import { DataSource } from 'typeorm';
+import { BBox } from 'geojson';
 import { getApp } from '../../../../src/app';
 import { SERVICES } from '../../../../src/common/constants';
 import { GetTilesQueryParams } from '../../../../src/control/tile/controllers/tileController';
 import { Tile } from '../../../../src/control/tile/models/tile';
 import { ControlResponse } from '../../../../src/control/interfaces';
 import { CommonRequestParameters, GeoContext, GeoContextMode } from '../../../../src/common/interfaces';
-import { LATLON_CUSTOM_REPOSITORY_SYMBOL } from '../../../../src/latLon/DAL/latLonRepository';
+import { S3_REPOSITORY_SYMBOL } from '../../../../src/common/s3/s3Repository';
 import { cronLoadTileLatLonDataSymbol } from '../../../../src/latLon/DAL/latLonDAL';
 import { expectedResponse } from '../utils';
 import { TileRequestSender } from './helpers/requestSender';
@@ -17,21 +20,29 @@ import { RIC_TILE, RIT_TILE, SUB_TILE_65, SUB_TILE_66 } from './mockObjects';
 
 describe('/search/control/tiles', function () {
   let requestSender: TileRequestSender;
+  let app: { app: Application; container: DependencyContainer };
 
   beforeEach(async function () {
-    const app = await getApp({
+    app = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
-        { token: LATLON_CUSTOM_REPOSITORY_SYMBOL, provider: { useValue: {} } },
-        { token: DataSource, provider: { useValue: {} } },
+        { token: S3_REPOSITORY_SYMBOL, provider: { useValue: {} } },
+        { token: SERVICES.S3_CLIENT, provider: { useValue: {} } },
         { token: cronLoadTileLatLonDataSymbol, provider: { useValue: {} } },
-        { token: LATLON_CUSTOM_REPOSITORY_SYMBOL, provider: { useValue: {} } },
       ],
       useChild: true,
     });
 
     requestSender = new TileRequestSender(app.app);
+  });
+
+  afterAll(async function () {
+    const cleanupRegistry = app.container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+    await cleanupRegistry.trigger();
+    app.container.reset();
+
+    jest.clearAllTimers();
   });
 
   describe('Happy Path', function () {
@@ -331,7 +342,7 @@ describe('/search/control/tiles', function () {
           tile: 'RIT',
           limit: 5,
           disable_fuzziness: false,
-          geo_context: { bbox },
+          geo_context: { bbox: bbox as BBox },
           geo_context_mode: GeoContextMode.FILTER,
         });
 

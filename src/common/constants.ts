@@ -17,6 +17,8 @@ export const SERVICES: Record<string, symbol> = {
   APPLICATION: Symbol('Application'),
   ELASTIC_CLIENTS: Symbol('ElasticClients'),
   REDIS: Symbol('Redis'),
+  S3_CLIENT: Symbol('S3Client'),
+  CLEANUP_REGISTRY: Symbol('CleanupRegistry'),
 };
 /* eslint-enable @typescript-eslint/naming-convention */
 

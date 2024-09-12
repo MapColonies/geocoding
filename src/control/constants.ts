@@ -18,4 +18,5 @@ export const CONTROL_FIELDS = [
   'properties.SUB_TILE_ID',
   'properties.SECTION',
   'properties.TIED_TO',
+  'properties.LAYER_NAME',
 ];

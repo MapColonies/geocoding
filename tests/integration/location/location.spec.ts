@@ -1,13 +1,15 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import config from 'config';
+import { DependencyContainer } from 'tsyringe';
+import { Application } from 'express';
+import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
-import { DataSource } from 'typeorm';
 import nock, { Body } from 'nock';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
-import { LATLON_CUSTOM_REPOSITORY_SYMBOL } from '../../../src/latLon/DAL/latLonRepository';
+import { S3_REPOSITORY_SYMBOL } from '../../../src/common/s3/s3Repository';
 import { cronLoadTileLatLonDataSymbol } from '../../../src/latLon/DAL/latLonDAL';
 import { GetGeotextSearchParams, QueryResult } from '../../../src/location/interfaces';
 import { GeoContextMode, IApplication } from '../../../src/common/interfaces';
@@ -25,23 +27,32 @@ import {
 } from './mockObjects';
 import { expectedResponse, hierarchiesWithAnyWieght } from './utils';
 
-describe('/search/control/tiles', function () {
+describe('/search/location', function () {
   let requestSender: LocationRequestSender;
+  let app: { app: Application; container: DependencyContainer };
 
   beforeEach(async function () {
-    const app = await getApp({
+    app = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
-        { token: LATLON_CUSTOM_REPOSITORY_SYMBOL, provider: { useValue: {} } },
-        { token: DataSource, provider: { useValue: {} } },
+        { token: S3_REPOSITORY_SYMBOL, provider: { useValue: {} } },
+        { token: SERVICES.S3_CLIENT, provider: { useValue: {} } },
         { token: cronLoadTileLatLonDataSymbol, provider: { useValue: {} } },
-        { token: LATLON_CUSTOM_REPOSITORY_SYMBOL, provider: { useValue: {} } },
       ],
       useChild: true,
     });
 
     requestSender = new LocationRequestSender(app.app);
+  });
+
+  afterAll(async function () {
+    const cleanupRegistry = app.container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+    await cleanupRegistry.trigger();
+    nock.cleanAll();
+    app.container.reset();
+
+    jest.clearAllTimers();
   });
 
   describe('Happy Path', function () {
@@ -65,11 +76,26 @@ describe('/search/control/tiles', function () {
         expectedResponse(
           {
             ...requestParams,
+          },
+          {
             place_types: ['transportation'],
             sub_place_types: ['airport'],
             hierarchies: [],
           },
-          [NY_JFK_AIRPORT, NY_POLICE_AIRPORT, LA_AIRPORT],
+          [
+            {
+              ...NY_JFK_AIRPORT,
+              properties: {
+                ...NY_JFK_AIRPORT.properties,
+                name: {
+                  ...NY_JFK_AIRPORT.properties.name,
+                  display: expect.stringContaining('JFK') as string,
+                },
+              },
+            },
+            NY_POLICE_AIRPORT,
+            LA_AIRPORT,
+          ],
           expect
         )
       );
@@ -101,13 +127,25 @@ describe('/search/control/tiles', function () {
 
       expect(response.body).toMatchObject<QueryResult>(
         expectedResponse(
+          requestParams,
           {
-            ...requestParams,
             place_types: ['transportation'],
             sub_place_types: ['airport'],
             hierarchies: [],
           },
-          [NY_JFK_AIRPORT, NY_POLICE_AIRPORT],
+          [
+            {
+              ...NY_JFK_AIRPORT,
+              properties: {
+                ...NY_JFK_AIRPORT.properties,
+                name: {
+                  ...NY_JFK_AIRPORT.properties.name,
+                  display: expect.stringContaining('JFK') as string,
+                },
+              },
+            },
+            NY_POLICE_AIRPORT,
+          ],
           expect
         )
       );
@@ -141,11 +179,26 @@ describe('/search/control/tiles', function () {
         expectedResponse(
           {
             ...requestParams,
+          },
+          {
             place_types: ['transportation'],
             sub_place_types: ['airport'],
             hierarchies: [],
           },
-          [NY_JFK_AIRPORT, NY_POLICE_AIRPORT, LA_AIRPORT],
+          [
+            {
+              ...NY_JFK_AIRPORT,
+              properties: {
+                ...NY_JFK_AIRPORT.properties,
+                name: {
+                  ...NY_JFK_AIRPORT.properties.name,
+                  display: expect.stringContaining('JFK') as string,
+                },
+              },
+            },
+            NY_POLICE_AIRPORT,
+            LA_AIRPORT,
+          ],
           expect
         )
       );
@@ -155,19 +208,45 @@ describe('/search/control/tiles', function () {
 
     test.each<
       Pick<GetGeotextSearchParams, 'query'> & {
-        hierarchies: QueryResult['geocoding']['query']['hierarchies'];
+        hierarchies: QueryResult['geocoding']['response']['hierarchies'];
         returnedFeatures: MockLocationQueryFeature[];
       }
     >([
       {
         query: 'new york',
         hierarchies: hierarchiesWithAnyWieght([NY_HIERRARCHY], expect),
-        returnedFeatures: [NY_JFK_AIRPORT, NY_POLICE_AIRPORT, LA_AIRPORT],
+        returnedFeatures: [
+          {
+            ...NY_JFK_AIRPORT,
+            properties: {
+              ...NY_JFK_AIRPORT.properties,
+              name: {
+                ...NY_JFK_AIRPORT.properties.name,
+                display: expect.stringContaining('JFK') as string,
+              },
+            },
+          },
+          NY_POLICE_AIRPORT,
+          LA_AIRPORT,
+        ],
       },
       {
         query: 'los angeles',
         hierarchies: hierarchiesWithAnyWieght([LA_HIERRARCHY], expect),
-        returnedFeatures: [LA_AIRPORT, NY_JFK_AIRPORT, NY_POLICE_AIRPORT],
+        returnedFeatures: [
+          LA_AIRPORT,
+          {
+            ...NY_JFK_AIRPORT,
+            properties: {
+              ...NY_JFK_AIRPORT.properties,
+              name: {
+                ...NY_JFK_AIRPORT.properties.name,
+                display: expect.stringContaining('JFK') as string,
+              },
+            },
+          },
+          NY_POLICE_AIRPORT,
+        ],
       },
     ])('it should test airports response with hierrarchy in %s', async ({ query, hierarchies, returnedFeatures }) => {
       const requestParams: GetGeotextSearchParams = { query: `airport, ${query}`, limit: 5, disable_fuzziness: true };
@@ -190,6 +269,8 @@ describe('/search/control/tiles', function () {
         expectedResponse(
           {
             ...requestParams,
+          },
+          {
             place_types: ['transportation'],
             sub_place_types: ['airport'],
             hierarchies,
@@ -204,8 +285,8 @@ describe('/search/control/tiles', function () {
 
     test.each<
       Pick<GetGeotextSearchParams, 'query'> & {
-        place_types: QueryResult['geocoding']['query']['place_types'];
-        sub_place_types: QueryResult['geocoding']['query']['sub_place_types'];
+        place_types: QueryResult['geocoding']['response']['place_types'];
+        sub_place_types: QueryResult['geocoding']['response']['sub_place_types'];
         returnedFeatures: MockLocationQueryFeature[];
       }
     >([
@@ -242,6 +323,8 @@ describe('/search/control/tiles', function () {
         expectedResponse(
           {
             ...requestParams,
+          },
+          {
             name: query,
             place_types,
             sub_place_types,
@@ -289,8 +372,8 @@ describe('/search/control/tiles', function () {
 
       expect(response.body).toMatchObject<QueryResult>(
         expectedResponse(
+          requestParams,
           {
-            ...requestParams,
             place_types: ['transportation'],
             sub_place_types: ['port'],
             hierarchies: [],
@@ -321,8 +404,8 @@ describe('/search/control/tiles', function () {
 
       expect(response.body).toMatchObject<QueryResult>(
         expectedResponse(
+          requestParams,
           {
-            ...requestParams,
             place_types: ['education'],
             sub_place_types: ['school'],
             hierarchies: [],

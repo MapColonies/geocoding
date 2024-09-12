@@ -53,21 +53,19 @@ export const NY_JFK_AIRPORT: MockLocationQueryFeature = {
     ],
   },
   properties: {
-    source: 'OSM',
-    layer: 'osm_airports',
-    source_id: ['03ed6d97-fc81-4340-b68a-11993554eef1'],
+    matches: [{ source: 'OSM', layer: 'osm_airports', source_id: ['03ed6d97-fc81-4340-b68a-11993554eef1'] }],
     name: {
       en: ['JFK Airport'],
       fr: ['Aeropuerto JFK'],
       default: ['JFK'],
-      display: 'JFK',
+      display: 'JFK Airport',
     },
     placetype: 'transportation',
     sub_placetype: 'airport',
     regions: [
       {
         region: 'USA',
-        sub_regions: ['New York'],
+        sub_region_names: ['New York'],
       },
     ],
   },
@@ -100,9 +98,7 @@ export const NY_POLICE_AIRPORT: MockLocationQueryFeature = {
     type: 'Polygon',
   },
   properties: {
-    source: 'OSM',
-    layer: 'osm_airports',
-    source_id: ['009c6b65-3dcb-4c4f-9f02-d766ebb5d808'],
+    matches: [{ source: 'OSM', layer: 'osm_airports', source_id: ['009c6b65-3dcb-4c4f-9f02-d766ebb5d808'] }],
     name: {
       en: ['Nassau County Police Airport'],
       fr: ['Aeropuerto de la Policía del Condado de Nassau'],
@@ -114,7 +110,7 @@ export const NY_POLICE_AIRPORT: MockLocationQueryFeature = {
     regions: [
       {
         region: 'USA',
-        sub_regions: ['New York'],
+        sub_region_names: ['New York'],
       },
     ],
   },
@@ -149,9 +145,7 @@ export const LA_AIRPORT: MockLocationQueryFeature = {
     type: 'Polygon',
   },
   properties: {
-    source: 'OSM',
-    layer: 'osm_airports',
-    source_id: ['a4f373ab-b824-41e2-b160-e7729c73bea6'],
+    matches: [{ source: 'OSM', layer: 'osm_airports', source_id: ['a4f373ab-b824-41e2-b160-e7729c73bea6'] }],
     name: {
       en: ['Los Angeles International Airport'],
       fr: ['Aeropuerto Internacional de Los Ángeles'],
@@ -163,7 +157,7 @@ export const LA_AIRPORT: MockLocationQueryFeature = {
     regions: [
       {
         region: 'USA',
-        sub_regions: ['Los Angeles'],
+        sub_region_names: ['Los Angeles'],
       },
     ],
   },
@@ -199,9 +193,7 @@ export const OSM_LA_PORT: MockLocationQueryFeature = {
     ],
   },
   properties: {
-    source: 'OSM',
-    layer: 'osm_ports',
-    source_id: ['0f36d985-cfbd-4aed-b0cb-ee56600c77f4'],
+    matches: [{ source: 'OSM', layer: 'osm_ports', source_id: ['0f36d985-cfbd-4aed-b0cb-ee56600c77f4'] }],
     name: {
       en: ['Port of Los Angeles'],
       fr: ['Puerto de Los Ángeles'],
@@ -213,7 +205,7 @@ export const OSM_LA_PORT: MockLocationQueryFeature = {
     regions: [
       {
         region: 'USA',
-        sub_regions: ['Los Angeles'],
+        sub_region_names: ['Los Angeles'],
       },
     ],
   },
@@ -248,9 +240,7 @@ export const GOOGLE_LA_PORT: MockLocationQueryFeature = {
     ],
   },
   properties: {
-    source: 'GOOGLE',
-    layer: 'google_ports',
-    source_id: ['1bb11f54-939e-457b-bf68-a3920ccf629c'],
+    matches: [{ source: 'GOOGLE', layer: 'google_ports', source_id: ['1bb11f54-939e-457b-bf68-a3920ccf629c'] }],
     name: {
       en: ['Port of Los Angeles'],
       fr: ['Puerto de Los Ángeles'],
@@ -262,7 +252,7 @@ export const GOOGLE_LA_PORT: MockLocationQueryFeature = {
     regions: [
       {
         region: 'USA',
-        sub_regions: ['Los Angeles'],
+        sub_region_names: ['Los Angeles'],
       },
     ],
   },
@@ -285,9 +275,13 @@ export const LA_WHITE_POINT_SCHOOL: MockLocationQueryFeature = {
     type: 'Polygon',
   },
   properties: {
-    source: 'OSM',
-    layer: 'osm_schools',
-    source_id: ['1a5b981b-bb0e-44dd-b9e2-424b92f2de49'],
+    matches: [
+      {
+        source: 'OSM',
+        layer: 'osm_schools',
+        source_id: ['1a5b981b-bb0e-44dd-b9e2-424b92f2de49'],
+      },
+    ],
     name: {
       en: ['White Point Elementary School'],
       fr: ['Escuela Primaria White Point'],
@@ -299,7 +293,7 @@ export const LA_WHITE_POINT_SCHOOL: MockLocationQueryFeature = {
     regions: [
       {
         region: 'USA',
-        sub_regions: ['Los Angeles'],
+        sub_region_names: ['Los Angeles'],
       },
     ],
   },
@@ -320,9 +314,13 @@ export const PARIS_WI_SCHOOL: MockLocationQueryFeature = {
     type: 'Polygon',
   },
   properties: {
-    source: 'OSM',
-    layer: 'osm_schools',
-    source_id: ['dc02a3f9-156a-4f61-85bd-fd040cd322a3'],
+    matches: [
+      {
+        source: 'OSM',
+        layer: 'osm_schools',
+        source_id: ['dc02a3f9-156a-4f61-85bd-fd040cd322a3'],
+      },
+    ],
     name: {
       en: ['Wi School Paris 9'],
       fr: ['Ecole Wi Paris 9'],
@@ -334,7 +332,7 @@ export const PARIS_WI_SCHOOL: MockLocationQueryFeature = {
     regions: [
       {
         region: 'FRANCE',
-        sub_regions: ['Paris'],
+        sub_region_names: ['Paris'],
       },
     ],
   },

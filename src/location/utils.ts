@@ -1,25 +1,29 @@
-// import fetch, { Response } from "node-fetch-commonjs";
-import { GeoJSON, Geometry, Point } from 'geojson';
+import https from 'https';
+import { BBox, Geometry, Point } from 'geojson';
 import { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import { StatusCodes } from 'http-status-codes';
 import axios, { AxiosError, AxiosResponse as Response } from 'axios';
 import { InternalServerError } from '../common/errors';
 import { GeoContext, IApplication } from '../common/interfaces';
-import { ConvertCamelToSnakeCase, convertUTMToWgs84 } from '../common/utils';
-import { convertCamelToSnakeCase } from '../control/utils';
-import { BBOX_LENGTH, POINT_LENGTH, QueryResult, TextSearchParams } from './interfaces';
+import { convertUTMToWgs84 } from '../common/utils';
+import { QueryResult, TextSearchParams } from './interfaces';
 import { TextSearchHit } from './models/elasticsearchHits';
+import { generateDisplayName } from './parsing';
 
 const FIND_QUOTES = /["']/g;
 
 const FIND_SPECIAL = /[`!@#$%^&*()_\-+=|\\/,.<>:[\]{}\n\t\r\s;؛]+/g;
+
+const axiosInstance = axios.create({
+  httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+});
 
 const parsePoint = (split: string[] | number[]): Geometry => ({
   type: 'Point',
   coordinates: split.map(Number),
 });
 
-const parseBbox = (split: string[] | number[]): Geometry => {
+const parseBbox = (split: [string, string, string, string] | BBox): Geometry => {
   const [xMin, yMin, xMax, yMax] = split.map(Number);
   return {
     type: 'Polygon',
@@ -39,7 +43,7 @@ export const fetchNLPService = async <T>(endpoint: string, requestData: object):
   let res: Response | null = null,
     data: T[] | undefined | null = null;
   try {
-    res = await axios.post(endpoint, requestData);
+    res = await axiosInstance.post(endpoint, requestData);
   } catch (err: unknown) {
     throw new InternalServerError(`NLP analyser is not available - ${(err as AxiosError).message}`);
   }
@@ -54,41 +58,20 @@ export const fetchNLPService = async <T>(endpoint: string, requestData: object):
 
 export const cleanQuery = (query: string): string[] => query.replace(FIND_QUOTES, '').split(FIND_SPECIAL);
 
-export const parseGeo = (input: string | GeoJSON | GeoContext): Geometry | undefined => {
-  //TODO: remove string | GeoJson as accepted types
+export const parseGeo = (input: GeoContext): Geometry | undefined => {
   //TODO: Add geojson validation
   //TODO: refactor this function
-  if (typeof input === 'string') {
-    const splitted = input.split(',');
-    const converted = splitted.map(Number);
-
-    if (converted.findIndex((x) => isNaN(x)) < 0) {
-      switch (splitted.length) {
-        case POINT_LENGTH:
-          // Point
-          return parsePoint(splitted);
-        case BBOX_LENGTH:
-          //BBOX
-          return parseBbox(splitted);
-        default:
-          return undefined;
-      }
-    }
-  } else if (input.bbox !== undefined) {
+  if (input.bbox !== undefined) {
     return parseBbox(input.bbox);
   } else if (
-    ((input as GeoContext).x !== undefined &&
-      (input as GeoContext).y !== undefined &&
-      (input as GeoContext).zone !== undefined &&
-      (input as GeoContext).zone !== undefined) ||
-    ((input as GeoContext).lon !== undefined && (input as GeoContext).lat !== undefined)
+    (input.x !== undefined && input.y !== undefined && input.zone !== undefined && input.zone !== undefined) ||
+    (input.lon !== undefined && input.lat !== undefined)
   ) {
-    const { x, y, zone, radius } = input as GeoContext;
+    const { x, y, zone, radius } = input;
     const { lon, lat } = x && y && zone ? convertUTMToWgs84(x, y, zone) : (input as Required<Pick<GeoContext, 'lat' | 'lon'>>);
 
     return { type: 'Circle', coordinates: (parsePoint([lon, lat]) as Point).coordinates, radius: `${radius ?? ''}` } as unknown as Geometry;
   }
-  return input as Geometry;
 };
 
 /* eslint-disable @typescript-eslint/naming-convention */
@@ -111,40 +94,49 @@ export const convertResult = (
   geocoding: {
     version: process.env.npm_package_version,
     query: {
-      ...(convertCamelToSnakeCase(params as unknown as Record<string, unknown>) as ConvertCamelToSnakeCase<TextSearchParams>),
+      query: params.query,
+      region: params.region,
+      source: params.source,
+      geo_context: params.geoContext,
+      geo_context_mode: params.geoContextMode,
+      disable_fuzziness: params.disableFuzziness,
+      limit: params.limit,
     },
     response: {
-      /* eslint-disable @typescript-eslint/naming-convention */
       results_count: results.hits.hits.length,
       max_score: results.hits.max_score ?? 0,
       match_latency_ms: results.took,
-      /* eslint-enable @typescript-eslint/naming-convention */
+      name: params.name ?? undefined,
+      place_types: params.placeTypes,
+      sub_place_types: params.subPlaceTypes,
+      hierarchies: params.hierarchies,
     },
   },
-  features: results.hits.hits.map(({ _source: feature, _score }, index): QueryResult['features'][number] => {
+  features: results.hits.hits.map(({ _source: feature, _score: score, highlight }, index): QueryResult['features'][number] => {
     const allNames = [feature!.text, feature!.translated_text || []];
     return {
       type: 'Feature',
       geometry: feature?.geo_json,
-      _score,
       properties: {
-        rank: index + 1,
-        source: (sources ?? {})[feature?.source ?? ''] ?? feature?.source,
-        layer: feature?.layer_name,
-        source_id: feature?.source_id.map((id) => id.replace(/(^\{)|(\}$)/g, '')), // TODO: check if to remove this
+        score,
+        matches: [
+          {
+            layer: feature?.layer_name,
+            source: (sources ?? {})[feature?.source ?? ''] ?? feature?.source,
+            source_id: feature?.source_id.map((id) => id.replace(/(^\{)|(\}$)/g, '')), // TODO: check if to remove this
+          },
+        ],
         name: {
           [nameKeys[0]]: new RegExp(mainLanguageRegex).test(feature!.text[0]) ? allNames.shift() : allNames.pop(),
           [nameKeys[1]]: allNames.pop(),
           ['default']: [feature!.name],
-          // display: highlight ? generateDisplayName(highlight.text, params.query!.split(' ').length, params.name) : feature!.name,
-          display: feature!.name,
+          display: highlight ? generateDisplayName(highlight, params.query.split(' ').length, params.name) : feature!.name,
         },
-        // highlight,
         placetype: feature?.placetype, // TODO: check if to remove this
         sub_placetype: feature?.sub_placetype,
         regions: feature?.region.map((region) => ({
           region: region,
-          sub_regions: feature.sub_region.filter((sub_region) => (regionCollection ?? {})[region ?? ''].includes(sub_region)),
+          sub_region_names: feature.sub_region.filter((sub_region) => (regionCollection ?? {})[region ?? '']?.includes(sub_region)),
         })),
       },
     };

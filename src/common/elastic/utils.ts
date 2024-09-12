@@ -1,4 +1,5 @@
 import { estypes } from '@elastic/elasticsearch';
+import { BBox } from 'geojson';
 import { WGS84Coordinate } from '../interfaces';
 import { ServiceUnavailableError } from '../errors';
 import { ElasticClient } from './index';
@@ -20,7 +21,7 @@ export const queryElastic = async <T>(client: ElasticClient, body: estypes.Searc
 
 /* eslint-disable @typescript-eslint/naming-convention */
 export const boundingBox = (
-  bbox: number[]
+  bbox: BBox
 ): {
   geo_bounding_box: {
     geometry: {

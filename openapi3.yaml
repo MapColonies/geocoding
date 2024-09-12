@@ -387,6 +387,7 @@ paths:
           schema:
             type: string
             enum: ['control', 'MGRS']
+          required: true
       responses:
         200:
           description: 'OK'

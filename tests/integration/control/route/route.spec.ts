@@ -2,14 +2,16 @@
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
-import { DataSource } from 'typeorm';
+import { Application } from 'express';
+import { DependencyContainer } from 'tsyringe';
+import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import { getApp } from '../../../../src/app';
 import { SERVICES } from '../../../../src/common/constants';
 import { GetRoutesQueryParams } from '../../../../src/control/route/controllers/routeController';
 import { Route } from '../../../../src/control/route/models/route';
 import { ControlResponse } from '../../../../src/control/interfaces';
 import { CommonRequestParameters, GeoContext, GeoContextMode } from '../../../../src/common/interfaces';
-import { LATLON_CUSTOM_REPOSITORY_SYMBOL } from '../../../../src/latLon/DAL/latLonRepository';
+import { S3_REPOSITORY_SYMBOL } from '../../../../src/common/s3/s3Repository';
 import { cronLoadTileLatLonDataSymbol } from '../../../../src/latLon/DAL/latLonDAL';
 import { expectedResponse } from '../utils';
 import { RouteRequestSender } from './helpers/requestSender';
@@ -17,21 +19,29 @@ import { ROUTE_VIA_CAMILLUCCIA_A, ROUTE_VIA_CAMILLUCCIA_B, CONTROL_POINT_OLIMPIA
 
 describe('/search/control/route', function () {
   let requestSender: RouteRequestSender;
+  let app: { app: Application; container: DependencyContainer };
 
   beforeEach(async function () {
-    const app = await getApp({
+    app = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
-        { token: LATLON_CUSTOM_REPOSITORY_SYMBOL, provider: { useValue: {} } },
-        { token: DataSource, provider: { useValue: {} } },
+        { token: S3_REPOSITORY_SYMBOL, provider: { useValue: {} } },
+        { token: SERVICES.S3_CLIENT, provider: { useValue: {} } },
         { token: cronLoadTileLatLonDataSymbol, provider: { useValue: {} } },
-        { token: LATLON_CUSTOM_REPOSITORY_SYMBOL, provider: { useValue: {} } },
       ],
       useChild: true,
     });
 
     requestSender = new RouteRequestSender(app.app);
+  });
+
+  afterAll(async function () {
+    const cleanupRegistry = app.container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+    await cleanupRegistry.trigger();
+    app.container.reset();
+
+    jest.clearAllTimers();
   });
 
   describe('Happy Path', function () {
