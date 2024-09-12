@@ -100,27 +100,28 @@
         "__name": "REDIS_DATABASE",
         "__format": "number"
       }
-  },
-  "application": {
-    "services": {
-      "tokenTypesUrl": "TOKEN_TYPE_URL"
     },
-    "sources": {
-      "__name": "GEOTEXT_SOURCES",
-      "__format": "json"
-    },
-    "regions": {
-      "__name": "REGIONS",
-      "__format": "json"
-    },
-    "nameTranslationsKeys": {
-      "__name": "NAME_TRANSLATION_KEYS",
-      "__format": "json"
-    },
-    "controlObjectDisplayNamePrefixes": {
-      "__name": "CONTROL_DISPLAY_KEY_TRANSLATIONS",
-      "__format": "json"
-    },
-    "mainLanguageRegex": "MAIN_LANGUAGE_REGEX"
+    "application": {
+      "services": {
+        "tokenTypesUrl": "TOKEN_TYPE_URL"
+      },
+      "sources": {
+        "__name": "GEOTEXT_SOURCES",
+        "__format": "json"
+      },
+      "regions": {
+        "__name": "REGIONS",
+        "__format": "json"
+      },
+      "nameTranslationsKeys": {
+        "__name": "NAME_TRANSLATION_KEYS",
+        "__format": "json"
+      },
+      "controlObjectDisplayNamePrefixes": {
+        "__name": "CONTROL_DISPLAY_KEY_TRANSLATIONS",
+        "__format": "json"
+      },
+      "mainLanguageRegex": "MAIN_LANGUAGE_REGEX"
+    }
   }
 }
