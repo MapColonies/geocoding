@@ -80,18 +80,24 @@ export const healthCheckFactory: FactoryFunction<void> = (container: DependencyC
   const logger = container.resolve<Logger>(SERVICES.LOGGER);
   const elasticClients = container.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
   const s3Client = container.resolve<S3Client>(SERVICES.S3_CLIENT);
-  logger.info('Healthcheck is running');
 
-  try {
-    for (const [key, client] of Object.entries(elasticClients)) {
-      logger.info(`Checking health of ${key}`);
-      void client.cluster.health({});
-    }
-
-    void s3Client.send(new ListBucketsCommand({}));
-
-    logger.info('healthcheck passed');
-  } catch (error) {
-    logger.error(`Healthcheck failed. Error: ${(error as Error).message}`);
+  for (const [key, client] of Object.entries(elasticClients)) {
+    client.cluster
+      .health({})
+      .then(() => {
+        return;
+      })
+      .catch((error) => {
+        logger.error(`Healthcheck failed for ${key}. Error: ${(error as Error).message}`);
+      });
   }
+
+  s3Client
+    .send(new ListBucketsCommand({}))
+    .then(() => {
+      return;
+    })
+    .catch((error) => {
+      logger.error(`Healthcheck failed for S3. Error: ${(error as Error).message}`);
+    });
 };
