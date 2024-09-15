@@ -553,7 +553,8 @@ describe('/search/control/route', function () {
 
           expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
           expect(response.body).toMatchObject({
-            message: 'geo_context validation: geo_context must contain one of the following: {bbox}, {lat, lon, radius}, or {x, y, zone, radius}',
+            message:
+              'geo_context validation: geo_context must contain one of the following: {"bbox": [number,number,number,number] | [number,number,number,number,number,number]}, {"lat": number, "lon": number, "radius": number}, or {"x": number, "y": number, "zone": number, "radius": number}',
           });
         }
       }

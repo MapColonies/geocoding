@@ -336,7 +336,7 @@ describe('/search/control/tiles', function () {
     });
 
     test.each<number[][]>([[[1]], [[1, 1]], [[1, 1, 1]], [[1, 1, 1, 1, 1]]])(
-      'should return 400 status code and error message when bbox not containing 4 values',
+      'should return 400 status code and error message when bbox not containing 4 or 6 values',
       async function (bbox) {
         const response = await requestSender.getTiles({
           tile: 'RIT',
@@ -348,7 +348,8 @@ describe('/search/control/tiles', function () {
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toMatchObject({
-          message: 'geo_context validation: bbox must contain 4 values',
+          message:
+            'geo_context validation: geo_context must contain one of the following: {"bbox": [number,number,number,number] | [number,number,number,number,number,number]}, {"lat": number, "lon": number, "radius": number}, or {"x": number, "y": number, "zone": number, "radius": number}',
         });
       }
     );
@@ -482,7 +483,8 @@ describe('/search/control/tiles', function () {
 
           expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
           expect(response.body).toMatchObject({
-            message: 'geo_context validation: geo_context must contain one of the following: {bbox}, {lat, lon, radius}, or {x, y, zone, radius}',
+            message:
+              'geo_context validation: geo_context must contain one of the following: {"bbox": [number,number,number,number] | [number,number,number,number,number,number]}, {"lat": number, "lon": number, "radius": number}, or {"x": number, "y": number, "zone": number, "radius": number}',
           });
         }
       }
