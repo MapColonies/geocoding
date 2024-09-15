@@ -1,10 +1,12 @@
+import * as Ajv from 'ajv';
 import utm from 'utm-latlng';
 import { ListBucketsCommand, S3Client } from '@aws-sdk/client-s3';
 import { DependencyContainer, FactoryFunction } from 'tsyringe';
 import { Logger } from '@map-colonies/js-logger';
-import { WGS84Coordinate } from './interfaces';
+import { GeoContext, WGS84Coordinate } from './interfaces';
 import { SERVICES } from './constants';
 import { ElasticClients } from './elastic';
+import { BadRequestError } from './errors';
 
 type SnakeToCamelCase<S extends string> = S extends `${infer T}_${infer U}` ? `${T}${Capitalize<SnakeToCamelCase<U>>}` : S;
 
@@ -13,6 +15,8 @@ type CamelToSnakeCase<S extends string> = S extends `${infer T}${infer U}`
     ? `${Lowercase<T>}${CamelToSnakeCase<U>}`
     : `${Lowercase<T>}_${CamelToSnakeCase<Uncapitalize<U>>}`
   : S;
+
+const ajv = new Ajv.Ajv();
 
 export type ConvertSnakeToCamelCase<T> = {
   [K in keyof T as SnakeToCamelCase<K & string>]: T[K];
@@ -100,4 +104,86 @@ export const healthCheckFactory: FactoryFunction<void> = (container: DependencyC
     .catch((error) => {
       logger.error(`Healthcheck failed for S3. Error: ${(error as Error).message}`);
     });
+};
+
+export const validateGeoContext = (geoContext: GeoContext): boolean => {
+  const geoCOntextSchema: Ajv.Schema = {
+    oneOf: [
+      {
+        type: 'object',
+        properties: {
+          bbox: {
+            oneOf: [
+              {
+                type: 'array',
+                minItems: 4,
+                maxItems: 4,
+                items: {
+                  type: 'number',
+                },
+              },
+              {
+                type: 'array',
+                minItems: 6,
+                maxItems: 6,
+                items: {
+                  type: 'number',
+                },
+              },
+            ],
+          },
+        },
+        required: ['bbox'],
+        additionalProperties: false,
+      },
+      {
+        type: 'object',
+        properties: {
+          lat: {
+            type: 'number',
+          },
+          lon: {
+            type: 'number',
+          },
+          radius: {
+            type: 'number',
+          },
+        },
+        required: ['lat', 'lon', 'radius'],
+        additionalProperties: false,
+      },
+      {
+        type: 'object',
+        properties: {
+          x: {
+            type: 'number',
+          },
+          y: {
+            type: 'number',
+          },
+          zone: {
+            type: 'number',
+          },
+          radius: {
+            type: 'number',
+          },
+        },
+        required: ['x', 'y', 'zone', 'radius'],
+        additionalProperties: false,
+      },
+    ],
+  };
+
+  const validate = ajv.compile(geoCOntextSchema);
+  const isValid = validate(geoContext);
+  const messagePrefix = 'geo_context validation: ';
+
+  if (!isValid) {
+    throw new BadRequestError(
+      messagePrefix +
+        'geo_context must contain one of the following: {"bbox": [number,number,number,number] | [number,number,number,number,number,number]}, {"lat": number, "lon": number, "radius": number}, or {"x": number, "y": number, "zone": number, "radius": number}'
+    );
+  }
+
+  return true;
 };
