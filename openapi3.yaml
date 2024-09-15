@@ -111,7 +111,33 @@ paths:
           content:
             application/json:
               schema:
-                '$ref': '#/components/schemas/genericGeocodingResponse'
+                allOf:
+                  - "$ref": "#/components/schemas/genericGeocodingResponse"
+                  - type: "object"
+                    required:
+                      - "type"
+                      - "features"
+                    properties:
+                      type:
+                        type: "string"
+                        enum:
+                          - "FeatureCollection"
+                      features:
+                        type: "array"
+                        items:
+                          type: "object"
+                          properties:
+                            geometry:
+                              oneOf:
+                                - $ref: "#/components/schemas/Point"
+                                - $ref: "#/components/schemas/Polygon"
+                            properties:
+                              type: "object"
+                              properties:
+                                placetype:
+                                  type: "string"
+                                sub_placetype:
+                                  type: "string"
         400:
           '$ref': '#/components/responses/BadRequest'
         401:
@@ -396,8 +422,42 @@ paths:
               schema:
                 type: object
                 properties:
-                  geojson:
-                    type: object # Make it geojson
+                  type:
+                    type: "string"
+                    enum:
+                      - "Feature"
+                  geocoding:
+                    type: "object"
+                    properties:
+                      query:
+                        type: "object"
+                        properties:
+                          lat:
+                            type: number
+                          lon:
+                            type: number
+                      response:
+                        type: "object"
+                        properties:
+                          max_score:
+                            type: number
+                          results_count:
+                            type: number
+                          match_latency_ms:
+                            type: number
+                  bbox:
+                    $ref: "#/components/schemas/BoundingBox"
+                  geometry:
+                    oneOf:
+                      - $ref: "#/components/schemas/Point"
+                      - $ref: "#/components/schemas/Polygon"
+                  properties:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      additionalProperty1:
+                        type: object
         400:
           '$ref': '#/components/responses/BadRequest'
         401:
@@ -580,100 +640,133 @@ components:
       type: 'object'
       properties:
         type:
-          type: 'string'
-          enum: ['Feature']
+          type: "string"
+          enum:
+            - "Feature"
+        geocoding:
+          type: "object"
+          properties:
+            query:
+              type: "object"
+              properties:
+                tile:
+                  type: string
+                  example: "18SUJ2339007393"
+            response:
+              type: "object"
+              properties:
+                max_score:
+                  type: number
+                results_count:
+                  type: number
+                match_latency_ms:
+                  type: number
+
+        bbox:
+          $ref: "#/components/schemas/BoundingBox"
         geometry:
-          $ref: '#/components/schemas/Polygon'
+          oneOf:
+            - $ref: "#/components/schemas/Point"
+            - $ref: "#/components/schemas/Polygon"
         properties:
-          type: 'object'
+          type: object
+          properties:
+            score:
+              type: number
     tilesSchema:
-      type: 'object'
-      description: 'GeoJson feature collection representing a tile (Polygon)'
-      required:
-        - 'type'
-        - 'features'
-      properties:
-        type:
-          type: 'string'
-          enum:
-            - 'FeatureCollection'
-        features:
-          type: 'array'
-          items:
-            $ref: '#/components/schemas/tileSchema'
+      allOf:
+        - $ref: "#/components/schemas/genericGeocodingResponse"
+        - type: "object"
+          description: "GeoJson feature collection representing a tile (Polygon)"
+          required:
+            - "type"
+            - "features"
+          properties:
+            type:
+              type: "string"
+              enum:
+                - "FeatureCollection"
+            features:
+              type: "array"
+              items:
+                $ref: "#/components/schemas/tileSchema"
     itemsSchema:
-      type: 'object'
-      description: 'GeoJson feature collection representing an item'
-      required:
-        - 'type'
-        - 'features'
-      properties:
-        type:
-          type: 'string'
-          enum:
-            - 'FeatureCollection'
-        features:
-          type: 'array'
-          items:
-            type: 'object'
-            properties:
-              geometry:
-                oneOf:
-                  - $ref: '#/components/schemas/Point'
-                  - $ref: '#/components/schemas/Polygon'
-              properties:
-                type: 'object'
-                required:
-                  - 'TYPE'
-                  - 'object_command_name'
-                  - 'entity_heb'
-                  - 'sub_tile_id'
+      allOf:
+        - $ref: "#/components/schemas/genericGeocodingResponse"
+        - type: "object"
+          description: "GeoJson feature collection representing an item"
+          required:
+            - "type"
+            - "features"
+          properties:
+            type:
+              type: "string"
+              enum:
+                - "FeatureCollection"
+            features:
+              type: "array"
+              items:
+                type: "object"
                 properties:
-                  TYPE:
-                    type: 'string'
-                  object_command_name:
-                    type: 'string'
-                  entity_heb:
-                    type: 'string'
-                  tile_name:
-                    type: 'string'
-                  sub_tile_id:
-                    type: 'string'
+                  geometry:
+                    oneOf:
+                      - $ref: "#/components/schemas/Point"
+                      - $ref: "#/components/schemas/Polygon"
+                  properties:
+                    type: "object"
+                    required:
+                      - "TYPE"
+                      - "object_command_name"
+                      - "entity_heb"
+                      - "sub_tile_id"
+                    properties:
+                      TYPE:
+                        type: "string"
+                      object_command_name:
+                        type: "string"
+                      entity_heb:
+                        type: "string"
+                      tile_name:
+                        type: "string"
+                      sub_tile_id:
+                        type: "string"
     routesSchema:
-      type: 'object'
-      description: 'GeoJson feature collection representing a route (MultiLineString, LineString)'
-      required:
-        - 'type'
-        - 'features'
-      properties:
-        type:
-          type: 'string'
-          enum:
-            - 'FeatureCollection'
-        features:
-          type: 'array'
-          items:
-            type: 'object'
-            properties:
-              geometry:
-                oneOf:
-                  - $ref: '#/components/schemas/LineString'
-                  - $ref: '#/components/schemas/MultiLineString'
-              properties:
-                type: 'object'
-                required:
-                  - 'TYPE'
-                  - 'object_command_name'
-                  - 'entity_heb'
+      allOf:
+        - $ref: "#/components/schemas/genericGeocodingResponse"
+        - type: "object"
+          description: "GeoJson feature collection representing a route (MultiLineString, LineString)"
+          required:
+            - "type"
+            - "features"
+          properties:
+            type:
+              type: "string"
+              enum:
+                - "FeatureCollection"
+            features:
+              type: "array"
+              items:
+                type: "object"
                 properties:
-                  TYPE:
-                    type: 'string'
-                  object_command_name:
-                    type: 'string'
-                  entity_heb:
-                    type: 'string'
-                  SECTION:
-                    type: 'string'
+                  geometry:
+                    oneOf:
+                      - $ref: "#/components/schemas/LineString"
+                      - $ref: "#/components/schemas/MultiLineString"
+                  properties:
+                    type: "object"
+                    required:
+                      - "TYPE"
+                      - "object_command_name"
+                      - "entity_heb"
+                    properties:
+                      TYPE:
+                        type: "string"
+                      object_command_name:
+                        type: "string"
+                      entity_heb:
+                        type: "string"
+                      SECTION:
+                        type: "string"
     genericGeocodingResponse: # we need discriminator for Control and Location
       type: 'object'
       description: 'GeoJson feature collection representing an item'
@@ -735,8 +828,6 @@ components:
                   type: integer
                   minimum: 0
                   maximum: 5000
-        bbox:
-          $ref: '#/components/schemas/BoundingBox'
         features:
           type: 'array'
           items:
@@ -755,8 +846,6 @@ components:
                   - display_name
                   - names
                 properties:
-                  id:
-                    type: string
                   score:
                     type: number
                     minimum: 0
@@ -772,14 +861,14 @@ components:
                         - source
                         - layer
                       properties:
-                        id:
+                        layer:
                           type: string
                         source:
                           type: string
-                        layer:
-                          type: string
-                  display_name:
-                    type: string
+                        source_id:
+                          type: array
+                          items:
+                            type: string
                   names:
                     type: object
                     required:

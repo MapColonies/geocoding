@@ -9,6 +9,7 @@ import { convertUTMToWgs84, convertWgs84ToUTM, validateWGS84Coordinate } from '.
 import { BadRequestError } from '../../common/errors';
 import { WGS84Coordinate } from '../../common/interfaces';
 import { parseGeo } from '../../location/utils';
+import { convertCamelToSnakeCase } from '../../control/utils';
 
 @injectable()
 export class LatLonManager {
@@ -62,11 +63,17 @@ export class LatLonManager {
 
     return {
       type: 'Feature',
-      query: {
-        lat,
-        lon,
+      geocoding: {
+        query: {
+          lat,
+          lon,
+        },
+        response: convertCamelToSnakeCase({
+          maxScore: 1,
+          resultsCount: 1,
+          matchLatencyMs: 0,
+        }),
       },
-      response: {},
       bbox,
       geometry: parseGeo({
         bbox,
@@ -75,6 +82,7 @@ export class LatLonManager {
         coordinates: [lon, lat],
       },
       properties: {
+        name: tileCoordinateData.tile_name,
         tileName: tileCoordinateData.tile_name,
         subTileNumber: new Array(3).fill('').map(function (value, i) {
           return xNumber[i] + yNumber[i];
@@ -92,20 +100,29 @@ export class LatLonManager {
       [4]: '10m',
       [5]: '1m',
     };
+    const mgrsStr = mgrs.forward([lon, lat], accuracy);
     return {
       type: 'Feature',
-      query: {
-        lat,
-        lon,
+      geocoding: {
+        query: {
+          lat,
+          lon,
+        },
+        response: convertCamelToSnakeCase({
+          maxScore: 1,
+          resultsCount: 1,
+          matchLatencyMs: 0,
+        }),
       },
-      response: {},
+      bbox: mgrs.inverse(mgrsStr),
       geometry: {
         type: 'Point',
         coordinates: [lon, lat],
       },
       properties: {
+        name: mgrsStr,
         accuracy: accuracyString[accuracy],
-        mgrs: mgrs.forward([lon, lat], accuracy),
+        mgrs: mgrsStr,
       },
     };
   }

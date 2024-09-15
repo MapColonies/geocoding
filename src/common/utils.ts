@@ -84,22 +84,34 @@ export const healthCheckFactory: FactoryFunction<void> = (container: DependencyC
   const s3Client = container.resolve<S3Client>(SERVICES.S3_CLIENT);
   const redis = container.resolve<RedisClient>(SERVICES.REDIS);
 
-  logger.info('Healthcheck is running');
-
-  try {
-    for (const [key, client] of Object.entries(elasticClients)) {
-      logger.info(`Checking health of ${key}`);
-      void client.cluster.health({});
-    }
-
-    void s3Client.send(new ListBucketsCommand({}));
-
-    void redis.ping();
-
-    logger.info('healthcheck passed');
-  } catch (error) {
-    logger.error(`Healthcheck failed. Error: ${(error as Error).message}`);
+  for (const [key, client] of Object.entries(elasticClients)) {
+    client.cluster
+      .health({})
+      .then(() => {
+        return;
+      })
+      .catch((error) => {
+        logger.error(`Healthcheck failed for ${key}. Error: ${(error as Error).message}`);
+      });
   }
+
+  s3Client
+    .send(new ListBucketsCommand({}))
+    .then(() => {
+      return;
+    })
+    .catch((error) => {
+      logger.error(`Healthcheck failed for S3. Error: ${(error as Error).message}`);
+    });
+
+  redis
+    .ping()
+    .then(() => {
+      return;
+    })
+    .catch((error) => {
+      logger.error(`Healthcheck failed for Redis. Error: ${(error as Error).message}`);
+    });
 };
 
 export const promiseTimeout = async <T>(ms: number, promise: Promise<T>): Promise<T> => {
