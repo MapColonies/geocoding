@@ -5,10 +5,9 @@ import { BBox, Feature } from 'geojson';
 import * as mgrs from 'mgrs';
 import { SERVICES } from '../../common/constants';
 import { LatLonDAL } from '../DAL/latLonDAL';
-import { convertUTMToWgs84, convertWgs84ToUTM, validateWGS84Coordinate } from '../../common/utils';
+import { convertUTMToWgs84, convertWgs84ToUTM, parseGeo, validateWGS84Coordinate } from '../../common/utils';
 import { BadRequestError } from '../../common/errors';
 import { WGS84Coordinate } from '../../common/interfaces';
-import { parseGeo } from '../../location/utils';
 import { convertCamelToSnakeCase } from '../../control/utils';
 
 @injectable()

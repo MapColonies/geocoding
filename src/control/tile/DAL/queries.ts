@@ -1,8 +1,7 @@
 import { estypes } from '@elastic/elasticsearch';
 import { CommonRequestParameters } from '../../../common/interfaces';
 import { ELASTIC_KEYWORDS } from '../../constants';
-import { geoContextQuery } from '../../utils';
-import { ConvertSnakeToCamelCase } from '../../../common/utils';
+import { ConvertSnakeToCamelCase, geoContextQuery } from '../../../common/utils';
 
 export interface TileQueryParams extends ConvertSnakeToCamelCase<CommonRequestParameters> {
   tile?: string;

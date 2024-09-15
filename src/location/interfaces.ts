@@ -59,8 +59,3 @@ export interface QueryResult {
   }[];
 }
 /* eslint-enable @typescript-eslint/naming-convention */
-
-//Defenitions
-export const POINT_LENGTH = 2;
-export const BBOX_LENGTH = 4;
-export const INDEX_NOT_FOUND = -1;
