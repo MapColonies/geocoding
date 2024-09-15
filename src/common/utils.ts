@@ -1,9 +1,12 @@
 import * as Ajv from 'ajv';
 import utm from 'utm-latlng';
+import { BBox, Geometry, Point } from 'geojson';
+import { estypes } from '@elastic/elasticsearch';
 import { ListBucketsCommand, S3Client } from '@aws-sdk/client-s3';
 import { DependencyContainer, FactoryFunction } from 'tsyringe';
 import { Logger } from '@map-colonies/js-logger';
-import { GeoContext, WGS84Coordinate } from './interfaces';
+import { ELASTIC_KEYWORDS } from '../control/constants';
+import { GeoContext, GeoContextMode, WGS84Coordinate } from './interfaces';
 import { SERVICES } from './constants';
 import { ElasticClients } from './elastic';
 import { BadRequestError } from './errors';
@@ -17,6 +20,27 @@ type CamelToSnakeCase<S extends string> = S extends `${infer T}${infer U}`
   : S;
 
 const ajv = new Ajv.Ajv();
+
+const parsePoint = (split: string[] | number[]): Geometry => ({
+  type: 'Point',
+  coordinates: split.map(Number),
+});
+
+const parseBbox = (split: [string, string, string, string] | BBox): Geometry => {
+  const [xMin, yMin, xMax, yMax] = split.map(Number);
+  return {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [xMin, yMin],
+        [xMin, yMax],
+        [xMax, yMax],
+        [xMax, yMin],
+        [xMin, yMin],
+      ],
+    ],
+  };
+};
 
 export type ConvertSnakeToCamelCase<T> = {
   [K in keyof T as SnakeToCamelCase<K & string>]: T[K];
@@ -106,6 +130,22 @@ export const healthCheckFactory: FactoryFunction<void> = (container: DependencyC
     });
 };
 
+export const parseGeo = (input: GeoContext): Geometry | undefined => {
+  //TODO: Add geojson validation
+  //TODO: refactor this function
+  if (input.bbox !== undefined) {
+    return parseBbox(input.bbox);
+  } else if (
+    (input.x !== undefined && input.y !== undefined && input.zone !== undefined && input.zone !== undefined) ||
+    (input.lon !== undefined && input.lat !== undefined)
+  ) {
+    const { x, y, zone, radius } = input;
+    const { lon, lat } = x && y && zone ? convertUTMToWgs84(x, y, zone) : (input as Required<Pick<GeoContext, 'lat' | 'lon'>>);
+
+    return { type: 'Circle', coordinates: (parsePoint([lon, lat]) as Point).coordinates, radius: `${radius ?? ''}` } as unknown as Geometry;
+  }
+};
+
 export const validateGeoContext = (geoContext: GeoContext): boolean => {
   const geoCOntextSchema: Ajv.Schema = {
     oneOf: [
@@ -186,4 +226,33 @@ export const validateGeoContext = (geoContext: GeoContext): boolean => {
   }
 
   return true;
+};
+
+export const geoContextQuery = (
+  geoContext?: GeoContext,
+  geoContextMode?: GeoContextMode,
+  elasticGeoShapeField = ELASTIC_KEYWORDS.geometry
+): { [key in 'filter' | 'should']?: estypes.QueryDslQueryContainer[] } => {
+  if (geoContext === undefined && geoContextMode === undefined) {
+    return {};
+  }
+  if ((geoContext !== undefined && geoContextMode === undefined) || (geoContext === undefined && geoContextMode !== undefined)) {
+    throw new BadRequestError('/control/utils/geoContextQuery: geo_context and geo_context_mode must be both defined or both undefined');
+  }
+
+  validateGeoContext(geoContext!);
+
+  return {
+    [geoContextMode === GeoContextMode.FILTER ? 'filter' : 'should']: [
+      {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        geo_shape: {
+          [elasticGeoShapeField]: {
+            shape: parseGeo(geoContext!),
+          },
+          boost: geoContextMode === GeoContextMode.BIAS ? 1.1 : 1, //TODO: change magic number
+        },
+      },
+    ],
+  };
 };
