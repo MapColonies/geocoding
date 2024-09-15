@@ -1,4 +1,3 @@
-import { RedisClientOptions } from 'redis';
 import { BBox, Feature, FeatureCollection as GeoJSONFeatureCollection } from 'geojson';
 
 export interface IConfig {
@@ -12,13 +11,6 @@ export interface OpenApiConfig {
   jsonPath: string;
   uiPath: string;
 }
-
-export type RedisConfig = {
-  host: string;
-  port: number;
-  enableSslAuth: boolean;
-  sslPaths: { ca: string; cert: string; key: string };
-} & RedisClientOptions;
 
 export interface GeoContext {
   bbox?: BBox;

@@ -3,7 +3,8 @@ import { Logger } from '@map-colonies/js-logger';
 import { createClient, RedisClientOptions } from 'redis';
 import { DependencyContainer, FactoryFunction } from 'tsyringe';
 import { SERVICES } from '../constants';
-import { RedisConfig, IConfig } from '../interfaces';
+import { IConfig } from '../interfaces';
+import { RedisConfig } from './interfaces';
 
 const DEFAULT_LIMIT_FROM = 0;
 const DEFAULT_LIMIT_SIZE = 1000;

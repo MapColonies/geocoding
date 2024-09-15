@@ -50,4 +50,10 @@ export class NotImplementedError extends Error implements HttpError {
   }
 }
 
-export class TimeoutError extends Error {}
+export class TimeoutError extends Error implements HttpError {
+  public readonly status = httpStatus.REQUEST_TIMEOUT;
+
+  public constructor(message: string) {
+    super(message);
+  }
+}

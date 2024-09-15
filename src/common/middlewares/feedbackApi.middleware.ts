@@ -30,7 +30,6 @@ export class FeedbackApiMiddlewareManager {
 
     const originalJson = res.json;
     const logJson = async function (this: Response, body: JSON): Promise<Response> {
-      // console.log('Response:', body);
       geocodingResponseDetails.response = body;
 
       try {
