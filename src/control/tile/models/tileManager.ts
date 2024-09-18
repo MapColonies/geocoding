@@ -2,12 +2,13 @@ import { IConfig } from 'config';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { estypes } from '@elastic/elasticsearch';
+import * as mgrs from 'mgrs';
 import { SERVICES } from '../../../common/constants';
 import { TILE_REPOSITORY_SYMBOL, TileRepository } from '../DAL/tileRepository';
 import { formatResponse } from '../../utils';
 import { TileQueryParams } from '../DAL/queries';
 import { FeatureCollection, IApplication } from '../../../common/interfaces';
-import { BadRequestError, NotImplementedError } from '../../../common/errors';
+import { BadRequestError } from '../../../common/errors';
 import { Tile } from './tile';
 
 @injectable()
@@ -29,15 +30,11 @@ export class TileManager {
       throw new BadRequestError("/control/tiles: only one of 'tile' or 'mgrs' query parameter must be defined");
     }
 
-    //TODO: Handle MGRS query
-    if (tileQueryParams.mgrs !== undefined) {
-      throw new NotImplementedError('MGRS query is not implemented yet');
-    }
-
     let elasticResponse: estypes.SearchResponse<Tile> | undefined = undefined;
 
-    if (tileQueryParams.subTile ?? '') {
-      elasticResponse = await this.tileRepository.getSubTiles(tileQueryParams as Required<TileQueryParams>, limit);
+    if (tileQueryParams.mgrs !== undefined) {
+      elasticResponse = await this.tileRepository.getTilesByBbox({ bbox: mgrs.inverse(tileQueryParams.mgrs), ...tileQueryParams });
+    } else if (tileQueryParams.subTile ?? '') {
     } else {
       elasticResponse = await this.tileRepository.getTiles(tileQueryParams as TileQueryParams & Required<Pick<TileQueryParams, 'tile'>>, limit);
     }
