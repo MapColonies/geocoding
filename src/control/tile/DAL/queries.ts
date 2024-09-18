@@ -105,7 +105,7 @@ export const queryForTilesByBbox = ({
           },
           ...(geoCOntextQueryFilter ?? []),
         ],
-        should: should ?? {},
+        should,
       },
     },
   };
