@@ -1,7 +1,8 @@
 import { estypes } from '@elastic/elasticsearch';
+import { BBox } from 'geojson';
 import { CommonRequestParameters } from '../../../common/interfaces';
 import { ELASTIC_KEYWORDS } from '../../constants';
-import { ConvertSnakeToCamelCase, geoContextQuery } from '../../../common/utils';
+import { ConvertSnakeToCamelCase, geoContextQuery, parseGeo } from '../../../common/utils';
 
 export interface TileQueryParams extends ConvertSnakeToCamelCase<CommonRequestParameters> {
   tile?: string;
@@ -14,7 +15,7 @@ export const queryForTiles = ({
   geoContext,
   geoContextMode,
   disableFuzziness,
-}: Omit<TileQueryParams, 'subTile' | 'limit'> & Required<Pick<TileQueryParams, 'tile'>>): estypes.SearchRequest => ({
+}: Omit<TileQueryParams, 'subTile' | 'limit' | 'mgrs'> & Required<Pick<TileQueryParams, 'tile'>>): estypes.SearchRequest => ({
   query: {
     bool: {
       must: [
@@ -45,7 +46,7 @@ export const queryForSubTiles = ({
   geoContextMode,
   subTile,
   disableFuzziness,
-}: Required<TileQueryParams>): estypes.SearchRequest => ({
+}: Omit<Required<TileQueryParams>, 'mgrs'>): estypes.SearchRequest => ({
   query: {
     bool: {
       must: [
@@ -74,3 +75,39 @@ export const queryForSubTiles = ({
     },
   },
 });
+
+export const queryForTilesByBbox = ({
+  bbox,
+  geoContext,
+  geoContextMode,
+}: { bbox: BBox } & ConvertSnakeToCamelCase<CommonRequestParameters>): estypes.SearchRequest => {
+  const { filter: geoCOntextQueryFilter, should } = geoContextQuery(geoContext, geoContextMode);
+
+  const query: estypes.SearchRequest = {
+    query: {
+      bool: {
+        must: [
+          {
+            term: {
+              ['properties.TYPE.keyword']: 'TILE',
+            },
+          },
+        ],
+        filter: [
+          {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            geo_shape: {
+              [ELASTIC_KEYWORDS.geometry]: {
+                shape: parseGeo({ bbox }),
+                relation: 'intersects',
+              },
+            },
+          },
+          ...(geoCOntextQueryFilter ?? []),
+        ],
+        should: should ?? {},
+      },
+    },
+  };
+  return query;
+};
