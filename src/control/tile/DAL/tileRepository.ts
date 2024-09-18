@@ -24,6 +24,13 @@ const createTileRepository = (client: ElasticClient, config: IConfig, logger: Lo
 
       return response;
     },
+    async getTilesByBbox(searchParams: { bbox: BBox } & Omit<TileQueryParams, 'tile' | 'subTile' | 'mgrs'>): Promise<estypes.SearchResponse<Tile>> {
+      const response = await queryElastic<Tile>(client, {
+        ...additionalControlSearchProperties(config, searchParams.limit),
+        ...queryForTilesByBbox(searchParams),
+      });
+      return response;
+    },
   };
 };
 
