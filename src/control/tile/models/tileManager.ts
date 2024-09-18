@@ -3,6 +3,7 @@ import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { estypes } from '@elastic/elasticsearch';
 import * as mgrs from 'mgrs';
+import { BBox } from 'geojson';
 import { SERVICES } from '../../../common/constants';
 import { TILE_REPOSITORY_SYMBOL, TileRepository } from '../DAL/tileRepository';
 import { formatResponse } from '../../utils';
@@ -31,7 +32,18 @@ export class TileManager {
     let elasticResponse: estypes.SearchResponse<Tile> | undefined = undefined;
 
     if (tileQueryParams.mgrs !== undefined) {
-      elasticResponse = await this.tileRepository.getTilesByBbox({ bbox: mgrs.inverse(tileQueryParams.mgrs), ...tileQueryParams });
+      let bbox: BBox = [0, 0, 0, 0];
+      try {
+        bbox = mgrs.inverse(tileQueryParams.mgrs);
+        bbox.forEach((coord) => {
+          if (isNaN(coord)) {
+            throw new Error('Invalid MGRS');
+          }
+        });
+      } catch (error) {
+        throw new BadRequestError(`Invalid MGRS: ${tileQueryParams.mgrs}`);
+      }
+      elasticResponse = await this.tileRepository.getTilesByBbox({ bbox, ...tileQueryParams });
     } else if (tileQueryParams.subTile ?? '') {
       elasticResponse = await this.tileRepository.getSubTiles(tileQueryParams as Required<TileQueryParams>);
     } else {
