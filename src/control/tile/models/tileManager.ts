@@ -21,8 +21,6 @@ export class TileManager {
   ) {}
 
   public async getTiles(tileQueryParams: TileQueryParams): Promise<FeatureCollection<Tile>> {
-    const { limit } = tileQueryParams;
-
     if (
       (tileQueryParams.tile === undefined && tileQueryParams.mgrs === undefined) ||
       (tileQueryParams.tile !== undefined && tileQueryParams.mgrs !== undefined)
@@ -35,8 +33,9 @@ export class TileManager {
     if (tileQueryParams.mgrs !== undefined) {
       elasticResponse = await this.tileRepository.getTilesByBbox({ bbox: mgrs.inverse(tileQueryParams.mgrs), ...tileQueryParams });
     } else if (tileQueryParams.subTile ?? '') {
+      elasticResponse = await this.tileRepository.getSubTiles(tileQueryParams as Required<TileQueryParams>);
     } else {
-      elasticResponse = await this.tileRepository.getTiles(tileQueryParams as TileQueryParams & Required<Pick<TileQueryParams, 'tile'>>, limit);
+      elasticResponse = await this.tileRepository.getTiles(tileQueryParams as TileQueryParams & Required<Pick<TileQueryParams, 'tile'>>);
     }
 
     return formatResponse(elasticResponse, tileQueryParams, this.application.controlObjectDisplayNamePrefixes);
