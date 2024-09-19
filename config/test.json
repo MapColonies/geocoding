@@ -30,7 +30,7 @@
       }
     },
     "s3": {
-      "endpoint": "http://localhost:9000",
+      "endpoint": "http://minio:9000",
       "credentials": {
         "accessKeyId": "minio",
         "secretAccessKey": "minio123"
