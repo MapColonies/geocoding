@@ -298,6 +298,63 @@ describe('/search/control/tiles', function () {
         expectedResponse(requestParams, [SUB_TILE_66], expect)
       );
     });
+
+    it('should return 200 status code and control tiles by MGRS', async function () {
+      const requestParams: GetTilesQueryParams = {
+        mgrs: '33TTG958462',
+        limit: 5,
+        disable_fuzziness: false,
+      };
+      const response = await requestSender.getTiles(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      // expect(response).toSatisfyApiSpec();
+      expect(response.body).toMatchObject<ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
+        expectedResponse(requestParams, [RIT_TILE, RIC_TILE], expect)
+      );
+    });
+
+    it('should return 200 status code and control tiles by MGRS and geo_context filter (WGS84)', async function () {
+      const geo_context: { bbox: BBox } = { bbox: [12.593772987581218, 41.89988905812697, 12.593772987581218, 41.89988905812697] };
+      const requestParams: GetTilesQueryParams = {
+        mgrs: '33TTG958462',
+        geo_context,
+        geo_context_mode: GeoContextMode.FILTER,
+        limit: 5,
+        disable_fuzziness: false,
+      };
+      const response = await requestSender.getTiles({
+        ...requestParams,
+        geo_context: JSON.stringify(geo_context) as unknown as GetTilesQueryParams['geo_context'],
+      });
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      // expect(response).toSatisfyApiSpec();
+      expect(response.body).toMatchObject<ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
+        expectedResponse(requestParams, [RIC_TILE], expect)
+      );
+    });
+
+    it('should return 200 status code and control tiles by MGRS and geo_context bias (WGS84)', async function () {
+      const geo_context: { bbox: BBox } = { bbox: [12.593772987581218, 41.89988905812697, 12.593772987581218, 41.89988905812697] };
+      const requestParams: GetTilesQueryParams = {
+        mgrs: '33TTG958462',
+        geo_context,
+        geo_context_mode: GeoContextMode.BIAS,
+        limit: 5,
+        disable_fuzziness: false,
+      };
+      const response = await requestSender.getTiles({
+        ...requestParams,
+        geo_context: JSON.stringify(geo_context) as unknown as GetTilesQueryParams['geo_context'],
+      });
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      // expect(response).toSatisfyApiSpec();
+      expect(response.body).toMatchObject<ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
+        expectedResponse(requestParams, [RIC_TILE, RIT_TILE], expect)
+      );
+    });
   });
   describe('Bad Path', function () {
     // All requests with status code of 400
@@ -334,6 +391,34 @@ describe('/search/control/tiles', function () {
         message: 'request/query/tile must NOT have fewer than 2 characters',
       });
     });
+
+    it('should return 400 status code and error message when mgrs value is invalid', async function () {
+      let response = await requestSender.getTiles({ mgrs: '', limit: 5, disable_fuzziness: false });
+
+      expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+      expect(response.body).toMatchObject({
+        message: "Empty value found for query parameter 'mgrs'",
+      });
+
+      response = await requestSender.getTiles({ tile: 'i', limit: 5, disable_fuzziness: false });
+
+      expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+      expect(response.body).toMatchObject({
+        message: 'request/query/tile must NOT have fewer than 2 characters',
+      });
+    });
+
+    test.each<string>(['{dsa}', '0', 'z', '000', '!321'])(
+      'should return 400 status code and error message when mgrs tile is invalid',
+      async (mgrs) => {
+        const response = await requestSender.getTiles({ mgrs, limit: 5, disable_fuzziness: false });
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.body).toMatchObject({
+          message: `Invalid MGRS: ${mgrs}`,
+        });
+      }
+    );
 
     test.each<number[][]>([[[1]], [[1, 1]], [[1, 1, 1]], [[1, 1, 1, 1, 1]]])(
       'should return 400 status code and error message when bbox not containing 4 or 6 values',
