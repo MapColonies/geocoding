@@ -2,7 +2,7 @@
   "db": {
     "elastic": {
       "control": {
-        "node": "http://localhost:9200",
+        "node": "http://elasticsearch:9200",
         "auth": {
           "username": "elastic",
           "password": "changeme"
@@ -13,7 +13,7 @@
         }
       },
       "geotext": {
-        "node": "http://localhost:9200",
+        "node": "http://elasticsearch:9200",
         "auth": {
           "username": "elastic",
           "password": "changeme"
