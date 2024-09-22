@@ -26,7 +26,7 @@ const createS3Repository = (s3Client: S3Client, config: IConfig, logger: Logger)
 
         const { Body } = await s3Client.send(command);
 
-        const filePath = __dirname + '/table.json';
+        const filePath = __dirname + '/downloads/table.json';
 
         await new Promise<void>((resolve, reject) => {
           (Body as NodeJS.ReadableStream)
