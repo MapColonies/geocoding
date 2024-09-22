@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { Client } from '@elastic/elasticsearch';
 import { ElasticDbClientsConfig } from '../src/common/elastic/interfaces';
 import { elasticConfigPath } from '../src/common/constants';
