@@ -184,4 +184,22 @@ describe('/lookup', function () {
     //   dataLoadErrorSpy.mockRestore();
     // });
   });
+
+  it('should return error when cronPattern is not defined', async () => {
+    try {
+      await getApp({
+        override: [
+          { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
+          { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
+          { token: SERVICES.APPLICATION, provider: { useValue: {} } },
+        ],
+        useChild: true,
+      });
+      // If no error is thrown, fail the test
+      throw new Error('Expected error was not thrown');
+    } catch (error) {
+      // eslint-disable-next-line jest/no-conditional-expect
+      expect((error as Error).message).toBe('cron pattern is not defined');
+    }
+  });
 });

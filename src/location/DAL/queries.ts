@@ -6,7 +6,7 @@ import { QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
 import { TextSearchParams } from '../interfaces';
 import { GeoContextMode, IApplication } from '../../common/interfaces';
 import { BadRequestError } from '../../common/errors';
-import { parseGeo } from '../utils';
+import { geoContextQuery } from '../../common/utils';
 
 const TEXT_FIELD = 'text';
 const PLACETYPE_FIELD = 'placetype.keyword';
@@ -57,21 +57,14 @@ export const geotextQuery = (
   };
 
   if (geoContext && geoContextMode) {
-    const geo_shape = {
-      [GEOJSON_FIELD]: {
-        shape: parseGeo(geoContext),
-      },
-    };
+    const geoContextQueryFilter = geoContextQuery(geoContext, GeoContextMode.FILTER, GEOJSON_FIELD).filter![0];
+
     if (geoContextMode === GeoContextMode.FILTER) {
-      (esQuery.query?.function_score?.query?.bool?.filter as QueryDslQueryContainer[]).push({
-        geo_shape: geo_shape,
-      });
+      (esQuery.query?.function_score?.query?.bool?.filter as QueryDslQueryContainer[]).push(geoContextQueryFilter);
     } else {
       esQuery.query?.function_score?.functions?.push({
         weight: boosts.viewbox,
-        filter: {
-          geo_shape,
-        },
+        filter: geoContextQueryFilter,
       });
     }
   }

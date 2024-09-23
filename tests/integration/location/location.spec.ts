@@ -12,7 +12,7 @@ import { SERVICES } from '../../../src/common/constants';
 import { S3_REPOSITORY_SYMBOL } from '../../../src/common/s3/s3Repository';
 import { cronLoadTileLatLonDataSymbol } from '../../../src/latLon/DAL/latLonDAL';
 import { GetGeotextSearchParams, QueryResult } from '../../../src/location/interfaces';
-import { GeoContextMode, IApplication } from '../../../src/common/interfaces';
+import { GeoContext, GeoContextMode, IApplication } from '../../../src/common/interfaces';
 import { LocationRequestSender } from './helpers/requestSender';
 import {
   OSM_LA_PORT,
@@ -87,8 +87,8 @@ describe('/search/location', function () {
               ...NY_JFK_AIRPORT,
               properties: {
                 ...NY_JFK_AIRPORT.properties,
-                name: {
-                  ...NY_JFK_AIRPORT.properties.name,
+                names: {
+                  ...NY_JFK_AIRPORT.properties.names,
                   display: expect.stringContaining('JFK') as string,
                 },
               },
@@ -138,8 +138,8 @@ describe('/search/location', function () {
               ...NY_JFK_AIRPORT,
               properties: {
                 ...NY_JFK_AIRPORT.properties,
-                name: {
-                  ...NY_JFK_AIRPORT.properties.name,
+                names: {
+                  ...NY_JFK_AIRPORT.properties.names,
                   display: expect.stringContaining('JFK') as string,
                 },
               },
@@ -190,8 +190,8 @@ describe('/search/location', function () {
               ...NY_JFK_AIRPORT,
               properties: {
                 ...NY_JFK_AIRPORT.properties,
-                name: {
-                  ...NY_JFK_AIRPORT.properties.name,
+                names: {
+                  ...NY_JFK_AIRPORT.properties.names,
                   display: expect.stringContaining('JFK') as string,
                 },
               },
@@ -220,8 +220,8 @@ describe('/search/location', function () {
             ...NY_JFK_AIRPORT,
             properties: {
               ...NY_JFK_AIRPORT.properties,
-              name: {
-                ...NY_JFK_AIRPORT.properties.name,
+              names: {
+                ...NY_JFK_AIRPORT.properties.names,
                 display: expect.stringContaining('JFK') as string,
               },
             },
@@ -239,8 +239,8 @@ describe('/search/location', function () {
             ...NY_JFK_AIRPORT,
             properties: {
               ...NY_JFK_AIRPORT.properties,
-              name: {
-                ...NY_JFK_AIRPORT.properties.name,
+              names: {
+                ...NY_JFK_AIRPORT.properties.names,
                 display: expect.stringContaining('JFK') as string,
               },
             },
@@ -518,5 +518,64 @@ describe('/search/location', function () {
 
       nockScope.done();
     });
+
+    test.each<(keyof GeoContext)[][]>([[['lat', 'lon', 'radius']], [['x', 'y', 'zone', 'radius']]])(
+      'should return 400 for all invalid geo_context object for the keys %s',
+      async function (keys) {
+        function generateCombinations(keys: (keyof GeoContext)[]): GeoContext[] {
+          const combinations: object[] = [];
+
+          function backtrack(current: object, remainingKeys: string[]): void {
+            if (remainingKeys.length === 0) {
+              combinations.push(current);
+              return;
+            }
+
+            const key = remainingKeys[0];
+            const remaining = remainingKeys.slice(1);
+
+            backtrack({ ...current, [key]: 1 }, remaining);
+            backtrack(current, remaining);
+          }
+
+          backtrack({}, keys);
+
+          return combinations;
+        }
+
+        const geoContexts = generateCombinations(keys);
+
+        for (const geo_context of geoContexts) {
+          if (Object.keys(geo_context).length === keys.length) {
+            continue;
+          }
+          const query = 'airport';
+          const tokenTypesUrlScope = nock(config.get<IApplication>('application').services.tokenTypesUrl)
+            .post('', { tokens: query.split(' ') })
+            .reply(httpStatusCodes.OK, [
+              {
+                tokens: ['port'],
+                prediction: ['essence'],
+              },
+            ]);
+
+          const response = await requestSender.getQuery({
+            query,
+            limit: 5,
+            disable_fuzziness: false,
+            geo_context: JSON.stringify(geo_context) as unknown as GetGeotextSearchParams['geo_context'],
+            geo_context_mode: GeoContextMode.BIAS,
+          });
+
+          expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+          expect(response.body).toMatchObject({
+            message:
+              'geo_context validation: geo_context must contain one of the following: {"bbox": [number,number,number,number] | [number,number,number,number,number,number]}, {"lat": number, "lon": number, "radius": number}, or {"x": number, "y": number, "zone": number, "radius": number}',
+          });
+
+          tokenTypesUrlScope.done();
+        }
+      }
+    );
   });
 });

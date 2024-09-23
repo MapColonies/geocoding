@@ -20,7 +20,7 @@ const expectedObjectWithScore = <T extends Tile | Item | Route>(source: T, expec
         source_id: [],
       },
     ],
-    name: {
+    names: {
       default: [expect.any(String) as string],
       display: expect.any(String) as string,
     },

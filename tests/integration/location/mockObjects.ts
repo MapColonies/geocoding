@@ -54,7 +54,7 @@ export const NY_JFK_AIRPORT: MockLocationQueryFeature = {
   },
   properties: {
     matches: [{ source: 'OSM', layer: 'osm_airports', source_id: ['03ed6d97-fc81-4340-b68a-11993554eef1'] }],
-    name: {
+    names: {
       en: ['JFK Airport'],
       fr: ['Aeropuerto JFK'],
       default: ['JFK'],
@@ -99,7 +99,7 @@ export const NY_POLICE_AIRPORT: MockLocationQueryFeature = {
   },
   properties: {
     matches: [{ source: 'OSM', layer: 'osm_airports', source_id: ['009c6b65-3dcb-4c4f-9f02-d766ebb5d808'] }],
-    name: {
+    names: {
       en: ['Nassau County Police Airport'],
       fr: ['Aeropuerto de la Policía del Condado de Nassau'],
       default: ['Nassau County Police Airport'],
@@ -146,7 +146,7 @@ export const LA_AIRPORT: MockLocationQueryFeature = {
   },
   properties: {
     matches: [{ source: 'OSM', layer: 'osm_airports', source_id: ['a4f373ab-b824-41e2-b160-e7729c73bea6'] }],
-    name: {
+    names: {
       en: ['Los Angeles International Airport'],
       fr: ['Aeropuerto Internacional de Los Ángeles'],
       default: ['Los Angeles International Airport'],
@@ -194,7 +194,7 @@ export const OSM_LA_PORT: MockLocationQueryFeature = {
   },
   properties: {
     matches: [{ source: 'OSM', layer: 'osm_ports', source_id: ['0f36d985-cfbd-4aed-b0cb-ee56600c77f4'] }],
-    name: {
+    names: {
       en: ['Port of Los Angeles'],
       fr: ['Puerto de Los Ángeles'],
       default: ['Port of Los Angeles'],
@@ -241,7 +241,7 @@ export const GOOGLE_LA_PORT: MockLocationQueryFeature = {
   },
   properties: {
     matches: [{ source: 'GOOGLE', layer: 'google_ports', source_id: ['1bb11f54-939e-457b-bf68-a3920ccf629c'] }],
-    name: {
+    names: {
       en: ['Port of Los Angeles'],
       fr: ['Puerto de Los Ángeles'],
       default: ['Port of Los Angeles'],
@@ -282,7 +282,7 @@ export const LA_WHITE_POINT_SCHOOL: MockLocationQueryFeature = {
         source_id: ['1a5b981b-bb0e-44dd-b9e2-424b92f2de49'],
       },
     ],
-    name: {
+    names: {
       en: ['White Point Elementary School'],
       fr: ['Escuela Primaria White Point'],
       default: ['White Point Elementary School'],
@@ -321,7 +321,7 @@ export const PARIS_WI_SCHOOL: MockLocationQueryFeature = {
         source_id: ['dc02a3f9-156a-4f61-85bd-fd040cd322a3'],
       },
     ],
-    name: {
+    names: {
       en: ['Wi School Paris 9'],
       fr: ['Ecole Wi Paris 9'],
       default: ['Wi School Paris 9'],

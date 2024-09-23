@@ -1,11 +1,9 @@
 import https from 'https';
-import { BBox, Geometry, Point } from 'geojson';
 import { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import { StatusCodes } from 'http-status-codes';
 import axios, { AxiosError, AxiosResponse as Response } from 'axios';
 import { InternalServerError } from '../common/errors';
-import { GeoContext, IApplication } from '../common/interfaces';
-import { convertUTMToWgs84 } from '../common/utils';
+import { IApplication } from '../common/interfaces';
 import { QueryResult, TextSearchParams } from './interfaces';
 import { TextSearchHit } from './models/elasticsearchHits';
 import { generateDisplayName } from './parsing';
@@ -17,27 +15,6 @@ const FIND_SPECIAL = /[`!@#$%^&*()_\-+=|\\/,.<>:[\]{}\n\t\r\s;؛]+/g;
 const axiosInstance = axios.create({
   httpsAgent: new https.Agent({ rejectUnauthorized: false }),
 });
-
-const parsePoint = (split: string[] | number[]): Geometry => ({
-  type: 'Point',
-  coordinates: split.map(Number),
-});
-
-const parseBbox = (split: [string, string, string, string] | BBox): Geometry => {
-  const [xMin, yMin, xMax, yMax] = split.map(Number);
-  return {
-    type: 'Polygon',
-    coordinates: [
-      [
-        [xMin, yMin],
-        [xMin, yMax],
-        [xMax, yMax],
-        [xMax, yMin],
-        [xMin, yMin],
-      ],
-    ],
-  };
-};
 
 export const fetchNLPService = async <T>(endpoint: string, requestData: object): Promise<T[]> => {
   let res: Response | null = null,
@@ -57,22 +34,6 @@ export const fetchNLPService = async <T>(endpoint: string, requestData: object):
 };
 
 export const cleanQuery = (query: string): string[] => query.replace(FIND_QUOTES, '').split(FIND_SPECIAL);
-
-export const parseGeo = (input: GeoContext): Geometry | undefined => {
-  //TODO: Add geojson validation
-  //TODO: refactor this function
-  if (input.bbox !== undefined) {
-    return parseBbox(input.bbox);
-  } else if (
-    (input.x !== undefined && input.y !== undefined && input.zone !== undefined && input.zone !== undefined) ||
-    (input.lon !== undefined && input.lat !== undefined)
-  ) {
-    const { x, y, zone, radius } = input;
-    const { lon, lat } = x && y && zone ? convertUTMToWgs84(x, y, zone) : (input as Required<Pick<GeoContext, 'lat' | 'lon'>>);
-
-    return { type: 'Circle', coordinates: (parsePoint([lon, lat]) as Point).coordinates, radius: `${radius ?? ''}` } as unknown as Geometry;
-  }
-};
 
 /* eslint-disable @typescript-eslint/naming-convention */
 export const convertResult = (
@@ -126,7 +87,7 @@ export const convertResult = (
             source_id: feature?.source_id.map((id) => id.replace(/(^\{)|(\}$)/g, '')), // TODO: check if to remove this
           },
         ],
-        name: {
+        names: {
           [nameKeys[0]]: new RegExp(mainLanguageRegex).test(feature!.text[0]) ? allNames.shift() : allNames.pop(),
           [nameKeys[1]]: allNames.pop(),
           ['default']: [feature!.name],

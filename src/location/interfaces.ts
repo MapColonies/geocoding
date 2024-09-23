@@ -47,7 +47,7 @@ export interface QueryResult {
         source_id?: string[];
         layer?: string;
       }[];
-      name: {
+      names: {
         [key: string]: string | string[] | undefined;
         display: string;
         default: string[];
@@ -59,8 +59,3 @@ export interface QueryResult {
   }[];
 }
 /* eslint-enable @typescript-eslint/naming-convention */
-
-//Defenitions
-export const POINT_LENGTH = 2;
-export const BBOX_LENGTH = 4;
-export const INDEX_NOT_FOUND = -1;

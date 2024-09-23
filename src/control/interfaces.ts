@@ -23,7 +23,7 @@ export interface ControlResponse<T extends Feature, G = any> extends FeatureColl
           // eslint-disable-next-line @typescript-eslint/naming-convention
           source_id: string[];
         }[];
-        name: {
+        names: {
           [key: string]: string | string[] | undefined;
           display: string;
           default: string[];

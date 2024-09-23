@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import fs from 'fs';
+import path from 'path';
 import { Logger } from '@map-colonies/js-logger';
 import { FactoryFunction } from 'tsyringe';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
@@ -26,7 +27,13 @@ const createS3Repository = (s3Client: S3Client, config: IConfig, logger: Logger)
 
         const { Body } = await s3Client.send(command);
 
-        const filePath = __dirname + '/table.json';
+        const filePath = path.join(__dirname, 'downloads', Key);
+
+        try {
+          await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
+        } catch {
+          //folder already exists
+        }
 
         await new Promise<void>((resolve, reject) => {
           (Body as NodeJS.ReadableStream)

@@ -7,8 +7,8 @@ import * as mgrs from 'mgrs';
 import { SERVICES } from '../../common/constants';
 import { IApplication } from '../../common/interfaces';
 import { GetTileQueryParams } from '../controllers/mgrsController';
-import { parseGeo } from '../../location/utils';
 import { BadRequestError } from '../../common/errors';
+import { parseGeo } from '../../common/utils';
 
 @injectable()
 export class MgrsManager {
