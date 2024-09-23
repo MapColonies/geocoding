@@ -6,6 +6,8 @@ import { ListBucketsCommand, S3Client } from '@aws-sdk/client-s3';
 import { DependencyContainer, FactoryFunction } from 'tsyringe';
 import { Logger } from '@map-colonies/js-logger';
 import { ELASTIC_KEYWORDS } from '../control/constants';
+import { TimeoutError } from './errors';
+import { RedisClient } from './redis';
 import { GeoContext, GeoContextMode, WGS84Coordinate } from './interfaces';
 import { SERVICES } from './constants';
 import { ElasticClients } from './elastic';
@@ -108,6 +110,7 @@ export const healthCheckFactory: FactoryFunction<void> = (container: DependencyC
   const logger = container.resolve<Logger>(SERVICES.LOGGER);
   const elasticClients = container.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
   const s3Client = container.resolve<S3Client>(SERVICES.S3_CLIENT);
+  const redis = container.resolve<RedisClient>(SERVICES.REDIS);
 
   for (const [key, client] of Object.entries(elasticClients)) {
     client.cluster
@@ -128,6 +131,28 @@ export const healthCheckFactory: FactoryFunction<void> = (container: DependencyC
     .catch((error) => {
       logger.error(`Healthcheck failed for S3. Error: ${(error as Error).message}`);
     });
+
+  redis
+    .ping()
+    .then(() => {
+      return;
+    })
+    .catch((error) => {
+      logger.error(`Healthcheck failed for Redis. Error: ${(error as Error).message}`);
+    });
+};
+
+export const promiseTimeout = async <T>(ms: number, promise: Promise<T>): Promise<T> => {
+  // create a promise that rejects in <ms> milliseconds
+  const timeout = new Promise<T>((_, reject) => {
+    const id = setTimeout(() => {
+      clearTimeout(id);
+      reject(new TimeoutError(`Timed out in + ${ms} + ms.`));
+    }, ms);
+  });
+
+  // returns a race between our timeout and the passed in promise
+  return Promise.race([promise, timeout]);
 };
 
 export const parseGeo = (input: GeoContext): Geometry | undefined => {

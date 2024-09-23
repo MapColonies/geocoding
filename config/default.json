@@ -69,6 +69,19 @@
           "fileName": "table.json"
         }
       }
+    },
+    "redis": {
+      "host": "REDIS_HOST",
+      "port": 6379,
+      "username": "",
+      "password": "",
+      "enableSslAuth": false,
+      "sslPaths": {
+        "ca": "",
+        "key": "",
+        "cert": ""
+      },
+      "database": 0
     }
   },
   "application": {

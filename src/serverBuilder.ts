@@ -16,6 +16,7 @@ import { ROUTE_ROUTER_SYMBOL } from './control/route/routes/routeRouter';
 import { LAT_LON_ROUTER_SYMBOL } from './latLon/routes/latLonRouter';
 import { GEOTEXT_SEARCH_ROUTER_SYMBOL } from './location/routes/locationRouter';
 import { cronLoadTileLatLonDataSymbol } from './latLon/DAL/latLonDAL';
+import { FeedbackApiMiddlewareManager } from './common/middlewares/feedbackApi.middleware';
 import { MGRS_ROUTER_SYMBOL } from './mgrs/routers/mgrsRouter';
 
 @injectable()
@@ -31,6 +32,7 @@ export class ServerBuilder {
     @inject(LAT_LON_ROUTER_SYMBOL) private readonly latLonRouter: Router,
     @inject(GEOTEXT_SEARCH_ROUTER_SYMBOL) private readonly geotextRouter: Router,
     @inject(cronLoadTileLatLonDataSymbol) private readonly cronLoadTileLatLonData: void,
+    @inject(FeedbackApiMiddlewareManager) private readonly feedbackApiMiddleware: FeedbackApiMiddlewareManager,
     @inject(MGRS_ROUTER_SYMBOL) private readonly mgrsRouter: Router
   ) {
     this.serverInstance = express();
@@ -57,12 +59,15 @@ export class ServerBuilder {
   }
 
   private buildRoutes(): void {
+    this.serverInstance.use(this.feedbackApiMiddleware.saveResponses);
     const router = Router();
+
+    router.use('/lookup', this.latLonRouter);
     router.use('/location', this.geotextRouter);
     router.use('/control', this.buildControlRoutes());
     router.use('/MGRS', this.mgrsRouter);
 
-    this.serverInstance.use('/search/', router);
+    this.serverInstance.use('/search', router);
     this.serverInstance.use('/lookup', this.latLonRouter);
   }
 
@@ -92,6 +97,8 @@ export class ServerBuilder {
     const apiSpecPath = this.config.get<string>('openapiConfig.filePath');
     this.serverInstance.use(OpenApiMiddleware({ apiSpec: apiSpecPath, validateRequests: true, ignorePaths: ignorePathRegex }));
     this.serverInstance.disable('x-powered-by');
+
+    this.serverInstance.use(this.feedbackApiMiddleware.setRequestId);
   }
 
   private registerPostRoutesMiddleware(): void {

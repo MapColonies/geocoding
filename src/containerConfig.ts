@@ -3,10 +3,10 @@ import { getOtelMixin } from '@map-colonies/telemetry';
 import { ListBucketsCommand, S3Client } from '@aws-sdk/client-s3';
 import { instancePerContainerCachingFactory } from 'tsyringe';
 import { trace, metrics as OtelMetrics } from '@opentelemetry/api';
+import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
 import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { Metrics } from '@map-colonies/telemetry';
-import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import { ScheduledTask } from 'node-cron';
 import { HEALTHCHECK, ON_SIGNAL, SERVICES, SERVICE_NAME } from './common/constants';
 import { tracing } from './common/tracing';
@@ -23,6 +23,7 @@ import { GEOTEXT_REPOSITORY_SYMBOL, geotextRepositoryFactory } from './location/
 import { GEOTEXT_SEARCH_ROUTER_SYMBOL, geotextSearchRouterFactory } from './location/routes/locationRouter';
 import { cronLoadTileLatLonDataFactory, cronLoadTileLatLonDataSymbol } from './latLon/DAL/latLonDAL';
 import { ITEM_REPOSITORY_SYMBOL, itemRepositoryFactory } from './control/item/DAL/itemRepository';
+import { RedisClient, redisClientFactory } from './common/redis';
 import { s3ClientFactory } from './common/s3';
 import { S3_REPOSITORY_SYMBOL, s3RepositoryFactory } from './common/s3/s3Repository';
 import { healthCheckFactory } from './common/utils';
@@ -146,6 +147,15 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
             },
             id: cronLoadTileLatLonDataSymbol,
           });
+        },
+      },
+      {
+        token: SERVICES.REDIS,
+        provider: { useFactory: instancePerContainerCachingFactory(redisClientFactory) },
+        postInjectionHook: async (deps: DependencyContainer): Promise<void> => {
+          const redis = deps.resolve<RedisClient>(SERVICES.REDIS);
+          cleanupRegistry.register({ func: redis.disconnect.bind(redis), id: SERVICES.REDIS });
+          await redis.connect();
         },
       },
     ];

@@ -61,6 +61,14 @@ export enum GeoContextMode {
   BIAS = 'bias',
 }
 
+export interface FeebackApiGeocodingResponse {
+  userId: string;
+  apiKey: string;
+  site: string;
+  response: JSON;
+  respondedAt: Date;
+}
+
 /* eslint-disable @typescript-eslint/naming-convention */
 export interface CommonRequestParameters {
   geo_context?: GeoContext;

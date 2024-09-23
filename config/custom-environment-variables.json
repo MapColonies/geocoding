@@ -78,6 +78,28 @@
         "__name": "S3_FILES_DATA",
         "__format": "json"
       }
+    },
+    "redis": {
+      "host": "REDIS_HOST",
+      "port": {
+        "__name": "REDIS_PORT",
+        "__format": "number"
+      },
+      "username": "REDIS_USERNAME",
+      "password": "REDIS_PASSWORD",
+      "enableSslAuth": {
+        "__name": "REDIS_ENABLE_SSL_AUTH",
+        "__format": "boolean"
+      },
+      "sslPaths": {
+        "ca": "REDIS_CA_PATH",
+        "key": "REDIS_KEY_PATH",
+        "cert": "REDIS_CERT_PATH"
+      },
+      "database": {
+        "__name": "REDIS_DATABASE",
+        "__format": "number"
+      }
     }
   },
   "application": {

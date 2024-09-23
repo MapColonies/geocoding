@@ -14,6 +14,7 @@ export const SERVICES: Record<string, symbol> = {
   METER: Symbol('Meter'),
   APPLICATION: Symbol('Application'),
   ELASTIC_CLIENTS: Symbol('ElasticClients'),
+  REDIS: Symbol('Redis'),
   S3_CLIENT: Symbol('S3Client'),
   CLEANUP_REGISTRY: Symbol('CleanupRegistry'),
 };
@@ -23,3 +24,5 @@ export const ON_SIGNAL = Symbol('onSignal');
 export const HEALTHCHECK = Symbol('healthcheck');
 
 export const elasticConfigPath = 'db.elastic';
+export const s3EndpointConfig = 'db.s3.endpoint';
+

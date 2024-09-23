@@ -18,14 +18,12 @@ import {
   OSM_LA_PORT,
   GOOGLE_LA_PORT,
   LA_AIRPORT,
-  LA_WHITE_POINT_SCHOOL,
   NY_JFK_AIRPORT,
   NY_POLICE_AIRPORT,
   NY_HIERRARCHY,
   LA_HIERRARCHY,
   MockLocationQueryFeature,
   PARIS_WI_SCHOOL,
-  PARIS_HIERRARCHY,
 } from './mockObjects';
 import { expectedResponse, hierarchiesWithAnyWieght } from './utils';
 
