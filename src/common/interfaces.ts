@@ -61,7 +61,7 @@ export enum GeoContextMode {
   BIAS = 'bias',
 }
 
-export interface GeocodingResponse {
+export interface FeebackApiGeocodingResponse {
   userId: string;
   apiKey: string;
   site: string;
