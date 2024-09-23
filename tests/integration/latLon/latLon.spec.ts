@@ -47,9 +47,11 @@ describe('/lookup', function () {
       expect(response.body).toEqual({
         type: 'Feature',
         geocoding: {
+          version: expect.any(String) as string,
           query: {
             lat: 52.57326537485767,
             lon: 12.948781146422107,
+            target_grid: 'control',
           },
           response: {
             max_score: 1,
@@ -90,9 +92,11 @@ describe('/lookup', function () {
       expect(response.body).toEqual({
         type: 'Feature',
         geocoding: {
+          version: expect.any(String) as string,
           query: {
             lat: 52.57326537485767,
             lon: 12.948781146422107,
+            target_grid: 'MGRS',
           },
           response: {
             max_score: 1,
