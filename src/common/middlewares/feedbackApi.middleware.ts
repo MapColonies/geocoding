@@ -2,9 +2,11 @@ import * as crypto from 'node:crypto';
 import { Request, Response, NextFunction } from 'express';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
-import { REDIS_TTL, SERVICES, siteIndex } from '../constants';
+import { REDIS_TTL, SERVICES } from '../constants';
 import { RedisClient } from '../redis';
 import { GeocodingResponse } from '../interfaces';
+
+const siteIndex = 1;
 
 @injectable()
 export class FeedbackApiMiddlewareManager {
@@ -12,7 +14,7 @@ export class FeedbackApiMiddlewareManager {
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   public saveResponses = (req: Request, res: Response, next: NextFunction) => {
-    const reqId = res.getHeader('request-id');
+    const reqId = res.getHeader('x-request-id');
     const redisClient = this.redis;
     const logger = this.logger;
 
@@ -29,25 +31,25 @@ export class FeedbackApiMiddlewareManager {
     };
 
     const originalJson = res.json;
-    const logJson = async function (this: Response, body: JSON): Promise<Response> {
+    const logJson = function (this: Response, body: JSON): Response {
       geocodingResponseDetails.response = body;
+      redisClient
+        .setEx(reqId as string, REDIS_TTL, JSON.stringify(geocodingResponseDetails))
+        .then(() => {
+          logger.info({ msg: `response ${reqId?.toString() ?? ''} saved to redis` });
+        })
+        .catch((error) => logger.error('Error setting key:', error));
 
-      try {
-        await redisClient.setEx(reqId as string, REDIS_TTL, JSON.stringify(geocodingResponseDetails));
-        logger.info({ msg: 'saving response to redis' });
-      } catch (err) {
-        logger.error('Error setting key:', err);
-      }
       return originalJson.call(this, body);
     };
-    res.json = logJson as unknown as Response['json'];
+    res.json = logJson;
     next();
   };
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   public setRequestId = (req: Request, res: Response, next: NextFunction) => {
     const reqId = crypto.randomUUID();
-    res.append('request-id', reqId);
+    res.append('x-request-id', reqId);
     next();
   };
 }

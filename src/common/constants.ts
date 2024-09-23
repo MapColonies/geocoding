@@ -28,4 +28,3 @@ export const REDIS_SYMBOL = Symbol('REDIS');
 
 export const REDIS_TTL = 300;
 export const elasticConfigPath = 'db.elastic';
-export const siteIndex = 1;
