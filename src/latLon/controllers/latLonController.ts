@@ -28,7 +28,7 @@ export class LatLonController {
 
   public getCoordinates: GetCoordinatesHandler = async (req, res, next) => {
     try {
-      const { lat, lon, target_grid } = req.query;
+      const { target_grid: targetGrid } = req.query;
 
       let response:
         | ({
@@ -36,10 +36,10 @@ export class LatLonController {
           } & Feature)
         | undefined = undefined;
 
-      if (target_grid === 'control') {
-        response = await this.manager.latLonToTile({ lat, lon });
+      if (targetGrid === 'control') {
+        response = await this.manager.latLonToTile({ ...req.query, targetGrid });
       } else {
-        response = this.manager.latLonToMGRS({ lat, lon });
+        response = this.manager.latLonToMGRS({ ...req.query, targetGrid });
       }
 
       return res.status(httpStatus.OK).json(response);

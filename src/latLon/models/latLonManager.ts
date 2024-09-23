@@ -18,7 +18,7 @@ export class LatLonManager {
     @inject(SERVICES.CONFIG) private readonly config: IConfig
   ) {}
 
-  public async latLonToTile({ lat, lon }: WGS84Coordinate): Promise<{ [key: string]: unknown } & Feature> {
+  public async latLonToTile({ lat, lon, targetGrid }: WGS84Coordinate & { targetGrid: string }): Promise<{ [key: string]: unknown } & Feature> {
     if (!validateWGS84Coordinate({ lat, lon })) {
       this.logger.warn("LatLonManager.latLonToTile: Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal");
       throw new BadRequestError("Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal");
@@ -63,9 +63,11 @@ export class LatLonManager {
     return {
       type: 'Feature',
       geocoding: {
+        version: process.env.npm_package_version,
         query: {
           lat,
           lon,
+          ...convertCamelToSnakeCase({ targetGrid }),
         },
         response: convertCamelToSnakeCase({
           maxScore: 1,
@@ -90,7 +92,17 @@ export class LatLonManager {
     };
   }
 
-  public latLonToMGRS({ lat, lon, accuracy = 5 }: { lat: number; lon: number; accuracy?: number }): { [key: string]: unknown } & Feature {
+  public latLonToMGRS({
+    lat,
+    lon,
+    accuracy = 5,
+    targetGrid,
+  }: {
+    lat: number;
+    lon: number;
+    accuracy?: number;
+    targetGrid: string;
+  }): { [key: string]: unknown } & Feature {
     const accuracyString: Record<number, string> = {
       [0]: '100km',
       [1]: '10km',
@@ -103,9 +115,11 @@ export class LatLonManager {
     return {
       type: 'Feature',
       geocoding: {
+        version: process.env.npm_package_version,
         query: {
           lat,
           lon,
+          ...convertCamelToSnakeCase({ targetGrid }),
         },
         response: convertCamelToSnakeCase({
           maxScore: 1,
