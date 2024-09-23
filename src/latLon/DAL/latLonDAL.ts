@@ -69,7 +69,7 @@ export class LatLonDAL {
 
       this.logger.debug('latLonData initialized');
     } catch (error) {
-      this.logger.error('Failed to initialize latLon data', error);
+      this.logger.error(`Failed to initialize latLon data. Error: ${(error as Error).message}`);
       this.dataLoadError = true;
     } finally {
       this.onGoingUpdate = false;

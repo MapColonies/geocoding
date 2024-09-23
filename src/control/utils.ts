@@ -83,7 +83,7 @@ export const formatResponse = <T extends Tile | Item | Route>(
                 source_id: [],
               },
             ],
-            name: {
+            names: {
               default: [generatedDisplayName.at(LAST_ELEMENT_INDEX)],
               display: generatedDisplayName.join(' '),
             },

@@ -89,8 +89,8 @@ describe('/search/location', function () {
               ...NY_JFK_AIRPORT,
               properties: {
                 ...NY_JFK_AIRPORT.properties,
-                name: {
-                  ...NY_JFK_AIRPORT.properties.name,
+                names: {
+                  ...NY_JFK_AIRPORT.properties.names,
                   display: expect.stringContaining('JFK') as string,
                 },
               },
@@ -140,8 +140,8 @@ describe('/search/location', function () {
               ...NY_JFK_AIRPORT,
               properties: {
                 ...NY_JFK_AIRPORT.properties,
-                name: {
-                  ...NY_JFK_AIRPORT.properties.name,
+                names: {
+                  ...NY_JFK_AIRPORT.properties.names,
                   display: expect.stringContaining('JFK') as string,
                 },
               },
@@ -192,8 +192,8 @@ describe('/search/location', function () {
               ...NY_JFK_AIRPORT,
               properties: {
                 ...NY_JFK_AIRPORT.properties,
-                name: {
-                  ...NY_JFK_AIRPORT.properties.name,
+                names: {
+                  ...NY_JFK_AIRPORT.properties.names,
                   display: expect.stringContaining('JFK') as string,
                 },
               },
@@ -222,8 +222,8 @@ describe('/search/location', function () {
             ...NY_JFK_AIRPORT,
             properties: {
               ...NY_JFK_AIRPORT.properties,
-              name: {
-                ...NY_JFK_AIRPORT.properties.name,
+              names: {
+                ...NY_JFK_AIRPORT.properties.names,
                 display: expect.stringContaining('JFK') as string,
               },
             },
@@ -241,8 +241,8 @@ describe('/search/location', function () {
             ...NY_JFK_AIRPORT,
             properties: {
               ...NY_JFK_AIRPORT.properties,
-              name: {
-                ...NY_JFK_AIRPORT.properties.name,
+              names: {
+                ...NY_JFK_AIRPORT.properties.names,
                 display: expect.stringContaining('JFK') as string,
               },
             },

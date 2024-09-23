@@ -87,7 +87,7 @@ export const convertResult = (
             source_id: feature?.source_id.map((id) => id.replace(/(^\{)|(\}$)/g, '')), // TODO: check if to remove this
           },
         ],
-        name: {
+        names: {
           [nameKeys[0]]: new RegExp(mainLanguageRegex).test(feature!.text[0]) ? allNames.shift() : allNames.pop(),
           [nameKeys[1]]: allNames.pop(),
           ['default']: [feature!.name],

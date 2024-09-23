@@ -47,7 +47,7 @@ export interface QueryResult {
         source_id?: string[];
         layer?: string;
       }[];
-      name: {
+      names: {
         [key: string]: string | string[] | undefined;
         display: string;
         default: string[];
