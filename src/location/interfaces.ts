@@ -26,36 +26,3 @@ export interface GetGeotextSearchParams extends CommonRequestParameters {
   source?: string[];
   region?: string[];
 }
-
-/* eslint-disable @typescript-eslint/naming-convention */
-
-export interface QueryResult {
-  type: string;
-  geocoding: {
-    version?: string;
-    query: ConvertCamelToSnakeCase<GetGeotextSearchParams>;
-    response: { max_score: number; results_count: number; match_latency_ms: number } & Partial<
-      ConvertCamelToSnakeCase<Pick<TextSearchParams, 'name' | 'placeTypes' | 'subPlaceTypes' | 'hierarchies'>>
-    >;
-  };
-  features: {
-    type: string;
-    geometry?: GeoJSON;
-    properties: {
-      matches: {
-        source?: string;
-        source_id?: string[];
-        layer?: string;
-      }[];
-      names: {
-        [key: string]: string | string[] | undefined;
-        display: string;
-        default: string[];
-      };
-      placetype?: string;
-      sub_placetype?: string;
-      regions?: { region: string; sub_region_names: string[] }[];
-    } & RemoveUnderscore<Pick<estypes.SearchHit, '_score'>>;
-  }[];
-}
-/* eslint-enable @typescript-eslint/naming-convention */

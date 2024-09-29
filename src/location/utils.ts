@@ -1,10 +1,11 @@
 import https from 'https';
+import { Feature, Geometry } from 'geojson';
 import { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import { StatusCodes } from 'http-status-codes';
 import axios, { AxiosError, AxiosResponse as Response } from 'axios';
 import { InternalServerError } from '../common/errors';
-import { IApplication } from '../common/interfaces';
-import { QueryResult, TextSearchParams } from './interfaces';
+import { GenericGeocodingResponse, IApplication } from '../common/interfaces';
+import { TextSearchParams } from './interfaces';
 import { TextSearchHit } from './models/elasticsearchHits';
 import { generateDisplayName } from './parsing';
 
@@ -50,7 +51,7 @@ export const convertResult = (
     nameKeys: IApplication['nameTranslationsKeys'];
     mainLanguageRegex: IApplication['mainLanguageRegex'];
   } = { nameKeys: [], mainLanguageRegex: '' }
-): QueryResult => ({
+): GenericGeocodingResponse<Feature> => ({
   type: 'FeatureCollection',
   geocoding: {
     version: process.env.npm_package_version,
@@ -73,18 +74,18 @@ export const convertResult = (
       hierarchies: params.hierarchies,
     },
   },
-  features: results.hits.hits.map(({ _source: feature, _score: score, highlight }, index): QueryResult['features'][number] => {
+  features: results.hits.hits.map(({ _source: feature, _score: score, highlight }, index): GenericGeocodingResponse<Feature>['features'][number] => {
     const allNames = [feature!.text, feature!.translated_text || []];
     return {
       type: 'Feature',
-      geometry: feature?.geo_json,
+      geometry: feature!.geo_json as Geometry,
       properties: {
         score,
         matches: [
           {
-            layer: feature?.layer_name,
+            layer: feature!.layer_name,
             source: (sources ?? {})[feature?.source ?? ''] ?? feature?.source,
-            source_id: feature?.source_id.map((id) => id.replace(/(^\{)|(\}$)/g, '')), // TODO: check if to remove this
+            source_id: feature?.source_id.map((id) => id.replace(/(^\{)|(\}$)/g, '')) ?? [],
           },
         ],
         names: {
