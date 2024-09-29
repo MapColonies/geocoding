@@ -2,14 +2,16 @@ import { Logger } from '@map-colonies/js-logger';
 import { BoundCounter, Meter } from '@opentelemetry/api-metrics';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
+import { Feature } from 'geojson';
 import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
 import { GeotextSearchManager } from '../models/locationManager';
-import { GetGeotextSearchParams, QueryResult } from '../interfaces';
+import { GetGeotextSearchParams } from '../interfaces';
+import { GenericGeocodingResponse } from '../../common/interfaces';
 
 type GetGeotextSearchHandler = RequestHandler<
   unknown,
-  QueryResult | { message: string; error: string }, //response
+  GenericGeocodingResponse<Feature> | { message: string; error: string }, //response
   undefined,
   GetGeotextSearchParams
 >;

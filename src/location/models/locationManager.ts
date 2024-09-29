@@ -1,11 +1,12 @@
 import { IConfig } from 'config';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
+import { Feature } from 'geojson';
 import { SERVICES, elasticConfigPath } from '../../common/constants';
 import { GEOTEXT_REPOSITORY_SYMBOL, GeotextRepository } from '../DAL/locationRepository';
-import { GetGeotextSearchParams, QueryResult, TextSearchParams } from '../interfaces';
+import { GetGeotextSearchParams, TextSearchParams } from '../interfaces';
 import { convertResult } from '../utils';
-import { IApplication } from '../../common/interfaces';
+import { GenericGeocodingResponse, IApplication } from '../../common/interfaces';
 import { ElasticDbClientsConfig } from '../../common/elastic/interfaces';
 import { ConvertSnakeToCamelCase } from '../../common/utils';
 
@@ -18,7 +19,7 @@ export class GeotextSearchManager {
     @inject(GEOTEXT_REPOSITORY_SYMBOL) private readonly geotextRepository: GeotextRepository
   ) {}
 
-  public async search(params: ConvertSnakeToCamelCase<GetGeotextSearchParams>): Promise<QueryResult> {
+  public async search(params: ConvertSnakeToCamelCase<GetGeotextSearchParams>): Promise<GenericGeocodingResponse<Feature>> {
     const extractNameEndpoint = this.appConfig.services.tokenTypesUrl;
     const {
       geotext: geotextIndex,

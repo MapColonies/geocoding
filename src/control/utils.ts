@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/naming-convention */
 import { estypes } from '@elastic/elasticsearch';
-import { CommonRequestParameters, IApplication, IConfig } from '../common/interfaces';
+import { CommonRequestParameters, GenericGeocodingResponse, IApplication, IConfig } from '../common/interfaces';
 import { elasticConfigPath } from '../common/constants';
 import { ElasticDbClientsConfig } from '../common/elastic/interfaces';
 import { Item } from '../control/item/models/item';
@@ -9,7 +9,6 @@ import { Tile } from '../control/tile/models/tile';
 import { Route } from '../control/route/models/route';
 import { ConvertSnakeToCamelCase } from '../common/utils';
 import { CONTROL_FIELDS } from './constants';
-import { ControlResponse } from './interfaces';
 
 const LAST_ELEMENT_INDEX = -1;
 
@@ -57,7 +56,7 @@ export const formatResponse = <T extends Tile | Item | Route>(
   elasticResponse: estypes.SearchResponse<T>,
   requestParams: CommonRequestParameters | ConvertSnakeToCamelCase<CommonRequestParameters>,
   displayNamePrefixes: IApplication['controlObjectDisplayNamePrefixes']
-): ControlResponse<T> => ({
+): GenericGeocodingResponse<T> => ({
   type: 'FeatureCollection',
   geocoding: {
     version: process.env.npm_package_version,
@@ -91,7 +90,7 @@ export const formatResponse = <T extends Tile | Item | Route>(
           },
         };
       }
-    }) as ControlResponse<T>['features']),
+    }) as GenericGeocodingResponse<T>['features']),
   ],
 });
 
