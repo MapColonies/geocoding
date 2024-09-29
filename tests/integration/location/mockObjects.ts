@@ -1,16 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { QueryResult } from '../../../src/location/interfaces';
+import { Feature } from 'geojson';
+import { GenericGeocodingResponse } from '../../../src/common/interfaces';
 import { HierarchySearchHit } from '../../../src/location/models/elasticsearchHits';
 
-type ChangeFields<T, R> = Omit<T, keyof R> & R;
-
-export type MockLocationQueryFeature = ChangeFields<
-  QueryResult['features'][number],
-  {
-    properties: Omit<QueryResult['features'][number]['properties'], 'rank'>;
-  }
->;
+export type MockLocationQueryFeature = GenericGeocodingResponse<Feature>['features'][number];
 
 export const NY_JFK_AIRPORT: MockLocationQueryFeature = {
   type: 'Feature',

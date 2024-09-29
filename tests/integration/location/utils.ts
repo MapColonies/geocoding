@@ -1,20 +1,23 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { QueryResult } from '../../../src/location/interfaces';
+import { Feature } from 'geojson';
+import { GetGeotextSearchParams } from '../../../src/location/interfaces';
+import { GenericGeocodingResponse } from '../../../src/common/interfaces';
 import { MockLocationQueryFeature } from './mockObjects';
 
-const expectedObjectWithScore = (obj: MockLocationQueryFeature, expect: jest.Expect): QueryResult['features'][number] => ({
-  ...obj,
-  properties: {
-    ...obj.properties,
-    score: expect.any(Number) as number,
-  },
-});
+const expectedObjectWithScore = (obj: MockLocationQueryFeature, expect: jest.Expect): GenericGeocodingResponse<Feature>['features'][number] =>
+  ({
+    ...obj,
+    properties: {
+      ...obj.properties,
+      score: expect.any(Number) as number,
+    },
+  } as GenericGeocodingResponse<Feature>['features'][number]);
 
 const expectedGeocodingElasticResponseMetrics = (
-  responseParams: Partial<QueryResult['geocoding']['response']>,
+  responseParams: Partial<GenericGeocodingResponse<Feature>['geocoding']['response']>,
   resultsCount: number,
   expect: jest.Expect
-): NonNullable<QueryResult['geocoding']>['response'] => ({
+): NonNullable<GenericGeocodingResponse<Feature>['geocoding']>['response'] => ({
   results_count: resultsCount,
   max_score: expect.any(Number) as number,
   match_latency_ms: expect.any(Number) as number,
@@ -22,11 +25,11 @@ const expectedGeocodingElasticResponseMetrics = (
 });
 
 export const expectedResponse = (
-  requestParams: QueryResult['geocoding']['query'],
-  responseParams: Partial<QueryResult['geocoding']['response']>,
+  requestParams: GetGeotextSearchParams,
+  responseParams: Partial<GenericGeocodingResponse<Feature>['geocoding']['response']>,
   arr: MockLocationQueryFeature[],
   expect: jest.Expect
-): QueryResult => ({
+): GenericGeocodingResponse<Feature> => ({
   type: 'FeatureCollection',
   geocoding: {
     version: process.env.npm_package_version,
@@ -37,6 +40,7 @@ export const expectedResponse = (
 });
 
 export const hierarchiesWithAnyWieght = (
-  hierarchies: QueryResult['geocoding']['response']['hierarchies'],
+  hierarchies: GenericGeocodingResponse<Feature>['geocoding']['response']['hierarchies'],
   expect: jest.Expect
-): QueryResult['geocoding']['response']['hierarchies'] => hierarchies?.map((hierarchy) => ({ ...hierarchy, weight: expect.any(Number) as number }));
+): GenericGeocodingResponse<Feature>['geocoding']['response']['hierarchies'] =>
+  (hierarchies as { hierarchy: string }[] | undefined)?.map((hierarchy) => ({ ...hierarchy, weight: expect.any(Number) as number }));

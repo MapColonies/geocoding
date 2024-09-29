@@ -2,6 +2,7 @@
 import config from 'config';
 import { DependencyContainer } from 'tsyringe';
 import { Application } from 'express';
+import { Feature } from 'geojson';
 import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
@@ -11,8 +12,8 @@ import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { S3_REPOSITORY_SYMBOL } from '../../../src/common/s3/s3Repository';
 import { cronLoadTileLatLonDataSymbol } from '../../../src/latLon/DAL/latLonDAL';
-import { GetGeotextSearchParams, QueryResult } from '../../../src/location/interfaces';
-import { GeoContext, GeoContextMode, IApplication } from '../../../src/common/interfaces';
+import { GetGeotextSearchParams } from '../../../src/location/interfaces';
+import { GenericGeocodingResponse, GeoContext, GeoContextMode, IApplication } from '../../../src/common/interfaces';
 import { LocationRequestSender } from './helpers/requestSender';
 import {
   OSM_LA_PORT,
@@ -72,7 +73,7 @@ describe('/search/location', function () {
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
 
-      expect(response.body).toMatchObject<QueryResult>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Feature>>(
         expectedResponse(
           {
             ...requestParams,
@@ -125,7 +126,7 @@ describe('/search/location', function () {
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
 
-      expect(response.body).toMatchObject<QueryResult>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Feature>>(
         expectedResponse(
           requestParams,
           {
@@ -175,7 +176,7 @@ describe('/search/location', function () {
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
 
-      expect(response.body).toMatchObject<QueryResult>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Feature>>(
         expectedResponse(
           {
             ...requestParams,
@@ -208,7 +209,7 @@ describe('/search/location', function () {
 
     test.each<
       Pick<GetGeotextSearchParams, 'query'> & {
-        hierarchies: QueryResult['geocoding']['response']['hierarchies'];
+        hierarchies: GenericGeocodingResponse<Feature>['geocoding']['response']['hierarchies'];
         returnedFeatures: MockLocationQueryFeature[];
       }
     >([
@@ -265,7 +266,7 @@ describe('/search/location', function () {
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
 
-      expect(response.body).toMatchObject<QueryResult>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Feature>>(
         expectedResponse(
           {
             ...requestParams,
@@ -285,8 +286,8 @@ describe('/search/location', function () {
 
     test.each<
       Pick<GetGeotextSearchParams, 'query'> & {
-        place_types: QueryResult['geocoding']['response']['place_types'];
-        sub_place_types: QueryResult['geocoding']['response']['sub_place_types'];
+        place_types: GenericGeocodingResponse<Feature>['geocoding']['response']['place_types'];
+        sub_place_types: GenericGeocodingResponse<Feature>['geocoding']['response']['sub_place_types'];
         returnedFeatures: MockLocationQueryFeature[];
       }
     >([
@@ -319,7 +320,7 @@ describe('/search/location', function () {
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
 
-      expect(response.body).toMatchObject<QueryResult>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Feature>>(
         expectedResponse(
           {
             ...requestParams,
@@ -370,7 +371,7 @@ describe('/search/location', function () {
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
 
-      expect(response.body).toMatchObject<QueryResult>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Feature>>(
         expectedResponse(
           requestParams,
           {
@@ -402,7 +403,7 @@ describe('/search/location', function () {
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
 
-      expect(response.body).toMatchObject<QueryResult>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Feature>>(
         expectedResponse(
           requestParams,
           {

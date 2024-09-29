@@ -9,8 +9,7 @@ import { getApp } from '../../../../src/app';
 import { SERVICES } from '../../../../src/common/constants';
 import { GetRoutesQueryParams } from '../../../../src/control/route/controllers/routeController';
 import { Route } from '../../../../src/control/route/models/route';
-import { ControlResponse } from '../../../../src/control/interfaces';
-import { CommonRequestParameters, GeoContext, GeoContextMode } from '../../../../src/common/interfaces';
+import { CommonRequestParameters, GenericGeocodingResponse, GeoContext, GeoContextMode } from '../../../../src/common/interfaces';
 import { S3_REPOSITORY_SYMBOL } from '../../../../src/common/s3/s3Repository';
 import { cronLoadTileLatLonDataSymbol } from '../../../../src/latLon/DAL/latLonDAL';
 import { expectedResponse } from '../utils';
@@ -52,7 +51,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ROUTE_VIA_CAMILLUCCIA_A, ROUTE_VIA_CAMILLUCCIA_B], expect)
       );
     });
@@ -69,7 +68,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ROUTE_VIA_CAMILLUCCIA_B, ROUTE_VIA_CAMILLUCCIA_A], expect)
       );
     });
@@ -86,7 +85,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ROUTE_VIA_CAMILLUCCIA_B], expect)
       );
     });
@@ -107,7 +106,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ROUTE_VIA_CAMILLUCCIA_B, ROUTE_VIA_CAMILLUCCIA_A], expect)
       );
     });
@@ -128,7 +127,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ROUTE_VIA_CAMILLUCCIA_B], expect)
       );
     });
@@ -149,7 +148,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ROUTE_VIA_CAMILLUCCIA_B, ROUTE_VIA_CAMILLUCCIA_A], expect)
       );
     });
@@ -170,7 +169,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ROUTE_VIA_CAMILLUCCIA_B], expect)
       );
     });
@@ -185,7 +184,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ROUTE_VIA_CAMILLUCCIA_B], expect)
       );
     });
@@ -200,7 +199,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [], expect)
       );
     });
@@ -218,7 +217,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [CONTROL_POINT_OLIMPIADE_112, CONTROL_POINT_OLIMPIADE_111], expect)
       );
     });
@@ -236,7 +235,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [CONTROL_POINT_OLIMPIADE_112], expect)
       );
     });
@@ -258,7 +257,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [CONTROL_POINT_OLIMPIADE_112, CONTROL_POINT_OLIMPIADE_111], expect)
       );
     });
@@ -280,7 +279,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [CONTROL_POINT_OLIMPIADE_112], expect)
       );
     });
@@ -302,7 +301,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [CONTROL_POINT_OLIMPIADE_112, CONTROL_POINT_OLIMPIADE_111], expect)
       );
     });
@@ -324,7 +323,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [CONTROL_POINT_OLIMPIADE_112], expect)
       );
     });
@@ -340,7 +339,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [CONTROL_POINT_OLIMPIADE_111, CONTROL_POINT_OLIMPIADE_112], expect)
       );
     });
@@ -356,7 +355,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [CONTROL_POINT_OLIMPIADE_111], expect)
       );
     });
@@ -372,7 +371,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [], expect)
       );
     });

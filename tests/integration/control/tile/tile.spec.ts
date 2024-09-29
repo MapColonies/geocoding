@@ -10,8 +10,7 @@ import { getApp } from '../../../../src/app';
 import { SERVICES } from '../../../../src/common/constants';
 import { GetTilesQueryParams } from '../../../../src/control/tile/controllers/tileController';
 import { Tile } from '../../../../src/control/tile/models/tile';
-import { ControlResponse } from '../../../../src/control/interfaces';
-import { CommonRequestParameters, GeoContext, GeoContextMode } from '../../../../src/common/interfaces';
+import { CommonRequestParameters, GenericGeocodingResponse, GeoContext, GeoContextMode } from '../../../../src/common/interfaces';
 import { S3_REPOSITORY_SYMBOL } from '../../../../src/common/s3/s3Repository';
 import { cronLoadTileLatLonDataSymbol } from '../../../../src/latLon/DAL/latLonDAL';
 import { expectedResponse } from '../utils';
@@ -53,7 +52,7 @@ describe('/search/control/tiles', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [RIT_TILE, RIC_TILE], expect)
       );
     });
@@ -70,7 +69,7 @@ describe('/search/control/tiles', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [RIC_TILE, RIT_TILE], expect)
       );
     });
@@ -87,7 +86,7 @@ describe('/search/control/tiles', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [RIC_TILE], expect)
       );
     });
@@ -108,7 +107,7 @@ describe('/search/control/tiles', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [RIC_TILE, RIT_TILE], expect)
       );
     });
@@ -129,7 +128,7 @@ describe('/search/control/tiles', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [RIC_TILE], expect)
       );
     });
@@ -150,7 +149,7 @@ describe('/search/control/tiles', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [RIC_TILE, RIT_TILE], expect)
       );
     });
@@ -171,7 +170,7 @@ describe('/search/control/tiles', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [RIC_TILE], expect)
       );
     });
@@ -186,7 +185,7 @@ describe('/search/control/tiles', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [RIC_TILE], expect)
       );
     });
@@ -201,7 +200,7 @@ describe('/search/control/tiles', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [], expect)
       );
     });
@@ -217,7 +216,7 @@ describe('/search/control/tiles', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [SUB_TILE_66, SUB_TILE_65], expect)
       );
     });
@@ -233,7 +232,7 @@ describe('/search/control/tiles', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [], expect)
       );
     });
@@ -255,7 +254,7 @@ describe('/search/control/tiles', function () {
 
       // expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [SUB_TILE_66], expect)
       );
     });
@@ -277,7 +276,7 @@ describe('/search/control/tiles', function () {
 
       // expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [SUB_TILE_66], expect)
       );
     });
@@ -294,7 +293,7 @@ describe('/search/control/tiles', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [SUB_TILE_66], expect)
       );
     });
@@ -309,7 +308,7 @@ describe('/search/control/tiles', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [RIT_TILE, RIC_TILE], expect)
       );
     });
@@ -330,7 +329,7 @@ describe('/search/control/tiles', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [RIC_TILE], expect)
       );
     });
@@ -351,7 +350,7 @@ describe('/search/control/tiles', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [RIC_TILE, RIT_TILE], expect)
       );
     });

@@ -9,8 +9,7 @@ import { getApp } from '../../../../src/app';
 import { SERVICES } from '../../../../src/common/constants';
 import { GetItemsQueryParams } from '../../../../src/control/item/controllers/itemController';
 import { Item } from '../../../../src/control/item/models/item';
-import { ControlResponse } from '../../../../src/control/interfaces';
-import { CommonRequestParameters, GeoContext, GeoContextMode } from '../../../../src/common/interfaces';
+import { CommonRequestParameters, GenericGeocodingResponse, GeoContext, GeoContextMode } from '../../../../src/common/interfaces';
 import { cronLoadTileLatLonDataSymbol } from '../../../../src/latLon/DAL/latLonDAL';
 import { S3_REPOSITORY_SYMBOL } from '../../../../src/common/s3/s3Repository';
 import { expectedResponse } from '../utils';
@@ -52,7 +51,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ITEM_1234, ITEM_1235, ITEM_1236], expect)
       );
     });
@@ -64,7 +63,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ITEM_1234, ITEM_1235, ITEM_1236], expect)
       );
     });
@@ -76,7 +75,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [], expect)
       );
     });
@@ -93,7 +92,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ITEM_1236, ITEM_1234, ITEM_1235], expect)
       );
     });
@@ -110,7 +109,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ITEM_1236], expect)
       );
     });
@@ -132,7 +131,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ITEM_1236, ITEM_1234, ITEM_1235], expect)
       );
     });
@@ -153,7 +152,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ITEM_1236], expect)
       );
     });
@@ -174,7 +173,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ITEM_1236, ITEM_1234, ITEM_1235], expect)
       );
     });
@@ -195,7 +194,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ITEM_1236], expect)
       );
     });
@@ -210,7 +209,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ITEM_1234], expect)
       );
     });
@@ -225,7 +224,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [], expect)
       );
     });
@@ -241,7 +240,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<ControlResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ITEM_1234, ITEM_1235], expect)
       );
     });
