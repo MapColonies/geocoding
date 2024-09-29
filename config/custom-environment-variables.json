@@ -122,6 +122,7 @@
       "__name": "CONTROL_DISPLAY_KEY_TRANSLATIONS",
       "__format": "json"
     },
-    "mainLanguageRegex": "MAIN_LANGUAGE_REGEX"
+    "mainLanguageRegex": "MAIN_LANGUAGE_REGEX",
+    "site": "SITE"
   }
 }
