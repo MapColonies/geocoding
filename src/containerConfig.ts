@@ -21,7 +21,7 @@ import { ROUTE_ROUTER_SYMBOL, routeRouterFactory } from './control/route/routes/
 import { LAT_LON_ROUTER_SYMBOL, latLonRouterFactory } from './latLon/routes/latLonRouter';
 import { GEOTEXT_REPOSITORY_SYMBOL, geotextRepositoryFactory } from './location/DAL/locationRepository';
 import { GEOTEXT_SEARCH_ROUTER_SYMBOL, geotextSearchRouterFactory } from './location/routes/locationRouter';
-import { cronLoadTileLatLonDataFactory, cronLoadTileLatLonDataSymbol } from './latLon/DAL/latLonDAL';
+import { cronLoadTileLatLonDataFactory, cronLoadTileLatLonDataSymbol, latLonDalSymbol, latLonSignletonFactory } from './latLon/DAL/latLonDAL';
 import { ITEM_REPOSITORY_SYMBOL, itemRepositoryFactory } from './control/item/DAL/itemRepository';
 import { RedisClient, redisClientFactory } from './common/redis';
 import { s3ClientFactory } from './common/s3';
@@ -132,6 +132,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
       { token: GEOTEXT_REPOSITORY_SYMBOL, provider: { useFactory: geotextRepositoryFactory } },
       { token: GEOTEXT_SEARCH_ROUTER_SYMBOL, provider: { useFactory: geotextSearchRouterFactory } },
       { token: MGRS_ROUTER_SYMBOL, provider: { useFactory: mgrsRouterFactory } },
+      { token: latLonDalSymbol, provider: { useFactory: latLonSignletonFactory } },
       {
         token: cronLoadTileLatLonDataSymbol,
         provider: {

@@ -10,6 +10,10 @@ import { ConvertCamelToSnakeCase } from '../../common/utils';
 import { S3_REPOSITORY_SYMBOL, S3Repository } from '../../common/s3/s3Repository';
 
 type LatLon = ConvertCamelToSnakeCase<ILatLon>;
+let scheduledTask: cron.ScheduledTask | null = null;
+
+let latLonDALInstance: LatLonDAL | null = null;
+
 @injectable()
 export class LatLonDAL {
   private readonly latLonMap: Map<string, LatLon>;
@@ -31,6 +35,7 @@ export class LatLonDAL {
     this.onGoingUpdate = true;
     this.dataLoad = undefined;
     this.dataLoadError = false;
+
     this.init().catch((error) => {
       this.logger.error('Failed to initialize lat-lon data', error);
       this.dataLoadError = true;
@@ -108,14 +113,27 @@ export class LatLonDAL {
     } catch (error) {
       this.logger.error(`Failed to delete latLonData file ${latLonDataPath}. Error: ${(error as Error).message}`);
     }
-    this.logger.info('cronLoadTileLatLonData: update completed');
+    this.logger.info('loadLatLonData: update completed');
   }
 }
 
 export const cronLoadTileLatLonDataSymbol = Symbol('cronLoadTileLatLonDataSymbol');
 
+export const latLonDalSymbol = Symbol('latLonDalSymbol');
+export const latLonSignletonFactory: FactoryFunction<LatLonDAL> = (dependencyContainer) => {
+  const logger = dependencyContainer.resolve<Logger>(SERVICES.LOGGER);
+  const s3Repository = dependencyContainer.resolve<S3Repository>(S3_REPOSITORY_SYMBOL);
+
+  if (latLonDALInstance !== null) {
+    return latLonDALInstance;
+  }
+
+  latLonDALInstance = new LatLonDAL(logger, s3Repository);
+  return latLonDALInstance;
+};
+
 export const cronLoadTileLatLonDataFactory: FactoryFunction<cron.ScheduledTask> = (dependencyContainer) => {
-  const latLonDAL = dependencyContainer.resolve<LatLonDAL>(LatLonDAL);
+  const latLonDAL = dependencyContainer.resolve<LatLonDAL>(latLonDalSymbol);
   const logger = dependencyContainer.resolve<Logger>(SERVICES.LOGGER);
   const cronPattern: string | undefined = dependencyContainer.resolve<IApplication>(SERVICES.APPLICATION).cronLoadTileLatLonDataPattern;
 
@@ -125,7 +143,7 @@ export const cronLoadTileLatLonDataFactory: FactoryFunction<cron.ScheduledTask> 
   }
 
   /* istanbul ignore next */
-  const scheduledTask = cron.schedule(cronPattern, () => {
+  scheduledTask = cron.schedule(cronPattern, () => {
     if (!latLonDAL.getOnGoingUpdate()) {
       logger.info('cronLoadTileLatLonData: starting update');
       latLonDAL.init().catch((error) => {

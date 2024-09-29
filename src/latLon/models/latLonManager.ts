@@ -4,7 +4,7 @@ import { inject, injectable } from 'tsyringe';
 import { BBox, Feature } from 'geojson';
 import * as mgrs from 'mgrs';
 import { SERVICES } from '../../common/constants';
-import { LatLonDAL } from '../DAL/latLonDAL';
+import { LatLonDAL, latLonDalSymbol } from '../DAL/latLonDAL';
 import { convertUTMToWgs84, convertWgs84ToUTM, parseGeo, validateWGS84Coordinate } from '../../common/utils';
 import { BadRequestError } from '../../common/errors';
 import { WGS84Coordinate } from '../../common/interfaces';
@@ -14,7 +14,7 @@ import { convertCamelToSnakeCase } from '../../control/utils';
 export class LatLonManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(LatLonDAL) private readonly latLonDAL: LatLonDAL,
+    @inject(latLonDalSymbol) private readonly latLonDAL: LatLonDAL,
     @inject(SERVICES.CONFIG) private readonly config: IConfig
   ) {}
 

@@ -37,7 +37,6 @@ export class ServerBuilder {
   ) {
     this.serverInstance = express();
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    this.cronLoadTileLatLonData;
   }
 
   public build(): express.Application {
