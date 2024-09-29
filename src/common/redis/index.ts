@@ -31,18 +31,20 @@ export const DEFAULT_LIMIT = { from: DEFAULT_LIMIT_FROM, size: DEFAULT_LIMIT_SIZ
 
 export type RedisClient = ReturnType<typeof createClient>;
 
-export const redisClientFactory: FactoryFunction<RedisClient> = (container: DependencyContainer): RedisClient => {
+export const redisClientFactory: FactoryFunction<RedisClient | undefined> = (container: DependencyContainer): RedisClient | undefined => {
   const logger = container.resolve<Logger>(SERVICES.LOGGER);
   const config = container.resolve<IConfig>(SERVICES.CONFIG);
   const dbConfig = config.get<RedisConfig>('db.redis');
   const connectionOptions = createConnectionOptions(dbConfig);
-
-  const redisClient = createClient(connectionOptions)
-    .on('error', (error: Error) => logger.error({ msg: 'redis client errored', err: error }))
-    .on('reconnecting', (...args) => logger.warn({ msg: 'redis client reconnecting', ...args }))
-    .on('end', (...args) => logger.info({ msg: 'redis client end', ...args }))
-    .on('connect', (...args) => logger.debug({ msg: 'redis client connected', ...args }))
-    .on('ready', (...args) => logger.debug({ msg: 'redis client is ready', ...args }));
-
-  return redisClient;
+  try {
+    const redisClient = createClient(connectionOptions)
+      // .on('error', (error: Error) => logger.error({ msg: 'redis client errored', err: error }))
+      // .on('reconnecting', (...args) => logger.warn({ msg: 'redis client reconnecting', ...args }))
+      .on('end', (...args) => logger.info({ msg: 'redis client end', ...args }))
+      .on('connect', (...args) => logger.debug({ msg: 'redis client connected', ...args }))
+      .on('ready', (...args) => logger.debug({ msg: 'redis client is ready', ...args }));
+    return redisClient;
+  } catch (error) {
+    logger.error('Connection to Redis was unsuccessful', error);
+  }
 };

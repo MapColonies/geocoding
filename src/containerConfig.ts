@@ -153,9 +153,13 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
         token: SERVICES.REDIS,
         provider: { useFactory: instancePerContainerCachingFactory(redisClientFactory) },
         postInjectionHook: async (deps: DependencyContainer): Promise<void> => {
-          const redis = deps.resolve<RedisClient>(SERVICES.REDIS);
-          cleanupRegistry.register({ func: redis.disconnect.bind(redis), id: SERVICES.REDIS });
-          await redis.connect();
+          try {
+            const redis = deps.resolve<RedisClient>(SERVICES.REDIS);
+            cleanupRegistry.register({ func: redis.disconnect.bind(redis), id: SERVICES.REDIS });
+            await redis.connect();
+          } catch (error) {
+            logger.error('Connection to redis failed', error);
+          }
         },
       },
     ];
