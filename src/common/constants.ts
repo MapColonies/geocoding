@@ -14,21 +14,14 @@ export const SERVICES: Record<string, symbol> = {
   METER: Symbol('Meter'),
   APPLICATION: Symbol('Application'),
   ELASTIC_CLIENTS: Symbol('ElasticClients'),
+  REDIS: Symbol('Redis'),
+  S3_CLIENT: Symbol('S3Client'),
+  CLEANUP_REGISTRY: Symbol('CleanupRegistry'),
 };
 /* eslint-enable @typescript-eslint/naming-convention */
 
 export const ON_SIGNAL = Symbol('onSignal');
 export const HEALTHCHECK = Symbol('healthcheck');
 
-export const CONTROL_FIELDS = [
-  'type',
-  'geometry',
-  'properties.OBJECT_COMMAND_NAME',
-  'properties.TILE_NAME',
-  'properties.TYPE',
-  'properties.ENTITY_HEB',
-  'properties.SUB_TILE_ID',
-  'properties.SECTION',
-];
-
+export const siteConfig = 'application.site';
 export const elasticConfigPath = 'db.elastic';

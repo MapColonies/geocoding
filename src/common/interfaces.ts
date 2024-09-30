@@ -1,6 +1,6 @@
-import { Client, ClientOptions } from '@elastic/elasticsearch';
-import { DataSourceOptions } from 'typeorm';
-import { Feature, FeatureCollection as GeoJSONFeatureCollection } from 'geojson';
+import { estypes } from '@elastic/elasticsearch';
+import { BBox, Feature, FeatureCollection as GeoJSONFeatureCollection, GeoJsonProperties } from 'geojson';
+import { RemoveUnderscore } from './utils';
 
 export interface IConfig {
   get: <T>(setting: string) => T;
@@ -14,21 +14,14 @@ export interface OpenApiConfig {
   uiPath: string;
 }
 
-export type PostgresDbConfig = {
-  enableSslAuth: boolean;
-  sslPaths: { ca: string; cert: string; key: string };
-} & DataSourceOptions;
-
 export interface GeoContext {
-  bbox?: number[];
+  bbox?: BBox;
   radius?: number;
   lon?: number;
   lat?: number;
-}
-
-export interface Geometry {
-  type: string;
-  coordinates: number[][][];
+  x?: number;
+  y?: number;
+  zone?: number;
 }
 
 export interface FeatureCollection<T extends Feature> extends GeoJSONFeatureCollection {
@@ -60,4 +53,58 @@ export interface IApplication {
   };
   nameTranslationsKeys: string[];
   mainLanguageRegex: string;
+  controlObjectDisplayNamePrefixes: {
+    [key: string]: string;
+  };
+}
+
+export enum GeoContextMode {
+  FILTER = 'filter',
+  BIAS = 'bias',
+}
+
+export interface FeebackApiGeocodingResponse {
+  userId: string;
+  apiKey: string;
+  site: string;
+  response: JSON;
+  respondedAt: Date;
+}
+
+/* eslint-disable @typescript-eslint/naming-convention */
+export interface CommonRequestParameters {
+  geo_context?: GeoContext;
+  geo_context_mode?: GeoContextMode;
+  limit: number;
+  disable_fuzziness: boolean;
+}
+/* eslint-enable @typescript-eslint/naming-convention */
+
+export interface GenericGeocodingResponse<T extends Feature, G = any> extends FeatureCollection<T> {
+  geocoding: {
+    version?: string;
+    query: G & CommonRequestParameters;
+    response: Pick<estypes.SearchHitsMetadata, 'max_score'> & {
+      /* eslint-disable @typescript-eslint/naming-convention */
+      results_count?: estypes.SearchHitsMetadata['total'];
+      match_latency_ms?: estypes.SearchResponse['took'];
+      /* eslint-enable @typescript-eslint/naming-convention */
+    } & { [key: string]: unknown };
+  };
+  features: (T & {
+    properties: RemoveUnderscore<Pick<estypes.SearchHit<T>, '_score'>> &
+      GeoJsonProperties & {
+        matches: {
+          layer: string;
+          source: string;
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          source_id: string[];
+        }[];
+        names: {
+          [key: string]: string | string[] | undefined;
+          display: string;
+          default: string[];
+        };
+      };
+  })[];
 }
