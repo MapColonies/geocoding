@@ -3,8 +3,6 @@ import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
-import { S3_REPOSITORY_SYMBOL } from '../../../src/common/s3/s3Repository';
-import { cronLoadTileLatLonDataSymbol } from '../../../src/latLon/DAL/latLonDAL';
 import { DocsRequestSender } from './helpers/docsRequestSender';
 
 describe('docs', function () {
@@ -14,9 +12,6 @@ describe('docs', function () {
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
-        { token: S3_REPOSITORY_SYMBOL, provider: { useValue: {} } },
-        { token: SERVICES.S3_CLIENT, provider: { useValue: {} } },
-        { token: cronLoadTileLatLonDataSymbol, provider: { useValue: {} } },
       ],
       useChild: true,
     });

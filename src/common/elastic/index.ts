@@ -19,7 +19,7 @@ const initElasticsearchClient = (clientOptions: ClientOptions): ElasticClient =>
   return client;
 };
 
-export const elasticClientsFactory: FactoryFunction<ElasticClients> = (container: DependencyContainer): ElasticClients => {
+export const elasticClientFactory: FactoryFunction<ElasticClients> = (container: DependencyContainer): ElasticClients => {
   const config = container.resolve<IConfig>(SERVICES.CONFIG);
   const logger = container.resolve<Logger>(SERVICES.LOGGER);
 

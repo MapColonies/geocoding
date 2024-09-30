@@ -21,8 +21,8 @@ void getApp()
     const logger = container.resolve<Logger>(SERVICES.LOGGER);
     const server = createTerminus(createServer(app), {
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      healthChecks: { '/liveness': container.resolve(HEALTHCHECK) },
-      onSignal: container.resolve(ON_SIGNAL),
+      // healthChecks: { '/liveness': container.resolve(HEALTHCHECK) },
+      // onSignal: container.resolve(ON_SIGNAL),
     });
 
     server.listen(port, () => {

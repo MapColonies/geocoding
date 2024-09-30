@@ -2,18 +2,19 @@
   "db": {
     "elastic": {
       "control": {
-        "node": "http://elasticsearch:9200",
+        "node": "http://localhost:9200",
         "auth": {
           "username": "elastic",
           "password": "changeme"
         },
         "requestTimeout": 60000,
         "properties": {
-          "index": "control_gil_v5_test"
+          "index": "control_index",
+          "defaultResponseLimit": 3
         }
       },
       "geotext": {
-        "node": "http://elasticsearch:9200",
+        "node": "http://localhost:9200",
         "auth": {
           "username": "elastic",
           "password": "changeme"
@@ -21,41 +22,29 @@
         "requestTimeout": 60000,
         "properties": {
           "index": {
-            "geotext": "geotext_index_test",
-            "placetypes": "placetypes_index_test",
-            "hierarchies": "hierarchies_index_test"
+            "geotext": "geotext_index",
+            "placetypes": "placetypes_index",
+            "hierarchies": "hierarchies_index"
           },
+          "defaultResponseLimit": 3,
           "textTermLanguage": "en"
         }
       }
     },
-    "s3": {
-      "endpoint": "http://minio:9000",
-      "credentials": {
-        "accessKeyId": "minio",
-        "secretAccessKey": "minio123"
-      },
-      "region": "local",
-      "forcePathStyle": true,
-      "files": {
-        "latLonConvertionTable": {
-          "bucket": "geocoding-test",
-          "fileName": "table.json"
-        }
-      }
-    },
-    "redis": {
+    "postgresql": {
+      "type": "postgres",
       "host": "localhost",
-      "port": 6379,
-      "username": "",
-      "password": "",
+      "port": 5432,
+      "username": "postgres",
+      "password": "postgres",
       "enableSslAuth": false,
       "sslPaths": {
         "ca": "",
         "key": "",
         "cert": ""
       },
-      "database": 1
+      "database": "postgres",
+      "schema": "geocoder"
     }
   },
   "application": {
@@ -71,19 +60,10 @@
       "viewbox": 1.1
     },
     "sources": {
-      "OSM": "OSM",
-      "GOOGLE": "GOOGLE"
+      "OSM": "OSM"
     },
     "regions": {
-      "USA": ["New York", "Los Angeles"],
-      "FRANCE": ["Paris"]
-    },
-    "controlObjectDisplayNamePrefixes": {
-      "TILE": "Tile",
-      "SUB_TILE": "Sub Tile",
-      "ROUTE": "Route",
-      "ITEM": "Item",
-      "CONTROL_POINT": "Control Point"
+      "USA": ["New York", "Los Angeles"]
     },
     "nameTranslationsKeys": ["en", "fr"],
     "mainLanguageRegex": "[a-zA-Z]"
