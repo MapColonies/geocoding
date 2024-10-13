@@ -28,22 +28,21 @@
   "db": {
     "elastic": {
       "control": {
-        "node": "http://localhost:9200",
+        "node": "http://control_elastic:9200",
         "auth": {
-          "username": "control",
-          "password": "password"
+          "username": "elastic",
+          "password": "changeme"
         },
         "requestTimeout": 60000,
         "properties": {
-          "index": "control_index",
-          "defaultResponseLimit": 3
+          "index": "control_index"
         }
       },
       "geotext": {
-        "node": "http://localhost:9200",
+        "node": "http://geotext_elastic:9200",
         "auth": {
-          "username": "geotext",
-          "password": "password"
+          "username": "elastic",
+          "password": "changeme"
         },
         "requestTimeout": 60000,
         "properties": {
@@ -52,25 +51,37 @@
             "placetypes": "placetypes_index",
             "hierarchies": "hierarchies_index"
           },
-          "defaultResponseLimit": 3,
           "textTermLanguage": "en"
         }
       }
     },
-    "postgresql": {
-      "type": "postgres",
-      "host": "localhost",
-      "port": 5432,
-      "username": "postgres",
-      "password": "postgres",
+    "s3": {
+      "endpoint": "http://s3:9000",
+      "credentials": {
+        "accessKeyId": "accessKeyId",
+        "secretAccessKey": "secretAccessKey"
+      },
+      "forcePathStyle": true,
+      "region": "local",
+      "files": {
+        "latLonConvertionTable": {
+          "bucket": "geocoding",
+          "fileName": "table.json"
+        }
+      }
+    },
+    "redis": {
+      "host": "REDIS_HOST",
+      "port": 6379,
+      "username": "",
+      "password": "",
       "enableSslAuth": false,
       "sslPaths": {
         "ca": "",
         "key": "",
         "cert": ""
       },
-      "database": "postgres",
-      "schema": "geocoder"
+      "database": 0
     }
   },
   "application": {
@@ -85,12 +96,10 @@
       "hierarchy": 1.1,
       "viewbox": 1.1
     },
-    "sources": {
-      "SOURCE_A": "a",
-      "SOURCE_B": "b"
-    },
+    "sources": {},
     "regions": {},
-    "nameTranslationsKeys": ["en", "fr"],
+    "controlObjectDisplayNamePrefixes": {},
+    "nameTranslationsKeys": [],
     "mainLanguageRegex": "[a-zA-Z]"
   }
 }

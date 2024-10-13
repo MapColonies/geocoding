@@ -53,6 +53,11 @@ spec:
               name: root-ca
               subPath: {{ quote .Values.caKey }}
             {{- end }}
+            {{- if .Values.redisConfig.sslAuth.enabled }}
+            - name: cert-conf
+              mountPath: /tmp/certs
+              readOnly: true
+            {{- end }}
             {{- if .Values.extraVolumeMounts -}}
               {{ toYaml .Values.extraVolumeMounts | nindent 12 }}
             {{- end }}
@@ -108,6 +113,11 @@ spec:
         - name: root-ca
           secret:
             secretName: {{ .Values.caSecretName }}
+        {{- end }}
+        {{- if .Values.redisConfig.sslAuth.enabled }}
+        - name: cert-conf
+          secret:
+            secretName: {{ .Values.redisConfig.sslAuth.secretName }}
         {{- end }}
         {{- if .Values.extraVolumes -}}
           {{ tpl (toYaml .Values.extraVolumes) . | nindent 8 }}

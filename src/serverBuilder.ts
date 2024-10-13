@@ -10,12 +10,14 @@ import httpLogger from '@map-colonies/express-access-log-middleware';
 import { defaultMetricsMiddleware, getTraceContexHeaderMiddleware } from '@map-colonies/telemetry';
 import { SERVICES } from './common/constants';
 import { IConfig } from './common/interfaces';
-import { TILE_ROUTER_SYMBOL } from './tile/routes/tileRouter';
-import { ITEM_ROUTER_SYMBOL } from './item/routes/itemRouter';
-import { ROUTE_ROUTER_SYMBOL } from './route/routes/routeRouter';
+import { TILE_ROUTER_SYMBOL } from './control/tile/routes/tileRouter';
+import { ITEM_ROUTER_SYMBOL } from './control/item/routes/itemRouter';
+import { ROUTE_ROUTER_SYMBOL } from './control/route/routes/routeRouter';
 import { LAT_LON_ROUTER_SYMBOL } from './latLon/routes/latLonRouter';
-import { GEOTEXT_SEARCH_ROUTER_SYMBOL } from './geotextSearch/routes/geotextSearchRouter';
+import { GEOTEXT_SEARCH_ROUTER_SYMBOL } from './location/routes/locationRouter';
 import { cronLoadTileLatLonDataSymbol } from './latLon/DAL/latLonDAL';
+import { FeedbackApiMiddlewareManager } from './common/middlewares/feedbackApi.middleware';
+import { MGRS_ROUTER_SYMBOL } from './mgrs/routers/mgrsRouter';
 
 @injectable()
 export class ServerBuilder {
@@ -29,17 +31,18 @@ export class ServerBuilder {
     @inject(ROUTE_ROUTER_SYMBOL) private readonly routeRouter: Router,
     @inject(LAT_LON_ROUTER_SYMBOL) private readonly latLonRouter: Router,
     @inject(GEOTEXT_SEARCH_ROUTER_SYMBOL) private readonly geotextRouter: Router,
-    @inject(cronLoadTileLatLonDataSymbol) private readonly cronLoadTileLatLonData: void
+    @inject(cronLoadTileLatLonDataSymbol) private readonly cronLoadTileLatLonData: void,
+    @inject(FeedbackApiMiddlewareManager) private readonly feedbackApiMiddleware: FeedbackApiMiddlewareManager,
+    @inject(MGRS_ROUTER_SYMBOL) private readonly mgrsRouter: Router
   ) {
     this.serverInstance = express();
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    this.cronLoadTileLatLonData;
   }
 
   public build(): express.Application {
     this.registerPreRoutesMiddleware();
     this.buildDocsRoutes();
-    this.buildRoutesV1();
+    this.buildRoutes();
     this.registerPostRoutesMiddleware();
 
     return this.serverInstance;
@@ -54,14 +57,27 @@ export class ServerBuilder {
     this.serverInstance.use(this.config.get<string>('openapiConfig.basePath'), openapiRouter.getRouter());
   }
 
-  private buildRoutesV1(): void {
+  private buildRoutes(): void {
+    this.serverInstance.use(this.feedbackApiMiddleware.saveResponses);
     const router = Router();
-    router.use('/search/tiles', this.tileRouter);
-    router.use('/search/items', this.itemRouter);
-    router.use('/search/routes', this.routeRouter);
+
     router.use('/lookup', this.latLonRouter);
-    router.use('/query', this.geotextRouter);
-    this.serverInstance.use('/v1', router);
+    router.use('/location', this.geotextRouter);
+    router.use('/control', this.buildControlRoutes());
+    router.use('/MGRS', this.mgrsRouter);
+
+    this.serverInstance.use('/search', router);
+    this.serverInstance.use('/lookup', this.latLonRouter);
+  }
+
+  private buildControlRoutes(): Router {
+    const router = Router();
+
+    router.use('/tiles', this.tileRouter);
+    router.use('/items', this.itemRouter);
+    router.use('/routes', this.routeRouter);
+
+    return router;
   }
 
   private registerPreRoutesMiddleware(): void {
@@ -80,6 +96,8 @@ export class ServerBuilder {
     const apiSpecPath = this.config.get<string>('openapiConfig.filePath');
     this.serverInstance.use(OpenApiMiddleware({ apiSpec: apiSpecPath, validateRequests: true, ignorePaths: ignorePathRegex }));
     this.serverInstance.disable('x-powered-by');
+
+    this.serverInstance.use(this.feedbackApiMiddleware.setRequestId);
   }
 
   private registerPostRoutesMiddleware(): void {

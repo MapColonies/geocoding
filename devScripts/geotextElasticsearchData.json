@@ -1,7 +1,7 @@
 [
   {
     "_id": "12cd98ee-82eb-415e-a1d8-e1667a6f2e7f",
-    "_index": "geotext_index",
+    "_index": "geotext",
     "_source": {
       "source": "OSM",
       "layer_name": "osm_airports",
@@ -66,7 +66,7 @@
   },
   {
     "_id": "8b5009b4-b643-4856-905d-ac95a2040aca",
-    "_index": "geotext_index",
+    "_index": "geotext",
     "_source": {
       "source": "OSM",
       "layer_name": "osm_airports",
@@ -117,7 +117,7 @@
   },
   {
     "_id": "2bd0d4bb-af93-4211-9499-174c56feddb5",
-    "_index": "geotext_index",
+    "_index": "geotext",
     "_source": {
       "source": "OSM",
       "layer_name": "osm_airports",
@@ -170,7 +170,7 @@
   },
   {
     "_id": "ba951f2f-08c2-446e-845d-e2b0547d5d8c",
-    "_index": "geotext_index",
+    "_index": "geotext",
     "_source": {
       "source": "OSM",
       "layer_name": "osm_ports",
@@ -223,8 +223,62 @@
     }
   },
   {
+    "_id": "1bb11f54-939e-457b-bf68-a3920ccf629c",
+    "_index": "geotext",
+    "_source": {
+      "source": "GOOGLE",
+      "layer_name": "google_ports",
+      "ingestion_timestamp": "2024-07-17 00:00:00",
+      "timestamp": "11/12/2023 00:00:00",
+      "source_id": ["{1bb11f54-939e-457b-bf68-a3920ccf629c}"],
+      "sensitivity": "non-sensitive",
+      "placetype": "transportation",
+      "sub_placetype": "port",
+      "wkt": "POLYGON ((-118.2505781304088 33.7502674389752, -118.25604403409116 33.76075151051916, -118.27057180697577 33.748593059782564, -118.27503083555426 33.741097783576635, -118.2747911028351 33.734798055529765, -118.27215404292296 33.73136889520775, -118.26807858669537 33.720881194108856, -118.26424286318695 33.721997816398385, -118.26640045650717 33.72901625632974, -118.2431463824787 33.735794882347946, -118.24492040460113 33.739303607948656, -118.25072193640723 33.73794798097781, -118.25220827926702 33.74193505797223, -118.24937943317966 33.74508471776615, -118.24798898340768 33.74783559181691, -118.24909175391655 33.74803492708783, -118.25096166912684 33.74600168558719, -118.25326310323155 33.745363795966625, -118.25278363779321 33.74687877606813, -118.2505781304088 33.7502674389752))",
+      "geo_json": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-118.2505781304088, 33.7502674389752],
+            [-118.25604403409116, 33.76075151051916],
+            [-118.27057180697577, 33.748593059782564],
+            [-118.27503083555426, 33.741097783576635],
+            [-118.2747911028351, 33.734798055529765],
+            [-118.27215404292296, 33.73136889520775],
+            [-118.26807858669537, 33.720881194108856],
+            [-118.26424286318695, 33.721997816398385],
+            [-118.26640045650717, 33.72901625632974],
+            [-118.2431463824787, 33.735794882347946],
+            [-118.24492040460113, 33.739303607948656],
+            [-118.25072193640723, 33.73794798097781],
+            [-118.25220827926702, 33.74193505797223],
+            [-118.24937943317966, 33.74508471776615],
+            [-118.24798898340768, 33.74783559181691],
+            [-118.24909175391655, 33.74803492708783],
+            [-118.25096166912684, 33.74600168558719],
+            [-118.25326310323155, 33.745363795966625],
+            [-118.25278363779321, 33.74687877606813],
+            [-118.2505781304088, 33.7502674389752]
+          ]
+        ]
+      },
+      "centroid": {
+        "type": "Point",
+        "coordinates": [-118.25908860901649, 33.740816352314006]
+      },
+      "geometry_type": "Polygon",
+      "geometry_hash": "ffbc4f66c802719b5bcffaca238ee1d3",
+      "region": ["USA"],
+      "sub_region": ["Los Angeles"],
+      "name": "Port of Los Angeles",
+      "text": ["Port of Los Angeles"],
+      "translated_text": ["Puerto de Los Ángeles"],
+      "text_language": "en"
+    }
+  },
+  {
     "_id": "2b3dd420-d265-4665-94a6-3e13650b7a2d",
-    "_index": "geotext_index",
+    "_index": "geotext",
     "_source": {
       "source": "OSM",
       "layer_name": "osm_schools",
@@ -233,7 +287,7 @@
       "source_id": ["{1a5b981b-bb0e-44dd-b9e2-424b92f2de49}"],
       "sensitivity": "non-sensitive",
       "placetype": "education",
-      "sub_placetype": "elementary school",
+      "sub_placetype": "school",
       "wkt": "POLYGON ((-118.30812263653988 33.71684417247593, -118.30861990876181 33.71674433152869, -118.30879709771484 33.71635922964194, -118.30619642115158 33.71550819588987, -118.30586490633668 33.715921827872904, -118.30587062210924 33.716183318328746, -118.30812263653988 33.71684417247593))",
       "geo_json": {
         "coordinates": [
@@ -264,8 +318,47 @@
     }
   },
   {
+    "_id": "dc02a3f9-156a-4f61-85bd-fd040cd322a3",
+    "_index": "geotext",
+    "_source": {
+      "source": "OSM",
+      "layer_name": "osm_schools",
+      "ingestion_timestamp": "2024-07-17 00:00:00",
+      "timestamp": "11/12/2023 00:00:00",
+      "source_id": ["{dc02a3f9-156a-4f61-85bd-fd040cd322a3}"],
+      "sensitivity": "non-sensitive",
+      "placetype": "education",
+      "sub_placetype": "school",
+      "wkt": "POLYGON ((2.346441270696971 48.88088750665477, 2.3462780852304945 48.88018258877358, 2.347503576087604 48.87999951892243, 2.347737155284733 48.88070864783427, 2.346441270696971 48.88088750665477))",
+      "geo_json": {
+        "coordinates": [
+          [
+            [2.346441270696971, 48.88088750665477],
+            [2.3462780852304945, 48.88018258877358],
+            [2.347503576087604, 48.87999951892243],
+            [2.347737155284733, 48.88070864783427],
+            [2.346441270696971, 48.88088750665477]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "centroid": {
+        "type": "Point",
+        "coordinates": [2.346966023961727, 48.88044772323158]
+      },
+      "geometry_type": "Polygon",
+      "geometry_hash": "791f6b24002bbc1d50cdea5015244da9 ",
+      "region": ["FRANCE"],
+      "sub_region": ["Paris"],
+      "name": "Wi School Paris 9",
+      "text": ["Wi School Paris 9"],
+      "translated_text": ["Ecole Wi Paris 9"],
+      "text_language": "en"
+    }
+  },
+  {
     "_id": "5a54ff54-53f6-4ad1-9d2a-cd20f333ee2b",
-    "_index": "hierarchies_index",
+    "_index": "hierarchies",
     "_source": {
       "geo_json": {
         "coordinates": [
@@ -291,7 +384,7 @@
   },
   {
     "_id": "a3f38afc-1ce6-443c-a302-a0103c2bcb7d",
-    "_index": "hierarchies_index",
+    "_index": "hierarchies",
     "_source": {
       "geo_json": {
         "coordinates": [
@@ -315,8 +408,33 @@
     }
   },
   {
+    "_id": "a3f38afc-1ce6-443c-a302-a0103c2bcb7d",
+    "_index": "hierarchies",
+    "_source": {
+      "geo_json": {
+        "coordinates": [
+          [
+            [2.226678539753607, 49.06838747927134],
+            [1.9344166918067742, 48.906487548202136],
+            [2.014124468519668, 48.56855190252173],
+            [2.6536844864307625, 48.53463335095324],
+            [2.902296837606201, 48.82159183126478],
+            [2.6460932696008683, 49.0124047223114],
+            [2.384196288972504, 49.05097737411208],
+            [2.226678539753607, 49.06838747927134]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "hierarchy": "city",
+      "placetype": "city",
+      "region": "FRANCE",
+      "text": "Paris"
+    }
+  },
+  {
     "_id": "430ddc04-2370-415f-8761-b8c66a142f0a",
-    "_index": "placetypes_index",
+    "_index": "placetypes",
     "_source": {
       "placetype": "transportation",
       "sub_placetype": "airport",
@@ -325,7 +443,7 @@
   },
   {
     "_id": "6941ab8e-7503-4f8a-94f2-4750b2698db9",
-    "_index": "placetypes_index",
+    "_index": "placetypes",
     "_source": {
       "placetype": "transportation",
       "sub_placetype": "port",
@@ -334,11 +452,11 @@
   },
   {
     "_id": "6941ab8e-7503-4f8a-94f2-4750b2698db9",
-    "_index": "placetypes_index",
+    "_index": "placetypes",
     "_source": {
-      "placetype": "transportation",
-      "sub_placetype": "education",
-      "sub_placetype_keyword": "elementary school"
+      "placetype": "education",
+      "sub_placetype": "school",
+      "sub_placetype_keyword": "school"
     }
   }
 ]

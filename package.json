@@ -1,6 +1,6 @@
 {
   "name": "geocoding",
-  "version": "0.5.0",
+  "version": "0.1.0-prealpha.4",
   "description": "Geocoding service for MapColonies",
   "main": "./src/index.ts",
   "scripts": {
@@ -23,11 +23,7 @@
     "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles -f ./openapi3.yaml ./dist/ && copyfiles ./package.json dist",
     "clean": "rimraf dist",
     "install": "npx husky install",
-    "dev:scripts": "npx ts-node ./devScripts/index.ts",
-    "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js -d dataSource.ts",
-    "migration:create": "npm run typeorm migration:generate",
-    "migration:run": "npm run typeorm migration:run",
-    "migration:revert": "npm run typeorm migration:revert"
+    "dev:scripts": "npx ts-node ./devScripts/index.ts"
   },
   "directories": {
     "test": "tests"
@@ -46,8 +42,10 @@
     }
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.637.0",
     "@elastic/elasticsearch": "^8.13.1",
     "@godaddy/terminus": "^4.12.1",
+    "@map-colonies/cleanup-registry": "^1.1.0",
     "@map-colonies/error-express-handler": "^2.1.0",
     "@map-colonies/express-access-log-middleware": "^2.0.1",
     "@map-colonies/js-logger": "^1.0.1",
@@ -58,6 +56,8 @@
     "@opentelemetry/api-metrics": "0.23.0",
     "@opentelemetry/instrumentation-express": "0.32.1",
     "@opentelemetry/instrumentation-http": "0.35.1",
+    "@smithy/node-http-handler": "^3.1.4",
+    "ajv": "^8.17.1",
     "axios": "^0.21.1",
     "compression": "^1.7.4",
     "config": "^3.3.9",
@@ -66,14 +66,15 @@
     "fast-xml-parser": "^4.4.0",
     "geojson-validation": "^1.0.2",
     "http-status-codes": "^2.2.0",
+    "ioredis": "^5.4.1",
     "mgrs": "^2.0.0",
     "node-cron": "^3.0.3",
     "node-fetch-commonjs": "^3.3.2",
-    "pg": "^8.11.5",
     "proj4": "^2.11.0",
+    "redis": "^4.7.0",
     "reflect-metadata": "^0.1.13",
     "tsyringe": "^4.8.0",
-    "typeorm": "^0.3.20",
+    "utm-latlng": "^1.0.8",
     "wellknown": "^0.5.0"
   },
   "devDependencies": {

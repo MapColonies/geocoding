@@ -1,10 +1,11 @@
+import config from 'config';
 import importDataToElastic from './importDataToElastic';
-import importToPostgres from './importToPostgres';
+import importDataToS3 from './importDataToS3';
 
-importDataToElastic()
+importDataToElastic(config)
   .then(() => console.log('Success import data to elastic'))
   .catch(console.error);
 
-importToPostgres()
-  .then(() => console.log('Success import data to postgres'))
+importDataToS3(config)
+  .then(() => console.log('Success import data to s3'))
   .catch(console.error);
