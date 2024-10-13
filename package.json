@@ -1,6 +1,6 @@
 {
   "name": "geocoding",
-  "version": "0.1.0-prealpha.4",
+  "version": "0.1.0",
   "description": "Geocoding service for MapColonies",
   "main": "./src/index.ts",
   "scripts": {
