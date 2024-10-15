@@ -470,46 +470,6 @@ paths:
         - x-api-key: []
           x-user-id: []
 
-  /searches/feedback:
-    post:
-      operationId: postSearchFeedback
-      tags:
-        - Feedback
-      summary: 'Retrieve feedback from services about quality of results'
-      parameters:
-        - name: choosen_result_id
-          in: 'query'
-          description: 'The result ID of chosen search'
-          schema:
-            type: string
-            minimum: 1
-            maximum: 100
-          required: true
-        - name: request_id
-          in: query
-          description: The request ID retrieved from headers of search API response
-          schema:
-            type: string
-            minimum: 1
-            maximum: 100
-          required: true
-      responses:
-        204:
-          description: 'OK - No Content'
-        400:
-          '$ref': '#/components/responses/BadRequest'
-        404:
-          $ref: '#/components/responses/NotFound'
-        401:
-          '$ref': '#/components/responses/Unauthorized'
-        403:
-          '$ref': '#/components/responses/Forbidden'
-        500:
-          '$ref': '#/components/responses/InternalError'
-      security:
-        - x-api-key: []
-          x-user-id: []
-
 components:
   responses:
     BadRequest:
@@ -797,16 +757,14 @@ components:
                 - 'geo_context'
                 - 'disable_fuzziness'
               properties:
-                text:
-                  type: string
-                  minLength: 1
-                  maxLength: 100
                 limit:
                   type: integer
                   minimum: 1
                   maximum: 10
                 geo_context:
                   $ref: '#/components/schemas/geo_context'
+                geo_context_mode:
+                  $ref: '#/components/parameters/geo_context_mode'
                 disable_fuzziness:
                   $ref: '#/components/schemas/disable_fuzziness'
             response:
