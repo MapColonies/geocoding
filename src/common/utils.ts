@@ -215,8 +215,8 @@ export const healthCheckFactory: FactoryFunction<void> = (container: DependencyC
       .then(() => {
         return;
       })
-      .catch((error) => {
-        logger.error(`Healthcheck failed for ${key}. Error: ${(error as Error).message}`);
+      .catch((error: Error) => {
+        logger.error({ message: `Healthcheck failed for ${key}.`, error });
       });
   }
 
@@ -225,8 +225,11 @@ export const healthCheckFactory: FactoryFunction<void> = (container: DependencyC
     .then(() => {
       return;
     })
-    .catch((error) => {
-      logger.error(`Healthcheck failed for S3. Error: ${(error as Error).message}`);
+    .catch((error: Error) => {
+      logger.error({
+        message: `Healthcheck failed for S3.`,
+        error,
+      });
     });
 
   redis
@@ -234,8 +237,11 @@ export const healthCheckFactory: FactoryFunction<void> = (container: DependencyC
     .then(() => {
       return;
     })
-    .catch((error) => {
-      logger.error(`Healthcheck failed for Redis. Error: ${(error as Error).message}`);
+    .catch((error: Error) => {
+      logger.error({
+        message: `Healthcheck failed for Redis.`,
+        error,
+      });
     });
 };
 

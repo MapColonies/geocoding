@@ -42,7 +42,7 @@ export class FeedbackApiMiddlewareManager {
         .then(() => {
           logger.info({ msg: `response ${reqId?.toString() ?? ''} saved to redis` });
         })
-        .catch((error) => logger.error('Error setting key:', error));
+        .catch((error: Error) => logger.error({ message: 'Error setting key:', error }));
 
       return originalJson.call(this, body);
     };

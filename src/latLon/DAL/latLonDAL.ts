@@ -36,8 +36,8 @@ export class LatLonDAL {
     this.dataLoad = undefined;
     this.dataLoadError = false;
 
-    this.init().catch((error) => {
-      this.logger.error('Failed to initialize lat-lon data', error);
+    this.init().catch((error: Error) => {
+      this.logger.error({ message: 'Failed to initialize lat-lon data', error });
       this.dataLoadError = true;
     });
   }
@@ -74,7 +74,7 @@ export class LatLonDAL {
 
       this.logger.debug('latLonData initialized');
     } catch (error) {
-      this.logger.error(`Failed to initialize latLon data. Error: ${(error as Error).message}`);
+      this.logger.error({ message: `Failed to initialize latLon data.`, error });
       this.dataLoadError = true;
     } finally {
       this.onGoingUpdate = false;
@@ -111,7 +111,7 @@ export class LatLonDAL {
     try {
       await fs.promises.unlink(latLonDataPath);
     } catch (error) {
-      this.logger.error(`Failed to delete latLonData file ${latLonDataPath}. Error: ${(error as Error).message}`);
+      this.logger.error({ message: `Failed to delete latLonData file ${latLonDataPath}.`, error });
     }
     this.logger.info('loadLatLonData: update completed');
   }
@@ -146,8 +146,8 @@ export const cronLoadTileLatLonDataFactory: FactoryFunction<cron.ScheduledTask> 
   scheduledTask = cron.schedule(cronPattern, () => {
     if (!latLonDAL.getOnGoingUpdate()) {
       logger.info('cronLoadTileLatLonData: starting update');
-      latLonDAL.init().catch((error) => {
-        logger.error('cronLoadTileLatLonData: update failed', error);
+      latLonDAL.init().catch((error: Error) => {
+        logger.error({ message: 'cronLoadTileLatLonData: update failed', error });
       });
     } else {
       logger.info('cronLoadTileLatLonData: update is already in progress');
