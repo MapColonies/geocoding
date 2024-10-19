@@ -32,7 +32,7 @@ export const expectedResponse = (
 ): GenericGeocodingResponse<Feature> => ({
   type: 'FeatureCollection',
   geocoding: {
-    version: process.env.npm_package_version,
+    version: process.env.npm_package_version as string,
     query: requestParams,
     response: expectedGeocodingElasticResponseMetrics(responseParams, arr.length, expect),
   },

@@ -42,7 +42,7 @@ export const expectedResponse = <T extends Tile | Item | Route, U extends GetTil
 ): GenericGeocodingResponse<T, Omit<U, keyof CommonRequestParameters>> => ({
   type: 'FeatureCollection',
   geocoding: {
-    version: process.env.npm_package_version,
+    version: process.env.npm_package_version as string,
     query: requestParams,
     response: expectedGeocodingElasticResponseMetrics(arr.length, expect),
   },
