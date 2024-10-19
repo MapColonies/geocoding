@@ -538,9 +538,7 @@ components:
       in: 'query'
       description: 'Choose whether geo_context query parameter will be a filter or a bias value'
       schema:
-        type: string
-        enum: ['filter', 'bias']
-
+        $ref: '#/components/schemas/geo_context_mode'
   schemas:
     errorSchema:
       type: 'object'
@@ -764,7 +762,7 @@ components:
                 geo_context:
                   $ref: '#/components/schemas/geo_context'
                 geo_context_mode:
-                  $ref: '#/components/parameters/geo_context_mode'
+                  $ref: '#/components/schemas/geo_context_mode'
                 disable_fuzziness:
                   $ref: '#/components/schemas/disable_fuzziness'
             response:
@@ -1019,6 +1017,9 @@ components:
               $ref: '#/components/schemas/BoundingBox'
         - $ref: '#/components/schemas/WGS84Circle'
         - $ref: '#/components/schemas/UTMCircle'
+    geo_context_mode:
+      type: string
+      enum: ['filter', 'bias']
     disable_fuzziness:
       type: boolean
       default: false
