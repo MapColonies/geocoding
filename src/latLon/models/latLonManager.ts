@@ -7,7 +7,7 @@ import { SERVICES } from '../../common/constants';
 import { LatLonDAL, latLonDalSymbol } from '../DAL/latLonDAL';
 import { convertUTMToWgs84, convertWgs84ToUTM, parseGeo, validateWGS84Coordinate } from '../../common/utils';
 import { BadRequestError } from '../../common/errors';
-import { WGS84Coordinate } from '../../common/interfaces';
+import { GenericGeocodingResponse, WGS84Coordinate } from '../../common/interfaces';
 import { convertCamelToSnakeCase } from '../../control/utils';
 
 @injectable()
@@ -18,7 +18,11 @@ export class LatLonManager {
     @inject(SERVICES.CONFIG) private readonly config: IConfig
   ) {}
 
-  public async latLonToTile({ lat, lon, targetGrid }: WGS84Coordinate & { targetGrid: string }): Promise<{ [key: string]: unknown } & Feature> {
+  public async latLonToTile({
+    lat,
+    lon,
+    targetGrid,
+  }: WGS84Coordinate & { targetGrid: string }): Promise<Feature & Pick<GenericGeocodingResponse<Feature>, 'geocoding'>> {
     if (!validateWGS84Coordinate({ lat, lon })) {
       this.logger.warn("LatLonManager.latLonToTile: Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal");
       throw new BadRequestError("Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal");
@@ -63,7 +67,7 @@ export class LatLonManager {
     return {
       type: 'Feature',
       geocoding: {
-        version: process.env.npm_package_version,
+        version: process.env.npm_package_version as string,
         query: {
           lat,
           lon,
@@ -102,7 +106,7 @@ export class LatLonManager {
     lon: number;
     accuracy?: number;
     targetGrid: string;
-  }): { [key: string]: unknown } & Feature {
+  }): Feature & Pick<GenericGeocodingResponse<Feature>, 'geocoding'> {
     const accuracyString: Record<number, string> = {
       [0]: '100km',
       [1]: '10km',
@@ -115,7 +119,7 @@ export class LatLonManager {
     return {
       type: 'Feature',
       geocoding: {
-        version: process.env.npm_package_version,
+        version: process.env.npm_package_version as string,
         query: {
           lat,
           lon,
