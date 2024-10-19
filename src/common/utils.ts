@@ -23,6 +23,88 @@ type CamelToSnakeCase<S extends string> = S extends `${infer T}${infer U}`
 
 const ajv = new Ajv.Ajv();
 
+const validateGeoContext = (geoContext: GeoContext | undefined): boolean => {
+  const geoCOntextSchema: Ajv.Schema = {
+    oneOf: [
+      {
+        type: 'object',
+        properties: {
+          bbox: {
+            oneOf: [
+              {
+                type: 'array',
+                minItems: 4,
+                maxItems: 4,
+                items: {
+                  type: 'number',
+                },
+              },
+              {
+                type: 'array',
+                minItems: 6,
+                maxItems: 6,
+                items: {
+                  type: 'number',
+                },
+              },
+            ],
+          },
+        },
+        required: ['bbox'],
+        additionalProperties: false,
+      },
+      {
+        type: 'object',
+        properties: {
+          lat: {
+            type: 'number',
+          },
+          lon: {
+            type: 'number',
+          },
+          radius: {
+            type: 'number',
+          },
+        },
+        required: ['lat', 'lon', 'radius'],
+        additionalProperties: false,
+      },
+      {
+        type: 'object',
+        properties: {
+          x: {
+            type: 'number',
+          },
+          y: {
+            type: 'number',
+          },
+          zone: {
+            type: 'number',
+          },
+          radius: {
+            type: 'number',
+          },
+        },
+        required: ['x', 'y', 'zone', 'radius'],
+        additionalProperties: false,
+      },
+    ],
+  };
+
+  const validate = ajv.compile(geoCOntextSchema);
+  const isValid = validate(geoContext);
+  const messagePrefix = 'geo_context validation: ';
+
+  if (!isValid) {
+    throw new BadRequestError(
+      messagePrefix +
+        'geo_context must contain one of the following: {"bbox": [number,number,number,number] | [number,number,number,number,number,number]}, {"lat": number, "lon": number, "radius": number}, or {"x": number, "y": number, "zone": number, "radius": number}'
+    );
+  }
+
+  return true;
+};
+
 const parsePoint = (split: string[] | number[]): Geometry => ({
   type: 'Point',
   coordinates: split.map(Number),
@@ -42,6 +124,21 @@ const parseBbox = (split: [string, string, string, string] | BBox): Geometry => 
       ],
     ],
   };
+};
+
+const hasCoordinates = (input: GeoContext): boolean => {
+  return (input.x !== undefined && input.y !== undefined && input.zone !== undefined) || (input.lon !== undefined && input.lat !== undefined);
+};
+
+const parseCoordinates = (input: GeoContext): Geometry => {
+  const { x, y, zone, radius } = input;
+  const { lon, lat } = x && y && zone ? convertUTMToWgs84(x, y, zone) : (input as Required<Pick<GeoContext, 'lat' | 'lon'>>);
+
+  return {
+    type: 'Circle',
+    coordinates: (parsePoint([lon, lat]) as Point).coordinates,
+    radius: `${radius ?? ''}`,
+  } as unknown as Geometry;
 };
 
 export type ConvertSnakeToCamelCase<T> = {
@@ -155,102 +252,19 @@ export const promiseTimeout = async <T>(ms: number, promise: Promise<T>): Promis
   return Promise.race([promise, timeout]);
 };
 
-export const parseGeo = (input: GeoContext): Geometry | undefined => {
-  //TODO: Add geojson validation
-  //TODO: refactor this function
-  if (input.bbox !== undefined) {
-    return parseBbox(input.bbox);
-  } else if (
-    (input.x !== undefined && input.y !== undefined && input.zone !== undefined && input.zone !== undefined) ||
-    (input.lon !== undefined && input.lat !== undefined)
-  ) {
-    const { x, y, zone, radius } = input;
-    const { lon, lat } = x && y && zone ? convertUTMToWgs84(x, y, zone) : (input as Required<Pick<GeoContext, 'lat' | 'lon'>>);
+export const parseGeo = (input: GeoContext | undefined): Geometry | undefined => {
+  validateGeoContext(input);
+  const geoContext = input as GeoContext;
 
-    return { type: 'Circle', coordinates: (parsePoint([lon, lat]) as Point).coordinates, radius: `${radius ?? ''}` } as unknown as Geometry;
-  }
-};
-
-export const validateGeoContext = (geoContext: GeoContext): boolean => {
-  const geoCOntextSchema: Ajv.Schema = {
-    oneOf: [
-      {
-        type: 'object',
-        properties: {
-          bbox: {
-            oneOf: [
-              {
-                type: 'array',
-                minItems: 4,
-                maxItems: 4,
-                items: {
-                  type: 'number',
-                },
-              },
-              {
-                type: 'array',
-                minItems: 6,
-                maxItems: 6,
-                items: {
-                  type: 'number',
-                },
-              },
-            ],
-          },
-        },
-        required: ['bbox'],
-        additionalProperties: false,
-      },
-      {
-        type: 'object',
-        properties: {
-          lat: {
-            type: 'number',
-          },
-          lon: {
-            type: 'number',
-          },
-          radius: {
-            type: 'number',
-          },
-        },
-        required: ['lat', 'lon', 'radius'],
-        additionalProperties: false,
-      },
-      {
-        type: 'object',
-        properties: {
-          x: {
-            type: 'number',
-          },
-          y: {
-            type: 'number',
-          },
-          zone: {
-            type: 'number',
-          },
-          radius: {
-            type: 'number',
-          },
-        },
-        required: ['x', 'y', 'zone', 'radius'],
-        additionalProperties: false,
-      },
-    ],
-  };
-
-  const validate = ajv.compile(geoCOntextSchema);
-  const isValid = validate(geoContext);
-  const messagePrefix = 'geo_context validation: ';
-
-  if (!isValid) {
-    throw new BadRequestError(
-      messagePrefix +
-        'geo_context must contain one of the following: {"bbox": [number,number,number,number] | [number,number,number,number,number,number]}, {"lat": number, "lon": number, "radius": number}, or {"x": number, "y": number, "zone": number, "radius": number}'
-    );
+  if (geoContext.bbox !== undefined) {
+    return parseBbox(geoContext.bbox);
   }
 
-  return true;
+  if (hasCoordinates(geoContext)) {
+    return parseCoordinates(geoContext);
+  }
+
+  return undefined;
 };
 
 export const geoContextQuery = (
@@ -265,17 +279,16 @@ export const geoContextQuery = (
     throw new BadRequestError('/control/utils/geoContextQuery: geo_context and geo_context_mode must be both defined or both undefined');
   }
 
-  validateGeoContext(geoContext!);
-
+  const GEO_CONTEXT_MODE_BIAS_BOOST = 1.1;
   return {
     [geoContextMode === GeoContextMode.FILTER ? 'filter' : 'should']: [
       {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         geo_shape: {
           [elasticGeoShapeField]: {
-            shape: parseGeo(geoContext!),
+            shape: parseGeo(geoContext),
           },
-          boost: geoContextMode === GeoContextMode.BIAS ? 1.1 : 1, //TODO: change magic number
+          boost: geoContextMode === GeoContextMode.BIAS ? GEO_CONTEXT_MODE_BIAS_BOOST : 1,
         },
       },
     ],
