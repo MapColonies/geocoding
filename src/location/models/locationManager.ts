@@ -38,7 +38,11 @@ export class GeotextSearchManager {
       this.geotextRepository.extractHierarchy(hierarchiesIndex, hierarchyQuery.join(','), hierarchyBoost, params.disableFuzziness),
     ]);
 
-    const [name, { placeTypes, subPlaceTypes }, hierarchies] = await promises;
+    const [
+      { name, latency: nlpAnalyserLatency },
+      { placeTypes, subPlaceTypes, matchLatencyMs: placeTypeMatchLatencyMs },
+      { hierarchies, matchLatencyMs: hierarchiesMatchLatencyMs },
+    ] = await promises;
 
     const searchParams: TextSearchParams = {
       ...params,
@@ -60,6 +64,12 @@ export class GeotextSearchManager {
       regionCollection: this.appConfig.regions,
       nameKeys: this.appConfig.nameTranslationsKeys,
       mainLanguageRegex: this.appConfig.mainLanguageRegex,
+      externalResourcesLatency: {
+        query: esResult.took,
+        placeType: placeTypeMatchLatencyMs,
+        hierarchies: hierarchiesMatchLatencyMs,
+        nlpAnalyser: nlpAnalyserLatency,
+      },
     });
   }
 

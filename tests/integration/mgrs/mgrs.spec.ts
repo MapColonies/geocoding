@@ -46,7 +46,6 @@ describe('/search/MGRS', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       expect(response).toSatisfyApiSpec();
-      console.log(response.body);
       expect(response.body).toEqual<GenericGeocodingFeatureResponse>({
         type: 'Feature',
         geocoding: {

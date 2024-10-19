@@ -81,7 +81,6 @@ describe('/search/location', function () {
           {
             place_types: ['transportation'],
             sub_place_types: ['airport'],
-            hierarchies: [],
           },
           [
             {
@@ -132,7 +131,6 @@ describe('/search/location', function () {
           {
             place_types: ['transportation'],
             sub_place_types: ['airport'],
-            hierarchies: [],
           },
           [
             {
@@ -184,7 +182,6 @@ describe('/search/location', function () {
           {
             place_types: ['transportation'],
             sub_place_types: ['airport'],
-            hierarchies: [],
           },
           [
             {
@@ -329,7 +326,6 @@ describe('/search/location', function () {
             name: query,
             place_types,
             sub_place_types,
-            hierarchies: [],
           },
           returnedFeatures,
           expect
@@ -377,7 +373,6 @@ describe('/search/location', function () {
           {
             place_types: ['transportation'],
             sub_place_types: ['port'],
-            hierarchies: [],
           },
           [GOOGLE_LA_PORT],
           expect
@@ -409,7 +404,6 @@ describe('/search/location', function () {
           {
             place_types: ['education'],
             sub_place_types: ['school'],
-            hierarchies: [],
           },
           [PARIS_WI_SCHOOL],
           expect
