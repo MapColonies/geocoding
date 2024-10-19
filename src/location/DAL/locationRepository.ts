@@ -38,7 +38,10 @@ const createGeotextRepository = (client: ElasticClient, logger: Logger) => {
         hits: { hits },
       } = await queryElastic<PlaceTypeSearchHit>(client, { index, ...placetypeQuery(query, disableFuzziness) });
 
-      if (hits.length == 2 && hits[0]._score! - hits[1]._score! > 0.5) {
+      const SCORE_DIFFERENCE_THRESHOLD = 0.5;
+      const MIN_HITS_FOR_DIFFERENCE_CHECK = 2;
+
+      if (hits.length == MIN_HITS_FOR_DIFFERENCE_CHECK && hits[0]._score! - hits[1]._score! > SCORE_DIFFERENCE_THRESHOLD) {
         hits.pop();
       }
 
@@ -55,7 +58,9 @@ const createGeotextRepository = (client: ElasticClient, logger: Logger) => {
         hits: { hits },
       } = await queryElastic<HierarchySearchHit>(client, { index, ...hierarchyQuery(query, disableFuzziness) });
 
-      const filteredHits = hits.length > 3 ? hits.filter((hit) => hit._score! >= hits[2]._score!) : hits;
+      const MIN_HITS_THRESHOLD = 3;
+
+      const filteredHits = hits.length > MIN_HITS_THRESHOLD ? hits.filter((hit) => hit._score! >= hits[2]._score!) : hits;
 
       const highestScore = Math.max(...filteredHits.map((hit) => hit._score!));
       const hierarchies = filteredHits.map((hit) => ({

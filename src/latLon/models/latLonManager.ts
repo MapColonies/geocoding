@@ -10,6 +10,12 @@ import { BadRequestError } from '../../common/errors';
 import { GenericGeocodingFeatureResponse, WGS84Coordinate } from '../../common/interfaces';
 import { convertCamelToSnakeCase } from '../../control/utils';
 
+const GRID_SIZE = 10000;
+const TILE_DIVISOR = 10;
+const PAD_LENGTH = 4;
+const SUB_TILE_LENGTH = 3;
+const MGRS_ACCURACY = 5;
+
 @injectable()
 export class LatLonManager {
   public constructor(
@@ -32,8 +38,8 @@ export class LatLonManager {
     }
 
     const coordinatesUTM = {
-      x: Math.trunc(utm.Easting / 10000) * 10000,
-      y: Math.trunc(utm.Northing / 10000) * 10000,
+      x: Math.trunc(utm.Easting / GRID_SIZE) * GRID_SIZE,
+      y: Math.trunc(utm.Northing / GRID_SIZE) * GRID_SIZE,
       zone: utm.ZoneNumber,
     };
 
@@ -44,12 +50,12 @@ export class LatLonManager {
       throw new BadRequestError('The coordinate is outside the grid extent');
     }
 
-    const xNumber = Math.abs(Math.trunc((utm.Easting % 10000) / 10) * 10)
+    const xNumber = Math.abs(Math.trunc((utm.Easting % GRID_SIZE) / TILE_DIVISOR) * TILE_DIVISOR)
       .toString()
-      .padStart(4, '0');
-    const yNumber = Math.abs(Math.trunc((utm.Northing % 10000) / 10) * 10)
+      .padStart(PAD_LENGTH, '0');
+    const yNumber = Math.abs(Math.trunc((utm.Northing % GRID_SIZE) / TILE_DIVISOR) * TILE_DIVISOR)
       .toString()
-      .padStart(4, '0');
+      .padStart(PAD_LENGTH, '0');
 
     const bbox = [
       ...(
@@ -85,7 +91,7 @@ export class LatLonManager {
       properties: {
         name: tileCoordinateData.tile_name,
         tileName: tileCoordinateData.tile_name,
-        subTileNumber: new Array(3).fill('').map(function (value, i) {
+        subTileNumber: new Array(SUB_TILE_LENGTH).fill('').map(function (value, i) {
           return xNumber[i] + yNumber[i];
         }),
       },
@@ -95,7 +101,7 @@ export class LatLonManager {
   public latLonToMGRS({
     lat,
     lon,
-    accuracy = 5,
+    accuracy = MGRS_ACCURACY,
     targetGrid,
   }: {
     lat: number;
