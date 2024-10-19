@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
+import 'jest-openapi';
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import { Application } from 'express';
@@ -167,26 +168,6 @@ describe('/lookup', function () {
 
       dataLoadErrorSpy.mockRestore();
     });
-
-    // it('should return 500 as init is errored', async function () {
-    //   const dataLoadErrorSpy = jest.spyOn(LatLonDAL.prototype as any, 'loadLatLonData').mockRejectedValue(new Error('some error'));
-
-    //   const response = await requestSender.convertCoordinatesToGrid({
-    //     lat: 52.57326537485767,
-    //     lon: 12.948781146422107,
-    //     target_grid: 'control',
-    //   });
-
-    //   console.log(response.status, response.body);
-    //   expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-    //   //   expect(response).toSatisfyApiSpec();
-    //   expect(response.body).toEqual({
-    //     message: 'Lat-lon to tile data currently not available',
-    //     stacktrace: expect.any(String) as string,
-    //   });
-
-    //   dataLoadErrorSpy.mockRestore();
-    // });
   });
 
   it('should return error when cronPattern is not defined', async () => {

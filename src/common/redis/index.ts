@@ -6,9 +6,6 @@ import { SERVICES } from '../constants';
 import { IConfig } from '../interfaces';
 import { RedisConfig } from './interfaces';
 
-const DEFAULT_LIMIT_FROM = 0;
-const DEFAULT_LIMIT_SIZE = 1000;
-
 const createConnectionOptions = (redisConfig: RedisConfig): Partial<RedisClientOptions> => {
   const { host, port, enableSslAuth, sslPaths, ...clientOptions } = redisConfig;
   clientOptions.socket = { host, port };
@@ -24,10 +21,6 @@ const createConnectionOptions = (redisConfig: RedisConfig): Partial<RedisClientO
 
   return clientOptions;
 };
-
-export const CONNECTION_TIMEOUT = 5000;
-
-export const DEFAULT_LIMIT = { from: DEFAULT_LIMIT_FROM, size: DEFAULT_LIMIT_SIZE };
 
 export type RedisClient = ReturnType<typeof createClient>;
 
@@ -45,6 +38,6 @@ export const redisClientFactory: FactoryFunction<RedisClient | undefined> = (con
       .on('ready', (...args) => logger.debug({ msg: 'redis client is ready', ...args }));
     return redisClient;
   } catch (error) {
-    logger.error('Connection to Redis was unsuccessful', error);
+    logger.error({ message: 'Connection to Redis was unsuccessful', error });
   }
 };

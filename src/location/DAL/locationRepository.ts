@@ -17,28 +17,41 @@ import { hierarchyQuery, placetypeQuery, geotextQuery } from './queries';
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const createGeotextRepository = (client: ElasticClient, logger: Logger) => {
   return {
-    async extractName(endpoint: string, query: string): Promise<string> {
+    async extractName(endpoint: string, query: string): Promise<{ name: string; latency: number }> {
       const tokensRaw = cleanQuery(query);
-      const response = await fetchNLPService<Partial<TokenResponse>>(endpoint, { tokens: tokensRaw });
+      const { data: response, latency } = await fetchNLPService<Partial<TokenResponse>>(endpoint, { tokens: tokensRaw });
 
       const { tokens, prediction } = response[0];
 
       if (!tokens || !tokens.length || !prediction || !prediction.length) {
-        logger.error('No tokens or prediction');
-        throw new BadRequestError('No tokens or prediction');
+        const message = 'No tokens or prediction';
+        logger.error({ message });
+        throw new BadRequestError(message);
       }
 
       const nameTokens = tokens.filter((_, index) => prediction[index] === 'name');
 
-      return nameTokens.join(' ');
+      return { name: nameTokens.join(' '), latency };
     },
 
-    async generatePlacetype(index: string, query: string, disableFuzziness: boolean): Promise<{ placeTypes: string[]; subPlaceTypes: string[] }> {
+    async generatePlacetype(
+      index: string,
+      query: string,
+      disableFuzziness: boolean
+    ): Promise<{
+      placeTypes: string[];
+      subPlaceTypes: string[];
+      matchLatencyMs: number;
+    }> {
       const {
         hits: { hits },
+        took: matchLatencyMs,
       } = await queryElastic<PlaceTypeSearchHit>(client, { index, ...placetypeQuery(query, disableFuzziness) });
 
-      if (hits.length == 2 && hits[0]._score! - hits[1]._score! > 0.5) {
+      const SCORE_DIFFERENCE_THRESHOLD = 0.5;
+      const MIN_HITS_FOR_DIFFERENCE_CHECK = 2;
+
+      if (hits.length == MIN_HITS_FOR_DIFFERENCE_CHECK && hits[0]._score! - hits[1]._score! > SCORE_DIFFERENCE_THRESHOLD) {
         hits.pop();
       }
 
@@ -47,15 +60,27 @@ const createGeotextRepository = (client: ElasticClient, logger: Logger) => {
         [[], []]
       );
 
-      return { placeTypes, subPlaceTypes };
+      return {
+        placeTypes,
+        subPlaceTypes,
+        matchLatencyMs,
+      };
     },
 
-    async extractHierarchy(index: string, query: string, hierarchyBoost: number, disableFuzziness: boolean): Promise<HierarchySearchHit[]> {
+    async extractHierarchy(
+      index: string,
+      query: string,
+      hierarchyBoost: number,
+      disableFuzziness: boolean
+    ): Promise<{ hierarchies: HierarchySearchHit[]; matchLatencyMs: number }> {
       const {
         hits: { hits },
+        took: matchLatencyMs,
       } = await queryElastic<HierarchySearchHit>(client, { index, ...hierarchyQuery(query, disableFuzziness) });
 
-      const filteredHits = hits.length > 3 ? hits.filter((hit) => hit._score! >= hits[2]._score!) : hits;
+      const MIN_HITS_THRESHOLD = 3;
+
+      const filteredHits = hits.length > MIN_HITS_THRESHOLD ? hits.filter((hit) => hit._score! >= hits[2]._score!) : hits;
 
       const highestScore = Math.max(...filteredHits.map((hit) => hit._score!));
       const hierarchies = filteredHits.map((hit) => ({
@@ -63,7 +88,7 @@ const createGeotextRepository = (client: ElasticClient, logger: Logger) => {
         weight: (hit._score! / highestScore) * (hierarchyBoost - 1) + 1,
       }));
 
-      return hierarchies;
+      return { hierarchies, matchLatencyMs };
     },
 
     async geotextSearch(

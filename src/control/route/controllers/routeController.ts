@@ -7,14 +7,13 @@ import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../../common/constants';
 import { RouteManager } from '../models/routeManager';
 import { Route } from '../models/route';
-import { CommonRequestParameters, FeatureCollection } from '../../../common/interfaces';
+import { FeatureCollection } from '../../../common/interfaces';
+import { ConvertCamelToSnakeCase } from '../../../common/utils';
+import { RouteQueryParams } from '../DAL/queries';
 
 type GetRoutesHandler = RequestHandler<undefined, FeatureCollection<Route>, undefined, GetRoutesQueryParams>;
 
-export interface GetRoutesQueryParams extends CommonRequestParameters {
-  command_name: string;
-  control_point?: string;
-}
+export type GetRoutesQueryParams = ConvertCamelToSnakeCase<RouteQueryParams>;
 
 @injectable()
 export class RouteController {
@@ -25,7 +24,7 @@ export class RouteController {
     @inject(RouteManager) private readonly manager: RouteManager,
     @inject(SERVICES.METER) private readonly meter: Meter
   ) {
-    this.createdResourceCounter = meter.createCounter('created_resource');
+    this.createdResourceCounter = this.meter.createCounter('created_route');
   }
 
   public getRoutes: GetRoutesHandler = async (req, res, next) => {

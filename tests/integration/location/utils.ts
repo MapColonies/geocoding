@@ -21,6 +21,9 @@ const expectedGeocodingElasticResponseMetrics = (
   results_count: resultsCount,
   max_score: expect.any(Number) as number,
   match_latency_ms: expect.any(Number) as number,
+  nlp_anlyser_latency_ms: expect.any(Number) as number,
+  place_type_latency_ms: expect.any(Number) as number,
+  hierarchies_latency_ms: expect.any(Number) as number,
   ...responseParams,
 });
 
@@ -32,7 +35,7 @@ export const expectedResponse = (
 ): GenericGeocodingResponse<Feature> => ({
   type: 'FeatureCollection',
   geocoding: {
-    version: process.env.npm_package_version,
+    version: process.env.npm_package_version as string,
     query: requestParams,
     response: expectedGeocodingElasticResponseMetrics(responseParams, arr.length, expect),
   },

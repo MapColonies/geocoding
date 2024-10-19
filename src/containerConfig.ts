@@ -76,10 +76,10 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
         postInjectionHook: async (deps: DependencyContainer): Promise<void> => {
           const elasticClients = deps.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
           try {
-            const response = await Promise.all([elasticClients.control?.ping(), elasticClients.geotext?.ping()]);
+            const response = await Promise.all([elasticClients.control.ping(), elasticClients.geotext.ping()]);
             response.forEach((res) => {
               if (!res) {
-                logger.error('Failed to connect to Elasticsearch', res);
+                logger.error({ message: 'Failed to connect to Elasticsearch', res });
               }
             });
             cleanupRegistry.register({
@@ -89,8 +89,8 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
               },
               id: SERVICES.ELASTIC_CLIENTS,
             });
-          } catch (err) {
-            logger.error('Failed to connect to Elasticsearch', err);
+          } catch (error) {
+            logger.error({ message: 'Failed to connect to Elasticsearch', error });
           }
         },
       },
@@ -102,8 +102,8 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
           try {
             await s3Client.send(new ListBucketsCommand({}));
             logger.info('Connected to S3');
-          } catch (err) {
-            logger.error('Failed to connect to S3', err);
+          } catch (error) {
+            logger.error({ message: 'Failed to connect to S3', error });
           }
           cleanupRegistry.register({
             func: async () => {
@@ -148,6 +148,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
             },
             id: cronLoadTileLatLonDataSymbol,
           });
+          await Promise.resolve();
         },
       },
       {
@@ -159,7 +160,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
             cleanupRegistry.register({ func: redis.disconnect.bind(redis), id: SERVICES.REDIS });
             await redis.connect();
           } catch (error) {
-            logger.error('Connection to redis failed', error);
+            logger.error({ message: 'Connection to redis failed', error });
           }
         },
       },

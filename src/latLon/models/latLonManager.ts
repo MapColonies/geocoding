@@ -1,14 +1,20 @@
 import { IConfig } from 'config';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
-import { BBox, Feature } from 'geojson';
+import { BBox } from 'geojson';
 import * as mgrs from 'mgrs';
 import { SERVICES } from '../../common/constants';
 import { LatLonDAL, latLonDalSymbol } from '../DAL/latLonDAL';
 import { convertUTMToWgs84, convertWgs84ToUTM, parseGeo, validateWGS84Coordinate } from '../../common/utils';
 import { BadRequestError } from '../../common/errors';
-import { WGS84Coordinate } from '../../common/interfaces';
+import { GenericGeocodingFeatureResponse, WGS84Coordinate } from '../../common/interfaces';
 import { convertCamelToSnakeCase } from '../../control/utils';
+
+const GRID_SIZE = 10000;
+const TILE_DIVISOR = 10;
+const PAD_LENGTH = 4;
+const SUB_TILE_LENGTH = 3;
+const MGRS_ACCURACY = 5;
 
 @injectable()
 export class LatLonManager {
@@ -18,7 +24,7 @@ export class LatLonManager {
     @inject(SERVICES.CONFIG) private readonly config: IConfig
   ) {}
 
-  public async latLonToTile({ lat, lon, targetGrid }: WGS84Coordinate & { targetGrid: string }): Promise<{ [key: string]: unknown } & Feature> {
+  public async latLonToTile({ lat, lon, targetGrid }: WGS84Coordinate & { targetGrid: string }): Promise<GenericGeocodingFeatureResponse> {
     if (!validateWGS84Coordinate({ lat, lon })) {
       this.logger.warn("LatLonManager.latLonToTile: Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal");
       throw new BadRequestError("Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal");
@@ -32,8 +38,8 @@ export class LatLonManager {
     }
 
     const coordinatesUTM = {
-      x: Math.trunc(utm.Easting / 10000) * 10000,
-      y: Math.trunc(utm.Northing / 10000) * 10000,
+      x: Math.trunc(utm.Easting / GRID_SIZE) * GRID_SIZE,
+      y: Math.trunc(utm.Northing / GRID_SIZE) * GRID_SIZE,
       zone: utm.ZoneNumber,
     };
 
@@ -44,12 +50,12 @@ export class LatLonManager {
       throw new BadRequestError('The coordinate is outside the grid extent');
     }
 
-    const xNumber = Math.abs(Math.trunc((utm.Easting % 10000) / 10) * 10)
+    const xNumber = Math.abs(Math.trunc((utm.Easting % GRID_SIZE) / TILE_DIVISOR) * TILE_DIVISOR)
       .toString()
-      .padStart(4, '0');
-    const yNumber = Math.abs(Math.trunc((utm.Northing % 10000) / 10) * 10)
+      .padStart(PAD_LENGTH, '0');
+    const yNumber = Math.abs(Math.trunc((utm.Northing % GRID_SIZE) / TILE_DIVISOR) * TILE_DIVISOR)
       .toString()
-      .padStart(4, '0');
+      .padStart(PAD_LENGTH, '0');
 
     const bbox = [
       ...(
@@ -63,7 +69,7 @@ export class LatLonManager {
     return {
       type: 'Feature',
       geocoding: {
-        version: process.env.npm_package_version,
+        version: process.env.npm_package_version as string,
         query: {
           lat,
           lon,
@@ -85,7 +91,7 @@ export class LatLonManager {
       properties: {
         name: tileCoordinateData.tile_name,
         tileName: tileCoordinateData.tile_name,
-        subTileNumber: new Array(3).fill('').map(function (value, i) {
+        subTileNumber: new Array(SUB_TILE_LENGTH).fill('').map(function (value, i) {
           return xNumber[i] + yNumber[i];
         }),
       },
@@ -95,14 +101,14 @@ export class LatLonManager {
   public latLonToMGRS({
     lat,
     lon,
-    accuracy = 5,
+    accuracy = MGRS_ACCURACY,
     targetGrid,
   }: {
     lat: number;
     lon: number;
     accuracy?: number;
     targetGrid: string;
-  }): { [key: string]: unknown } & Feature {
+  }): GenericGeocodingFeatureResponse {
     const accuracyString: Record<number, string> = {
       [0]: '100km',
       [1]: '10km',
@@ -115,7 +121,7 @@ export class LatLonManager {
     return {
       type: 'Feature',
       geocoding: {
-        version: process.env.npm_package_version,
+        version: process.env.npm_package_version as string,
         query: {
           lat,
           lon,

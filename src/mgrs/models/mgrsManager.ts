@@ -5,7 +5,7 @@ import { BBox, Feature, Geometry } from 'geojson';
 import { inject, injectable } from 'tsyringe';
 import * as mgrs from 'mgrs';
 import { SERVICES } from '../../common/constants';
-import { IApplication } from '../../common/interfaces';
+import { GenericGeocodingResponse, IApplication } from '../../common/interfaces';
 import { GetTileQueryParams } from '../controllers/mgrsController';
 import { BadRequestError } from '../../common/errors';
 import { parseGeo } from '../../common/utils';
@@ -18,7 +18,7 @@ export class MgrsManager {
     @inject(SERVICES.APPLICATION) private readonly application: IApplication
   ) {}
 
-  public getTile({ tile }: GetTileQueryParams): Feature & { geocoding: { [key: string]: unknown } } {
+  public getTile({ tile }: GetTileQueryParams): Feature & Pick<GenericGeocodingResponse<Feature>, 'geocoding'> {
     let bbox: BBox | undefined;
     try {
       bbox = mgrs.inverse(tile);
@@ -26,7 +26,7 @@ export class MgrsManager {
       if ((error as Error).message.includes('MGRSPoint bad conversion')) {
         throw new BadRequestError('Invalid MGRS tile');
       }
-      this.logger.error(`Failed to convert MGRS tile to bbox. Error: ${(error as Error).message}`);
+      this.logger.error({ message: 'Failed to convert MGRS tile to bbox.', error });
       throw error;
     }
 
@@ -35,6 +35,7 @@ export class MgrsManager {
     return {
       type: 'Feature',
       geocoding: {
+        version: process.env.npm_package_version as string,
         query: {
           tile,
         },

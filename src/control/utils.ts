@@ -59,7 +59,7 @@ export const formatResponse = <T extends Tile | Item | Route>(
 ): GenericGeocodingResponse<T> => ({
   type: 'FeatureCollection',
   geocoding: {
-    version: process.env.npm_package_version,
+    version: process.env.npm_package_version as string,
     query: convertCamelToSnakeCase(requestParams as Record<string, unknown>),
     response: {
       results_count: elasticResponse.hits.hits.length,

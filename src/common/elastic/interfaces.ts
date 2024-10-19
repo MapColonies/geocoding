@@ -1,7 +1,7 @@
 import { ClientOptions } from '@elastic/elasticsearch';
 
 export type ElasticDbClientsConfig = {
-  [key in 'control' | 'geotext']: ElasticDbConfig & {
+  [key in 'control' | 'geotext']: ClientOptions & {
     properties: {
       index:
         | string
@@ -13,5 +13,3 @@ export type ElasticDbClientsConfig = {
     };
   };
 };
-
-export type ElasticDbConfig = ClientOptions;

@@ -7,10 +7,11 @@ import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
 import { MgrsManager } from '../models/mgrsManager';
+import { GenericGeocodingResponse } from '../../common/interfaces';
 
 type GetTilesHandler = RequestHandler<
   undefined,
-  | Feature
+  | (Feature & Pick<GenericGeocodingResponse<Feature>, 'geocoding'>)
   | {
       type: string;
       message: string;
@@ -41,7 +42,7 @@ export class MgrsController {
       const response = this.manager.getTile({ tile });
       return res.status(httpStatus.OK).json(response);
     } catch (error: unknown) {
-      this.logger.error(`MgrsController.getTile Error: ${(error as Error).message}`);
+      this.logger.error({ message: 'MgrsController.getTile', error });
       next(error);
     }
   };

@@ -17,11 +17,14 @@ const axiosInstance = axios.create({
   httpsAgent: new https.Agent({ rejectUnauthorized: false }),
 });
 
-export const fetchNLPService = async <T>(endpoint: string, requestData: object): Promise<T[]> => {
+export const fetchNLPService = async <T>(endpoint: string, requestData: object): Promise<{ data: T[]; latency: number }> => {
   let res: Response | null = null,
     data: T[] | undefined | null = null;
+  let latency = 0;
   try {
+    const startTime = Date.now();
     res = await axiosInstance.post(endpoint, requestData);
+    latency = Date.now() - startTime;
   } catch (err: unknown) {
     throw new InternalServerError(`NLP analyser is not available - ${(err as AxiosError).message}`);
   }
@@ -31,7 +34,8 @@ export const fetchNLPService = async <T>(endpoint: string, requestData: object):
   if (res?.status !== StatusCodes.OK || !data || data.length < 1 || !data[0]) {
     throw new InternalServerError(`NLP analyser unexpected response: ${JSON.stringify(data)}`);
   }
-  return data;
+
+  return { data, latency };
 };
 
 export const cleanQuery = (query: string): string[] => query.replace(FIND_QUOTES, '').split(FIND_SPECIAL);
@@ -45,16 +49,23 @@ export const convertResult = (
     regionCollection,
     nameKeys,
     mainLanguageRegex,
+    externalResourcesLatency,
   }: {
     sources?: IApplication['sources'];
     regionCollection?: IApplication['regions'];
     nameKeys: IApplication['nameTranslationsKeys'];
     mainLanguageRegex: IApplication['mainLanguageRegex'];
-  } = { nameKeys: [], mainLanguageRegex: '' }
+    externalResourcesLatency: {
+      query: number;
+      nlpAnalyser: number;
+      placeType: number;
+      hierarchies: number;
+    };
+  } = { nameKeys: [], mainLanguageRegex: '', externalResourcesLatency: { query: 0, nlpAnalyser: 0, placeType: 0, hierarchies: 0 } }
 ): GenericGeocodingResponse<Feature> => ({
   type: 'FeatureCollection',
   geocoding: {
-    version: process.env.npm_package_version,
+    version: process.env.npm_package_version as string,
     query: {
       query: params.query,
       region: params.region,
@@ -67,15 +78,18 @@ export const convertResult = (
     response: {
       results_count: results.hits.hits.length,
       max_score: results.hits.max_score ?? 0,
-      match_latency_ms: results.took,
+      match_latency_ms: externalResourcesLatency.query,
+      nlp_anlyser_latency_ms: externalResourcesLatency.nlpAnalyser,
+      place_type_latency_ms: externalResourcesLatency.placeType,
+      hierarchies_latency_ms: externalResourcesLatency.hierarchies,
       name: params.name ?? undefined,
       place_types: params.placeTypes,
       sub_place_types: params.subPlaceTypes,
-      hierarchies: params.hierarchies,
+      hierarchies: params.hierarchies.length ? params.hierarchies : undefined,
     },
   },
-  features: results.hits.hits.map(({ _source: feature, _score: score, highlight }, index): GenericGeocodingResponse<Feature>['features'][number] => {
-    const allNames = [feature!.text, feature!.translated_text || []];
+  features: results.hits.hits.map(({ _source: feature, _score: score, highlight }): GenericGeocodingResponse<Feature>['features'][number] => {
+    const allNames = [feature!.text, feature?.translated_text ?? []];
     return {
       type: 'Feature',
       geometry: feature!.geo_json as Geometry,
@@ -84,7 +98,7 @@ export const convertResult = (
         matches: [
           {
             layer: feature!.layer_name,
-            source: (sources ?? {})[feature?.source ?? ''] ?? feature?.source,
+            source: sources?.[feature?.source ?? ''] ?? (feature?.source as string),
             source_id: feature?.source_id.map((id) => id.replace(/(^\{)|(\}$)/g, '')) ?? [],
           },
         ],
@@ -98,7 +112,7 @@ export const convertResult = (
         sub_placetype: feature?.sub_placetype,
         regions: feature?.region.map((region) => ({
           region: region,
-          sub_region_names: feature.sub_region.filter((sub_region) => (regionCollection ?? {})[region ?? '']?.includes(sub_region)),
+          sub_region_names: feature.sub_region.filter((sub_region) => regionCollection?.[region]?.includes(sub_region)),
         })),
       },
     };

@@ -23,155 +23,7 @@ type CamelToSnakeCase<S extends string> = S extends `${infer T}${infer U}`
 
 const ajv = new Ajv.Ajv();
 
-const parsePoint = (split: string[] | number[]): Geometry => ({
-  type: 'Point',
-  coordinates: split.map(Number),
-});
-
-const parseBbox = (split: [string, string, string, string] | BBox): Geometry => {
-  const [xMin, yMin, xMax, yMax] = split.map(Number);
-  return {
-    type: 'Polygon',
-    coordinates: [
-      [
-        [xMin, yMin],
-        [xMin, yMax],
-        [xMax, yMax],
-        [xMax, yMin],
-        [xMin, yMin],
-      ],
-    ],
-  };
-};
-
-export type ConvertSnakeToCamelCase<T> = {
-  [K in keyof T as SnakeToCamelCase<K & string>]: T[K];
-};
-
-export type ConvertCamelToSnakeCase<T> = {
-  [K in keyof T as CamelToSnakeCase<K & string>]: T[K];
-};
-
-export type RemoveUnderscore<T> = {
-  [K in keyof T as K extends `_${infer Rest}` ? Rest : K]: T[K];
-};
-
-export const validateWGS84Coordinate = (coordinate: { lon: number; lat: number }): boolean => {
-  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-  const [min, max] = [0, 180];
-  const exceptedKeys = ['lat', 'lon'];
-  const regex = /^([0-9]+(\.[0-9]+)?)$/;
-  for (const key of exceptedKeys) {
-    if (!coordinate[key as keyof typeof coordinate]) {
-      return false;
-    }
-    if (
-      !regex.test(`${coordinate[key as keyof typeof coordinate]}`) ||
-      coordinate[key as keyof typeof coordinate] < min ||
-      coordinate[key as keyof typeof coordinate] > max
-    ) {
-      return false;
-    }
-  }
-  return true;
-};
-
-/* eslint-disable @typescript-eslint/naming-convention */
-export const convertWgs84ToUTM = (
-  { longitude, latitude }: { longitude: number; latitude: number },
-  utmPrecision = 0
-):
-  | string
-  | {
-      Easting: number;
-      Northing: number;
-      ZoneNumber: number;
-    } => {
-  //@ts-expect-error: utm has problem with types. Need to ignore ts error here
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  const UTMcoordinates = new utm().convertLatLngToUtm(latitude, longitude, utmPrecision) as {
-    Easting: number;
-    Northing: number;
-    ZoneNumber: number;
-    ZoneLetter: string;
-  };
-
-  return UTMcoordinates;
-};
-/* eslint-enable @typescript-eslint/naming-convention */
-
-export const convertUTMToWgs84 = (x: number, y: number, zone: number): WGS84Coordinate => {
-  //TODO: change ZONE Letter to relevent letter. Currently it is hardcoded to 'N'
-  const { lat, lng: lon } = new utm().convertUtmToLatLng(x, y, zone, 'N') as { lat: number; lng: number };
-  return { lat, lon };
-};
-
-export const healthCheckFactory: FactoryFunction<void> = (container: DependencyContainer): void => {
-  const logger = container.resolve<Logger>(SERVICES.LOGGER);
-  const elasticClients = container.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
-  const s3Client = container.resolve<S3Client>(SERVICES.S3_CLIENT);
-  const redis = container.resolve<RedisClient>(SERVICES.REDIS);
-
-  for (const [key, client] of Object.entries(elasticClients)) {
-    client.cluster
-      .health({})
-      .then(() => {
-        return;
-      })
-      .catch((error) => {
-        logger.error(`Healthcheck failed for ${key}. Error: ${(error as Error).message}`);
-      });
-  }
-
-  s3Client
-    .send(new ListBucketsCommand({}))
-    .then(() => {
-      return;
-    })
-    .catch((error) => {
-      logger.error(`Healthcheck failed for S3. Error: ${(error as Error).message}`);
-    });
-
-  redis
-    .ping()
-    .then(() => {
-      return;
-    })
-    .catch((error) => {
-      logger.error(`Healthcheck failed for Redis. Error: ${(error as Error).message}`);
-    });
-};
-
-export const promiseTimeout = async <T>(ms: number, promise: Promise<T>): Promise<T> => {
-  // create a promise that rejects in <ms> milliseconds
-  const timeout = new Promise<T>((_, reject) => {
-    const id = setTimeout(() => {
-      clearTimeout(id);
-      reject(new TimeoutError(`Timed out in + ${ms} + ms.`));
-    }, ms);
-  });
-
-  // returns a race between our timeout and the passed in promise
-  return Promise.race([promise, timeout]);
-};
-
-export const parseGeo = (input: GeoContext): Geometry | undefined => {
-  //TODO: Add geojson validation
-  //TODO: refactor this function
-  if (input.bbox !== undefined) {
-    return parseBbox(input.bbox);
-  } else if (
-    (input.x !== undefined && input.y !== undefined && input.zone !== undefined && input.zone !== undefined) ||
-    (input.lon !== undefined && input.lat !== undefined)
-  ) {
-    const { x, y, zone, radius } = input;
-    const { lon, lat } = x && y && zone ? convertUTMToWgs84(x, y, zone) : (input as Required<Pick<GeoContext, 'lat' | 'lon'>>);
-
-    return { type: 'Circle', coordinates: (parsePoint([lon, lat]) as Point).coordinates, radius: `${radius ?? ''}` } as unknown as Geometry;
-  }
-};
-
-export const validateGeoContext = (geoContext: GeoContext): boolean => {
+const validateGeoContext = (geoContext: GeoContext | undefined): boolean => {
   const geoCOntextSchema: Ajv.Schema = {
     oneOf: [
       {
@@ -253,6 +105,161 @@ export const validateGeoContext = (geoContext: GeoContext): boolean => {
   return true;
 };
 
+const parsePoint = (split: string[] | number[]): Geometry => ({
+  type: 'Point',
+  coordinates: split.map(Number),
+});
+
+const parseBbox = (split: [string, string, string, string] | BBox): Geometry => {
+  const [xMin, yMin, xMax, yMax] = split.map(Number);
+  return {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [xMin, yMin],
+        [xMin, yMax],
+        [xMax, yMax],
+        [xMax, yMin],
+        [xMin, yMin],
+      ],
+    ],
+  };
+};
+
+const hasCoordinates = (input: GeoContext): boolean => {
+  return (input.x !== undefined && input.y !== undefined && input.zone !== undefined) || (input.lon !== undefined && input.lat !== undefined);
+};
+
+const parseCoordinates = (input: GeoContext): Geometry => {
+  const { x, y, zone, radius } = input;
+  const { lon, lat } = x && y && zone ? convertUTMToWgs84(x, y, zone) : (input as Required<Pick<GeoContext, 'lat' | 'lon'>>);
+
+  return {
+    type: 'Circle',
+    coordinates: (parsePoint([lon, lat]) as Point).coordinates,
+    radius: `${radius ?? ''}`,
+  } as unknown as Geometry;
+};
+
+export type ConvertSnakeToCamelCase<T> = {
+  [K in keyof T as SnakeToCamelCase<K & string>]: T[K];
+};
+
+export type ConvertCamelToSnakeCase<T> = {
+  [K in keyof T as CamelToSnakeCase<K & string>]: T[K];
+};
+
+export type RemoveUnderscore<T> = {
+  [K in keyof T as K extends `_${infer Rest}` ? Rest : K]: T[K];
+};
+
+export const validateWGS84Coordinate = (coordinate: { lon: number; lat: number }): boolean => {
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+  const [min, max] = [0, 180];
+  const exceptedKeys = ['lat', 'lon'];
+  const regex = /^([0-9]+(\.[0-9]+)?)$/;
+  for (const key of exceptedKeys) {
+    if (!coordinate[key as keyof typeof coordinate]) {
+      return false;
+    }
+    if (
+      !regex.test(`${coordinate[key as keyof typeof coordinate]}`) ||
+      coordinate[key as keyof typeof coordinate] < min ||
+      coordinate[key as keyof typeof coordinate] > max
+    ) {
+      return false;
+    }
+  }
+  return true;
+};
+
+/* eslint-disable @typescript-eslint/naming-convention */
+export const convertWgs84ToUTM = (
+  { longitude, latitude }: { longitude: number; latitude: number },
+  utmPrecision = 0
+):
+  | string
+  | {
+      Easting: number;
+      Northing: number;
+      ZoneNumber: number;
+    } => {
+  //@ts-expect-error: utm has problem with types. Need to ignore ts error here
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const UTMcoordinates = new utm().convertLatLngToUtm(latitude, longitude, utmPrecision) as {
+    Easting: number;
+    Northing: number;
+    ZoneNumber: number;
+    ZoneLetter: string;
+  };
+
+  return UTMcoordinates;
+};
+/* eslint-enable @typescript-eslint/naming-convention */
+
+export const convertUTMToWgs84 = (x: number, y: number, zone: number): WGS84Coordinate => {
+  //TODO: change ZONE Letter to relevent letter. Currently it is hardcoded to 'N'
+  const { lat, lng: lon } = new utm().convertUtmToLatLng(x, y, zone, 'N') as { lat: number; lng: number };
+  return { lat, lon };
+};
+
+export const healthCheckFactory: FactoryFunction<void> = (container: DependencyContainer): void => {
+  const logger = container.resolve<Logger>(SERVICES.LOGGER);
+  const elasticClients = container.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
+  const s3Client = container.resolve<S3Client>(SERVICES.S3_CLIENT);
+  const redis = container.resolve<RedisClient>(SERVICES.REDIS);
+
+  for (const [key, client] of Object.entries(elasticClients)) {
+    client.cluster
+      .health({})
+      .then(() => {
+        return;
+      })
+      .catch((error: Error) => {
+        logger.error({ message: `Healthcheck failed for ${key}.`, error });
+      });
+  }
+
+  s3Client
+    .send(new ListBucketsCommand({}))
+    .then(() => {
+      return;
+    })
+    .catch((error: Error) => {
+      logger.error({
+        message: `Healthcheck failed for S3.`,
+        error,
+      });
+    });
+
+  redis
+    .ping()
+    .then(() => {
+      return;
+    })
+    .catch((error: Error) => {
+      logger.error({
+        message: `Healthcheck failed for Redis.`,
+        error,
+      });
+    });
+};
+
+export const parseGeo = (input: GeoContext | undefined): Geometry | undefined => {
+  validateGeoContext(input);
+  const geoContext = input as GeoContext;
+
+  if (geoContext.bbox !== undefined) {
+    return parseBbox(geoContext.bbox);
+  }
+
+  if (hasCoordinates(geoContext)) {
+    return parseCoordinates(geoContext);
+  }
+
+  return undefined;
+};
+
 export const geoContextQuery = (
   geoContext?: GeoContext,
   geoContextMode?: GeoContextMode,
@@ -265,17 +272,16 @@ export const geoContextQuery = (
     throw new BadRequestError('/control/utils/geoContextQuery: geo_context and geo_context_mode must be both defined or both undefined');
   }
 
-  validateGeoContext(geoContext!);
-
+  const GEO_CONTEXT_MODE_BIAS_BOOST = 1.1;
   return {
     [geoContextMode === GeoContextMode.FILTER ? 'filter' : 'should']: [
       {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         geo_shape: {
           [elasticGeoShapeField]: {
-            shape: parseGeo(geoContext!),
+            shape: parseGeo(geoContext),
           },
-          boost: geoContextMode === GeoContextMode.BIAS ? 1.1 : 1, //TODO: change magic number
+          boost: geoContextMode === GeoContextMode.BIAS ? GEO_CONTEXT_MODE_BIAS_BOOST : 1,
         },
       },
     ],

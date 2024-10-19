@@ -1,7 +1,5 @@
-import type { GeoJSON } from 'geojson';
-import { estypes } from '@elastic/elasticsearch';
 import { CommonRequestParameters } from '../common/interfaces';
-import { ConvertCamelToSnakeCase, ConvertSnakeToCamelCase, RemoveUnderscore } from '../common/utils';
+import { ConvertSnakeToCamelCase } from '../common/utils';
 import { HierarchySearchHit } from './models/elasticsearchHits';
 
 export interface PlaceType {

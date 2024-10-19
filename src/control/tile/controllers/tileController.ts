@@ -7,7 +7,9 @@ import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../../common/constants';
 import { TileManager } from '../models/tileManager';
 import { Tile } from '../models/tile';
-import { CommonRequestParameters, FeatureCollection } from '../../../common/interfaces';
+import { FeatureCollection } from '../../../common/interfaces';
+import { ConvertCamelToSnakeCase } from '../../../common/utils';
+import { TileQueryParams } from '../DAL/queries';
 
 type GetTilesHandler = RequestHandler<
   undefined,
@@ -20,11 +22,7 @@ type GetTilesHandler = RequestHandler<
   GetTilesQueryParams
 >;
 
-export interface GetTilesQueryParams extends CommonRequestParameters {
-  tile?: string;
-  mgrs?: string;
-  sub_tile?: string;
-}
+export type GetTilesQueryParams = ConvertCamelToSnakeCase<TileQueryParams>;
 
 @injectable()
 export class TileController {
@@ -35,7 +33,7 @@ export class TileController {
     @inject(TileManager) private readonly manager: TileManager,
     @inject(SERVICES.METER) private readonly meter: Meter
   ) {
-    this.createdResourceCounter = meter.createCounter('created_resource');
+    this.createdResourceCounter = this.meter.createCounter('created_tile');
   }
 
   public getTiles: GetTilesHandler = async (req, res, next) => {
