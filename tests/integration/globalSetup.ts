@@ -9,7 +9,7 @@ import importDataToS3 from '../../devScripts/importDataToS3';
 import importDataToElastic from '../../devScripts/importDataToElastic';
 import { cronLoadTileLatLonDataSymbol } from '../../src/latLon/DAL/latLonDAL';
 
-export default async () => {
+export default async (): Promise<void> => {
   const app = await getApp({
     override: [
       { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
