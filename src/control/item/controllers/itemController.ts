@@ -7,15 +7,13 @@ import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../../common/constants';
 import { ItemManager } from '../models/itemManager';
 import { Item } from '../models/item';
-import { CommonRequestParameters, FeatureCollection } from '../../../common/interfaces';
+import { FeatureCollection } from '../../../common/interfaces';
+import { ConvertCamelToSnakeCase } from '../../../common/utils';
+import { ItemQueryParams } from '../DAL/queries';
 
 type GetItemsHandler = RequestHandler<undefined, FeatureCollection<Item>, undefined, GetItemsQueryParams>;
 
-export interface GetItemsQueryParams extends CommonRequestParameters {
-  command_name: string;
-  tile?: string;
-  sub_tile?: string;
-}
+export type GetItemsQueryParams = ConvertCamelToSnakeCase<ItemQueryParams>;
 
 @injectable()
 export class ItemController {
@@ -26,7 +24,7 @@ export class ItemController {
     @inject(ItemManager) private readonly manager: ItemManager,
     @inject(SERVICES.METER) private readonly meter: Meter
   ) {
-    this.createdResourceCounter = meter.createCounter('created_resource');
+    this.createdResourceCounter = this.meter.createCounter('created_item');
   }
 
   public getItems: GetItemsHandler = async (req, res, next) => {
