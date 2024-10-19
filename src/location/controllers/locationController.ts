@@ -11,7 +11,7 @@ import { GenericGeocodingResponse } from '../../common/interfaces';
 
 type GetGeotextSearchHandler = RequestHandler<
   unknown,
-  GenericGeocodingResponse<Feature> | { message: string; error: string }, //response
+  GenericGeocodingResponse<Feature> | { message: string; error: string },
   undefined,
   GetGeotextSearchParams
 >;
@@ -29,7 +29,7 @@ export class GeotextSearchController {
     @inject(GeotextSearchManager) private readonly manager: GeotextSearchManager,
     @inject(SERVICES.METER) private readonly meter: Meter
   ) {
-    this.createdResourceCounter = meter.createCounter('created_resource');
+    this.createdResourceCounter = this.meter.createCounter('created_location');
   }
 
   public getGeotextSearch: GetGeotextSearchHandler = async (req, res, next) => {

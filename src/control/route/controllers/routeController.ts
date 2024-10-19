@@ -24,7 +24,7 @@ export class RouteController {
     @inject(RouteManager) private readonly manager: RouteManager,
     @inject(SERVICES.METER) private readonly meter: Meter
   ) {
-    this.createdResourceCounter = meter.createCounter('created_route');
+    this.createdResourceCounter = this.meter.createCounter('created_route');
   }
 
   public getRoutes: GetRoutesHandler = async (req, res, next) => {
