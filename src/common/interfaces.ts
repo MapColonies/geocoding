@@ -82,7 +82,7 @@ export interface CommonRequestParameters {
 
 export interface GenericGeocodingResponse<T extends Feature, G = any> extends FeatureCollection<T> {
   geocoding: {
-    version?: string;
+    version: string;
     query: G & CommonRequestParameters;
     response: Pick<estypes.SearchHitsMetadata, 'max_score'> & {
       /* eslint-disable @typescript-eslint/naming-convention */
