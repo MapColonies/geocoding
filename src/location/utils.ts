@@ -54,7 +54,7 @@ export const convertResult = (
 ): GenericGeocodingResponse<Feature> => ({
   type: 'FeatureCollection',
   geocoding: {
-    version: process.env.npm_package_version,
+    version: process.env.npm_package_version as string,
     query: {
       query: params.query,
       region: params.region,
