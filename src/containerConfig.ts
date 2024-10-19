@@ -76,7 +76,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
         postInjectionHook: async (deps: DependencyContainer): Promise<void> => {
           const elasticClients = deps.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
           try {
-            const response = await Promise.all([elasticClients.control?.ping(), elasticClients.geotext?.ping()]);
+            const response = await Promise.all([elasticClients.control.ping(), elasticClients.geotext.ping()]);
             response.forEach((res) => {
               if (!res) {
                 logger.error('Failed to connect to Elasticsearch', res);
