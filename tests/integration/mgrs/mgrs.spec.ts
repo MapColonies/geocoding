@@ -10,6 +10,7 @@ import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { S3_REPOSITORY_SYMBOL } from '../../../src/common/s3/s3Repository';
 import { cronLoadTileLatLonDataSymbol } from '../../../src/latLon/DAL/latLonDAL';
+import { GenericGeocodingFeatureResponse } from '../../../src/common/interfaces';
 import { MgrsRequestSender } from './helpers/requestSender';
 
 describe('/search/MGRS', function () {
@@ -46,9 +47,11 @@ describe('/search/MGRS', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject({
+      console.log(response.body);
+      expect(response.body).toEqual<GenericGeocodingFeatureResponse>({
         type: 'Feature',
         geocoding: {
+          version: process.env.npm_package_version as string,
           query: {
             tile: '18SUJ2339007393',
           },
