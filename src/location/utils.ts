@@ -74,8 +74,8 @@ export const convertResult = (
       hierarchies: params.hierarchies,
     },
   },
-  features: results.hits.hits.map(({ _source: feature, _score: score, highlight }, index): GenericGeocodingResponse<Feature>['features'][number] => {
-    const allNames = [feature!.text, feature!.translated_text || []];
+  features: results.hits.hits.map(({ _source: feature, _score: score, highlight }): GenericGeocodingResponse<Feature>['features'][number] => {
+    const allNames = [feature!.text, feature?.translated_text ?? []];
     return {
       type: 'Feature',
       geometry: feature!.geo_json as Geometry,
@@ -84,7 +84,7 @@ export const convertResult = (
         matches: [
           {
             layer: feature!.layer_name,
-            source: (sources ?? {})[feature?.source ?? ''] ?? feature?.source,
+            source: sources?.[feature?.source ?? ''] ?? (feature?.source as string),
             source_id: feature?.source_id.map((id) => id.replace(/(^\{)|(\}$)/g, '')) ?? [],
           },
         ],
@@ -98,7 +98,7 @@ export const convertResult = (
         sub_placetype: feature?.sub_placetype,
         regions: feature?.region.map((region) => ({
           region: region,
-          sub_region_names: feature.sub_region.filter((sub_region) => (regionCollection ?? {})[region ?? ''].includes(sub_region)),
+          sub_region_names: feature.sub_region.filter((sub_region) => regionCollection?.[region]?.includes(sub_region)),
         })),
       },
     };
