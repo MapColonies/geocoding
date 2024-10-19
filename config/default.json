@@ -85,6 +85,7 @@
     }
   },
   "application": {
+    "site": "local",
     "services": {
       "tokenTypesUrl": "http://NLP_ANALYSES"
     },

@@ -59,6 +59,7 @@
     }
   },
   "application": {
+    "site": "test",
     "services": {
       "tokenTypesUrl": "http://localhost:5001/NLP_ANALYSES"
     },
