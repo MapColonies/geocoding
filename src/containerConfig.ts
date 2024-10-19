@@ -148,6 +148,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
             },
             id: cronLoadTileLatLonDataSymbol,
           });
+          await Promise.resolve();
         },
       },
       {
