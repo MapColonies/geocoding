@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import config from 'config';
 import { DependencyContainer } from 'tsyringe';
 import { Application } from 'express';
 import { CleanupRegistry } from '@map-colonies/cleanup-registry';
