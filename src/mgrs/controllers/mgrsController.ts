@@ -7,10 +7,11 @@ import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
 import { MgrsManager } from '../models/mgrsManager';
+import { GenericGeocodingResponse } from '../../common/interfaces';
 
 type GetTilesHandler = RequestHandler<
   undefined,
-  | Feature
+  | (Feature & Pick<GenericGeocodingResponse<Feature>, 'geocoding'>)
   | {
       type: string;
       message: string;
