@@ -3,7 +3,7 @@ import { Client, ClientOptions } from '@elastic/elasticsearch';
 import { DependencyContainer, FactoryFunction } from 'tsyringe';
 import { IConfig } from '../interfaces';
 import { elasticConfigPath, SERVICES } from '../constants';
-import { ElasticDbClientsConfig, ElasticDbConfig } from './interfaces';
+import { ElasticDbClientsConfig } from './interfaces';
 
 const createConnectionOptions = (clientOptions: ClientOptions): ClientOptions => ({
   ...clientOptions,
@@ -28,7 +28,7 @@ export const elasticClientsFactory: FactoryFunction<ElasticClients> = (container
   const elasticClients = {} as ElasticClients;
 
   for (const [key, value] of Object.entries(elasticClientsConfig)) {
-    elasticClients[key as keyof ElasticDbClientsConfig] = initElasticsearchClient(value as ElasticDbConfig);
+    elasticClients[key as keyof ElasticDbClientsConfig] = initElasticsearchClient(value as ClientOptions);
     logger.info(`Elasticsearch client for ${key} is initialized`);
   }
 
