@@ -74,6 +74,17 @@ describe('/search/MGRS', function () {
           ],
         },
         properties: {
+          matches: [
+            {
+              layer: 'MGRS',
+              source: 'npm/mgrs',
+              source_id: [],
+            },
+          ],
+          names: {
+            default: ['18SUJ2339007393'],
+            display: '18SUJ2339007393',
+          },
           score: 1,
         },
       });

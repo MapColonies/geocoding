@@ -9,6 +9,7 @@ import httpStatusCodes from 'http-status-codes';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { LatLonDAL } from '../../../src/latLon/DAL/latLonDAL';
+import { GenericGeocodingFeatureResponse } from '../../../src/common/interfaces';
 import { LatLonRequestSender } from './helpers/requestSender';
 
 describe('/lookup', function () {
@@ -45,7 +46,7 @@ describe('/lookup', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       expect(response).toSatisfyApiSpec();
-      expect(response.body).toEqual({
+      expect(response.body).toEqual<GenericGeocodingFeatureResponse>({
         type: 'Feature',
         geocoding: {
           version: expect.any(String) as string,
@@ -74,7 +75,17 @@ describe('/lookup', function () {
           ],
         },
         properties: {
-          name: 'BRN',
+          matches: [
+            {
+              layer: 'convertionTable',
+              source: 'mapcolonies',
+              source_id: [],
+            },
+          ],
+          names: {
+            default: ['BRN'],
+            display: 'BRN',
+          },
           tileName: 'BRN',
           subTileNumber: ['06', '97', '97'],
         },
@@ -90,7 +101,7 @@ describe('/lookup', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       expect(response).toSatisfyApiSpec();
-      expect(response.body).toEqual({
+      expect(response.body).toEqual<GenericGeocodingFeatureResponse>({
         type: 'Feature',
         geocoding: {
           version: expect.any(String) as string,
@@ -111,9 +122,20 @@ describe('/lookup', function () {
           coordinates: [12.948781146422107, 52.57326537485767],
         },
         properties: {
-          name: '33UUU6099626777',
+          matches: [
+            {
+              layer: 'MGRS',
+              source: 'npm/MGRS',
+              source_id: [],
+            },
+          ],
+          names: {
+            default: ['33UUU6099626777'],
+            display: '33UUU6099626777',
+          },
           accuracy: '1m',
           mgrs: '33UUU6099626777',
+          score: 1,
         },
       });
     });
