@@ -63,7 +63,7 @@ export const formatResponse = <T extends Tile | Item | Route>(
     query: convertCamelToSnakeCase(requestParams as Record<string, unknown>),
     response: {
       results_count: elasticResponse.hits.hits.length,
-      max_score: elasticResponse.hits.max_score as number,
+      max_score: elasticResponse.hits.max_score ?? 0,
       match_latency_ms: elasticResponse.took,
     },
   },
