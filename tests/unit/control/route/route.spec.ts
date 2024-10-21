@@ -125,8 +125,4 @@ describe('#RouteManager', () => {
       ],
     });
   });
-
-  //   describe('Bad Path', () => {
-  //     // All requests with status code of 400
-  //   });
 });
