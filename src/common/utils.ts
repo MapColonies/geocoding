@@ -153,6 +153,8 @@ export type RemoveUnderscore<T> = {
   [K in keyof T as K extends `_${infer Rest}` ? Rest : K]: T[K];
 };
 
+export type RequireKeys<T extends object, K extends keyof T> = Required<Pick<T, K>> & Omit<T, K>;
+
 export const validateWGS84Coordinate = (coordinate: { lon: number; lat: number }): boolean => {
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   const [min, max] = [0, 180];
