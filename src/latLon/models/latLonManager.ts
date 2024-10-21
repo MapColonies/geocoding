@@ -89,7 +89,18 @@ export class LatLonManager {
         coordinates: [lon, lat],
       },
       properties: {
-        name: tileCoordinateData.tile_name,
+        matches: [
+          {
+            layer: 'convertionTable',
+            source: 'mapcolonies',
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            source_id: [],
+          },
+        ],
+        names: {
+          default: [tileCoordinateData.tile_name],
+          display: tileCoordinateData.tile_name,
+        },
         tileName: tileCoordinateData.tile_name,
         subTileNumber: new Array(SUB_TILE_LENGTH).fill('').map(function (value, i) {
           return xNumber[i] + yNumber[i];
@@ -103,9 +114,7 @@ export class LatLonManager {
     lon,
     accuracy = MGRS_ACCURACY,
     targetGrid,
-  }: {
-    lat: number;
-    lon: number;
+  }: WGS84Coordinate & {
     accuracy?: number;
     targetGrid: string;
   }): GenericGeocodingFeatureResponse {
@@ -139,9 +148,21 @@ export class LatLonManager {
         coordinates: [lon, lat],
       },
       properties: {
-        name: mgrsStr,
+        matches: [
+          {
+            layer: 'MGRS',
+            source: 'npm/MGRS',
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            source_id: [],
+          },
+        ],
+        names: {
+          default: [mgrsStr],
+          display: mgrsStr,
+        },
         accuracy: accuracyString[accuracy],
         mgrs: mgrsStr,
+        score: 1,
       },
     };
   }

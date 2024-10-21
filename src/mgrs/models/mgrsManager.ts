@@ -45,6 +45,17 @@ export class MgrsManager {
       bbox,
       geometry,
       properties: {
+        matches: [
+          {
+            layer: 'MGRS',
+            source: 'npm/mgrs',
+            source_id: [],
+          },
+        ],
+        names: {
+          default: [tile],
+          display: tile,
+        },
         score: 1,
       },
     };
