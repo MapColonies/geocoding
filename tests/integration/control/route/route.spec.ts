@@ -13,8 +13,13 @@ import { CommonRequestParameters, GenericGeocodingResponse, GeoContext, GeoConte
 import { S3_REPOSITORY_SYMBOL } from '../../../../src/common/s3/s3Repository';
 import { cronLoadTileLatLonDataSymbol } from '../../../../src/latLon/DAL/latLonDAL';
 import { expectedResponse } from '../utils';
+import {
+  ROUTE_VIA_CAMILLUCCIA_A,
+  ROUTE_VIA_CAMILLUCCIA_B,
+  CONTROL_POINT_OLIMPIADE_111,
+  CONTROL_POINT_OLIMPIADE_112,
+} from '../../../mockObjects/routes';
 import { RouteRequestSender } from './helpers/requestSender';
-import { ROUTE_VIA_CAMILLUCCIA_A, ROUTE_VIA_CAMILLUCCIA_B, CONTROL_POINT_OLIMPIADE_111, CONTROL_POINT_OLIMPIADE_112 } from './mockObjects';
 
 describe('/search/control/route', function () {
   let requestSender: RouteRequestSender;

@@ -14,7 +14,6 @@ import { S3_REPOSITORY_SYMBOL } from '../../../src/common/s3/s3Repository';
 import { cronLoadTileLatLonDataSymbol } from '../../../src/latLon/DAL/latLonDAL';
 import { GetGeotextSearchParams } from '../../../src/location/interfaces';
 import { GenericGeocodingResponse, GeoContext, GeoContextMode, IApplication } from '../../../src/common/interfaces';
-import { LocationRequestSender } from './helpers/requestSender';
 import {
   OSM_LA_PORT,
   GOOGLE_LA_PORT,
@@ -25,7 +24,8 @@ import {
   LA_HIERRARCHY,
   MockLocationQueryFeature,
   PARIS_WI_SCHOOL,
-} from './mockObjects';
+} from '../../mockObjects/locations';
+import { LocationRequestSender } from './helpers/requestSender';
 import { expectedResponse, hierarchiesWithAnyWieght } from './utils';
 
 describe('/search/location', function () {
