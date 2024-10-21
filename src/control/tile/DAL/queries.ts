@@ -2,7 +2,7 @@ import { estypes } from '@elastic/elasticsearch';
 import { BBox } from 'geojson';
 import { CommonRequestParameters } from '../../../common/interfaces';
 import { ELASTIC_KEYWORDS } from '../../constants';
-import { ConvertSnakeToCamelCase, geoContextQuery, parseGeo } from '../../../common/utils';
+import { ConvertSnakeToCamelCase, geoContextQuery, parseGeo, RequireKeys } from '../../../common/utils';
 
 export interface TileQueryParams extends ConvertSnakeToCamelCase<CommonRequestParameters> {
   tile?: string;
@@ -46,7 +46,7 @@ export const queryForSubTiles = ({
   geoContextMode,
   subTile,
   disableFuzziness,
-}: Omit<Required<TileQueryParams>, 'mgrs'>): estypes.SearchRequest => ({
+}: RequireKeys<Omit<TileQueryParams, 'mgrs'>, 'tile' | 'subTile'>): estypes.SearchRequest => ({
   query: {
     bool: {
       must: [
