@@ -218,7 +218,7 @@ export const healthCheckFactory: FactoryFunction<void> = (container: DependencyC
         return;
       })
       .catch((error: Error) => {
-        logger.error({ message: `Healthcheck failed for ${key}.`, error });
+        logger.error({ msg: `Healthcheck failed for ${key}.`, error });
       });
   }
 

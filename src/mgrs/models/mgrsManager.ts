@@ -26,7 +26,7 @@ export class MgrsManager {
       if ((error as Error).message.includes('MGRSPoint bad conversion')) {
         throw new BadRequestError('Invalid MGRS tile');
       }
-      this.logger.error({ message: 'Failed to convert MGRS tile to bbox.', error });
+      this.logger.error({ msg: 'Failed to convert MGRS tile to bbox.', error });
       throw error;
     }
 

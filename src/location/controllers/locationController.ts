@@ -47,7 +47,7 @@ export class GeotextSearchController {
       const response = await this.manager.search({ query, region, source, disableFuzziness, geoContext, geoContextMode, limit });
       return res.status(httpStatus.OK).json(response);
     } catch (error: unknown) {
-      this.logger.error({ message: 'Error in getGeotextSearch', error });
+      this.logger.error({ msg: 'Error in getGeotextSearch', error });
       next(error);
     }
   };

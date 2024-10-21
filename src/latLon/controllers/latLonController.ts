@@ -39,7 +39,7 @@ export class LatLonController {
 
       return res.status(httpStatus.OK).json(response);
     } catch (error: unknown) {
-      this.logger.warn('latLonController.getCoordinates Error:', error);
+      this.logger.error({ msG: 'latLonController.getCoordinates error', error });
       next(error);
     }
   };

@@ -38,6 +38,6 @@ export const redisClientFactory: FactoryFunction<RedisClient | undefined> = (con
       .on('ready', (...args) => logger.debug({ msg: 'redis client is ready', ...args }));
     return redisClient;
   } catch (error) {
-    logger.error({ message: 'Connection to Redis was unsuccessful', error });
+    logger.error({ msg: 'Connection to Redis was unsuccessful', error });
   }
 };

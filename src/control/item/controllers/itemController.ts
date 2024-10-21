@@ -41,7 +41,7 @@ export class ItemController {
       });
       return res.status(httpStatus.OK).json(response);
     } catch (error: unknown) {
-      this.logger.warn('itemController.getItems Error:', error);
+      this.logger.error({ msg: 'itemController.getItems error', error });
       next(error);
     }
   };

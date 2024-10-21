@@ -40,7 +40,7 @@ export class RouteController {
       });
       return res.status(httpStatus.OK).json(response);
     } catch (error: unknown) {
-      this.logger.warn('routeController.getRoutes Error:', error);
+      this.logger.error({ msg: 'routeController.getRoutes error', error });
       next(error);
     }
   };

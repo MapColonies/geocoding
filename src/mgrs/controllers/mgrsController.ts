@@ -42,7 +42,7 @@ export class MgrsController {
       const response = this.manager.getTile({ tile });
       return res.status(httpStatus.OK).json(response);
     } catch (error: unknown) {
-      this.logger.error({ message: 'MgrsController.getTile', error });
+      this.logger.error({ msg: 'MgrsController.getTile', error });
       next(error);
     }
   };

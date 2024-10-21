@@ -49,7 +49,7 @@ const createS3Repository = (s3Client: S3Client, config: IConfig, logger: Logger)
 
         return filePath;
       } catch (error) {
-        logger.error({ message: `Error while downloading ${key}'s data from S3.`, error });
+        logger.error({ msg: `Error while downloading ${key}'s data from S3.`, error });
         throw error;
       }
     },

@@ -26,14 +26,14 @@ export class LatLonManager {
 
   public async latLonToTile({ lat, lon, targetGrid }: WGS84Coordinate & { targetGrid: string }): Promise<GenericGeocodingFeatureResponse> {
     if (!validateWGS84Coordinate({ lat, lon })) {
-      this.logger.warn("LatLonManager.latLonToTile: Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal");
+      this.logger.error({ msg: "LatLonManager.latLonToTile: Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal" });
       throw new BadRequestError("Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal");
     }
 
     const utm = convertWgs84ToUTM({ longitude: lon, latitude: lat });
 
     if (typeof utm === 'string') {
-      this.logger.warn('LatLonManager.latLonToTile: utm is string');
+      this.logger.error({ msg: 'LatLonManager.latLonToTile: utm is string' });
       throw new BadRequestError('utm is string');
     }
 
@@ -46,7 +46,7 @@ export class LatLonManager {
     const tileCoordinateData = await this.latLonDAL.latLonToTile({ x: coordinatesUTM.x, y: coordinatesUTM.y, zone: coordinatesUTM.zone });
 
     if (!tileCoordinateData) {
-      this.logger.warn('LatLonManager.latLonToTile: The coordinate is outside the grid extent');
+      this.logger.error({ msg: 'LatLonManager.latLonToTile: The coordinate is outside the grid extent' });
       throw new BadRequestError('The coordinate is outside the grid extent');
     }
 
