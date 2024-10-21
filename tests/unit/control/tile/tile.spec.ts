@@ -16,7 +16,7 @@ describe('#TileManager', () => {
   const getTiles = jest.fn();
   const getSubTiles = jest.fn();
   const getTilesByBbox = jest.fn();
-  const controlObjectDisplayNamePrefixes = { TILE: 'Tile', SUB_TILE: 'Sub Tile', ROUTE: 'Route', ITEM: 'Item', CONTROL_POINT: 'Control Point' };
+  const controlObjectDisplayNamePrefixes = { TILE: 'Tile', SUB_TILE: 'Sub Tile' };
   beforeEach(() => {
     jest.resetAllMocks();
 
