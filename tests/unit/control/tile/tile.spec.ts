@@ -142,19 +142,6 @@ describe('#TileManager', () => {
     });
   });
 
-  it('should throw BadRequestError if both tile and mgrs are provided', async () => {
-    const queryParams = {
-      tile: RIC_TILE.properties.TILE_NAME,
-      mgrs: '33TTG958462',
-      limit: 5,
-      disableFuzziness: false,
-    };
-
-    await expect(tileManager.getTiles(queryParams)).rejects.toThrow(
-      new BadRequestError("/control/tiles: only one of 'tile' or 'mgrs' query parameter must be defined")
-    );
-  });
-
   describe('Bad Path', () => {
     // All requests with status code of 400
     it('should throw BadRequestError if both tile and mgrs are provided', async () => {
