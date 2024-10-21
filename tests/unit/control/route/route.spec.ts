@@ -9,7 +9,7 @@ import { Route } from '../../../../src/control/route/models/route';
 import { convertCamelToSnakeCase } from '../../../../src/control/utils';
 import { CONTROL_POINT_OLIMPIADE_111, ROUTE_VIA_CAMILLUCCIA_A } from '../../../mockObjects/routes';
 
-let tileManager: RouteManager;
+let routeManager: RouteManager;
 
 describe('#RouteManager', () => {
   const getRoutes = jest.fn();
@@ -23,7 +23,7 @@ describe('#RouteManager', () => {
       getControlPointInRoute,
     } as unknown as RouteRepository;
 
-    tileManager = new RouteManager(
+    routeManager = new RouteManager(
       jsLogger({ enabled: false }),
       {} as never,
       {
@@ -92,7 +92,7 @@ describe('#RouteManager', () => {
 
     mockFunction.mockResolvedValue(hit);
 
-    const generated = await tileManager.getRoutes(queryParams);
+    const generated = await routeManager.getRoutes(queryParams);
 
     expect(generated).toEqual<GenericGeocodingResponse<Route>>({
       type: 'FeatureCollection',
