@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
+import 'jest-openapi';
 import { DependencyContainer } from 'tsyringe';
 import { Application } from 'express';
 import { CleanupRegistry } from '@map-colonies/cleanup-registry';
@@ -84,7 +85,7 @@ describe('/search/MGRS', function () {
       const response = await requestSender.getTile({ tile: 'ABC{}' });
 
       expect(response.body).toMatchObject({
-        message: 'Invalid MGRS tile',
+        message: 'Invalid MGRS tile. MGRSPoint bad conversion from ABC{}',
       });
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
     });
@@ -97,16 +98,13 @@ describe('/search/MGRS', function () {
         message: "request/query must have required property 'tile'",
       });
     });
-  });
 
-  describe('Sad Path', function () {
-    // All requests with status code 4XX-5XX
     it('should return 500 status code when MGRSPoint zone letter A not handled', async function () {
       const response = await requestSender.getTile({ tile: '{ABC}' });
 
-      expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+      expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
       expect(response.body).toMatchObject({
-        message: 'MGRSPoint zone letter A not handled: {ABC}',
+        message: 'Invalid MGRS tile. MGRSPoint zone letter A not handled: {ABC}',
       });
     });
   });
