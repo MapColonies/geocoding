@@ -58,8 +58,8 @@
       "geometry_hash": "f14be42df6ec5cf2290d764a89e3009b",
       "region": ["USA"],
       "sub_region": ["New York"],
-      "name": "JFK",
-      "text": ["JFK Airport"],
+      "name": "JFK International Airport",
+      "text": ["JFK International Airport", "John F Kennedy International Airport"],
       "translated_text": ["Aeropuerto JFK"],
       "text_language": "en"
     }

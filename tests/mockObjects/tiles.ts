@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { Tile } from '../../../../src/control/tile/models/tile';
+
+import { Tile } from '../../src/control/tile/models/tile';
 
 export const RIT_TILE: Tile = {
   type: 'Feature',

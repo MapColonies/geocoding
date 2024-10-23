@@ -14,8 +14,8 @@ import { CommonRequestParameters, GenericGeocodingResponse, GeoContext, GeoConte
 import { S3_REPOSITORY_SYMBOL } from '../../../../src/common/s3/s3Repository';
 import { cronLoadTileLatLonDataSymbol } from '../../../../src/latLon/DAL/latLonDAL';
 import { expectedResponse } from '../utils';
+import { RIC_TILE, RIT_TILE, SUB_TILE_65, SUB_TILE_66 } from '../../../mockObjects/tiles';
 import { TileRequestSender } from './helpers/requestSender';
-import { RIC_TILE, RIT_TILE, SUB_TILE_65, SUB_TILE_66 } from './mockObjects';
 
 describe('/search/control/tiles', function () {
   let requestSender: TileRequestSender;

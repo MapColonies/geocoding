@@ -2,7 +2,7 @@
 import { Feature } from 'geojson';
 import { GetGeotextSearchParams } from '../../../src/location/interfaces';
 import { GenericGeocodingResponse } from '../../../src/common/interfaces';
-import { MockLocationQueryFeature } from './mockObjects';
+import { MockLocationQueryFeature } from '../../mockObjects/locations';
 
 const expectedObjectWithScore = (obj: MockLocationQueryFeature, expect: jest.Expect): GenericGeocodingResponse<Feature>['features'][number] =>
   ({

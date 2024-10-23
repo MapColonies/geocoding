@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { Route } from '../../../../src/control/route/models/route';
+
+import { Route } from '../../src/control/route/models/route';
 
 export const ROUTE_VIA_CAMILLUCCIA_A: Route = {
   type: 'Feature',

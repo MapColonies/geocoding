@@ -109,4 +109,5 @@ export interface GenericGeocodingResponse<T extends Feature, G = any> extends Fe
   })[];
 }
 
-export type GenericGeocodingFeatureResponse = Feature & Pick<GenericGeocodingResponse<Feature>, 'geocoding'>;
+export type GenericGeocodingFeatureResponse = GenericGeocodingResponse<Feature>['features'][number] &
+  Pick<GenericGeocodingResponse<Feature>, 'geocoding'>;

@@ -9,14 +9,11 @@ import { TextSearchParams } from './interfaces';
 import { TextSearchHit } from './models/elasticsearchHits';
 import { generateDisplayName } from './parsing';
 
-const FIND_QUOTES = /["']/g;
-
-const FIND_SPECIAL = /[`!@#$%^&*()_\-+=|\\/,.<>:[\]{}\n\t\r\s;؛]+/g;
-
 const axiosInstance = axios.create({
   httpsAgent: new https.Agent({ rejectUnauthorized: false }),
 });
 
+/* istanbul ignore next */
 export const fetchNLPService = async <T>(endpoint: string, requestData: object): Promise<{ data: T[]; latency: number }> => {
   let res: Response | null = null,
     data: T[] | undefined | null = null;
@@ -37,8 +34,6 @@ export const fetchNLPService = async <T>(endpoint: string, requestData: object):
 
   return { data, latency };
 };
-
-export const cleanQuery = (query: string): string[] => query.replace(FIND_QUOTES, '').split(FIND_SPECIAL);
 
 /* eslint-disable @typescript-eslint/naming-convention */
 export const convertResult = (
@@ -61,7 +56,7 @@ export const convertResult = (
       placeType: number;
       hierarchies: number;
     };
-  } = { nameKeys: [], mainLanguageRegex: '', externalResourcesLatency: { query: 0, nlpAnalyser: 0, placeType: 0, hierarchies: 0 } }
+  }
 ): GenericGeocodingResponse<Feature> => ({
   type: 'FeatureCollection',
   geocoding: {

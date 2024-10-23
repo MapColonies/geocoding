@@ -17,7 +17,7 @@ import { LAT_LON_ROUTER_SYMBOL } from './latLon/routes/latLonRouter';
 import { GEOTEXT_SEARCH_ROUTER_SYMBOL } from './location/routes/locationRouter';
 import { cronLoadTileLatLonDataSymbol } from './latLon/DAL/latLonDAL';
 import { FeedbackApiMiddlewareManager } from './common/middlewares/feedbackApi.middleware';
-import { MGRS_ROUTER_SYMBOL } from './mgrs/routers/mgrsRouter';
+import { MGRS_ROUTER_SYMBOL } from './mgrs/routes/mgrsRouter';
 
 @injectable()
 export class ServerBuilder {

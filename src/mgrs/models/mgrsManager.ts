@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { IConfig } from 'config';
 import { Logger } from '@map-colonies/js-logger';
-import { BBox, Feature, Geometry } from 'geojson';
+import { BBox, Geometry } from 'geojson';
 import { inject, injectable } from 'tsyringe';
 import * as mgrs from 'mgrs';
 import { SERVICES } from '../../common/constants';
-import { GenericGeocodingResponse, IApplication } from '../../common/interfaces';
+import { GenericGeocodingFeatureResponse, IApplication } from '../../common/interfaces';
 import { GetTileQueryParams } from '../controllers/mgrsController';
 import { BadRequestError } from '../../common/errors';
 import { parseGeo } from '../../common/utils';
@@ -18,16 +18,13 @@ export class MgrsManager {
     @inject(SERVICES.APPLICATION) private readonly application: IApplication
   ) {}
 
-  public getTile({ tile }: GetTileQueryParams): Feature & Pick<GenericGeocodingResponse<Feature>, 'geocoding'> {
+  public getTile({ tile }: GetTileQueryParams): GenericGeocodingFeatureResponse {
     let bbox: BBox | undefined;
     try {
       bbox = mgrs.inverse(tile);
     } catch (error) {
-      if ((error as Error).message.includes('MGRSPoint bad conversion')) {
-        throw new BadRequestError('Invalid MGRS tile');
-      }
-      this.logger.error({ message: 'Failed to convert MGRS tile to bbox.', error });
-      throw error;
+      this.logger.error({ msg: 'Failed to convert MGRS tile to bbox.', error });
+      throw new BadRequestError(`Invalid MGRS tile. ${(error as Error).message}`);
     }
 
     const geometry = parseGeo({ bbox }) as Geometry;
@@ -48,6 +45,17 @@ export class MgrsManager {
       bbox,
       geometry,
       properties: {
+        matches: [
+          {
+            layer: 'MGRS',
+            source: 'npm/mgrs',
+            source_id: [],
+          },
+        ],
+        names: {
+          default: [tile],
+          display: tile,
+        },
         score: 1,
       },
     };

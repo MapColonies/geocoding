@@ -50,7 +50,7 @@ export class TileController {
       });
       return res.status(httpStatus.OK).json(response);
     } catch (error: unknown) {
-      this.logger.warn('tileController.getTiles Error:', error);
+      this.logger.error({ msg: 'tileController.getTiles', error });
       next(error);
     }
   };

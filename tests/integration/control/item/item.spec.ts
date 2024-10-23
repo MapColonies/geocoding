@@ -13,8 +13,8 @@ import { CommonRequestParameters, GenericGeocodingResponse, GeoContext, GeoConte
 import { cronLoadTileLatLonDataSymbol } from '../../../../src/latLon/DAL/latLonDAL';
 import { S3_REPOSITORY_SYMBOL } from '../../../../src/common/s3/s3Repository';
 import { expectedResponse } from '../utils';
+import { ITEM_1234, ITEM_1235, ITEM_1236 } from '../../../mockObjects/items';
 import { ItemRequestSender } from './helpers/requestSender';
-import { ITEM_1234, ITEM_1235, ITEM_1236 } from './mockObjects';
 
 describe('/search/control/items', function () {
   let requestSender: ItemRequestSender;

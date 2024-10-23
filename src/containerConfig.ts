@@ -27,7 +27,7 @@ import { RedisClient, redisClientFactory } from './common/redis';
 import { s3ClientFactory } from './common/s3';
 import { S3_REPOSITORY_SYMBOL, s3RepositoryFactory } from './common/s3/s3Repository';
 import { healthCheckFactory } from './common/utils';
-import { MGRS_ROUTER_SYMBOL, mgrsRouterFactory } from './mgrs/routers/mgrsRouter';
+import { MGRS_ROUTER_SYMBOL, mgrsRouterFactory } from './mgrs/routes/mgrsRouter';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -79,7 +79,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
             const response = await Promise.all([elasticClients.control.ping(), elasticClients.geotext.ping()]);
             response.forEach((res) => {
               if (!res) {
-                logger.error({ message: 'Failed to connect to Elasticsearch', res });
+                logger.error({ msg: 'Failed to connect to Elasticsearch', res });
               }
             });
             cleanupRegistry.register({
@@ -90,7 +90,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
               id: SERVICES.ELASTIC_CLIENTS,
             });
           } catch (error) {
-            logger.error({ message: 'Failed to connect to Elasticsearch', error });
+            logger.error({ msg: 'Failed to connect to Elasticsearch', error });
           }
         },
       },
@@ -103,7 +103,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
             await s3Client.send(new ListBucketsCommand({}));
             logger.info('Connected to S3');
           } catch (error) {
-            logger.error({ message: 'Failed to connect to S3', error });
+            logger.error({ msg: 'Failed to connect to S3', error });
           }
           cleanupRegistry.register({
             func: async () => {
@@ -160,7 +160,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
             cleanupRegistry.register({ func: redis.disconnect.bind(redis), id: SERVICES.REDIS });
             await redis.connect();
           } catch (error) {
-            logger.error({ message: 'Connection to redis failed', error });
+            logger.error({ msg: 'Connection to redis failed', error });
           }
         },
       },

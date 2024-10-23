@@ -35,11 +35,6 @@ export class TileManager {
       let bbox: BBox = [0, 0, 0, 0];
       try {
         bbox = mgrs.inverse(tileQueryParams.mgrs);
-        bbox.forEach((coord) => {
-          if (isNaN(coord)) {
-            throw new Error('Invalid MGRS');
-          }
-        });
       } catch (error) {
         throw new BadRequestError(`Invalid MGRS: ${tileQueryParams.mgrs}`);
       }

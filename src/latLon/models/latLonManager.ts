@@ -26,14 +26,14 @@ export class LatLonManager {
 
   public async latLonToTile({ lat, lon, targetGrid }: WGS84Coordinate & { targetGrid: string }): Promise<GenericGeocodingFeatureResponse> {
     if (!validateWGS84Coordinate({ lat, lon })) {
-      this.logger.warn("LatLonManager.latLonToTile: Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal");
+      this.logger.error({ msg: "LatLonManager.latLonToTile: Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal" });
       throw new BadRequestError("Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal");
     }
 
     const utm = convertWgs84ToUTM({ longitude: lon, latitude: lat });
 
     if (typeof utm === 'string') {
-      this.logger.warn('LatLonManager.latLonToTile: utm is string');
+      this.logger.error({ msg: 'LatLonManager.latLonToTile: utm is string' });
       throw new BadRequestError('utm is string');
     }
 
@@ -46,7 +46,7 @@ export class LatLonManager {
     const tileCoordinateData = await this.latLonDAL.latLonToTile({ x: coordinatesUTM.x, y: coordinatesUTM.y, zone: coordinatesUTM.zone });
 
     if (!tileCoordinateData) {
-      this.logger.warn('LatLonManager.latLonToTile: The coordinate is outside the grid extent');
+      this.logger.error({ msg: 'LatLonManager.latLonToTile: The coordinate is outside the grid extent' });
       throw new BadRequestError('The coordinate is outside the grid extent');
     }
 
@@ -89,7 +89,18 @@ export class LatLonManager {
         coordinates: [lon, lat],
       },
       properties: {
-        name: tileCoordinateData.tile_name,
+        matches: [
+          {
+            layer: 'convertionTable',
+            source: 'mapcolonies',
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            source_id: [],
+          },
+        ],
+        names: {
+          default: [tileCoordinateData.tile_name],
+          display: tileCoordinateData.tile_name,
+        },
         tileName: tileCoordinateData.tile_name,
         subTileNumber: new Array(SUB_TILE_LENGTH).fill('').map(function (value, i) {
           return xNumber[i] + yNumber[i];
@@ -103,9 +114,7 @@ export class LatLonManager {
     lon,
     accuracy = MGRS_ACCURACY,
     targetGrid,
-  }: {
-    lat: number;
-    lon: number;
+  }: WGS84Coordinate & {
     accuracy?: number;
     targetGrid: string;
   }): GenericGeocodingFeatureResponse {
@@ -139,9 +148,21 @@ export class LatLonManager {
         coordinates: [lon, lat],
       },
       properties: {
-        name: mgrsStr,
+        matches: [
+          {
+            layer: 'MGRS',
+            source: 'npm/MGRS',
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            source_id: [],
+          },
+        ],
+        names: {
+          default: [mgrsStr],
+          display: mgrsStr,
+        },
         accuracy: accuracyString[accuracy],
         mgrs: mgrsStr,
+        score: 1,
       },
     };
   }

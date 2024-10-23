@@ -12,6 +12,7 @@ module.exports = {
     '!/vendor/**',
     '!*/common/**',
     '!**/controllers/**',
+    '!**/DAL/**',
     '!**/routes/**',
     '!**/redis/**',
     '!<rootDir>/src/*',

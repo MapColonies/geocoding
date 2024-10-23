@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { Item } from '../../../../src/control/item/models/item';
+import { Item } from '../../src/control/item/models/item';
 
 export const ITEM_1234: Item = {
   type: 'Feature',

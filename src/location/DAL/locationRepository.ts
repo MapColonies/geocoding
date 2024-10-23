@@ -2,7 +2,7 @@ import { Logger } from '@map-colonies/js-logger';
 import { estypes } from '@elastic/elasticsearch';
 import { FactoryFunction } from 'tsyringe';
 import { ElasticClient } from '../../common/elastic';
-import { cleanQuery, fetchNLPService } from '../utils';
+import { fetchNLPService } from '../utils';
 import { TextSearchParams, TokenResponse } from '../interfaces';
 import { PlaceTypeSearchHit, HierarchySearchHit, TextSearchHit } from '../models/elasticsearchHits';
 import { BadRequestError } from '../../common/errors';
@@ -12,7 +12,10 @@ import { queryElastic } from '../../common/elastic/utils';
 import { SERVICES } from '../../common/constants';
 import { hierarchyQuery, placetypeQuery, geotextQuery } from './queries';
 
-/* eslint-enable @typescript-eslint/naming-convention */
+const FIND_QUOTES = /["']/g;
+
+const FIND_SPECIAL = /[`!@#$%^&*()_\-+=|\\/,.<>:[\]{}\n\t\r\s;؛]+/g;
+const cleanQuery = (query: string): string[] => query.replace(FIND_QUOTES, '').split(FIND_SPECIAL);
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const createGeotextRepository = (client: ElasticClient, logger: Logger) => {
@@ -25,7 +28,7 @@ const createGeotextRepository = (client: ElasticClient, logger: Logger) => {
 
       if (!tokens || !tokens.length || !prediction || !prediction.length) {
         const message = 'No tokens or prediction';
-        logger.error({ message });
+        logger.error({ msg: message });
         throw new BadRequestError(message);
       }
 
