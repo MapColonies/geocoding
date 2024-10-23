@@ -49,10 +49,10 @@ export const NY_JFK_AIRPORT: MockLocationQueryFeature = {
   properties: {
     matches: [{ source: 'OSM', layer: 'osm_airports', source_id: ['03ed6d97-fc81-4340-b68a-11993554eef1'] }],
     names: {
-      en: ['JFK Airport'],
+      en: ['JFK International Airport', 'John F Kennedy International Airport'],
       fr: ['Aeropuerto JFK'],
-      default: ['JFK'],
-      display: 'JFK Airport',
+      default: ['JFK International Airport'],
+      display: 'John F Kennedy International Airport',
     },
     placetype: 'transportation',
     sub_placetype: 'airport',
