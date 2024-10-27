@@ -6,11 +6,12 @@ import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
 import { ConfigManager } from '../models/configManager';
-import { LatLonDAL } from '../../latLon/DAL/latLonDAL';
+import { ConvertCamelToSnakeCase } from '../../common/utils';
+import { LatLon } from '../../latLon/models/latLon';
 
 type GetTilesHandler = RequestHandler<
   undefined,
-  | ReturnType<LatLonDAL['getLatLonTable']>
+  | Record<string, ConvertCamelToSnakeCase<LatLon>>
   | {
       type: string;
       message: string;
@@ -31,11 +32,12 @@ export class ConfigController {
     this.createdResourceCounter = meter.createCounter('config_created_resource');
   }
 
-  public getControlTable: GetTilesHandler = (_, res, next) => {
+  public getControlTable: GetTilesHandler = async (_, res, next) => {
     try {
-      const response = this.manager.getControlTable();
+      const response = await this.manager.getControlTable();
       return res.status(httpStatus.OK).json(response);
-    } catch (error: unknown) {
+    } catch (error: unknown) /* istanbul ignore next */ {
+      // Ignore next in code coverage as we don't expect an error to be thrown but it might happen.
       this.logger.error({ msg: 'ConfigController.getControlTable error while trying to return control table', error });
       next(error);
     }

@@ -6,7 +6,8 @@ import { LatLonDAL, latLonDalSymbol } from '../../latLon/DAL/latLonDAL';
 export class ConfigManager {
   public constructor(@inject(latLonDalSymbol) private readonly latLonDAL: LatLonDAL) {}
 
-  public getControlTable(): ReturnType<LatLonDAL['getLatLonTable']> {
-    return this.latLonDAL.getLatLonTable();
+  public async getControlTable(): ReturnType<LatLonDAL['getLatLonTable']> {
+    const response = await this.latLonDAL.getLatLonTable();
+    return response;
   }
 }

@@ -91,7 +91,8 @@ export class LatLonDAL {
     return this.latLonTable[`${x},${y},${zone}`];
   }
 
-  public getLatLonTable(): Record<string, LatLon> {
+  public async getLatLonTable(): Promise<Record<string, LatLon>> {
+    await this.dataLoad?.promise;
     return this.latLonTable;
   }
 
