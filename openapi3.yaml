@@ -469,7 +469,59 @@ paths:
       security:
         - x-api-key: []
           x-user-id: []
+  /config/control/table:
+    get:
+      operationId: configGetControlTable
+      tags:
+        - Control
+      summary: 'Get Control Grid table'
+      responses:
+        200:
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                description: 'An object with dynamic keys following the pattern `${latLon.min_x},${latLon.min_y},${latLon.zone}`. Each key represents a coordinate and zone identifier.'
+                additionalProperties:
+                  type: object
+                  properties:
+                    tile_name:
+                      type: string
+                      example: 'BRN'
+                    zone:
+                      type: string
+                      example: '33'
+                    min_x:
+                      type: string
+                      example: '360000'
+                    min_y:
+                      type: string
+                      example: 5820000
+                    ext_min_x:
+                      type: number
+                      example: 360000
+                    ext_min_y:
+                      type: number
+                      example: 5820000
+                    ext_max_x:
+                      type: number
+                      example: 370000
+                    ext_max_y:
+                      type: number
+                      example: 5830000
 
+        400:
+          '$ref': '#/components/responses/BadRequest'
+        401:
+          '$ref': '#/components/responses/Unauthorized'
+        403:
+          '$ref': '#/components/responses/Forbidden'
+        500:
+          '$ref': '#/components/responses/InternalError'
+      security:
+        - x-api-key: []
+          x-user-id: []
 components:
   responses:
     BadRequest:
