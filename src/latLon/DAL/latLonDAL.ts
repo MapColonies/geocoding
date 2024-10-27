@@ -16,7 +16,7 @@ let latLonDALInstance: LatLonDAL | null = null;
 
 @injectable()
 export class LatLonDAL {
-  private readonly latLonMap: Map<string, LatLon>;
+  private latLonTable: Record<string, LatLon>;
   private onGoingUpdate: boolean;
   private dataLoad:
     | {
@@ -26,17 +26,18 @@ export class LatLonDAL {
       }
     | undefined;
   private dataLoadError: boolean;
+  private latLonTableTemp: Record<string, LatLon> | null = null;
 
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(S3_REPOSITORY_SYMBOL) private readonly latLonRepository: S3Repository
   ) {
-    this.latLonMap = new Map<string, LatLon>();
+    this.latLonTable = {};
     this.onGoingUpdate = true;
     this.dataLoad = undefined;
     this.dataLoadError = false;
 
-    this.init().catch((error: Error) => {
+    this.update().catch((error: Error) => {
       this.logger.error({ msg: 'Failed to initialize lat-lon data', error });
       this.dataLoadError = true;
     });
@@ -52,7 +53,7 @@ export class LatLonDAL {
   }
   /* istanbul ignore end */
 
-  public async init(): Promise<void> {
+  public async update(): Promise<void> {
     try {
       const dataLoadPromise = new Promise((resolve, reject) => {
         this.dataLoadError = false;
@@ -87,26 +88,29 @@ export class LatLonDAL {
       throw new InternalServerError('Lat-lon to tile data currently not available');
     }
     await this.dataLoad?.promise;
-    return this.latLonMap.get(`${x},${y},${zone}`);
+    return this.latLonTable[`${x},${y},${zone}`];
   }
 
-  private clearLatLonMap(): void {
-    this.logger.debug('Clearing latLon data');
-    this.latLonMap.clear();
+  public getLatLonTable(): Record<string, LatLon> {
+    return this.latLonTable;
   }
 
   private async loadLatLonData(): Promise<void> {
     this.logger.debug('Loading latLon data');
 
-    this.clearLatLonMap();
+    this.latLonTableTemp = {};
 
     const latLonDataPath = await this.latLonRepository.downloadFile('latLonConvertionTable');
 
     const { items: latLonData } = JSON.parse(await fs.promises.readFile(latLonDataPath, 'utf8')) as { items: LatLon[] };
 
     latLonData.forEach((latLon) => {
-      this.latLonMap.set(`${latLon.min_x},${latLon.min_y},${latLon.zone}`, latLon);
+      this.latLonTableTemp![`${latLon.min_x},${latLon.min_y},${latLon.zone}`] = latLon;
     });
+
+    this.latLonTable = this.latLonTableTemp;
+    this.latLonTableTemp = null;
+    Object.freeze(this.latLonTable);
 
     try {
       await fs.promises.unlink(latLonDataPath);
@@ -146,7 +150,7 @@ export const cronLoadTileLatLonDataFactory: FactoryFunction<cron.ScheduledTask> 
   scheduledTask = cron.schedule(cronPattern, () => {
     if (!latLonDAL.getOnGoingUpdate()) {
       logger.info('cronLoadTileLatLonData: starting update');
-      latLonDAL.init().catch((error: Error) => {
+      latLonDAL.update().catch((error: Error) => {
         logger.error({ msg: 'cronLoadTileLatLonData: update failed', error });
       });
     } else {
