@@ -28,6 +28,7 @@ import { s3ClientFactory } from './common/s3';
 import { S3_REPOSITORY_SYMBOL, s3RepositoryFactory } from './common/s3/s3Repository';
 import { healthCheckFactory } from './common/utils';
 import { MGRS_ROUTER_SYMBOL, mgrsRouterFactory } from './mgrs/routes/mgrsRouter';
+import { CONFIG_ROUTER_SYMBOL, configRouterFactory } from './config/routes/configRouter';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -164,6 +165,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
           }
         },
       },
+      { token: CONFIG_ROUTER_SYMBOL, provider: { useFactory: configRouterFactory } },
     ];
     const container = await registerDependencies(dependencies, options?.override, options?.useChild);
     return container;
