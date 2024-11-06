@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  version: 0.1.4
+  version: 0.1.5
   title: Geocoding
   description: >-
     MapColonies Vector Geocoding api provides custom geodata search engine
@@ -311,8 +311,7 @@ paths:
       summary: Search routes and report control points
       description: >-
         You can query and get control routes.   <br><br> If you define a route
-        (full name of it) you can query the control points associated with
-        it.
+        (full name of it) you can query the control points associated with it.
       parameters:
         - $ref: '#/components/parameters/token'
         - name: command_name
