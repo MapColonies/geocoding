@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import jsLogger from '@map-colonies/js-logger';
 import { estypes } from '@elastic/elasticsearch';
+import { BBox } from 'geojson';
 import { ItemQueryParams } from '../../../../src/control/item/DAL/queries';
 import { ItemRepository } from '../../../../src/control/item/DAL/itemRepository';
 import { ItemManager } from '../../../../src/control/item/models/itemManager';
@@ -8,7 +9,6 @@ import { GenericGeocodingResponse, IApplication } from '../../../../src/common/i
 import { Item } from '../../../../src/control/item/models/item';
 import { convertCamelToSnakeCase } from '../../../../src/control/utils';
 import { ITEM_1234 } from '../../../mockObjects/items';
-import { BBox } from 'geojson';
 
 let itemManager: ItemManager;
 
