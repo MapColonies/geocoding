@@ -61,7 +61,50 @@ docker run -d --name minio -p 9000:9000 -p 9001:9001 -e "MINIO_ROOT_USER=minio" 
 > [!NOTE]
 > Right to date (September 18th 2024), Elasticsearch's default username is `elastic` and password is `changeme`.
 
-Install mock data - Don't forget to edit /config/test.json file to your specific specific config.
+NLP Analyzer: <br/>
+We use 3rd party software in order to exctact the searched placetype name from the string.
+Here is a mock service that will preduce the somewhat expected response from the NLP Analyzer.
+```
+const express = require('express');
+const bodyParser = require('body-parser');
+
+const app = express();
+app.set('port', 5000);
+
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+
+app.post('/NLP_ANALYSES', (req, res) => {
+	if (
+		!req.body.tokens?.find(
+			(token) =>
+				token.toUpperCase() === 'USA' ||
+				token.toUpperCase() === 'NEW' ||
+				token.toUpperCase() === 'LOS' ||
+				token.toUpperCase() === 'PARIS' ||
+				token.toUpperCase() === 'FRANCE'
+		)
+	) {
+		return res.status(200).json([
+			{
+				tokens: req.body.tokens,
+				prediction: req.body.tokens.map((_) => 'essence'),
+			},
+		]);
+	}
+	return res.status(200).json([
+		{
+			tokens: req.body.tokens,
+			prediction: req.body.tokens.map((_, index) => {
+				if (index + 1 === req.body.tokens.length) return 'name';
+				else return 'essence';
+			}),
+		},
+	]);
+});
+```
+
+Install mock data - Don't forget to edit `/config/test.json` and `/config/default.json` file to your specific specific config.
 ```bash
 npm run dev:scripts
 ```
