@@ -8,6 +8,7 @@ import { GenericGeocodingResponse, IApplication } from '../common/interfaces';
 import { TextSearchParams } from './interfaces';
 import { TextSearchHit } from './models/elasticsearchHits';
 import { generateDisplayName } from './parsing';
+import { bbox } from '@turf/bbox';
 
 const axiosInstance = axios.create({
   httpsAgent: new https.Agent({ rejectUnauthorized: false }),
