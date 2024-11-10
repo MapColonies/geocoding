@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/naming-convention */
 import { estypes } from '@elastic/elasticsearch';
+import { bbox } from '@turf/bbox';
 import { CommonRequestParameters, GenericGeocodingResponse, IApplication, IConfig } from '../common/interfaces';
 import { elasticConfigPath } from '../common/constants';
 import { ElasticDbClientsConfig } from '../common/elastic/interfaces';
@@ -9,7 +10,6 @@ import { Tile } from '../control/tile/models/tile';
 import { Route } from '../control/route/models/route';
 import { ConvertSnakeToCamelCase } from '../common/utils';
 import { CONTROL_FIELDS } from './constants';
-import { bbox } from '@turf/bbox';
 
 const LAST_ELEMENT_INDEX = -1;
 
@@ -58,14 +58,12 @@ export const formatResponse = <T extends Tile | Item | Route>(
   requestParams: CommonRequestParameters | ConvertSnakeToCamelCase<CommonRequestParameters>,
   displayNamePrefixes: IApplication['controlObjectDisplayNamePrefixes']
 ): GenericGeocodingResponse<T> => {
-
   const geoJSONFeatureCollection: Omit<GenericGeocodingResponse<T>, 'bbox'> = {
     type: 'FeatureCollection',
     geocoding: {
       version: process.env.npm_package_version as string,
       query: convertCamelToSnakeCase(requestParams as Record<string, unknown>),
       response: {
-        results_count: elasticResponse.hits.hits.length,
         max_score: elasticResponse.hits.max_score ?? 0,
         match_latency_ms: elasticResponse.took,
       },
@@ -95,7 +93,7 @@ export const formatResponse = <T extends Tile | Item | Route>(
         }
       }) as GenericGeocodingResponse<T>['features']),
     ],
-  }
+  };
   return { ...geoJSONFeatureCollection, bbox: bbox(geoJSONFeatureCollection) };
 };
 

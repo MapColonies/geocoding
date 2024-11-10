@@ -5,13 +5,13 @@ import { GenericGeocodingResponse } from '../../../src/common/interfaces';
 import { MockLocationQueryFeature } from '../../mockObjects/locations';
 
 const expectedObjectWithScore = (obj: MockLocationQueryFeature, expect: jest.Expect): GenericGeocodingResponse<Feature>['features'][number] =>
-({
-  ...obj,
-  properties: {
-    ...obj.properties,
-    score: expect.any(Number) as number,
-  },
-} as GenericGeocodingResponse<Feature>['features'][number]);
+  ({
+    ...obj,
+    properties: {
+      ...obj.properties,
+      score: expect.any(Number) as number,
+    },
+  } as GenericGeocodingResponse<Feature>['features'][number]);
 
 const expectedGeocodingElasticResponseMetrics = (
   responseParams: Partial<GenericGeocodingResponse<Feature>['geocoding']['response']>,

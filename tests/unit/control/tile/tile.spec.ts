@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import jsLogger from '@map-colonies/js-logger';
+import { BBox } from 'geojson';
 import { estypes } from '@elastic/elasticsearch';
 import { TileQueryParams } from '../../../../src/control/tile/DAL/queries';
 import { TileRepository } from '../../../../src/control/tile/DAL/tileRepository';
@@ -9,7 +10,6 @@ import { Tile } from '../../../../src/control/tile/models/tile';
 import { RIC_TILE, SUB_TILE_66 } from '../../../mockObjects/tiles';
 import { convertCamelToSnakeCase } from '../../../../src/control/utils';
 import { BadRequestError } from '../../../../src/common/errors';
-import { BBox } from 'geojson';
 
 let tileManager: TileManager;
 
