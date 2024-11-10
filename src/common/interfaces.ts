@@ -91,6 +91,7 @@ export interface GenericGeocodingResponse<T extends Feature, G = any> extends Fe
       /* eslint-enable @typescript-eslint/naming-convention */
     } & { [key: string]: unknown };
   };
+  bbox: BBox;
   features: (T & {
     properties: RemoveUnderscore<Pick<estypes.SearchHit<T>, '_score'>> &
       GeoJsonProperties & {

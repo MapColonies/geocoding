@@ -9,6 +9,7 @@ import { Tile } from '../../../../src/control/tile/models/tile';
 import { RIC_TILE, SUB_TILE_66 } from '../../../mockObjects/tiles';
 import { convertCamelToSnakeCase } from '../../../../src/control/utils';
 import { BadRequestError } from '../../../../src/common/errors';
+import { BBox } from 'geojson';
 
 let tileManager: TileManager;
 
@@ -121,6 +122,7 @@ describe('#TileManager', () => {
           match_latency_ms: expect.any(Number) as number,
         },
       },
+      bbox: expect.any(Array) as BBox,
       features: [
         {
           type: 'Feature',

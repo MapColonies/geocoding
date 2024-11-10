@@ -57,7 +57,8 @@ export const convertResult = (
       hierarchies: number;
     };
   }
-): GenericGeocodingResponse<Feature> => ({
+): GenericGeocodingResponse<Feature> => {
+  const geoJSONFeatureCollection: Omit<GenericGeocodingResponse<Feature>, 'bbox'> = {
   type: 'FeatureCollection',
   geocoding: {
     version: process.env.npm_package_version as string,
@@ -112,5 +113,10 @@ export const convertResult = (
       },
     };
   }),
-});
+  };
+  return {
+    ...geoJSONFeatureCollection,
+    bbox: bbox(geoJSONFeatureCollection)
+  };
+};
 /* eslint-enable @typescript-eslint/naming-convention */

@@ -8,6 +8,7 @@ import { GenericGeocodingResponse, IApplication } from '../../../../src/common/i
 import { Item } from '../../../../src/control/item/models/item';
 import { convertCamelToSnakeCase } from '../../../../src/control/utils';
 import { ITEM_1234 } from '../../../mockObjects/items';
+import { BBox } from 'geojson';
 
 let itemManager: ItemManager;
 
@@ -87,6 +88,7 @@ describe('#ItemManager', () => {
           match_latency_ms: expect.any(Number) as number,
         },
       },
+      bbox: expect.any(Array) as BBox,
       features: [
         {
           type: 'Feature',

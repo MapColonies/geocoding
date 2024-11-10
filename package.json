@@ -57,6 +57,7 @@
     "@opentelemetry/instrumentation-express": "0.32.1",
     "@opentelemetry/instrumentation-http": "0.35.1",
     "@smithy/node-http-handler": "^3.1.4",
+    "@turf/bbox": "^7.1.0",
     "ajv": "^8.17.1",
     "axios": "^0.21.1",
     "compression": "^1.7.4",

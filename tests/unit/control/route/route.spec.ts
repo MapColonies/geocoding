@@ -8,6 +8,7 @@ import { GenericGeocodingResponse, IApplication } from '../../../../src/common/i
 import { Route } from '../../../../src/control/route/models/route';
 import { convertCamelToSnakeCase } from '../../../../src/control/utils';
 import { CONTROL_POINT_OLIMPIADE_111, ROUTE_VIA_CAMILLUCCIA_A } from '../../../mockObjects/routes';
+import { BBox } from 'geojson';
 
 let routeManager: RouteManager;
 
@@ -105,6 +106,7 @@ describe('#RouteManager', () => {
           match_latency_ms: expect.any(Number) as number,
         },
       },
+      bbox: expect.any(Array) as BBox,
       features: [
         {
           type: 'Feature',

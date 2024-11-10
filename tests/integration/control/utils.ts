@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
+import { BBox } from 'geojson';
 import { CommonRequestParameters, GenericGeocodingResponse } from '../../../src/common/interfaces';
 import { GetItemsQueryParams } from '../../../src/control/item/controllers/itemController';
 import { Item } from '../../../src/control/item/models/item';
@@ -47,4 +48,5 @@ export const expectedResponse = <T extends Tile | Item | Route, U extends GetTil
     response: expectedGeocodingElasticResponseMetrics(arr.length, expect),
   },
   features: arr.map((item) => expectedObjectWithScore(item, expect)),
+  bbox: expect.any(Array) as BBox,
 });

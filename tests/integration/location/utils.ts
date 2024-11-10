@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { Feature } from 'geojson';
+import { BBox, Feature } from 'geojson';
 import { GetGeotextSearchParams } from '../../../src/location/interfaces';
 import { GenericGeocodingResponse } from '../../../src/common/interfaces';
 import { MockLocationQueryFeature } from '../../mockObjects/locations';
 
 const expectedObjectWithScore = (obj: MockLocationQueryFeature, expect: jest.Expect): GenericGeocodingResponse<Feature>['features'][number] =>
-  ({
-    ...obj,
-    properties: {
-      ...obj.properties,
-      score: expect.any(Number) as number,
-    },
-  } as GenericGeocodingResponse<Feature>['features'][number]);
+({
+  ...obj,
+  properties: {
+    ...obj.properties,
+    score: expect.any(Number) as number,
+  },
+} as GenericGeocodingResponse<Feature>['features'][number]);
 
 const expectedGeocodingElasticResponseMetrics = (
   responseParams: Partial<GenericGeocodingResponse<Feature>['geocoding']['response']>,
@@ -40,6 +40,7 @@ export const expectedResponse = (
     response: expectedGeocodingElasticResponseMetrics(responseParams, arr.length, expect),
   },
   features: arr.map((item) => expectedObjectWithScore(item, expect)),
+  bbox: expect.any(Array) as BBox,
 });
 
 export const hierarchiesWithAnyWieght = (
