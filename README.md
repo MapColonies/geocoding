@@ -48,15 +48,15 @@ Almost all of our routes consists of the same common query parameters: `geo_cont
 Setup Elasticsearch and S3 provider (For local environment, Minio as a personal recommendation).
 Containered Elasticsearch:
 ```
-docker run -d -t elasticsearch -e "discovery.type=single-node" -e "xpack.security.enabled=false" -e "xpack.security.enrollment.enabled=false" -e "ELASTIC_CONTAINER=true" elasticsearch:8.13.0
+docker run -d --name elasticsearch -p 9200:9200 -e "discovery.type=single-node" -e "xpack.security.enabled=false" -e "xpack.security.enrollment.enabled=false" -e "ELASTIC_CONTAINER=true" elasticsearch:8.13.0
 ```
 (optinal) Containered Kibana:
 ```
-docker run -d -t kibana -e "ELASTIC_CONTAINER=true" kibana:8.13.0
+docker run -d --name kibana -p 5601:5601 -e "ELASTIC_CONTAINER=true" kibana:8.13.0
 ```
 Containered Minio:
 ```
-docker run -p 9000:9000 -d -p 9001:9001 -e "MINIO_ROOT_USER=minio" -e "MINIO_ROOT_PASSWORD=minio123" quay.io/minio/minio server /data --console-address ":9001"
+docker run -d --name minio -p 9000:9000 -p 9001:9001 -e "MINIO_ROOT_USER=minio" -e "MINIO_ROOT_PASSWORD=minio123" quay.io/minio/minio server /data --console-address ":9001"
 ```
 > [!NOTE]
 > Right to date (September 18th 2024), Elasticsearch's default username is `elastic` and password is `changeme`.
