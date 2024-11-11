@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  version: 0.1.5
+  version: 0.2.0
   title: Geocoding
   description: >-
     MapColonies Vector Geocoding api provides custom geodata search engine
@@ -504,7 +504,7 @@ components:
             $ref: '#/components/schemas/errorSchema'
   parameters:
     xApiKey:
-      name: 'x-api-key'
+      name: x-api-key
       in: header
       description: JWT authentication token provided by our team
       schema:
