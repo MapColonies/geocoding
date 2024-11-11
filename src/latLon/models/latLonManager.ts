@@ -79,7 +79,7 @@ export class LatLonManager {
           maxScore: 1,
           resultsCount: 1,
           matchLatencyMs: 0,
-        }),
+        }) as GenericGeocodingFeatureResponse['geocoding']['response'],
       },
       bbox,
       geometry: parseGeo({
@@ -140,7 +140,7 @@ export class LatLonManager {
           maxScore: 1,
           resultsCount: 1,
           matchLatencyMs: 0,
-        }),
+        }) as GenericGeocodingFeatureResponse['geocoding']['response'],
       },
       bbox: mgrs.inverse(mgrsStr),
       geometry: {
