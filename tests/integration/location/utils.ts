@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { Feature } from 'geojson';
+import { BBox, Feature } from 'geojson';
 import { GetGeotextSearchParams } from '../../../src/location/interfaces';
 import { GenericGeocodingResponse } from '../../../src/common/interfaces';
 import { MockLocationQueryFeature } from '../../mockObjects/locations';
@@ -40,6 +40,7 @@ export const expectedResponse = (
     response: expectedGeocodingElasticResponseMetrics(responseParams, arr.length, expect),
   },
   features: arr.map((item) => expectedObjectWithScore(item, expect)),
+  bbox: expect.any(Array) as BBox,
 });
 
 export const hierarchiesWithAnyWieght = (

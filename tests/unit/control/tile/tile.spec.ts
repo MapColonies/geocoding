@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import jsLogger from '@map-colonies/js-logger';
+import { BBox } from 'geojson';
 import { estypes } from '@elastic/elasticsearch';
 import { TileQueryParams } from '../../../../src/control/tile/DAL/queries';
 import { TileRepository } from '../../../../src/control/tile/DAL/tileRepository';
@@ -121,6 +122,7 @@ describe('#TileManager', () => {
           match_latency_ms: expect.any(Number) as number,
         },
       },
+      bbox: expect.any(Array) as BBox,
       features: [
         {
           type: 'Feature',

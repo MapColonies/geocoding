@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/naming-convention */
 import { estypes } from '@elastic/elasticsearch';
+import { bbox } from '@turf/bbox';
 import { CommonRequestParameters, GenericGeocodingResponse, IApplication, IConfig } from '../common/interfaces';
 import { elasticConfigPath } from '../common/constants';
 import { ElasticDbClientsConfig } from '../common/elastic/interfaces';
@@ -56,43 +57,46 @@ export const formatResponse = <T extends Tile | Item | Route>(
   elasticResponse: estypes.SearchResponse<T>,
   requestParams: CommonRequestParameters | ConvertSnakeToCamelCase<CommonRequestParameters>,
   displayNamePrefixes: IApplication['controlObjectDisplayNamePrefixes']
-): GenericGeocodingResponse<T> => ({
-  type: 'FeatureCollection',
-  geocoding: {
-    version: process.env.npm_package_version as string,
-    query: convertCamelToSnakeCase(requestParams as Record<string, unknown>),
-    response: {
-      results_count: elasticResponse.hits.hits.length,
-      max_score: elasticResponse.hits.max_score ?? 0,
-      match_latency_ms: elasticResponse.took,
+): GenericGeocodingResponse<T> => {
+  const geoJSONFeatureCollection: Omit<GenericGeocodingResponse<T>, 'bbox'> = {
+    type: 'FeatureCollection',
+    geocoding: {
+      version: process.env.npm_package_version as string,
+      query: convertCamelToSnakeCase(requestParams as Record<string, unknown>),
+      response: {
+        results_count: elasticResponse.hits.hits.length,
+        max_score: elasticResponse.hits.max_score ?? 0,
+        match_latency_ms: elasticResponse.took,
+      },
     },
-  },
-  features: [
-    ...(elasticResponse.hits.hits.map(({ _source: source, _score: score, _index: index }) => {
-      if (source !== undefined) {
-        const generatedDisplayName = generateDisplayName(source, displayNamePrefixes);
-        return {
-          ...source,
-          properties: {
-            ...source.properties,
-            matches: [
-              {
-                layer: source.properties.LAYER_NAME,
-                source: index,
-                source_id: [],
+    features: [
+      ...(elasticResponse.hits.hits.map(({ _source: source, _score: score, _index: index }) => {
+        if (source !== undefined) {
+          const generatedDisplayName = generateDisplayName(source, displayNamePrefixes);
+          return {
+            ...source,
+            properties: {
+              ...source.properties,
+              matches: [
+                {
+                  layer: source.properties.LAYER_NAME,
+                  source: index,
+                  source_id: [],
+                },
+              ],
+              names: {
+                default: [generatedDisplayName.at(LAST_ELEMENT_INDEX)],
+                display: generatedDisplayName.join(' '),
               },
-            ],
-            names: {
-              default: [generatedDisplayName.at(LAST_ELEMENT_INDEX)],
-              display: generatedDisplayName.join(' '),
+              score,
             },
-            score,
-          },
-        };
-      }
-    }) as GenericGeocodingResponse<T>['features']),
-  ],
-});
+          };
+        }
+      }) as GenericGeocodingResponse<T>['features']),
+    ],
+  };
+  return { ...geoJSONFeatureCollection, bbox: bbox(geoJSONFeatureCollection) };
+};
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const additionalControlSearchProperties = (config: IConfig, size: number): Pick<estypes.SearchRequest, 'size' | 'index' | '_source'> => ({

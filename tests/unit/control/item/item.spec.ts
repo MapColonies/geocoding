@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import jsLogger from '@map-colonies/js-logger';
 import { estypes } from '@elastic/elasticsearch';
+import { BBox } from 'geojson';
 import { ItemQueryParams } from '../../../../src/control/item/DAL/queries';
 import { ItemRepository } from '../../../../src/control/item/DAL/itemRepository';
 import { ItemManager } from '../../../../src/control/item/models/itemManager';
@@ -87,6 +88,7 @@ describe('#ItemManager', () => {
           match_latency_ms: expect.any(Number) as number,
         },
       },
+      bbox: expect.any(Array) as BBox,
       features: [
         {
           type: 'Feature',
