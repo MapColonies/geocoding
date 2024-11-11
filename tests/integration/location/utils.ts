@@ -24,6 +24,7 @@ const expectedGeocodingElasticResponseMetrics = (
   nlp_anlyser_latency_ms: expect.any(Number) as number,
   place_type_latency_ms: expect.any(Number) as number,
   hierarchies_latency_ms: expect.any(Number) as number,
+  name: expect.any(String) as string,
   ...responseParams,
 });
 
