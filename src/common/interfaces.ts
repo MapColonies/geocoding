@@ -86,7 +86,7 @@ export interface GenericGeocodingResponse<T extends Feature, G = any> extends Fe
     query: G & CommonRequestParameters;
     response: Pick<estypes.SearchHitsMetadata, 'max_score'> & {
       /* eslint-disable @typescript-eslint/naming-convention */
-      results_count?: estypes.SearchHitsMetadata['total'];
+      results_count: estypes.SearchHitsMetadata['total'];
       match_latency_ms?: estypes.SearchResponse['took'];
       /* eslint-enable @typescript-eslint/naming-convention */
     } & { [key: string]: unknown };
