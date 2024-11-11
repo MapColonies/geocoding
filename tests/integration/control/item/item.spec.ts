@@ -51,7 +51,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ITEM_1234, ITEM_1235, ITEM_1236], expect)
       );
     });
@@ -63,7 +63,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ITEM_1234, ITEM_1235, ITEM_1236], expect)
       );
     });
@@ -75,7 +75,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [], expect)
       );
     });
@@ -92,7 +92,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ITEM_1236, ITEM_1234, ITEM_1235], expect)
       );
     });
@@ -109,7 +109,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ITEM_1236], expect)
       );
     });
@@ -131,7 +131,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ITEM_1236, ITEM_1234, ITEM_1235], expect)
       );
     });
@@ -152,7 +152,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ITEM_1236], expect)
       );
     });
@@ -173,7 +173,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ITEM_1236, ITEM_1234, ITEM_1235], expect)
       );
     });
@@ -194,7 +194,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ITEM_1236], expect)
       );
     });
@@ -209,7 +209,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ITEM_1234], expect)
       );
     });
@@ -224,7 +224,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [], expect)
       );
     });
@@ -240,7 +240,7 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ITEM_1234, ITEM_1235], expect)
       );
     });
@@ -251,7 +251,7 @@ describe('/search/control/items', function () {
       const response = await requestSender.getItems({} as unknown as GetItemsQueryParams);
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
+      expect(response.body).toEqual({
         message: "request/query must have required property 'command_name'",
       });
     });
@@ -260,7 +260,7 @@ describe('/search/control/items', function () {
       const response = await requestSender.getItems({ command_name: '', limit: 5, disable_fuzziness: false });
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
+      expect(response.body).toEqual({
         message: "Empty value found for query parameter 'command_name'",
       });
     });
@@ -269,14 +269,14 @@ describe('/search/control/items', function () {
       let response = await requestSender.getItems({ command_name: '1234', tile: 'invalid', limit: 5, disable_fuzziness: false });
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
+      expect(response.body).toEqual({
         message: 'request/query/tile must NOT have more than 3 characters',
       });
 
       response = await requestSender.getItems({ command_name: '1234', tile: 'i', limit: 5, disable_fuzziness: false });
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
+      expect(response.body).toEqual({
         message: 'request/query/tile must NOT have fewer than 3 characters',
       });
     });
@@ -289,7 +289,7 @@ describe('/search/control/items', function () {
         const message = sub_tile ? 'request/query/sub_tile must match pattern "^[1-9][0-9]*$"' : "Empty value found for query parameter 'sub_tile'";
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toMatchObject({
+        expect(response.body).toEqual({
           message,
         });
       }
@@ -315,7 +315,7 @@ describe('/search/control/items', function () {
       const response = await requestSender.getItems({ command_name: '1234', limit: 5, disable_fuzziness: false, ...requestParams });
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
+      expect(response.body).toEqual({
         message: '/control/utils/geoContextQuery: geo_context and geo_context_mode must be both defined or both undefined',
       });
     });
@@ -340,7 +340,7 @@ describe('/search/control/items', function () {
       const response = await requestSender.getItems({ command_name: '1234', limit: 5, disable_fuzziness: false, ...requestParams });
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
+      expect(response.body).toEqual({
         message: '/control/utils/geoContextQuery: geo_context and geo_context_mode must be both defined or both undefined',
       });
     });
@@ -364,7 +364,7 @@ describe('/search/control/items', function () {
           : 'request/query/disable_fuzziness must be boolean';
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
+      expect(response.body).toEqual({
         message,
       });
     });
@@ -390,7 +390,7 @@ describe('/search/control/items', function () {
           : 'request/query/limit must be <= 15';
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
+      expect(response.body).toEqual({
         message,
       });
     });
@@ -434,7 +434,7 @@ describe('/search/control/items', function () {
           });
 
           expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-          expect(response.body).toMatchObject({
+          expect(response.body).toEqual({
             message:
               'geo_context validation: geo_context must contain one of the following: {"bbox": [number,number,number,number] | [number,number,number,number,number,number]}, {"lat": number, "lon": number, "radius": number}, or {"x": number, "y": number, "zone": number, "radius": number}',
           });
