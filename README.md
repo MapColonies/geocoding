@@ -66,13 +66,12 @@ We use 3rd party software in order to exctact the searched placetype name from t
 Here is a mock service that will preduce the somewhat expected response from the NLP Analyzer.
 ```
 const express = require('express');
-const bodyParser = require('body-parser');
 
 const app = express();
 app.set('port', 5000);
 
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 app.post('/NLP_ANALYSES', (req, res) => {
 	if (
@@ -101,6 +100,10 @@ app.post('/NLP_ANALYSES', (req, res) => {
 			}),
 		},
 	]);
+});
+
+app.listen(app.get('port'), () => {
+	console.log(`Server is running on port ${app.get('port')}`);
 });
 ```
 
