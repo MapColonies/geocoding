@@ -56,7 +56,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ROUTE_VIA_CAMILLUCCIA_A, ROUTE_VIA_CAMILLUCCIA_B], expect)
       );
     });
@@ -73,7 +73,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ROUTE_VIA_CAMILLUCCIA_B, ROUTE_VIA_CAMILLUCCIA_A], expect)
       );
     });
@@ -90,7 +90,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ROUTE_VIA_CAMILLUCCIA_B], expect)
       );
     });
@@ -111,7 +111,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ROUTE_VIA_CAMILLUCCIA_B, ROUTE_VIA_CAMILLUCCIA_A], expect)
       );
     });
@@ -132,7 +132,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ROUTE_VIA_CAMILLUCCIA_B], expect)
       );
     });
@@ -153,7 +153,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ROUTE_VIA_CAMILLUCCIA_B, ROUTE_VIA_CAMILLUCCIA_A], expect)
       );
     });
@@ -174,7 +174,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ROUTE_VIA_CAMILLUCCIA_B], expect)
       );
     });
@@ -189,7 +189,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [ROUTE_VIA_CAMILLUCCIA_B], expect)
       );
     });
@@ -204,7 +204,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [], expect)
       );
     });
@@ -222,7 +222,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [CONTROL_POINT_OLIMPIADE_112, CONTROL_POINT_OLIMPIADE_111], expect)
       );
     });
@@ -240,7 +240,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [CONTROL_POINT_OLIMPIADE_112], expect)
       );
     });
@@ -262,7 +262,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [CONTROL_POINT_OLIMPIADE_112, CONTROL_POINT_OLIMPIADE_111], expect)
       );
     });
@@ -284,7 +284,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [CONTROL_POINT_OLIMPIADE_112], expect)
       );
     });
@@ -306,7 +306,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [CONTROL_POINT_OLIMPIADE_112, CONTROL_POINT_OLIMPIADE_111], expect)
       );
     });
@@ -328,7 +328,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [CONTROL_POINT_OLIMPIADE_112], expect)
       );
     });
@@ -344,7 +344,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [CONTROL_POINT_OLIMPIADE_111, CONTROL_POINT_OLIMPIADE_112], expect)
       );
     });
@@ -360,7 +360,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [CONTROL_POINT_OLIMPIADE_111], expect)
       );
     });
@@ -376,7 +376,7 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
         expectedResponse(requestParams, [], expect)
       );
     });
@@ -387,7 +387,7 @@ describe('/search/control/route', function () {
       const response = await requestSender.getRoutes({} as unknown as GetRoutesQueryParams);
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
+      expect(response.body).toEqual({
         message: "request/query must have required property 'command_name'",
       });
     });
@@ -396,7 +396,7 @@ describe('/search/control/route', function () {
       const response = await requestSender.getRoutes({ command_name: '', limit: 5, disable_fuzziness: false });
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
+      expect(response.body).toEqual({
         message: "Empty value found for query parameter 'command_name'",
       });
     });
@@ -411,7 +411,7 @@ describe('/search/control/route', function () {
           : "Empty value found for query parameter 'control_point'";
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toMatchObject({
+        expect(response.body).toEqual({
           message,
         });
       }
@@ -437,7 +437,7 @@ describe('/search/control/route', function () {
       const response = await requestSender.getRoutes({ command_name: '1234', limit: 5, disable_fuzziness: false, ...requestParams });
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
+      expect(response.body).toEqual({
         message: '/control/utils/geoContextQuery: geo_context and geo_context_mode must be both defined or both undefined',
       });
     });
@@ -462,7 +462,7 @@ describe('/search/control/route', function () {
       const response = await requestSender.getRoutes({ command_name: '1234', limit: 5, disable_fuzziness: false, ...requestParams });
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
+      expect(response.body).toEqual({
         message: '/control/utils/geoContextQuery: geo_context and geo_context_mode must be both defined or both undefined',
       });
     });
@@ -486,7 +486,7 @@ describe('/search/control/route', function () {
           : 'request/query/disable_fuzziness must be boolean';
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
+      expect(response.body).toEqual({
         message,
       });
     });
@@ -512,7 +512,7 @@ describe('/search/control/route', function () {
           : 'request/query/limit must be <= 15';
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
+      expect(response.body).toEqual({
         message,
       });
     });
@@ -556,7 +556,7 @@ describe('/search/control/route', function () {
           });
 
           expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-          expect(response.body).toMatchObject({
+          expect(response.body).toEqual({
             message:
               'geo_context validation: geo_context must contain one of the following: {"bbox": [number,number,number,number] | [number,number,number,number,number,number]}, {"lat": number, "lon": number, "radius": number}, or {"x": number, "y": number, "zone": number, "radius": number}',
           });

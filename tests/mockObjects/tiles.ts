@@ -18,6 +18,7 @@ export const RIT_TILE: Tile = {
     type: 'Polygon',
   },
   properties: {
+    LAYER_NAME: 'CONTROL.TILES',
     TILE_NAME: 'RIT',
     TYPE: 'TILE',
   },
@@ -26,6 +27,7 @@ export const RIT_TILE: Tile = {
 export const RIC_TILE: Tile = {
   type: 'Feature',
   properties: {
+    LAYER_NAME: 'CONTROL.TILES',
     TILE_NAME: 'RIC',
     TYPE: 'TILE',
   },
@@ -46,6 +48,7 @@ export const RIC_TILE: Tile = {
 export const SUB_TILE_66: Tile = {
   type: 'Feature',
   properties: {
+    LAYER_NAME: 'CONTROL.SUB_TILES',
     SUB_TILE_ID: '66',
     TILE_NAME: 'RIT',
     TYPE: 'SUB_TILE',
@@ -67,6 +70,7 @@ export const SUB_TILE_66: Tile = {
 export const SUB_TILE_65: Tile = {
   type: 'Feature',
   properties: {
+    LAYER_NAME: 'CONTROL.SUB_TILES',
     SUB_TILE_ID: '65',
     TILE_NAME: 'RIT',
     TYPE: 'SUB_TILE',

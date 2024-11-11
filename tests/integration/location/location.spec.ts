@@ -73,7 +73,7 @@ describe('/search/location', function () {
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
 
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Feature>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
         expectedResponse(
           {
             ...requestParams,
@@ -125,7 +125,7 @@ describe('/search/location', function () {
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
 
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Feature>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
         expectedResponse(
           requestParams,
           {
@@ -174,7 +174,7 @@ describe('/search/location', function () {
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
 
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Feature>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
         expectedResponse(
           {
             ...requestParams,
@@ -263,7 +263,7 @@ describe('/search/location', function () {
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
 
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Feature>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
         expectedResponse(
           {
             ...requestParams,
@@ -317,7 +317,7 @@ describe('/search/location', function () {
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
 
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Feature>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
         expectedResponse(
           {
             ...requestParams,
@@ -367,7 +367,7 @@ describe('/search/location', function () {
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
 
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Feature>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
         expectedResponse(
           requestParams,
           {
@@ -398,7 +398,7 @@ describe('/search/location', function () {
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
 
-      expect(response.body).toMatchObject<GenericGeocodingResponse<Feature>>(
+      expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
         expectedResponse(
           requestParams,
           {
@@ -446,7 +446,7 @@ describe('/search/location', function () {
       const response = await requestSender.getQuery(badRequestParams);
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
+      expect(response.body).toEqual({
         message: '/location/geotextQuery: geo_context and geo_context_mode must be both defined or both undefined',
       });
       tokenTypesUrlScope.done();
@@ -563,7 +563,7 @@ describe('/search/location', function () {
           });
 
           expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-          expect(response.body).toMatchObject({
+          expect(response.body).toEqual({
             message:
               'geo_context validation: geo_context must contain one of the following: {"bbox": [number,number,number,number] | [number,number,number,number,number,number]}, {"lat": number, "lon": number, "radius": number}, or {"x": number, "y": number, "zone": number, "radius": number}',
           });

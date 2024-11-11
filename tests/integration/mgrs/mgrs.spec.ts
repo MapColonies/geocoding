@@ -95,7 +95,7 @@ describe('/search/MGRS', function () {
     it('should return 400 status code when MGRS is invalid', async function () {
       const response = await requestSender.getTile({ tile: 'ABC{}' });
 
-      expect(response.body).toMatchObject({
+      expect(response.body).toEqual({
         message: 'Invalid MGRS tile. MGRSPoint bad conversion from ABC{}',
       });
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
@@ -105,7 +105,7 @@ describe('/search/MGRS', function () {
       const response = await requestSender.getTile();
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
+      expect(response.body).toEqual({
         message: "request/query must have required property 'tile'",
       });
     });
@@ -114,7 +114,7 @@ describe('/search/MGRS', function () {
       const response = await requestSender.getTile({ tile: '{ABC}' });
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      expect(response.body).toMatchObject({
+      expect(response.body).toEqual({
         message: 'Invalid MGRS tile. MGRSPoint zone letter A not handled: {ABC}',
       });
     });
