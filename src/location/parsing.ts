@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 import { SearchHit } from '@elastic/elasticsearch/lib/api/types';
 import { XMLParser } from 'fast-xml-parser';
+import { IApplication } from '../common/interfaces';
 import { TextSearchParams } from './interfaces';
 import { TextSearchHit } from './models/elasticsearchHits';
 
@@ -51,10 +52,17 @@ const generateDisplayNameFromHighlight = (
   return untagHighlight(chosen);
 };
 
-export const generateDisplayName = (highlight: SearchHit['highlight'], params: TextSearchParams, feature: TextSearchHit): string => {
+export const generateDisplayName = (
+  highlight: SearchHit['highlight'],
+  params: TextSearchParams,
+  feature: TextSearchHit,
+  sources?: IApplication['sources']
+): string => {
   return `${highlight ? generateDisplayNameFromHighlight(highlight, params.query.split(' ').length, params.name) : feature.name}, ${
     feature.placetype
-  }, ${feature.sub_placetype}, ${feature.region[0]}, ${feature.sub_region[0] ? feature.sub_region[0] + ', ' : ''}${feature.source}`;
+  }, ${feature.sub_placetype}, ${feature.region[0]}, ${feature.sub_region[0] ? feature.sub_region[0] + ', ' : ''}${
+    sources?.[feature.source] ?? feature.source
+  }`;
 };
 
 export const getHierarchyOfInterest = (hierarchy: string): string => hierarchy.split('/')[HIERARCHY_OF_INTEREST];
