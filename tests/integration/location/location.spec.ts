@@ -24,6 +24,7 @@ import {
   LA_HIERRARCHY,
   MockLocationQueryFeature,
   PARIS_WI_SCHOOL,
+  NY_JFK_AIRPORT_DISPLAY_NAMES,
 } from '../../mockObjects/locations';
 import { LocationRequestSender } from './helpers/requestSender';
 import { expectedResponse, hierarchiesWithAnyWieght } from './utils';
@@ -89,7 +90,7 @@ describe('/search/location', function () {
                 ...NY_JFK_AIRPORT.properties,
                 names: {
                   ...NY_JFK_AIRPORT.properties.names,
-                  display: expect.stringContaining('JFK') as string,
+                  display: NY_JFK_AIRPORT_DISPLAY_NAMES[0],
                 },
               },
             },
@@ -139,7 +140,7 @@ describe('/search/location', function () {
                 ...NY_JFK_AIRPORT.properties,
                 names: {
                   ...NY_JFK_AIRPORT.properties.names,
-                  display: expect.stringContaining('JFK') as string,
+                  display: NY_JFK_AIRPORT_DISPLAY_NAMES[0],
                 },
               },
             },
@@ -190,7 +191,7 @@ describe('/search/location', function () {
                 ...NY_JFK_AIRPORT.properties,
                 names: {
                   ...NY_JFK_AIRPORT.properties.names,
-                  display: expect.stringContaining('JFK') as string,
+                  display: NY_JFK_AIRPORT_DISPLAY_NAMES[0],
                 },
               },
             },
@@ -220,7 +221,7 @@ describe('/search/location', function () {
               ...NY_JFK_AIRPORT.properties,
               names: {
                 ...NY_JFK_AIRPORT.properties.names,
-                display: expect.stringContaining('JFK') as string,
+                display: NY_JFK_AIRPORT_DISPLAY_NAMES[0],
               },
             },
           },
@@ -239,7 +240,7 @@ describe('/search/location', function () {
               ...NY_JFK_AIRPORT.properties,
               names: {
                 ...NY_JFK_AIRPORT.properties.names,
-                display: expect.stringContaining('JFK') as string,
+                display: NY_JFK_AIRPORT_DISPLAY_NAMES[0],
               },
             },
           },
@@ -328,6 +329,11 @@ describe('/search/location', function () {
             sub_place_types,
           },
           returnedFeatures,
+          // .map((feature) => {
+          //   const {names: {}} = feature.properties;
+          //   feature.properties.names.display = `${feature.properties.names.display}, ${feature.properties.placetype}, ${feature.properties.sub_placetype}, ${feature.properties.regions[0].region}, ${feature.properties.regions[0].sub_region_names[0]}, ${feature.properties.matches[0].source}`;
+          //   return feature;
+          // })
           expect
         )
       );

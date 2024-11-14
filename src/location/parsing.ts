@@ -2,6 +2,8 @@
 /* istanbul ignore file */
 import { SearchHit } from '@elastic/elasticsearch/lib/api/types';
 import { XMLParser } from 'fast-xml-parser';
+import { TextSearchParams } from './interfaces';
+import { TextSearchHit } from './models/elasticsearchHits';
 
 const HIERARCHY_OF_INTEREST = 3;
 
@@ -33,7 +35,11 @@ const compareQualityThenLength = (
   }
 ): number => a.quality - b.quality || a.highlight.length - b.highlight.length;
 
-export const generateDisplayName = ({ text: highlights }: NonNullable<SearchHit['highlight']>, queryWordCount: number, name?: string): string => {
+const generateDisplayNameFromHighlight = (
+  { text: highlights }: NonNullable<SearchHit['highlight']>,
+  queryWordCount: number,
+  name?: string
+): string => {
   const scored = highlights.map((highlight) => ({
     highlight,
     quality: calculateHighlightQuality(highlight, queryWordCount),
@@ -43,6 +49,12 @@ export const generateDisplayName = ({ text: highlights }: NonNullable<SearchHit[
   const chosen = (filtered.length ? filtered : scored).sort(compareQualityThenLength).pop()!.highlight;
 
   return untagHighlight(chosen);
+};
+
+export const generateDisplayName = (highlight: SearchHit['highlight'], params: TextSearchParams, feature: TextSearchHit): string => {
+  return `${highlight ? generateDisplayNameFromHighlight(highlight, params.query.split(' ').length, params.name) : feature.name}, ${
+    feature.placetype
+  }, ${feature.sub_placetype}, ${feature.region[0]}, ${feature.sub_region[0] ? feature.sub_region[0] + ', ' : ''}${feature.source}`;
 };
 
 export const getHierarchyOfInterest = (hierarchy: string): string => hierarchy.split('/')[HIERARCHY_OF_INTEREST];

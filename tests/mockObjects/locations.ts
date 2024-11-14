@@ -4,7 +4,17 @@ import { Feature } from 'geojson';
 import { GenericGeocodingResponse } from '../../src/common/interfaces';
 import { HierarchySearchHit } from '../../src/location/models/elasticsearchHits';
 
-export type MockLocationQueryFeature = GenericGeocodingResponse<Feature>['features'][number];
+export type MockLocationQueryFeature = GenericGeocodingResponse<Feature>['features'][number] & {
+  properties: GenericGeocodingResponse<Feature>['features'][number]['properties'] & {
+    regions: { region: string; sub_region_names: string[] }[];
+    sub_placetype: string;
+    placetype: string;
+    names: {
+      en: string[];
+      fr: string[];
+    };
+  };
+};
 
 export const NY_JFK_AIRPORT: MockLocationQueryFeature = {
   type: 'Feature',
@@ -52,7 +62,7 @@ export const NY_JFK_AIRPORT: MockLocationQueryFeature = {
       en: ['JFK International Airport', 'John F Kennedy International Airport'],
       fr: ['Aeropuerto JFK'],
       default: ['JFK International Airport'],
-      display: 'John F Kennedy International Airport',
+      display: 'John F Kennedy International Airport, transportation, airport, USA, New York, OSM',
     },
     placetype: 'transportation',
     sub_placetype: 'airport',
@@ -64,6 +74,13 @@ export const NY_JFK_AIRPORT: MockLocationQueryFeature = {
     ],
   },
 };
+
+export const NY_JFK_AIRPORT_DISPLAY_NAMES = NY_JFK_AIRPORT.properties.names.en.map((name) => {
+  const { placetype, sub_placetype, regions, matches } = NY_JFK_AIRPORT.properties;
+  const { region, sub_region_names } = regions[0];
+  const { source } = matches[0];
+  return `${name}, ${placetype}, ${sub_placetype}, ${region}, ${sub_region_names[0]}, ${source}`;
+});
 
 export const NY_POLICE_AIRPORT: MockLocationQueryFeature = {
   type: 'Feature',
@@ -97,7 +114,7 @@ export const NY_POLICE_AIRPORT: MockLocationQueryFeature = {
       en: ['Nassau County Police Airport'],
       fr: ['Aeropuerto de la Policía del Condado de Nassau'],
       default: ['Nassau County Police Airport'],
-      display: 'Nassau County Police Airport',
+      display: 'Nassau County Police Airport, transportation, airport, USA, New York, OSM',
     },
     placetype: 'transportation',
     sub_placetype: 'airport',
@@ -144,7 +161,7 @@ export const LA_AIRPORT: MockLocationQueryFeature = {
       en: ['Los Angeles International Airport'],
       fr: ['Aeropuerto Internacional de Los Ángeles'],
       default: ['Los Angeles International Airport'],
-      display: 'Los Angeles International Airport',
+      display: 'Los Angeles International Airport, transportation, airport, USA, Los Angeles, OSM',
     },
     placetype: 'transportation',
     sub_placetype: 'airport',
@@ -192,7 +209,7 @@ export const OSM_LA_PORT: MockLocationQueryFeature = {
       en: ['Port of Los Angeles'],
       fr: ['Puerto de Los Ángeles'],
       default: ['Port of Los Angeles'],
-      display: 'Port of Los Angeles',
+      display: 'Port of Los Angeles, transportation, port, USA, Los Angeles, OSM',
     },
     placetype: 'transportation',
     sub_placetype: 'port',
@@ -239,7 +256,7 @@ export const GOOGLE_LA_PORT: MockLocationQueryFeature = {
       en: ['Port of Los Angeles'],
       fr: ['Puerto de Los Ángeles'],
       default: ['Port of Los Angeles'],
-      display: 'Port of Los Angeles',
+      display: 'Port of Los Angeles, transportation, port, USA, Los Angeles, GOOGLE',
     },
     placetype: 'transportation',
     sub_placetype: 'port',
@@ -319,7 +336,7 @@ export const PARIS_WI_SCHOOL: MockLocationQueryFeature = {
       en: ['Wi School Paris 9'],
       fr: ['Ecole Wi Paris 9'],
       default: ['Wi School Paris 9'],
-      display: 'Wi School Paris 9',
+      display: 'Wi School Paris 9, education, school, FRANCE, Paris, OSM',
     },
     placetype: 'education',
     sub_placetype: 'school',
