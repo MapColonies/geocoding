@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.1](https://github.com/MapColonies/geocoding/compare/v0.2.0...v0.2.1) (2024-11-14)
+
+
+### Bug Fixes
+
+* location display name mapco 5394 ([#58](https://github.com/MapColonies/geocoding/issues/58)) ([eeb6480](https://github.com/MapColonies/geocoding/commit/eeb6480b440827dba12716d93035a5cfde32edc1))
+
 ## [0.2.0](https://github.com/MapColonies/geocoding/compare/v0.1.5...v0.2.0) (2024-11-11)
 
 

@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  version: 0.2.0
+  version: 0.2.1
   title: Geocoding
   description: >-
     MapColonies Vector Geocoding api provides custom geodata search engine
