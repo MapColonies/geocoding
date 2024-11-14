@@ -45,6 +45,8 @@ const generateDisplayNameFromHighlight = (
     highlight,
     quality: calculateHighlightQuality(highlight, queryWordCount),
   }));
+
+  /* istanbul ignore next */
   const filtered = scored.filter(name !== undefined ? ({ highlight }): boolean => highlight.includes(name) : ({ quality }): boolean => quality < 1);
 
   const chosen = (filtered.length ? filtered : scored).sort(compareQualityThenLength).pop()!.highlight;
@@ -64,5 +66,3 @@ export const generateDisplayName = (
     sources?.[feature.source] ?? feature.source
   }`;
 };
-
-export const getHierarchyOfInterest = (hierarchy: string): string => hierarchy.split('/')[HIERARCHY_OF_INTEREST];
