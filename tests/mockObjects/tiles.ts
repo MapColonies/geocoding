@@ -21,6 +21,12 @@ export const RIT_TILE: Tile = {
     LAYER_NAME: 'CONTROL.TILES',
     TILE_NAME: 'RIT',
     TYPE: 'TILE',
+    regions: [
+      {
+        region: 'italy',
+        sub_region_names: ['rome'],
+      },
+    ],
   },
 };
 
@@ -30,6 +36,12 @@ export const RIC_TILE: Tile = {
     LAYER_NAME: 'CONTROL.TILES',
     TILE_NAME: 'RIC',
     TYPE: 'TILE',
+    regions: [
+      {
+        region: 'italy',
+        sub_region_names: [],
+      },
+    ],
   },
   geometry: {
     coordinates: [
@@ -52,6 +64,12 @@ export const SUB_TILE_66: Tile = {
     SUB_TILE_ID: '66',
     TILE_NAME: 'RIT',
     TYPE: 'SUB_TILE',
+    regions: [
+      {
+        region: 'italy',
+        sub_region_names: [],
+      },
+    ],
   },
   geometry: {
     coordinates: [
@@ -74,6 +92,12 @@ export const SUB_TILE_65: Tile = {
     SUB_TILE_ID: '65',
     TILE_NAME: 'RIT',
     TYPE: 'SUB_TILE',
+    regions: [
+      {
+        region: 'italy',
+        sub_region_names: ['rome'],
+      },
+    ],
   },
   geometry: {
     coordinates: [
