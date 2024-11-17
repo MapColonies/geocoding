@@ -103,7 +103,7 @@ export const convertResult = (
             [nameKeys[0]]: new RegExp(mainLanguageRegex).test(feature!.text[0]) ? allNames.shift() : allNames.pop(),
             [nameKeys[1]]: allNames.pop(),
             ['default']: [feature!.name],
-            display: generateDisplayName(highlight, params, feature!),
+            display: generateDisplayName(highlight, params, feature!, sources),
           },
           placetype: feature?.placetype, // TODO: check if to remove this
           sub_placetype: feature?.sub_placetype,
