@@ -15,7 +15,12 @@ let routeManager: RouteManager;
 describe('#RouteManager', () => {
   const getRoutes = jest.fn();
   const getControlPointInRoute = jest.fn();
-  const controlObjectDisplayNamePrefixes = { ROUTE: 'Route', CONTROL_POINT: 'Control Point' };
+  const controlObjectDisplayNamePrefixes = {
+    ROUTE: 'Route',
+    CONTROL_POINT: 'Control Point',
+    CONTROL_CROSS: 'Control Cross',
+    CONTROL_INFRASTRUCTURE: 'Control Infrastructure',
+  };
   beforeEach(() => {
     jest.resetAllMocks();
 
