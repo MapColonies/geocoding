@@ -19,4 +19,5 @@ export const CONTROL_FIELDS = [
   'properties.SECTION',
   'properties.TIED_TO',
   'properties.LAYER_NAME',
+  'properties.regions',
 ];

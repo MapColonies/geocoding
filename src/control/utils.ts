@@ -89,6 +89,10 @@ export const formatResponse = <T extends Tile | Item | Route>(
                 display: generatedDisplayName.join(' '),
               },
               score,
+              regions: (source.properties.regions ?? []).map(({ region, sub_region_names }) => ({
+                region,
+                sub_region_names: sub_region_names ?? [],
+              })),
             },
           };
         }

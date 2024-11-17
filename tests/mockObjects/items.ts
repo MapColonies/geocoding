@@ -26,6 +26,12 @@ export const ITEM_1234: Item = {
     SUB_TILE_ID: '37',
     ENTITY_HEB: 'hotel',
     TYPE: 'ITEM',
+    regions: [
+      {
+        region: 'italy',
+        sub_region_names: ['rome'],
+      },
+    ],
   },
 };
 
@@ -57,6 +63,7 @@ export const ITEM_1235: Item = {
     SUB_TILE_ID: '37',
     ENTITY_HEB: 'oplympic stadium',
     TYPE: 'ITEM',
+    regions: [],
   },
 };
 
@@ -95,5 +102,6 @@ export const ITEM_1236: Item = {
     SUB_TILE_ID: '38',
     ENTITY_HEB: 'hospital',
     TYPE: 'ITEM',
+    regions: [],
   },
 };

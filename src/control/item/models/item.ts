@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { Feature, GeoJsonProperties } from 'geojson';
+import { Feature } from 'geojson';
+import { BaseControlFeatureProperties } from '../../interfaces';
 
 export interface Item extends Feature {
-  properties: GeoJsonProperties & {
+  properties: BaseControlFeatureProperties & {
     TYPE: 'ITEM';
     OBJECT_COMMAND_NAME: string;
     LAYER_NAME: string;

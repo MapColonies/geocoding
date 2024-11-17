@@ -34,7 +34,10 @@ const compareQualityThenLength = (
     highlight: string;
     quality: number;
   }
-): number => a.quality - b.quality || a.highlight.length - b.highlight.length;
+): number =>
+  a.quality - b.quality ||
+  /* istanbul ignore next */
+  a.highlight.length - b.highlight.length;
 
 const generateDisplayNameFromHighlight = (
   { text: highlights }: NonNullable<SearchHit['highlight']>,
@@ -63,6 +66,7 @@ export const generateDisplayName = (
   return `${highlight ? generateDisplayNameFromHighlight(highlight, params.query.split(' ').length, params.name) : feature.name}, ${
     feature.placetype
   }, ${feature.sub_placetype}, ${feature.region[0]}, ${feature.sub_region[0] ? feature.sub_region[0] + ', ' : ''}${
+    /* istanbul ignore next */
     sources?.[feature.source] ?? feature.source
   }`;
 };

@@ -23,6 +23,12 @@ export const ROUTE_VIA_CAMILLUCCIA_A: Route = {
     ENTITY_HEB: 'route',
     TYPE: 'ROUTE',
     LAYER_NAME: 'CONTROL.ROUTES',
+    regions: [
+      {
+        region: 'italy',
+        sub_region_names: ['rome'],
+      },
+    ],
   },
 };
 export const ROUTE_VIA_CAMILLUCCIA_B: Route = {
@@ -42,6 +48,12 @@ export const ROUTE_VIA_CAMILLUCCIA_B: Route = {
     ENTITY_HEB: 'route',
     TYPE: 'ROUTE',
     LAYER_NAME: 'CONTROL.ROUTES',
+    regions: [
+      {
+        region: 'italy',
+        sub_region_names: ['rome'],
+      },
+    ],
   },
 };
 
@@ -57,6 +69,12 @@ export const CONTROL_POINT_OLIMPIADE_111: Route = {
     TIED_TO: 'olimpiade',
     TYPE: 'ITEM' as never,
     LAYER_NAME: 'CONTROL_GIL_GDB.CTR_CONTROL_POINT_CROSS_N',
+    regions: [
+      {
+        region: 'italy',
+        sub_region_names: [],
+      },
+    ],
   },
 };
 
@@ -72,5 +90,6 @@ export const CONTROL_POINT_OLIMPIADE_112: Route = {
     TIED_TO: 'olimpiade',
     TYPE: 'ITEM' as never,
     LAYER_NAME: 'CONTROL_GIL_GDB.CTR_CONTROL_POINT_CROSS_N',
+    regions: [],
   },
 };
