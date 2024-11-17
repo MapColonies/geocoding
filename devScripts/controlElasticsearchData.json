@@ -47,7 +47,13 @@
         "SHAPE.LEN": 0.0044192097656775,
         "LAYER_NAME": "CONTROL.ITEMS",
         "ENTITY_HEB": "airport",
-        "TYPE": "ITEM"
+        "TYPE": "ITEM",
+        "regions": [
+          {
+            "region": "thailand",
+            "sub_region_names": ["chiang mai"]
+          }
+        ]
       }
     }
   },
@@ -87,7 +93,13 @@
         "SHAPE.LEN": 0.0044192097656775,
         "LAYER_NAME": "CONTROL.ITEMS",
         "ENTITY_HEB": "hotel",
-        "TYPE": "ITEM"
+        "TYPE": "ITEM",
+        "regions": [
+          {
+            "region": "italy",
+            "sub_region_names": ["rome"]
+          }
+        ]
       }
     }
   },
@@ -197,7 +209,13 @@
         "NAME": "somePlace",
         "ZON": 37,
         "LAYER_NAME": "CONTROL.SUB_TILES",
-        "TYPE": "SUB_TILE"
+        "TYPE": "SUB_TILE",
+        "regions": [
+          {
+            "region": "italy",
+            "sub_region_names": ["rome"]
+          }
+        ]
       },
       "geometry": {
         "coordinates": [
@@ -224,7 +242,12 @@
         "NAME": "somePlace",
         "ZON": 37,
         "LAYER_NAME": "CONTROL.SUB_TILES",
-        "TYPE": "SUB_TILE"
+        "TYPE": "SUB_TILE",
+        "regions": [
+          {
+            "region": "italy"
+          }
+        ]
       },
       "geometry": {
         "coordinates": [
@@ -267,7 +290,13 @@
         "F_ATT": 951,
         "LAYER_NAME": "CONTROL.ROUTES",
         "ENTITY_HEB": "route",
-        "TYPE": "ROUTE"
+        "TYPE": "ROUTE",
+        "regions": [
+          {
+            "region": "italy",
+            "sub_region_names": ["rome"]
+          }
+        ]
       }
     }
   },
@@ -295,7 +324,13 @@
         "F_ATT": 951,
         "LAYER_NAME": "CONTROL.ROUTES",
         "ENTITY_HEB": "route",
-        "TYPE": "ROUTE"
+        "TYPE": "ROUTE",
+        "regions": [
+          {
+            "region": "italy",
+            "sub_region_names": ["rome"]
+          }
+        ]
       }
     }
   },
@@ -320,7 +355,13 @@
         "F_ATT": 9511,
         "LAYER_NAME": "CONTROL.ROUTES",
         "ENTITY_HEB": "route",
-        "TYPE": "ROUTE"
+        "TYPE": "ROUTE",
+        "regions": [
+          {
+            "region": "italy",
+            "sub_region_names": ["rome"]
+          }
+        ]
       }
     }
   },
@@ -341,7 +382,12 @@
         "F_ATT": 951111,
         "ENTITY_HEB": "control point",
         "LAYER_NAME": "CONTROL_GIL_GDB.CTR_CONTROL_POINT_CROSS_N",
-        "TYPE": "ITEM"
+        "TYPE": "ITEM",
+        "regions": [
+          {
+            "region": "italy"
+          }
+        ]
       }
     }
   },
@@ -389,7 +435,13 @@
         "TILE_NAME": "RIT",
         "TILE_ID": null,
         "LAYER_NAME": "CONTROL.TILES",
-        "TYPE": "TILE"
+        "TYPE": "TILE",
+        "regions": [
+          {
+            "region": "italy",
+            "sub_region_names": ["rome"]
+          }
+        ]
       }
     }
   },
@@ -403,7 +455,12 @@
         "TILE_NAME": "RIC",
         "TILE_ID": null,
         "LAYER_NAME": "CONTROL.TILES",
-        "TYPE": "TILE"
+        "TYPE": "TILE",
+        "regions": [
+          {
+            "region": "italy"
+          }
+        ]
       },
       "geometry": {
         "coordinates": [
