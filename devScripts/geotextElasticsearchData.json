@@ -3,7 +3,7 @@
     "_id": "12cd98ee-82eb-415e-a1d8-e1667a6f2e7f",
     "_index": "geotext",
     "_source": {
-      "source": "OSM",
+      "source": "osm",
       "layer_name": "osm_airports",
       "ingestion_timestamp": "2024-07-17 00:00:00",
       "timestamp": "11/12/2023 00:00:00",
@@ -68,7 +68,7 @@
     "_id": "8b5009b4-b643-4856-905d-ac95a2040aca",
     "_index": "geotext",
     "_source": {
-      "source": "OSM",
+      "source": "osm",
       "layer_name": "osm_airports",
       "ingestion_timestamp": "2024-07-17 00:00:00",
       "timestamp": "11/12/2023 00:00:00",
@@ -119,7 +119,7 @@
     "_id": "2bd0d4bb-af93-4211-9499-174c56feddb5",
     "_index": "geotext",
     "_source": {
-      "source": "OSM",
+      "source": "osm",
       "layer_name": "osm_airports",
       "ingestion_timestamp": "2024-07-17 00:00:00",
       "timestamp": "11/12/2023 00:00:00",
@@ -172,7 +172,7 @@
     "_id": "ba951f2f-08c2-446e-845d-e2b0547d5d8c",
     "_index": "geotext",
     "_source": {
-      "source": "OSM",
+      "source": "osm",
       "layer_name": "osm_ports",
       "ingestion_timestamp": "2024-07-17 00:00:00",
       "timestamp": "11/12/2023 00:00:00",
@@ -226,7 +226,7 @@
     "_id": "1bb11f54-939e-457b-bf68-a3920ccf629c",
     "_index": "geotext",
     "_source": {
-      "source": "GOOGLE",
+      "source": "google",
       "layer_name": "google_ports",
       "ingestion_timestamp": "2024-07-17 00:00:00",
       "timestamp": "11/12/2023 00:00:00",
@@ -280,7 +280,7 @@
     "_id": "2b3dd420-d265-4665-94a6-3e13650b7a2d",
     "_index": "geotext",
     "_source": {
-      "source": "OSM",
+      "source": "osm",
       "layer_name": "osm_schools",
       "ingestion_timestamp": "2024-07-17 00:00:00",
       "timestamp": "11/12/2023 00:00:00",
@@ -321,7 +321,7 @@
     "_id": "dc02a3f9-156a-4f61-85bd-fd040cd322a3",
     "_index": "geotext",
     "_source": {
-      "source": "OSM",
+      "source": "osm",
       "layer_name": "osm_schools",
       "ingestion_timestamp": "2024-07-17 00:00:00",
       "timestamp": "11/12/2023 00:00:00",
@@ -360,7 +360,7 @@
     "_id": "8cb48ff7-b865-4d9c-adb1-9deef9f06248 ",
     "_index": "geotext",
     "_source": {
-      "source": "GOOGLE",
+      "source": "google",
       "layer_name": "google_hotles",
       "ingestion_timestamp": "2024-07-17 00:00:00",
       "timestamp": "11/12/2023 00:00:00",
@@ -401,7 +401,7 @@
     "_id": "badfea67-dc52-4464-a6c5-b5dd8fe80473",
     "_index": "geotext",
     "_source": {
-      "source": "GOOGLE",
+      "source": "google",
       "layer_name": "google_cities",
       "ingestion_timestamp": "2024-07-17 00:00:00",
       "timestamp": "11/12/2023 00:00:00",
