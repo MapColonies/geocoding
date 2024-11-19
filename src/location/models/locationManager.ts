@@ -9,6 +9,7 @@ import { convertResult } from '../utils';
 import { GenericGeocodingResponse, IApplication } from '../../common/interfaces';
 import { ElasticDbClientsConfig } from '../../common/elastic/interfaces';
 import { ConvertSnakeToCamelCase } from '../../common/utils';
+import { BadRequestError } from '../../common/errors';
 
 @injectable()
 export class GeotextSearchManager {
@@ -20,6 +21,10 @@ export class GeotextSearchManager {
   ) {}
 
   public async search(params: ConvertSnakeToCamelCase<GetGeotextSearchParams>): Promise<GenericGeocodingResponse<Feature>> {
+    if (this.appConfig.sources && params.source && params.source.some((source) => !this.appConfig.sources![source])) {
+      throw new BadRequestError(`Invalid source. Available sources are ${Object.keys(this.appConfig.sources).toString()}`);
+    }
+
     const extractNameEndpoint = this.appConfig.services.tokenTypesUrl;
     const {
       geotext: geotextIndex,

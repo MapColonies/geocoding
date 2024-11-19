@@ -100,14 +100,14 @@ export const geotextQuery = (
   source?.length &&
     (esQuery.query?.function_score?.query?.bool?.filter as QueryDslQueryContainer[]).push({
       terms: {
-        [SOURCE_FIELD]: source.map((s) => s.toLowerCase()),
+        [SOURCE_FIELD]: source,
       },
     });
 
   region?.length &&
     (esQuery.query?.function_score?.query?.bool?.filter as QueryDslQueryContainer[]).push({
       terms: {
-        [REGION_FIELD]: region.map((r) => r.toLowerCase()),
+        [REGION_FIELD]: region,
       },
     });
 

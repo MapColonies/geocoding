@@ -383,7 +383,7 @@ describe('/search/location', function () {
       const response = await requestSender.getSources();
 
       expect(response.status).toBe(httpStatusCodes.OK);
-      expect(response.body).toEqual(expect.arrayContaining(['OSM', 'GOOGLE']));
+      expect(response.body).toEqual(expect.arrayContaining(['osm', 'google']));
       // expect(response).toSatisfyApiSpec();
     });
 
@@ -506,6 +506,14 @@ describe('/search/location', function () {
         message: '/location/geotextQuery: geo_context and geo_context_mode must be both defined or both undefined',
       });
       tokenTypesUrlScope.done();
+    });
+
+    it('should return 400 and message that source is not available', async function () {
+      const requestParams: GetGeotextSearchParams = { query: 'airport', source: ['notAvailable'], limit: 5, disable_fuzziness: true };
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
     });
   });
 

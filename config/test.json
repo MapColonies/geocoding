@@ -74,8 +74,8 @@
     },
     "geotextCitiesLayer": "google_cities",
     "sources": {
-      "OSM": "OSM",
-      "GOOGLE": "GOOGLE"
+      "osm": "OSM",
+      "google": "GOOGLE"
     },
     "regions": {
       "USA": ["New York", "Los Angeles"],
