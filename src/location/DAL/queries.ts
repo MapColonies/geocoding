@@ -15,6 +15,7 @@ const GEOJSON_FIELD = 'geo_json';
 const SOURCE_FIELD = 'source';
 const REGION_FIELD = 'region';
 const HIERARCHY_FIELD = 'heirarchy';
+const LAYER_NAME_FIELD = 'layer_name';
 const PLACETYPE_SEARCH_FIELD = 'sub_placetype_keyword';
 
 export const geotextQuery = (
@@ -32,7 +33,8 @@ export const geotextQuery = (
     disableFuzziness,
   }: TextSearchParams,
   textLanguage: string,
-  boosts: IApplication['elasticQueryBoosts']
+  boosts: IApplication['elasticQueryBoosts'],
+  geotextCitiesLayer?: IApplication['geotextCitiesLayer']
 ): estypes.SearchRequest => {
   if ((geoContext !== undefined && geoContextMode === undefined) || (geoContext === undefined && geoContextMode !== undefined)) {
     throw new BadRequestError('/location/geotextQuery: geo_context and geo_context_mode must be both defined or both undefined');
@@ -119,7 +121,7 @@ export const geotextQuery = (
       },
     });
 
-  placeTypes?.length &&
+  if (placeTypes?.length) {
     esQuery.query?.function_score?.functions?.push({
       weight: boosts.placeType,
       filter: {
@@ -129,15 +131,25 @@ export const geotextQuery = (
       },
     });
 
-  subPlaceTypes?.length &&
     esQuery.query?.function_score?.functions?.push({
       weight: boosts.subPlaceType,
       filter: {
         terms: {
-          [SUB_PLACETYPE_FIELD]: subPlaceTypes,
+          [SUB_PLACETYPE_FIELD]: subPlaceTypes!,
         },
       },
     });
+  } else {
+    geotextCitiesLayer &&
+      esQuery.query?.function_score?.functions?.push({
+        weight: boosts.geotextCitiesLayer,
+        filter: {
+          term: {
+            [LAYER_NAME_FIELD]: geotextCitiesLayer,
+          },
+        },
+      });
+  }
 
   hierarchies.forEach((hierarchy) => {
     const hierarchyShape = typeof hierarchy.geo_json === 'string' ? WKT.parse(hierarchy.geo_json) : hierarchy.geo_json;
