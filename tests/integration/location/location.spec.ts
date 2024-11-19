@@ -507,6 +507,14 @@ describe('/search/location', function () {
       });
       tokenTypesUrlScope.done();
     });
+
+    it('should return 400 and message that source is not available', async function () {
+      const requestParams: GetGeotextSearchParams = { query: 'airport', source: ['notAvailable'], limit: 5, disable_fuzziness: true };
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+    });
   });
 
   describe('Sad Path', function () {
