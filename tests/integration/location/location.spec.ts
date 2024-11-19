@@ -25,6 +25,8 @@ import {
   MockLocationQueryFeature,
   PARIS_WI_SCHOOL,
   NY_JFK_AIRPORT_DISPLAY_NAMES,
+  CHIANG_MAI_CITY,
+  CHIANG_MAI_HOTEL,
 } from '../../mockObjects/locations';
 import { LocationRequestSender } from './helpers/requestSender';
 import { expectedResponse, hierarchiesWithAnyWieght } from './utils';
@@ -320,20 +322,48 @@ describe('/search/location', function () {
 
       expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
         expectedResponse(
-          {
-            ...requestParams,
-          },
+          requestParams,
           {
             name: query,
             place_types,
             sub_place_types,
           },
           returnedFeatures,
-          // .map((feature) => {
-          //   const {names: {}} = feature.properties;
-          //   feature.properties.names.display = `${feature.properties.names.display}, ${feature.properties.placetype}, ${feature.properties.sub_placetype}, ${feature.properties.regions[0].region}, ${feature.properties.regions[0].sub_region_names[0]}, ${feature.properties.matches[0].source}`;
-          //   return feature;
-          // })
+          expect
+        )
+      );
+
+      tokenTypesUrlScope.done();
+    });
+
+    it('should return 200 status code and chiang mai city before chiang mai hotel', async function () {
+      const requestParams: GetGeotextSearchParams = {
+        query: 'Chiang Mai',
+        limit: 5,
+        disable_fuzziness: true,
+      };
+
+      const tokenTypesUrlScope = nock(config.get<IApplication>('application').services.tokenTypesUrl)
+        .post('', { tokens: requestParams.query.split(' ') })
+        .reply(httpStatusCodes.OK, [
+          {
+            tokens: requestParams.query.split(' '),
+            prediction: ['name', 'name'],
+          },
+        ]);
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
+        expectedResponse(
+          requestParams,
+          {
+            name: 'Chiang Mai',
+            place_types: [],
+            sub_place_types: [],
+          },
+          [CHIANG_MAI_CITY, CHIANG_MAI_HOTEL],
           expect
         )
       );

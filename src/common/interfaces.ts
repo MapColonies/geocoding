@@ -44,6 +44,7 @@ export interface IApplication {
     subPlaceType: number;
     hierarchy: number;
     viewbox: number;
+    geotextCitiesLayer: number;
   };
   sources?: {
     [key: string]: string;
@@ -56,6 +57,7 @@ export interface IApplication {
   controlObjectDisplayNamePrefixes: {
     [key: string]: string;
   };
+  geotextCitiesLayer: string;
 }
 
 export enum GeoContextMode {

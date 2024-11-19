@@ -95,12 +95,10 @@
       "placeType": 1.1,
       "subPlaceType": 1.1,
       "hierarchy": 1.1,
-      "viewbox": 1.1
+      "viewbox": 1.1,
+      "geotextCitiesLayer": 1.1
     },
-    "sources": {},
-    "regions": {},
-    "controlObjectDisplayNamePrefixes": {},
-    "nameTranslationsKeys": [],
+    "geotextCitiesLayer": "google_cities",
     "mainLanguageRegex": "[a-zA-Z]"
   }
 }
