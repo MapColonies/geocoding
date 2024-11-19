@@ -448,6 +448,26 @@ describe('/search/location', function () {
 
       tokenTypesUrlScope.done();
     });
+
+    it('should return 200 status code and no results', async function () {
+      const requestParams: GetGeotextSearchParams = { query: 'shfdsfdsfddfsd', limit: 5, disable_fuzziness: true };
+      const tokenTypesUrlScope = nock(config.get<IApplication>('application').services.tokenTypesUrl)
+        .post('', { tokens: requestParams.query.split(' ') })
+        .reply(httpStatusCodes.OK, [
+          {
+            tokens: [requestParams.query],
+            prediction: ['essence'],
+          },
+        ]);
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      expect((response.body as GenericGeocodingResponse<Feature>).features).toHaveLength(0);
+      expect((response.body as GenericGeocodingResponse<Feature>).bbox).toBeNull();
+
+      tokenTypesUrlScope.done();
+    });
   });
 
   describe('Bad Path', function () {
