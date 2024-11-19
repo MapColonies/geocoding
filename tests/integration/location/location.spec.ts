@@ -383,7 +383,7 @@ describe('/search/location', function () {
       const response = await requestSender.getSources();
 
       expect(response.status).toBe(httpStatusCodes.OK);
-      expect(response.body).toEqual(expect.arrayContaining(['OSM', 'GOOGLE']));
+      expect(response.body).toEqual(expect.arrayContaining(['osm', 'google']));
       // expect(response).toSatisfyApiSpec();
     });
 
