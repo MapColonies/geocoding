@@ -69,8 +69,10 @@
       "placeType": 1.1,
       "subPlaceType": 1.1,
       "hierarchy": 1.1,
-      "viewbox": 1.1
+      "viewbox": 1.1,
+      "geotextCitiesLayer": 1.1
     },
+    "geotextCitiesLayer": "google_cities",
     "sources": {
       "OSM": "OSM",
       "GOOGLE": "GOOGLE"
@@ -84,7 +86,9 @@
       "SUB_TILE": "Sub Tile",
       "ROUTE": "Route",
       "ITEM": "Item",
-      "CONTROL_POINT": "Control Point"
+      "CONTROL_POINT": "Control Point",
+      "CONTROL_CROSS": "Control Cross",
+      "CONTROL_INFRASTRUCTURE": "Control Infrastructure"
     },
     "nameTranslationsKeys": ["en", "fr"],
     "mainLanguageRegex": "[a-zA-Z]"
