@@ -101,7 +101,10 @@ const createGeotextRepository = (client: ElasticClient, logger: Logger) => {
       elasticQueryBoosts: IApplication['elasticQueryBoosts'],
       geotextCitiesLayer?: IApplication['geotextCitiesLayer']
     ): Promise<estypes.SearchResponse<TextSearchHit>> {
-      const response = await queryElastic<TextSearchHit>(client, { index, ...geotextQuery(params, textLanguage, elasticQueryBoosts, geotextCitiesLayer) });
+      const response = await queryElastic<TextSearchHit>(client, {
+        index,
+        ...geotextQuery(params, textLanguage, elasticQueryBoosts, geotextCitiesLayer),
+      });
       return response;
     },
   };
