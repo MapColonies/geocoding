@@ -21,8 +21,8 @@ export class GeotextSearchManager {
   ) {}
 
   public async search(params: ConvertSnakeToCamelCase<GetGeotextSearchParams>): Promise<GenericGeocodingResponse<Feature>> {
-    if (this.appConfig.sources && params.source && params.source.some((source) => !this.appConfig.sources![source.toLowerCase()])) {
-      throw new BadRequestError(`Invalid asked source. Available sources are ${Object.keys(this.appConfig.sources).toString()}`);
+    if (this.appConfig.sources && params.source && params.source.some((source) => !this.appConfig.sources![source])) {
+      throw new BadRequestError(`Invalid source. Available sources are ${Object.keys(this.appConfig.sources).toString()}`);
     }
 
     const extractNameEndpoint = this.appConfig.services.tokenTypesUrl;
