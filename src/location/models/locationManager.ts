@@ -56,7 +56,8 @@ export class GeotextSearchManager {
       geotextIndex,
       searchParams,
       this.config.get<ElasticDbClientsConfig>(elasticConfigPath).geotext.properties.textTermLanguage,
-      this.appConfig.elasticQueryBoosts
+      this.appConfig.elasticQueryBoosts,
+      this.appConfig.geotextCitiesLayer
     );
 
     return convertResult(searchParams, esResult, {
