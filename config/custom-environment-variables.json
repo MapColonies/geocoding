@@ -110,6 +110,10 @@
       "__name": "GEOTEXT_SOURCES",
       "__format": "json"
     },
+    "elasticQueryBoosts": {
+      "__name": "GEOTEXT_ELASTIC_QUERY_BOOSTS",
+      "__format": "json"
+    },
     "regions": {
       "__name": "REGIONS",
       "__format": "json"
@@ -123,6 +127,7 @@
       "__format": "json"
     },
     "mainLanguageRegex": "MAIN_LANGUAGE_REGEX",
-    "site": "SITE"
+    "site": "SITE",
+    "geotextCitiesLayer": "GEOTEXT_CITIES_LAYER"
   }
 }
