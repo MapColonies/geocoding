@@ -117,7 +117,7 @@ export const convertResult = (
   };
   return {
     ...geoJSONFeatureCollection,
-    bbox: bbox(geoJSONFeatureCollection),
+    bbox: geoJSONFeatureCollection.features.length > 0 ? bbox(geoJSONFeatureCollection) : null,
   };
 };
 /* eslint-enable @typescript-eslint/naming-convention */

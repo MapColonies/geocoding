@@ -99,7 +99,7 @@ export const formatResponse = <T extends Tile | Item | Route>(
       }) as GenericGeocodingResponse<T>['features']),
     ],
   };
-  return { ...geoJSONFeatureCollection, bbox: bbox(geoJSONFeatureCollection) };
+  return { ...geoJSONFeatureCollection, bbox: geoJSONFeatureCollection.features.length > 0 ? bbox(geoJSONFeatureCollection) : null };
 };
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
