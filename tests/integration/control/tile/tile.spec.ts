@@ -200,9 +200,10 @@ describe('/search/control/tiles', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toEqual<GenericGeocodingResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
-        expectedResponse(requestParams, [], expect)
-      );
+      expect(response.body).toEqual<GenericGeocodingResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>({
+        ...expectedResponse(requestParams, [], expect),
+        bbox: null,
+      });
     });
 
     it('should return 200 status code and sub tiles', async function () {
@@ -232,9 +233,10 @@ describe('/search/control/tiles', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toEqual<GenericGeocodingResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>(
-        expectedResponse(requestParams, [], expect)
-      );
+      expect(response.body).toEqual<GenericGeocodingResponse<Tile, Omit<GetTilesQueryParams, keyof CommonRequestParameters>>>({
+        ...expectedResponse(requestParams, [], expect),
+        bbox: null,
+      });
     });
 
     it('should return 200 status code and sub_tile "66" filtered by geo_context (UTM)', async function () {

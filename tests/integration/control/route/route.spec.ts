@@ -204,9 +204,10 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
-        expectedResponse(requestParams, [], expect)
-      );
+      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>({
+        ...expectedResponse(requestParams, [], expect),
+        bbox: null,
+      });
     });
 
     it('should return 200 status code and control points biased by geo_context (bbox)', async function () {
@@ -376,9 +377,10 @@ describe('/search/control/route', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>(
-        expectedResponse(requestParams, [], expect)
-      );
+      expect(response.body).toEqual<GenericGeocodingResponse<Route, Omit<GetRoutesQueryParams, keyof CommonRequestParameters>>>({
+        ...expectedResponse(requestParams, [], expect),
+        bbox: null,
+      });
     });
   });
   describe('Bad Path', function () {

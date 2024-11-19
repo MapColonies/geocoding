@@ -75,9 +75,10 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toEqual<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
-        expectedResponse(requestParams, [], expect)
-      );
+      expect(response.body).toEqual<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>({
+        ...expectedResponse(requestParams, [], expect),
+        bbox: null,
+      });
     });
 
     it('should return 200 status code and tiles biased by geo_context (bbox)', async function () {
@@ -224,9 +225,10 @@ describe('/search/control/items', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       // expect(response).toSatisfyApiSpec();
-      expect(response.body).toEqual<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>(
-        expectedResponse(requestParams, [], expect)
-      );
+      expect(response.body).toEqual<GenericGeocodingResponse<Item, Omit<GetItemsQueryParams, keyof CommonRequestParameters>>>({
+        ...expectedResponse(requestParams, [], expect),
+        bbox: null,
+      });
     });
 
     it('should return 200 status code and items in sub_tile', async function () {
