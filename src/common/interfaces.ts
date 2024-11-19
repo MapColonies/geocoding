@@ -24,8 +24,9 @@ export interface GeoContext {
   zone?: number;
 }
 
-export interface FeatureCollection<T extends Feature> extends GeoJSONFeatureCollection {
+export interface FeatureCollection<T extends Feature> extends Omit<GeoJSONFeatureCollection, 'bbox'> {
   features: T[];
+  bbox?: BBox | null;
 }
 
 export interface WGS84Coordinate {
@@ -93,7 +94,6 @@ export interface GenericGeocodingResponse<T extends Feature, G = any> extends Fe
       /* eslint-enable @typescript-eslint/naming-convention */
     } & { [key: string]: unknown };
   };
-  bbox: BBox;
   features: (T & {
     properties: RemoveUnderscore<Pick<estypes.SearchHit<T>, '_score'>> &
       GeoJsonProperties & {

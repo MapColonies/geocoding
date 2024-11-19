@@ -639,6 +639,7 @@ components:
           oneOf:
             - $ref: '#/components/schemas/Point'
             - $ref: '#/components/schemas/Polygon'
+            - $ref: '#/components/schemas/MultiPolygon'
         properties:
           type: object
           properties:
@@ -1002,6 +1003,7 @@ components:
         type: number
       minLength: 4
       maxLength: 6
+      nullable: true
     WGS84Circle:
       type: object
       properties:

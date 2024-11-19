@@ -3,14 +3,14 @@ import config from 'config';
 import jsLogger from '@map-colonies/js-logger';
 import { Feature } from 'geojson';
 import { estypes } from '@elastic/elasticsearch';
-import { GeotextRepository } from '../../../../src/location/DAL/locationRepository';
-import { GeotextSearchManager } from '../../../../src/location/models/locationManager';
-import { GenericGeocodingResponse, IApplication } from '../../../../src/common/interfaces';
-import { ConvertSnakeToCamelCase } from '../../../../src/common/utils';
-import { GetGeotextSearchParams } from '../../../../src/location/interfaces';
-import { NY_JFK_AIRPORT } from '../../../mockObjects/locations';
-import { convertCamelToSnakeCase } from '../../../../src/control/utils';
-import { expectedResponse } from '../../../integration/location/utils';
+import { GeotextRepository } from '../../../src/location/DAL/locationRepository';
+import { GeotextSearchManager } from '../../../src/location/models/locationManager';
+import { GenericGeocodingResponse, IApplication } from '../../../src/common/interfaces';
+import { ConvertSnakeToCamelCase } from '../../../src/common/utils';
+import { GetGeotextSearchParams } from '../../../src/location/interfaces';
+import { NY_JFK_AIRPORT } from '../../mockObjects/locations';
+import { convertCamelToSnakeCase } from '../../../src/control/utils';
+import { expectedResponse } from '../../integration/location/utils';
 
 let geotextSearchManager: GeotextSearchManager;
 describe('#GeotextSearchManager', () => {
@@ -119,6 +119,98 @@ describe('#GeotextSearchManager', () => {
       );
     }
   );
+
+  it('should return location with source without name convertion', async () => {
+    const extractNameResolve = { name: '', latency: 7 };
+    const generatePlacetypeResolve = {
+      placeTypes: ['transportation'],
+      subPlaceTypes: ['airport'],
+      matchLatencyMs: 6,
+    };
+    const extractHierarchyResolve = {
+      hierarchies: [],
+      matchLatencyMs: 1,
+    };
+
+    extractName.mockResolvedValueOnce(extractNameResolve);
+    generatePlacetype.mockResolvedValueOnce(generatePlacetypeResolve);
+    extractHierarchy.mockResolvedValueOnce(extractHierarchyResolve);
+    geotextSearch.mockResolvedValueOnce(<estypes.SearchResponse>{
+      took: 2,
+      timed_out: false,
+      _shards: { total: 1, successful: 1, skipped: 0, failed: 0 },
+      hits: {
+        total: { value: 3, relation: 'eq' },
+        max_score: 1.2880917,
+        hits: [
+          {
+            _index: expect.any(String) as string,
+            _id: expect.any(String) as string,
+            _score: 1.2880917,
+            _source: {
+              source: null,
+              layer_name: NY_JFK_AIRPORT.properties.matches[0].layer,
+              source_id: NY_JFK_AIRPORT.properties.matches[0].source_id,
+              placetype: NY_JFK_AIRPORT.properties.placetype,
+              sub_placetype: NY_JFK_AIRPORT.properties.sub_placetype,
+              geo_json: NY_JFK_AIRPORT.geometry,
+              region: [(NY_JFK_AIRPORT.properties.regions as { region: string }[])[0].region],
+              sub_region: (NY_JFK_AIRPORT.properties.regions as { sub_region_names: string[] }[])[0].sub_region_names,
+              name: NY_JFK_AIRPORT.properties.names.default[0],
+              text: NY_JFK_AIRPORT.properties.names.en,
+              translated_text: NY_JFK_AIRPORT.properties.names.fr,
+            },
+            highlight: undefined,
+          },
+        ],
+      },
+    });
+
+    const query: ConvertSnakeToCamelCase<GetGeotextSearchParams> = {
+      query: 'airport',
+      disableFuzziness: false,
+      limit: 1,
+    };
+
+    const response = await geotextSearchManager.search(query);
+
+    expect(response).toEqual<GenericGeocodingResponse<Feature>>(
+      expectedResponse(
+        {
+          ...(convertCamelToSnakeCase(query as unknown as Record<string, unknown>) as unknown as GetGeotextSearchParams),
+          geo_context: undefined,
+          geo_context_mode: undefined,
+          region: undefined,
+          source: undefined,
+        },
+        {
+          place_types: ['transportation'],
+          sub_place_types: ['airport'],
+          hierarchies: undefined,
+          name: '',
+        },
+        [
+          {
+            ...NY_JFK_AIRPORT,
+            properties: {
+              ...NY_JFK_AIRPORT.properties,
+              matches: [
+                {
+                  ...NY_JFK_AIRPORT.properties.matches[0],
+                  source: null as never,
+                },
+              ],
+              names: {
+                ...NY_JFK_AIRPORT.properties.names,
+                display: expect.stringContaining('JFK') as string,
+              },
+            },
+          },
+        ],
+        expect
+      )
+    );
+  });
 
   it('should return sources', () => {
     const response = geotextSearchManager.sources();
