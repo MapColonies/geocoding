@@ -26,9 +26,7 @@ const generateDisplayName = <T extends Tile | Item | Route>(
   const name: (string | undefined)[] = [];
   sourceType === 'TILE' && name.unshift((source as Tile).properties.TILE_NAME);
   sourceType === 'SUB_TILE' && name.unshift((source as Tile).properties.SUB_TILE_ID);
-  sourceType === 'ITEM' && name.unshift((source as Item).properties.OBJECT_COMMAND_NAME);
-  sourceType === 'ROUTE' && name.unshift((source as Route).properties.OBJECT_COMMAND_NAME);
-  ['CONTROL_CROSS', 'CONTROL_INFRASTRUCTURE', 'CONTROL_POINT'].find((val) => val === sourceType) !== undefined &&
+  (<(typeof sourceType)[]>['ITEM', 'ROUTE', 'CONTROL_CROSS', 'CONTROL_INFRASTRUCTURE', 'CONTROL_POINT']).some((val) => val === sourceType) &&
     name.unshift((source as Item).properties.OBJECT_COMMAND_NAME);
 
   name.unshift(displayNamePrefixes[sourceType]);
@@ -38,7 +36,7 @@ const generateDisplayName = <T extends Tile | Item | Route>(
     name.unshift(displayNamePrefixes['TILE']);
   }
 
-  if (['CONTROL_CROSS', 'CONTROL_INFRASTRUCTURE', 'CONTROL_POINT'].find((val) => val === sourceType) !== undefined) {
+  if (sourceType === 'CONTROL_POINT') {
     name.unshift((source as Item).properties.TIED_TO);
     name.unshift(displayNamePrefixes['ROUTE']);
   }
