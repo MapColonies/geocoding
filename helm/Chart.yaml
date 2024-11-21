@@ -2,8 +2,8 @@ apiVersion: v2
 name: ts-server-boilerplate
 description: A Helm chart for ts-server-boilerplate service
 type: application
-version: 0.2.2
-appVersion: 0.2.2
+version: 1.0.0
+appVersion: 1.0.0
 dependencies:
   - name: common
     repository: oci://acrarolibotnonprod.azurecr.io/helm

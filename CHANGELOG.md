@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0](https://github.com/MapColonies/geocoding/compare/v0.2.2...v1.0.0) (2024-11-21)
+
+
+### Features
+
+* control add regions ([#60](https://github.com/MapColonies/geocoding/issues/60)) ([0ea0a2f](https://github.com/MapColonies/geocoding/commit/0ea0a2f958cfcbe05e78fc3dcc0e7985d5f95403))
+* location search prefer cities layer ([#64](https://github.com/MapColonies/geocoding/issues/64)) ([a4ada6e](https://github.com/MapColonies/geocoding/commit/a4ada6eff6af198b3b008ef09812bdf30e51f143))
+
+
+### Bug Fixes
+
+* bbox array of nulls if no results are found ([#65](https://github.com/MapColonies/geocoding/issues/65)) ([0b4c663](https://github.com/MapColonies/geocoding/commit/0b4c663df7b03969ac39ad5242146ed358ee051b))
+* location add source validation ([#66](https://github.com/MapColonies/geocoding/issues/66)) ([604bc15](https://github.com/MapColonies/geocoding/commit/604bc15e6bf24557ca9b9489a97ae622d864c3e0))
+* updated openapi3 ([#67](https://github.com/MapColonies/geocoding/issues/67)) ([766676c](https://github.com/MapColonies/geocoding/commit/766676c594c76bc952c32697213241f38c70b00c))
+
 ### [0.2.2](https://github.com/MapColonies/geocoding/compare/v0.2.1...v0.2.2) (2024-11-17)
 
 ### [0.2.1](https://github.com/MapColonies/geocoding/compare/v0.2.0...v0.2.1) (2024-11-14)

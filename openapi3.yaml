@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  version: 0.2.2
+  version: 1.0.0
   title: Geocoding
   description: >-
     MapColonies Vector Geocoding api provides custom geodata search engine
@@ -435,7 +435,7 @@ paths:
                     properties:
                       version:
                         type: string
-                        example: '1.5.3'
+                        example: 1.5.3
                       query:
                         type: object
                         properties:
@@ -480,10 +480,10 @@ paths:
                           properties:
                             layer:
                               type: string
-                              example: 'MGRS'
+                              example: MGRS
                             source:
                               type: string
-                              example: 'npm/mgrs'
+                              example: npm/mgrs
                             source_id:
                               type: array
                               items:
@@ -659,7 +659,7 @@ components:
           properties:
             version:
               type: string
-              example: '1.5.3'
+              example: 1.5.3
             query:
               type: object
               properties:
@@ -694,10 +694,10 @@ components:
                 properties:
                   layer:
                     type: string
-                    example: 'MGRS'
+                    example: MGRS
                   source:
                     type: string
-                    example: 'npm/mgrs'
+                    example: npm/mgrs
                   source_id:
                     type: array
                     items:
