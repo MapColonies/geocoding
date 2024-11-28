@@ -190,6 +190,17 @@ paths:
             title: Source
           description: |
             Sources to include (if not specified, all sources will be queried)
+        - name: relation
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+            - intersects
+            - disjoint
+            - within
+            - contains
+            default: intersects
         - $ref: '#/components/parameters/limit'
       responses:
         '200':
