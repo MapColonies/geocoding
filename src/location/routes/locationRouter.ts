@@ -6,8 +6,9 @@ const geotextSearchRouterFactory: FactoryFunction<Router> = (dependencyContainer
   const router = Router();
   const controller = dependencyContainer.resolve(GeotextSearchController);
 
-  router.get('/regions', controller.getRegions);
   router.get('/query', controller.getGeotextSearch);
+  router.get('/coordinates', controller.getGeotextSearchByCoordinates);
+  router.get('/regions', controller.getRegions);
   router.get('/sources', controller.getSources);
 
   return router;
