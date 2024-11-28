@@ -65,7 +65,7 @@ export class GeotextSearchManager {
       this.appConfig.geotextCitiesLayer
     );
 
-    return convertResult(searchParams, esResult, {
+    return convertResult(params, searchParams, esResult, {
       sources: this.appConfig.sources,
       regionCollection: this.appConfig.regions,
       nameKeys: this.appConfig.nameTranslationsKeys,
