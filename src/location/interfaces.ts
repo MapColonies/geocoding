@@ -1,3 +1,4 @@
+import { estypes } from '@elastic/elasticsearch';
 import { CommonRequestParameters } from '../common/interfaces';
 import { ConvertSnakeToCamelCase } from '../common/utils';
 import { HierarchySearchHit } from './models/elasticsearchHits';
@@ -29,4 +30,5 @@ export interface GetGeotextSearchByCoordinatesParams extends Pick<CommonRequestP
   lat: number;
   lon: number;
   source?: string[];
+  relation?: estypes.GeoShapeRelation;
 }

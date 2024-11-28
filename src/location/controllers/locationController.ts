@@ -69,13 +69,14 @@ export class GeotextSearchController {
 
   public getGeotextSearchByCoordinates: GetGeotextSearchByCoordinatesHandler = async (req, res, next) => {
     try {
-      const { lat, lon, limit, source } = req.query;
+      const { lat, lon, limit, source, relation } = req.query;
 
       const response = await this.manager.searchByCoordinates({
         lat,
         lon,
         limit,
         source: source?.map((s) => s.toLowerCase()),
+        relation,
       });
 
       return res.status(httpStatus.OK).json(response);

@@ -221,7 +221,7 @@ export const hierarchyQuery = (query: string, disableFuzziness: boolean): estype
   },
 });
 
-export const searchByCoordinatesQuery = ({ lat, lon, limit, source }: GetGeotextSearchByCoordinatesParams): estypes.SearchRequest => {
+export const searchByCoordinatesQuery = ({ lat, lon, limit, source, relation }: GetGeotextSearchByCoordinatesParams): estypes.SearchRequest => {
   const esQuery: estypes.SearchRequest = {
     query: {
       bool: {
@@ -233,6 +233,7 @@ export const searchByCoordinatesQuery = ({ lat, lon, limit, source }: GetGeotext
                   type: 'point',
                   coordinates: [lon, lat],
                 },
+                relation,
               },
             },
           },
