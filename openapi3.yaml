@@ -196,11 +196,17 @@ paths:
           schema:
             type: string
             enum:
-            - intersects
-            - disjoint
-            - within
-            - contains
+              - intersects
+              - disjoint
+              - contains
             default: intersects
+          description: |
+            The following is a complete list of spatial relation operators available when searching a geo field:
+
+            * `INTERSECTS` - (default) Return all documents whose geo_shape or geo_point field intersects the given point.
+            * `DISJOINT` - Return all documents whose geo_shape or geo_point field has nothing in common with the given point.
+            * `CONTAINS` - Return all documents whose geo_shape or geo_point field contains the given point.
+
         - $ref: '#/components/parameters/limit'
       responses:
         '200':
