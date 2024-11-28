@@ -3,7 +3,6 @@ import jsLogger from '@map-colonies/js-logger';
 import { LatLonManager } from '../../../src/latLon/models/latLonManager';
 import { LatLonDAL } from '../../../src/latLon/DAL/latLonDAL';
 import { GenericGeocodingFeatureResponse, WGS84Coordinate } from '../../../src/common/interfaces';
-import { convertCamelToSnakeCase } from '../../../src/control/utils';
 import { BadRequestError } from '../../../src/common/errors';
 import * as CommonUtils from '../../../src/common/utils';
 
@@ -46,7 +45,7 @@ describe('#LatLonManager', () => {
         type: 'Feature',
         geocoding: {
           version: process.env.npm_package_version as string,
-          query: convertCamelToSnakeCase(queryParams as unknown as Record<string, unknown>),
+          query: CommonUtils.convertCamelToSnakeCase(queryParams as unknown as Record<string, unknown>),
           response: {
             max_score: 1,
             results_count: 1,
@@ -97,7 +96,7 @@ describe('#LatLonManager', () => {
         type: 'Feature',
         geocoding: {
           version: process.env.npm_package_version as string,
-          query: convertCamelToSnakeCase(queryParams as unknown as Record<string, unknown>),
+          query: CommonUtils.convertCamelToSnakeCase(queryParams as unknown as Record<string, unknown>),
           response: {
             max_score: 1,
             results_count: 1,
