@@ -142,10 +142,10 @@ export const geotextQuery = (
   } else {
     geotextCitiesLayer &&
       esQuery.query?.function_score?.functions?.push({
-        weight: boosts.geotextCitiesLayer as number,
+        weight: boosts.geotextCitiesLayer,
         filter: {
           term: {
-            [LAYER_NAME_FIELD]: geotextCitiesLayer as string,
+            [LAYER_NAME_FIELD]: geotextCitiesLayer,
           },
         },
       });
