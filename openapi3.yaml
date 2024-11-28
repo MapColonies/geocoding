@@ -190,16 +190,6 @@ paths:
             title: Source
           description: |
             Sources to include (if not specified, all sources will be queried)
-        - name: region
-          in: query
-          required: false
-          schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/Region'
-            description: Regions to include (if not specified, all Regions will be queried)
-            title: Region
-          description: Regions to include (if not specified, all Regions will be queried)
         - $ref: '#/components/parameters/limit'
       responses:
         '200':
