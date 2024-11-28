@@ -7,7 +7,7 @@ import { ItemRepository } from '../../../../src/control/item/DAL/itemRepository'
 import { ItemManager } from '../../../../src/control/item/models/itemManager';
 import { GenericGeocodingResponse, IApplication } from '../../../../src/common/interfaces';
 import { Item } from '../../../../src/control/item/models/item';
-import { convertCamelToSnakeCase } from '../../../../src/control/utils';
+import { convertCamelToSnakeCase } from '../../../../src/common/utils';
 import { ITEM_1234 } from '../../../mockObjects/items';
 
 let itemManager: ItemManager;

@@ -8,7 +8,7 @@ import { TileManager } from '../../../../src/control/tile/models/tileManager';
 import { GenericGeocodingResponse, IApplication } from '../../../../src/common/interfaces';
 import { Tile } from '../../../../src/control/tile/models/tile';
 import { RIC_TILE, SUB_TILE_66 } from '../../../mockObjects/tiles';
-import { convertCamelToSnakeCase } from '../../../../src/control/utils';
+import { convertCamelToSnakeCase } from '../../../../src/common/utils';
 import { BadRequestError } from '../../../../src/common/errors';
 
 let tileManager: TileManager;
