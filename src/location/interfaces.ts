@@ -24,3 +24,9 @@ export interface GetGeotextSearchParams extends CommonRequestParameters {
   source?: string[];
   region?: string[];
 }
+
+export interface GetGeotextSearchByCoordinatesParams extends Pick<CommonRequestParameters, 'limit'> {
+  lat: number;
+  lon: number;
+  source?: string[];
+}
