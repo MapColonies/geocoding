@@ -30,5 +30,5 @@ export interface GetGeotextSearchByCoordinatesParams extends Pick<CommonRequestP
   lat: number;
   lon: number;
   source?: string[];
-  relation?: estypes.GeoShapeRelation;
+  relation: Exclude<estypes.GeoShapeRelation, 'within'>;
 }
