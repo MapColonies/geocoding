@@ -224,27 +224,31 @@ export const hierarchyQuery = (query: string, disableFuzziness: boolean): estype
 export const searchByCoordinatesQuery = ({ lat, lon, limit, source, relation }: GetGeotextSearchByCoordinatesParams): estypes.SearchRequest => {
   const esQuery: estypes.SearchRequest = {
     query: {
-      bool: {
-        filter: [
-          {
-            geo_shape: {
-              [GEOJSON_FIELD]: {
-                shape: {
-                  type: 'point',
-                  coordinates: [lon, lat],
+      function_score: {
+        query: {
+          bool: {
+            filter: [
+              {
+                geo_shape: {
+                  [GEOJSON_FIELD]: {
+                    shape: {
+                      type: 'point',
+                      coordinates: [lon, lat],
+                    },
+                    relation,
+                  },
                 },
-                relation,
               },
-            },
+            ],
           },
-        ],
+        },
       },
     },
     size: limit,
   };
 
   source?.length &&
-    (esQuery.query?.bool?.filter as QueryDslQueryContainer[]).push({
+    (esQuery.query?.function_score?.query?.bool?.filter as QueryDslQueryContainer[]).push({
       terms: {
         [SOURCE_FIELD]: source,
       },
