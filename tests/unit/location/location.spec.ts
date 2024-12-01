@@ -249,6 +249,7 @@ describe('#GeotextSearchManager', () => {
       lat: 33.943812358024545,
       lon: -118.41349424301336,
       limit: 1,
+      relation: 'intersects',
     };
 
     const response = await geotextSearchManager.searchByCoordinates(query);

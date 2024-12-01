@@ -482,6 +482,7 @@ describe('/search/location', function () {
         lat: 40.64798302807037,
         lon: -73.78416849444676,
         limit: 5,
+        relation: 'intersects',
       };
 
       const response = await requestSender.getLocationByCoordinates(requestParams);
@@ -515,6 +516,7 @@ describe('/search/location', function () {
         lon: -118.26484875656129,
         lat: 33.7396332812141,
         source: ['osm'],
+        relation: 'intersects',
         limit: 5,
       };
 
@@ -697,7 +699,7 @@ describe('/search/location', function () {
       const spy = jest.spyOn(ElasticUtils, 'queryElastic');
       spy.mockRejectedValue(new InternalServerError('Elasticsearch query failed'));
 
-      const requestParams: GetGeotextSearchByCoordinatesParams = { lat: 5, lon: 5, limit: 5 };
+      const requestParams: GetGeotextSearchByCoordinatesParams = { lat: 5, lon: 5, limit: 5, relation: 'intersects' };
 
       const response = await requestSender.getLocationByCoordinates(requestParams);
 
