@@ -12,8 +12,9 @@ import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { S3_REPOSITORY_SYMBOL } from '../../../src/common/s3/s3Repository';
 import { cronLoadTileLatLonDataSymbol } from '../../../src/latLon/DAL/latLonDAL';
-import { GetGeotextSearchParams } from '../../../src/location/interfaces';
+import { GetGeotextSearchByCoordinatesParams, GetGeotextSearchParams } from '../../../src/location/interfaces';
 import { GenericGeocodingResponse, GeoContext, GeoContextMode, IApplication } from '../../../src/common/interfaces';
+import * as ElasticUtils from '../../../src/common/elastic/utils';
 import {
   OSM_LA_PORT,
   GOOGLE_LA_PORT,
@@ -28,6 +29,7 @@ import {
   CHIANG_MAI_CITY,
   CHIANG_MAI_HOTEL,
 } from '../../mockObjects/locations';
+import { InternalServerError } from '../../../src/common/errors';
 import { LocationRequestSender } from './helpers/requestSender';
 import { expectedResponse, hierarchiesWithAnyWieght } from './utils';
 
@@ -84,6 +86,7 @@ describe('/search/location', function () {
           {
             place_types: ['transportation'],
             sub_place_types: ['airport'],
+            name: '',
           },
           [
             {
@@ -134,6 +137,7 @@ describe('/search/location', function () {
           {
             place_types: ['transportation'],
             sub_place_types: ['airport'],
+            name: '',
           },
           [
             {
@@ -185,6 +189,7 @@ describe('/search/location', function () {
           {
             place_types: ['transportation'],
             sub_place_types: ['airport'],
+            name: '',
           },
           [
             {
@@ -275,6 +280,7 @@ describe('/search/location', function () {
             place_types: ['transportation'],
             sub_place_types: ['airport'],
             hierarchies,
+            name: '',
           },
           returnedFeatures,
           expect
@@ -409,6 +415,7 @@ describe('/search/location', function () {
           {
             place_types: ['transportation'],
             sub_place_types: ['port'],
+            name: '',
           },
           [GOOGLE_LA_PORT],
           expect
@@ -440,6 +447,7 @@ describe('/search/location', function () {
           {
             place_types: ['education'],
             sub_place_types: ['school'],
+            name: '',
           },
           [PARIS_WI_SCHOOL],
           expect
@@ -468,10 +476,60 @@ describe('/search/location', function () {
 
       tokenTypesUrlScope.done();
     });
+
+    it('should return 200 status code JFK airport by coordinates search', async function () {
+      const requestParams: GetGeotextSearchByCoordinatesParams = {
+        lat: 40.64798302807037,
+        lon: -73.78416849444676,
+        limit: 5,
+        relation: 'intersects',
+      };
+
+      const response = await requestSender.getLocationByCoordinates(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      // expect(response).toSatisfyApiSpec();
+      expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
+        expectedResponse(
+          requestParams,
+          {},
+          [
+            {
+              ...NY_JFK_AIRPORT,
+              properties: {
+                ...NY_JFK_AIRPORT.properties,
+                names: {
+                  ...NY_JFK_AIRPORT.properties.names,
+                  display: NY_JFK_AIRPORT_DISPLAY_NAMES[0],
+                },
+              },
+            },
+          ],
+          expect,
+          true
+        )
+      );
+    });
+
+    it('should return 200 status code and OSM LA port by coordinates search', async function () {
+      const requestParams: GetGeotextSearchByCoordinatesParams = {
+        lon: -118.26484875656129,
+        lat: 33.7396332812141,
+        source: ['osm'],
+        relation: 'intersects',
+        limit: 5,
+      };
+
+      const response = await requestSender.getLocationByCoordinates(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      // expect(response).toSatisfyApiSpec();
+      expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(expectedResponse(requestParams, {}, [OSM_LA_PORT], expect, true));
+    });
   });
 
   describe('Bad Path', function () {
-    // All requests with status code 4XX-5XX
+    // All requests with status code of 400
     test.each<Pick<GetGeotextSearchParams, 'geo_context' | 'geo_context_mode'>>([
       {
         geo_context: { x: 300850, y: 4642203, zone: 33, radius: 100 },
@@ -514,51 +572,6 @@ describe('/search/location', function () {
       const response = await requestSender.getQuery(requestParams);
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-    });
-  });
-
-  describe('Sad Path', function () {
-    // All requests with status code 4XX-5XX
-    it('should return 500 status code when the NLP Analyzer service is down due to network error', async function () {
-      const errorMessage = 'NLP Analyzer service is down';
-      const requestParams: GetGeotextSearchParams = { query: 'airport', limit: 5, disable_fuzziness: true };
-
-      // Intercept the request and simulate a network error
-      const nockScope = nock(config.get<IApplication>('application').services.tokenTypesUrl)
-        .post('')
-        .once()
-        .replyWithError({ message: errorMessage, code: 'ECONNREFUSED' });
-
-      const response = await requestSender.getQuery(requestParams);
-
-      expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
-      expect(response.body).toHaveProperty('message', `NLP analyser is not available - ${errorMessage}`);
-      // expect(response).toSatisfyApiSpec();
-
-      nockScope.done();
-    });
-
-    test.each<{ code: number; body: Body | undefined }>([
-      { code: httpStatusCodes.OK, body: [] },
-      { code: httpStatusCodes.OK, body: undefined },
-      { code: httpStatusCodes.NO_CONTENT, body: { message: 'bad request' } },
-    ])('should return 500 status code when the NLP Analyzer service not responding as expected', async function ({ code, body }) {
-      const requestParams: GetGeotextSearchParams = { query: 'airport', limit: 5, disable_fuzziness: false };
-
-      const nockScope = nock(config.get<IApplication>('application').services.tokenTypesUrl)
-        .post('', { tokens: requestParams.query.split(' ') })
-        .once()
-        .reply(code, body);
-
-      const response = await requestSender.getQuery(requestParams);
-
-      expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
-
-      expect(response.body).toHaveProperty('message', expect.stringContaining('NLP analyser unexpected response:'));
-
-      // expect(response).toSatisfyApiSpec();
-
-      nockScope.done();
     });
 
     it('should return 400 status code when NLP Analyzer returns no tokens or prediction', async function () {
@@ -636,5 +649,63 @@ describe('/search/location', function () {
         }
       }
     );
+  });
+
+  describe('Sad Path', function () {
+    // All requests with status code 4XX-5XX
+    it('should return 500 status code when the NLP Analyzer service is down due to network error', async function () {
+      const errorMessage = 'NLP Analyzer service is down';
+      const requestParams: GetGeotextSearchParams = { query: 'airport', limit: 5, disable_fuzziness: true };
+
+      // Intercept the request and simulate a network error
+      const nockScope = nock(config.get<IApplication>('application').services.tokenTypesUrl)
+        .post('')
+        .once()
+        .replyWithError({ message: errorMessage, code: 'ECONNREFUSED' });
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+      expect(response.body).toHaveProperty('message', `NLP analyser is not available - ${errorMessage}`);
+      // expect(response).toSatisfyApiSpec();
+
+      nockScope.done();
+    });
+
+    test.each<{ code: number; body: Body | undefined }>([
+      { code: httpStatusCodes.OK, body: [] },
+      { code: httpStatusCodes.OK, body: undefined },
+      { code: httpStatusCodes.NO_CONTENT, body: { message: 'bad request' } },
+    ])('should return 500 status code when the NLP Analyzer service not responding as expected', async function ({ code, body }) {
+      const requestParams: GetGeotextSearchParams = { query: 'airport', limit: 5, disable_fuzziness: false };
+
+      const nockScope = nock(config.get<IApplication>('application').services.tokenTypesUrl)
+        .post('', { tokens: requestParams.query.split(' ') })
+        .once()
+        .reply(code, body);
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+
+      expect(response.body).toHaveProperty('message', expect.stringContaining('NLP analyser unexpected response:'));
+
+      // expect(response).toSatisfyApiSpec();
+
+      nockScope.done();
+    });
+
+    it('should return 500 status code if elasticsearch query fails', async function () {
+      const spy = jest.spyOn(ElasticUtils, 'queryElastic');
+      spy.mockRejectedValue(new InternalServerError('Elasticsearch query failed'));
+
+      const requestParams: GetGeotextSearchByCoordinatesParams = { lat: 5, lon: 5, limit: 5, relation: 'intersects' };
+
+      const response = await requestSender.getLocationByCoordinates(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+
+      spy.mockClear();
+    });
   });
 });

@@ -3,7 +3,7 @@
 import WKT, { GeoJSONPolygon } from 'wellknown';
 import { estypes } from '@elastic/elasticsearch';
 import { QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
-import { TextSearchParams } from '../interfaces';
+import { GetGeotextSearchByCoordinatesParams, TextSearchParams } from '../interfaces';
 import { GeoContextMode, IApplication } from '../../common/interfaces';
 import { BadRequestError } from '../../common/errors';
 import { geoContextQuery } from '../../common/utils';
@@ -220,3 +220,39 @@ export const hierarchyQuery = (query: string, disableFuzziness: boolean): estype
     },
   },
 });
+
+export const searchByCoordinatesQuery = ({ lat, lon, limit, source, relation }: GetGeotextSearchByCoordinatesParams): estypes.SearchRequest => {
+  const esQuery: estypes.SearchRequest = {
+    query: {
+      function_score: {
+        query: {
+          bool: {
+            filter: [
+              {
+                geo_shape: {
+                  [GEOJSON_FIELD]: {
+                    shape: {
+                      type: 'point',
+                      coordinates: [lon, lat],
+                    },
+                    relation,
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+    },
+    size: limit,
+  };
+
+  source?.length &&
+    (esQuery.query?.function_score?.query?.bool?.filter as QueryDslQueryContainer[]).push({
+      terms: {
+        [SOURCE_FIELD]: source,
+      },
+    });
+
+  return esQuery;
+};

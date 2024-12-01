@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import config from 'config';
 import { estypes } from '@elastic/elasticsearch';
-import { additionalControlSearchProperties, convertCamelToSnakeCase } from '../../../src/control/utils';
+import { additionalControlSearchProperties } from '../../../src/control/utils';
 import { elasticConfigPath } from '../../../src/common/constants';
 import { ElasticDbClientsConfig } from '../../../src/common/elastic/interfaces';
 import { CONTROL_FIELDS } from '../../../src/control/constants';
+import { convertCamelToSnakeCase } from '../../../src/common/utils';
 
 describe('#convertCamelToSnakeCase', () => {
   it('should convert camel case to snake case', () => {

@@ -1,5 +1,5 @@
 import * as supertest from 'supertest';
-import { GetGeotextSearchParams } from '../../../../src/location/interfaces';
+import { GetGeotextSearchByCoordinatesParams, GetGeotextSearchParams } from '../../../../src/location/interfaces';
 
 export class LocationRequestSender {
   private readonly pathPrefix = '/search/location';
@@ -32,5 +32,15 @@ export class LocationRequestSender {
       .set('Content-Type', 'application/json')
       .set('x-api-key', 'abc123')
       .set('x-user-id', 'abc123');
+  }
+
+  public async getLocationByCoordinates(queryParams: GetGeotextSearchByCoordinatesParams): Promise<supertest.Response> {
+    return supertest
+      .agent(this.app)
+      .get(`${this.pathPrefix}/coordinates`)
+      .set('Content-Type', 'application/json')
+      .set('x-api-key', 'abc123')
+      .set('x-user-id', 'abc123')
+      .query(queryParams);
   }
 }

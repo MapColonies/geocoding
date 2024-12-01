@@ -7,7 +7,7 @@ import { RouteRepository } from '../../../../src/control/route/DAL/routeReposito
 import { RouteManager } from '../../../../src/control/route/models/routeManager';
 import { GenericGeocodingResponse, IApplication } from '../../../../src/common/interfaces';
 import { Route } from '../../../../src/control/route/models/route';
-import { convertCamelToSnakeCase } from '../../../../src/control/utils';
+import { convertCamelToSnakeCase } from '../../../../src/common/utils';
 import { CONTROL_POINT_OLIMPIADE_111, ROUTE_VIA_CAMILLUCCIA_A } from '../../../mockObjects/routes';
 
 let routeManager: RouteManager;

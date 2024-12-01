@@ -8,7 +8,7 @@ import { LatLonDAL, latLonDalSymbol } from '../DAL/latLonDAL';
 import { convertUTMToWgs84, convertWgs84ToUTM, parseGeo, validateWGS84Coordinate } from '../../common/utils';
 import { BadRequestError } from '../../common/errors';
 import { GenericGeocodingFeatureResponse, WGS84Coordinate } from '../../common/interfaces';
-import { convertCamelToSnakeCase } from '../../control/utils';
+import { convertCamelToSnakeCase } from '../../common/utils';
 
 const GRID_SIZE = 10000;
 const TILE_DIVISOR = 10;

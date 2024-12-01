@@ -8,7 +8,7 @@ import { ElasticDbClientsConfig } from '../common/elastic/interfaces';
 import { Item } from '../control/item/models/item';
 import { Tile } from '../control/tile/models/tile';
 import { Route } from '../control/route/models/route';
-import { ConvertSnakeToCamelCase } from '../common/utils';
+import { convertCamelToSnakeCase, ConvertSnakeToCamelCase } from '../common/utils';
 import { CONTROL_FIELDS } from './constants';
 
 const LAST_ELEMENT_INDEX = -1;
@@ -40,17 +40,6 @@ const generateDisplayName = <T extends Tile | Item | Route>(
   }
 
   return name;
-};
-
-export const convertCamelToSnakeCase = (obj: Record<string, unknown>): Record<string, unknown> => {
-  const snakeCaseObj: Record<string, any> = {};
-  for (const key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      const snakeCaseKey = key.replace(/[A-Z]/g, (match) => `_${match.toLowerCase()}`);
-      snakeCaseObj[snakeCaseKey] = obj[key];
-    }
-  }
-  return snakeCaseObj;
 };
 
 export const formatResponse = <T extends Tile | Item | Route>(

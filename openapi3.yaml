@@ -136,9 +136,107 @@ paths:
                           type: object
                           properties:
                             geometry:
-                              oneOf:
-                                - $ref: '#/components/schemas/Point'
-                                - $ref: '#/components/schemas/Polygon'
+                              $ref: '#/components/schemas/GeometryObjectSchema'
+                            properties:
+                              type: object
+                              properties:
+                                placetype:
+                                  type: string
+                                sub_placetype:
+                                  type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /search/location/coordinates:
+    get:
+      operationId: locationGetCoordinates
+      summary: Reverse search a location by WGS84 coordinates
+      description: >-
+        Reverse-search for geo-data. Send WGS84 coordinates and get what's there. It serves data from multiple diverse mapcolonies
+        vector sources and partners.
+      tags:
+        - Location Name Based Search
+      parameters:
+        - $ref: '#/components/parameters/token'
+        - $ref: '#/components/parameters/xApiKey'
+        - name: lat
+          in: query
+          description: Latitude of the coordinate
+          schema:
+            type: number
+            minimum: -90
+            maximum: 90
+          required: true
+        - name: lon
+          in: query
+          description: Longitude of the coordinate
+          schema:
+            type: number
+            minimum: -180
+            maximum: 180
+          required: true
+        - name: source
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Source'
+            title: Source
+          description: |
+            Sources to include (if not specified, all sources will be queried)
+        - name: relation
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - intersects
+              - disjoint
+              - contains
+            default: intersects
+          description: |
+            The following is a complete list of spatial relation operators available when searching a geo field:
+
+            * `INTERSECTS` - (default) Return all documents whose geo_shape or geo_point field intersects the given point.
+            * `DISJOINT` - Return all documents whose geo_shape or geo_point field has nothing in common with the given point.
+            * `CONTAINS` - Return all documents whose geo_shape or geo_point field contains the given point.
+
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: OK
+          x-request-id:
+            schema:
+              type: string
+              minLength: 1
+              maxLength: 36
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/genericGeocodingResponse'
+                  - type: object
+                    required:
+                      - type
+                      - features
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                          - FeatureCollection
+                      features:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            geometry:
+                              $ref: '#/components/schemas/GeometryObjectSchema'
                             properties:
                               type: object
                               properties:
@@ -735,9 +833,7 @@ components:
                 type: object
                 properties:
                   geometry:
-                    oneOf:
-                      - $ref: '#/components/schemas/Point'
-                      - $ref: '#/components/schemas/Polygon'
+                    $ref: '#/components/schemas/GeometryObjectSchema'
                   properties:
                     type: object
                     required:
@@ -777,9 +873,7 @@ components:
                 type: object
                 properties:
                   geometry:
-                    oneOf:
-                      - $ref: '#/components/schemas/LineString'
-                      - $ref: '#/components/schemas/MultiLineString'
+                    $ref: '#/components/schemas/GeometryObjectSchema'
                   properties:
                     type: object
                     required:
@@ -954,6 +1048,14 @@ components:
             - MultiLineString
             - MultiPolygon
           description: the geometry type
+    GeometryObjectSchema:
+      oneOf:
+        - $ref: '#/components/schemas/Point'
+        - $ref: '#/components/schemas/LineString'
+        - $ref: '#/components/schemas/Polygon'
+        - $ref: '#/components/schemas/MultiPoint'
+        - $ref: '#/components/schemas/MultiLineString'
+        - $ref: '#/components/schemas/MultiPolygon'
     Point3D:
       type: array
       description: Point in 3D space
