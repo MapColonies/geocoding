@@ -175,6 +175,30 @@ export const LA_AIRPORT: MockLocationQueryFeature = {
   },
 };
 
+export const LA_ROAD: MockLocationQueryFeature = {
+  type: 'Feature',
+  geometry: {
+    coordinates: [
+      [-118.2247760920702, 34.02992273700272],
+      [-118.24319913817602, 34.023502987817736],
+      [-118.27208982411435, 34.03755640111636],
+      [-118.3011898628498, 34.03738291637846],
+      [-118.33908271904448, 34.03512758249674],
+      [-118.36525181862649, 34.03391314710892],
+      [-118.3788597504093, 34.03668897387864],
+      [-118.39518926854844, 34.03026973663613],
+    ],
+    type: 'LineString',
+  },
+  properties: {
+    matches: [{ layer: 'osm_roads', source: 'OSM', source_id: ['670b800c-605c-4528-8eb7-147b7ed80f38'] }],
+    names: { en: ['Los Angeles'], fr: [''], default: ['Los Angeles'], display: 'Los Angeles, road, road, USA, Los Angeles, OSM' },
+    placetype: 'road',
+    sub_placetype: 'road',
+    regions: [{ region: 'USA', sub_region_names: ['Los Angeles'] }],
+  },
+};
+
 export const OSM_LA_PORT: MockLocationQueryFeature = {
   type: 'Feature',
   geometry: {
