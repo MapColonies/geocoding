@@ -59,6 +59,7 @@ export interface IApplication {
     [key: string]: string;
   };
   geotextCitiesLayer: string;
+  roadPlaceTypes: string[];
 }
 
 export enum GeoContextMode {
