@@ -62,7 +62,7 @@ export class GeotextSearchManager {
       searchParams,
       this.config.get<ElasticDbClientsConfig>(elasticConfigPath).geotext.properties.textTermLanguage,
       this.appConfig.elasticQueryBoosts,
-      this.appConfig.geotextCitiesLayer
+      { geotextCitiesLayer: this.appConfig.geotextCitiesLayer, roadPlaceTypes: this.appConfig.roadPlaceTypes }
     );
 
     return convertResult(searchParams, esResult, {
