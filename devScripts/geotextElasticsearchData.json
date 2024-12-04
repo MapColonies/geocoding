@@ -223,6 +223,46 @@
     }
   },
   {
+    "_id": "b3d2ad4a-7444-41b7-916e-80ab8f3122c8",
+    "_index": "geotext",
+    "_source": {
+      "source": "osm",
+      "layer_name": "osm_roads",
+      "ingestion_timestamp": "2024-07-17 00:00:00",
+      "timestamp": "11/12/2023 00:00:00",
+      "source_id": ["{670b800c-605c-4528-8eb7-147b7ed80f38}"],
+      "sensitivity": "non-sensitive",
+      "placetype": "road",
+      "sub_placetype": "road",
+      "wkt": "LINESTRING (-118.2247760920702 34.02992273700272, -118.24319913817602 34.023502987817736, -118.27208982411435 34.03755640111636, -118.3011898628498 34.03738291637846, -118.33908271904448 34.03512758249674, -118.36525181862649 34.03391314710892, -118.3788597504093 34.03668897387864, -118.39518926854844 34.03026973663613)",
+      "geo_json": {
+        "coordinates": [
+          [-118.2247760920702, 34.02992273700272],
+          [-118.24319913817602, 34.023502987817736],
+          [-118.27208982411435, 34.03755640111636],
+          [-118.3011898628498, 34.03738291637846],
+          [-118.33908271904448, 34.03512758249674],
+          [-118.36525181862649, 34.03391314710892],
+          [-118.3788597504093, 34.03668897387864],
+          [-118.39518926854844, 34.03026973663613]
+        ],
+        "type": "LineString"
+      },
+      "centroid": {
+        "type": "Point",
+        "coordinates": [-118.3011898628498, 34.03738291637846]
+      },
+      "geometry_type": "Polygon",
+      "geometry_hash": "da9ca04844973d49e2b3378c090dbe23",
+      "region": ["USA"],
+      "sub_region": ["Los Angeles"],
+      "name": "Los Angeles",
+      "text": ["Los Angeles"],
+      "translated_text": [""],
+      "text_language": "en"
+    }
+  },
+  {
     "_id": "1bb11f54-939e-457b-bf68-a3920ccf629c",
     "_index": "geotext",
     "_source": {
@@ -729,7 +769,7 @@
     }
   },
   {
-    "_id": "a3f38afc-1ce6-443c-a302-a0103c2bcb7d",
+    "_id": "74598231-939a-49c9-9228-807997213a16",
     "_index": "hierarchies",
     "_source": {
       "geo_json": {
@@ -772,7 +812,16 @@
     }
   },
   {
-    "_id": "6941ab8e-7503-4f8a-94f2-4750b2698db9",
+    "_id": "ee4b5add-cf6d-4ee6-89ae-2bfc3efc0c2c",
+    "_index": "placetypes",
+    "_source": {
+      "placetype": "road",
+      "sub_placetype": "road",
+      "sub_placetype_keyword": "road"
+    }
+  },
+  {
+    "_id": "efc2cb11-363e-48fe-9310-b1f5adb018ea",
     "_index": "placetypes",
     "_source": {
       "placetype": "education",
