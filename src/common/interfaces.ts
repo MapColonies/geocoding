@@ -58,8 +58,8 @@ export interface IApplication {
   controlObjectDisplayNamePrefixes: {
     [key: string]: string;
   };
-  geotextCitiesLayer: string;
-  roadPlaceTypes: string[];
+  geotextCitiesLayer?: string;
+  roadPlaceTypes?: string[];
 }
 
 export enum GeoContextMode {
