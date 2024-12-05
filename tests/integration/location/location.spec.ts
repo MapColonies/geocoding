@@ -27,6 +27,7 @@ import {
   NY_JFK_AIRPORT_DISPLAY_NAMES,
   CHIANG_MAI_CITY,
   CHIANG_MAI_HOTEL,
+  LA_ROAD,
 } from '../../mockObjects/locations';
 import { LocationRequestSender } from './helpers/requestSender';
 import { expectedResponse, hierarchiesWithAnyWieght } from './utils';
@@ -294,8 +295,8 @@ describe('/search/location', function () {
       {
         query: 'new york',
         returnedFeatures: [NY_JFK_AIRPORT, NY_POLICE_AIRPORT, LA_AIRPORT, OSM_LA_PORT, GOOGLE_LA_PORT],
-        place_types: ['transportation', 'transportation'],
-        sub_place_types: ['airport', 'port'],
+        place_types: ['transportation'],
+        sub_place_types: ['airport'],
       },
       {
         query: 'los angeles',
@@ -465,6 +466,66 @@ describe('/search/location', function () {
       expect(response.status).toBe(httpStatusCodes.OK);
       expect((response.body as GenericGeocodingResponse<Feature>).features).toHaveLength(0);
       expect((response.body as GenericGeocodingResponse<Feature>).bbox).toBeNull();
+
+      tokenTypesUrlScope.done();
+    });
+
+    it('should return 200 and for query "los angeles" return LA Airport', async function () {
+      const requestParams: GetGeotextSearchParams = { query: 'los angeles', limit: 1, disable_fuzziness: true };
+      const tokenTypesUrlScope = nock(config.get<IApplication>('application').services.tokenTypesUrl)
+        .post('', { tokens: requestParams.query.split(' ') })
+        .reply(httpStatusCodes.OK, [
+          {
+            tokens: requestParams.query.split(' '),
+            prediction: ['name', 'name'],
+          },
+        ]);
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
+        expectedResponse(
+          requestParams,
+          {
+            name: 'los angeles',
+            place_types: [],
+            sub_place_types: [],
+          },
+          [LA_AIRPORT],
+          expect
+        )
+      );
+
+      tokenTypesUrlScope.done();
+    });
+
+    it('should return 200 and for query "road los angeles" return LA Road', async function () {
+      const requestParams: GetGeotextSearchParams = { query: 'road los angeles', limit: 1, disable_fuzziness: true };
+      const tokenTypesUrlScope = nock(config.get<IApplication>('application').services.tokenTypesUrl)
+        .post('', { tokens: requestParams.query.split(' ') })
+        .reply(httpStatusCodes.OK, [
+          {
+            tokens: requestParams.query.split(' '),
+            prediction: ['essence', 'name', 'name'],
+          },
+        ]);
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
+        expectedResponse(
+          requestParams,
+          {
+            name: 'los angeles',
+            place_types: ['road'],
+            sub_place_types: ['road'],
+          },
+          [LA_ROAD],
+          expect
+        )
+      );
 
       tokenTypesUrlScope.done();
     });

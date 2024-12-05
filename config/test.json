@@ -73,6 +73,7 @@
       "geotextCitiesLayer": 1.1
     },
     "geotextCitiesLayer": "google_cities",
+    "roadPlaceTypes": ["road"],
     "sources": {
       "osm": "OSM",
       "google": "GOOGLE"

@@ -34,7 +34,7 @@ export const geotextQuery = (
   }: TextSearchParams,
   textLanguage: string,
   boosts: IApplication['elasticQueryBoosts'],
-  geotextCitiesLayer?: IApplication['geotextCitiesLayer']
+  geotextLayerName?: { geotextCitiesLayer?: IApplication['geotextCitiesLayer']; roadPlaceTypes?: IApplication['roadPlaceTypes'] }
 ): estypes.SearchRequest => {
   if ((geoContext !== undefined && geoContextMode === undefined) || (geoContext === undefined && geoContextMode !== undefined)) {
     throw new BadRequestError('/location/geotextQuery: geo_context and geo_context_mode must be both defined or both undefined');
@@ -140,16 +140,28 @@ export const geotextQuery = (
       },
     });
   } else {
-    geotextCitiesLayer &&
+    geotextLayerName?.geotextCitiesLayer &&
       esQuery.query?.function_score?.functions?.push({
         weight: boosts.geotextCitiesLayer,
         filter: {
           term: {
-            [LAYER_NAME_FIELD]: geotextCitiesLayer,
+            [LAYER_NAME_FIELD]: geotextLayerName.geotextCitiesLayer,
           },
         },
       });
   }
+
+  geotextLayerName?.roadPlaceTypes !== undefined &&
+    !placeTypes?.some((pt) => geotextLayerName.roadPlaceTypes!.includes(pt)) &&
+    (esQuery.query?.function_score?.query?.bool?.filter as QueryDslQueryContainer[]).push({
+      bool: {
+        must_not: {
+          terms: {
+            [PLACETYPE_FIELD]: geotextLayerName.roadPlaceTypes,
+          },
+        },
+      },
+    });
 
   hierarchies.forEach((hierarchy) => {
     const hierarchyShape = typeof hierarchy.geo_json === 'string' ? WKT.parse(hierarchy.geo_json) : hierarchy.geo_json;

@@ -128,6 +128,10 @@
     },
     "mainLanguageRegex": "MAIN_LANGUAGE_REGEX",
     "site": "SITE",
-    "geotextCitiesLayer": "GEOTEXT_CITIES_LAYER"
+    "geotextCitiesLayer": "GEOTEXT_CITIES_LAYER",
+    "roadPlaceTypes": {
+      "__name": "GEOTEXT_ROAD_PLACETYPES",
+      "__format": "json"
+    }
   }
 }
