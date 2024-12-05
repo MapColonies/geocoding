@@ -28,7 +28,7 @@
   "db": {
     "elastic": {
       "control": {
-        "node": "http://localhost:9200",
+        "node": "http://elasticsearch:9200",
         "auth": {
           "username": "elastic",
           "password": "changeme"
@@ -39,7 +39,7 @@
         }
       },
       "geotext": {
-        "node": "http://localhost:9200",
+        "node": "http://elasticsearch:9200",
         "auth": {
           "username": "elastic",
           "password": "changeme"
@@ -56,10 +56,10 @@
       }
     },
     "s3": {
-      "endpoint": "http://localhost:9000",
+      "endpoint": "http://minio:9000",
       "credentials": {
-        "accessKeyId": "minio",
-        "secretAccessKey": "minio123"
+        "accessKeyId": "accessKeyId",
+        "secretAccessKey": "secretAccessKey"
       },
       "forcePathStyle": true,
       "region": "local",
@@ -87,7 +87,7 @@
   "application": {
     "site": "local",
     "services": {
-      "tokenTypesUrl": "http://localhost:5001/NLP_ANALYSES"
+      "tokenTypesUrl": "http://NLP_ANALYSES"
     },
     "cronLoadTileLatLonDataPattern": "0 * * * *",
     "elasticQueryBoosts": {
