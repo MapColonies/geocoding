@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.1](https://github.com/MapColonies/geocoding/compare/v1.0.0...v1.0.1) (2024-12-05)
+
+
+### Bug Fixes
+
+* added 'disable' prefix to boolean-parameter-prefixes ([#68](https://github.com/MapColonies/geocoding/issues/68)) ([2674616](https://github.com/MapColonies/geocoding/commit/267461649cde20c443a01b0bedbe180206078d26))
+* added to redis api-key from token ([#70](https://github.com/MapColonies/geocoding/issues/70)) ([8b4d14d](https://github.com/MapColonies/geocoding/commit/8b4d14dcc8aaf59aa5f706e6590056d6484ce8df))
+* use NotFound response, remove subTileSchema ([#69](https://github.com/MapColonies/geocoding/issues/69)) ([5a376de](https://github.com/MapColonies/geocoding/commit/5a376dee8907be6dadfcf798a2fb34f71ef52038))
+
 ## [1.0.0](https://github.com/MapColonies/geocoding/compare/v0.2.2...v1.0.0) (2024-11-21)
 
 
