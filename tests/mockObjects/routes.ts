@@ -64,6 +64,7 @@ export const CONTROL_POINT_OLIMPIADE_111: Route = {
     type: 'Point',
   },
   properties: {
+    SUB_TYPE: 'CONTROL_POINT',
     OBJECT_COMMAND_NAME: '111',
     ENTITY_HEB: 'control point',
     TIED_TO: 'olimpiade',
@@ -86,10 +87,11 @@ export const CONTROL_POINT_OLIMPIADE_112: Route = {
   },
   properties: {
     OBJECT_COMMAND_NAME: '112',
-    ENTITY_HEB: 'control point',
+    ENTITY_HEB: 'control cross',
     TIED_TO: 'olimpiade',
     TYPE: 'ITEM' as never,
     LAYER_NAME: 'CONTROL_GIL_GDB.CTR_CONTROL_POINT_CROSS_N',
     regions: [],
+    SUB_TYPE: 'CONTROL_CROSS',
   },
 };

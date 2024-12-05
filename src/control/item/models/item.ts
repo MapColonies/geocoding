@@ -8,5 +8,6 @@ export interface Item extends Feature {
     OBJECT_COMMAND_NAME: string;
     LAYER_NAME: string;
     TIED_TO?: string;
+    SUB_TYPE?: 'CONTROL_CROSS' | 'CONTROL_INFRASTRUCTURE' | 'CONTROL_POINT';
   };
 }
