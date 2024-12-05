@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [1.0.1](https://github.com/MapColonies/geocoding/compare/v1.0.0...v1.0.1) (2024-12-05)
 
+### Features
+* ignore roads unless explicitly ([#72 ](https://github.com/MapColonies/geocoding/issues/72)) ([cf5b4a2](https://github.com/MapColonies/geocoding/commit/cf5b4a28104464f052637724b780b5c4862d1525))
+
 
 ### Bug Fixes
 
