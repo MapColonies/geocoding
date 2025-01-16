@@ -7,8 +7,6 @@ import { RedisClient } from '../redis';
 import { FeebackApiGeocodingResponse, IConfig } from '../interfaces';
 import { XApi } from './utils';
 
-const REDIS_TTL = 300;
-
 @injectable()
 export class FeedbackApiMiddlewareManager {
   public constructor(
@@ -38,7 +36,7 @@ export class FeedbackApiMiddlewareManager {
     const logJson = function (this: Response, body: JSON): Response {
       geocodingResponseDetails.response = body;
       redisClient
-        .setEx(reqId as string, REDIS_TTL, JSON.stringify(geocodingResponseDetails))
+        .set(reqId as string, JSON.stringify(geocodingResponseDetails))
         .then(() => {
           logger.info({ msg: `response ${reqId?.toString() ?? ''} saved to redis` });
         })
