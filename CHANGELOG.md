@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.1](https://github.com/MapColonies/geocoding/compare/v1.1.0...v1.1.1) (2025-02-12)
+
+
+### Bug Fixes
+
+* fix build and push docker workflow ([#74](https://github.com/MapColonies/geocoding/issues/74)) ([a38e3f7](https://github.com/MapColonies/geocoding/commit/a38e3f72f4365c0717c533c00fe8f72ec596489a))
+
 ## [1.1.0](https://github.com/MapColonies/geocoding/compare/v1.0.1...v1.1.0) (2025-02-12)
 
 
