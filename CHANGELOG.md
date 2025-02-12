@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/MapColonies/geocoding/compare/v1.0.1...v1.1.0) (2025-02-12)
+
+
+### Features
+
+* removed redis ttl ([#73](https://github.com/MapColonies/geocoding/issues/73)) ([c544f5d](https://github.com/MapColonies/geocoding/commit/c544f5d0fef57ea02ff1cfd7b6a3696f63da4645))
+
 ### [1.0.1](https://github.com/MapColonies/geocoding/compare/v1.0.0...v1.0.1) (2024-12-05)
 
 ### Features
