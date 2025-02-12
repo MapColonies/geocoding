@@ -381,6 +381,7 @@
         "F_CODE": 8754111,
         "F_ATT": 951111,
         "ENTITY_HEB": "control point",
+        "SUB_TYPE": "CONTROL_POINT",
         "LAYER_NAME": "CONTROL_GIL_GDB.CTR_CONTROL_POINT_CROSS_N",
         "TYPE": "ITEM",
         "regions": [
@@ -406,9 +407,10 @@
         "TIED_TO": "olimpiade",
         "F_CODE": 875411,
         "F_ATT": 95111,
-        "ENTITY_HEB": "control point",
+        "ENTITY_HEB": "control cross",
         "LAYER_NAME": "CONTROL_GIL_GDB.CTR_CONTROL_POINT_CROSS_N",
-        "TYPE": "ITEM"
+        "TYPE": "ITEM",
+        "SUB_TYPE": "CONTROL_CROSS"
       }
     }
   },

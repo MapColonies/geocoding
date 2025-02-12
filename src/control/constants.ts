@@ -20,4 +20,5 @@ export const CONTROL_FIELDS = [
   'properties.TIED_TO',
   'properties.LAYER_NAME',
   'properties.regions',
+  'properties.SUB_TYPE',
 ];

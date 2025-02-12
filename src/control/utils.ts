@@ -18,14 +18,16 @@ const generateDisplayName = <T extends Tile | Item | Route>(
   displayNamePrefixes: IApplication['controlObjectDisplayNamePrefixes']
 ): (string | undefined)[] => {
   const sourceType =
-    source.properties.TYPE === 'ITEM' && (source as Item).properties.TIED_TO !== undefined ? 'CONTROL_POINT' : source.properties.TYPE;
+    source.properties.TYPE === 'ITEM' && (source as Item).properties.SUB_TYPE !== undefined
+      ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        (source as Item).properties.SUB_TYPE!
+      : source.properties.TYPE;
 
   const name: (string | undefined)[] = [];
   sourceType === 'TILE' && name.unshift((source as Tile).properties.TILE_NAME);
   sourceType === 'SUB_TILE' && name.unshift((source as Tile).properties.SUB_TILE_ID);
-  sourceType === 'ITEM' && name.unshift((source as Item).properties.OBJECT_COMMAND_NAME);
-  sourceType === 'ROUTE' && name.unshift((source as Route).properties.OBJECT_COMMAND_NAME);
-  sourceType === 'CONTROL_POINT' && name.unshift((source as Item).properties.OBJECT_COMMAND_NAME);
+  (<(typeof sourceType)[]>['ITEM', 'ROUTE', 'CONTROL_CROSS', 'CONTROL_INFRASTRUCTURE', 'CONTROL_POINT']).some((val) => val === sourceType) &&
+    name.unshift((source as Item).properties.OBJECT_COMMAND_NAME);
 
   name.unshift(displayNamePrefixes[sourceType]);
 
