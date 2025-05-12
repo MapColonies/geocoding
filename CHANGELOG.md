@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.2](https://github.com/MapColonies/geocoding/compare/v1.1.1...v1.1.2) (2025-05-12)
+
+
+### Bug Fixes
+
+* removed mocked config from default config ([#75](https://github.com/MapColonies/geocoding/issues/75)) ([ce35865](https://github.com/MapColonies/geocoding/commit/ce3586596817142a30cc5ea938522db5b21d3f76))
+
 ### [1.1.1](https://github.com/MapColonies/geocoding/compare/v1.1.0...v1.1.1) (2025-02-12)
 
 
