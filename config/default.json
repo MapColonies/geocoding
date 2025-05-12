@@ -98,16 +98,10 @@
       "viewbox": 1.1,
       "geotextCitiesLayer": 1.1
     },
-    "geotextCitiesLayer": "google_cities",
-    "roadPlaceTypes": ["road"],
-    "sources": {
-      "osm": "OSM",
-      "google": "GOOGLE"
-    },
-    "regions": {
-      "USA": ["New York", "Los Angeles"],
-      "FRANCE": ["Paris"]
-    },
+    "geotextCitiesLayer": "cities_index",
+    "roadPlaceTypes": [],
+    "sources": {},
+    "regions": {},
     "controlObjectDisplayNamePrefixes": {
       "TILE": "Tile",
       "SUB_TILE": "Sub Tile",
@@ -117,7 +111,7 @@
       "CONTROL_CROSS": "Control Cross",
       "CONTROL_INFRASTRUCTURE": "Control Infrastructure"
     },
-    "nameTranslationsKeys": ["en", "fr"],
+    "nameTranslationsKeys": [],
     "mainLanguageRegex": "[a-zA-Z]"
   }
 }

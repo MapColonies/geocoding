@@ -82,15 +82,6 @@
       "USA": ["New York", "Los Angeles"],
       "FRANCE": ["Paris"]
     },
-    "controlObjectDisplayNamePrefixes": {
-      "TILE": "Tile",
-      "SUB_TILE": "Sub Tile",
-      "ROUTE": "Route",
-      "ITEM": "Item",
-      "CONTROL_POINT": "Control Point",
-      "CONTROL_CROSS": "Control Cross",
-      "CONTROL_INFRASTRUCTURE": "Control Infrastructure"
-    },
     "nameTranslationsKeys": ["en", "fr"],
     "mainLanguageRegex": "[a-zA-Z]"
   }
