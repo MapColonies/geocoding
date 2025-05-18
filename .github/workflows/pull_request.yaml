@@ -7,20 +7,24 @@ jobs:
     name: Run eslint
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node: [20.x, 22.x]
+
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version: ${{ matrix.node }}
 
       - name: Install dependencies
         run: npm ci
 
       - name: Run linters
-        uses: wearerequired/lint-action@v1
+        uses: wearerequired/lint-action@v2
         with:
           github_token: ${{ secrets.github_token }}
           # Enable linters
@@ -29,160 +33,155 @@ jobs:
           eslint_extensions: ts
 
       - name: OpenAPI Lint Checks
-        uses: nwestfall/openapi-action@v1.0.2
-        with:
-         github_token: ${{ secrets.GITHUB_TOKEN }}
-         file: ./openapi3.yaml
+        run: npx @redocly/cli lint --format=github-actions ${{ inputs.openApiFilePath }}
 
   integration-test:
-      name: Run Integration Tests
-      runs-on: ubuntu-latest
-      container: node:16
+    name: Run Integration Tests
+    runs-on: ubuntu-latest
 
-      services:
-        # Label used to access the service container
-        elasticsearch:
-          # Docker Hub image
-          image: elasticsearch:8.13.0
-          env:
-            discovery.type: single-node
-            xpack.security.enabled: false
-            xpack.security.enrollment.enabled: false
-            ES_JAVA_OPTS: "-Xms512m -Xmx512m"
-          ports:
-            - 9200:9200
-          # Set health checks to wait until elastic has started
-          options: >-
-            --health-cmd "curl -f http://localhost:9200/_cluster/health || exit 1"
-            --health-interval 10s
-            --health-timeout 5s
-            --health-retries 5
+    strategy:
+      matrix:
+        node: [20.x, 22.x]
 
-        minio:
-          # Docker Hub image
-          image: minio/minio:edge-cicd
-          env:
-            MINIO_ROOT_USER: minio
-            MINIO_ROOT_PASSWORD: minio123
-          ports:
-            - 9000:9000
-          # Set health checks to wait until elastic has started
-          options: >-
-            --health-cmd "curl -f http://localhost:9000/minio/health/live || exit 1"
-            --health-interval 10s
-            --health-timeout 5s
-            --health-retries 5
-            
-      strategy:
-        matrix:
-          node: [18.x, 20.x]
+    services:
+      # Label used to access the service container
+      elasticsearch:
+        # Docker Hub image
+        image: elasticsearch:8.13.0
+        env:
+          discovery.type: single-node
+          xpack.security.enabled: false
+          xpack.security.enrollment.enabled: false
+          ES_JAVA_OPTS: '-Xms512m -Xmx512m'
+        ports:
+          - 9200:9200
+        # Set health checks to wait until elastic has started
+        options: >-
+          --health-cmd "curl -f http://localhost:9200/_cluster/health || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
-      steps:
-        - name: Check out Git repository
-          uses: actions/checkout@v2
+      minio:
+        # Docker Hub image
+        image: minio/minio:edge-cicd
+        env:
+          MINIO_ROOT_USER: minio
+          MINIO_ROOT_PASSWORD: minio123
+        ports:
+          - 9000:9000
+        # Set health checks to wait until elastic has started
+        options: >-
+          --health-cmd "curl -f http://localhost:9000/minio/health/live || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
-        - name: Set up Node.js
-          uses: actions/setup-node@v1
-          with:
-            node-version: ${{ matrix.node }}
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
 
-        - name: Install Node.js dependencies
-          run: npm ci
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
 
-        - name: Wait for Elasticsearch
-          run: |
-            until curl -s http://elasticsearch:9200/_cluster/health | grep '"status":"green"'; do
-              echo "Waiting for Elasticsearch...";
-              sleep 5;
-            done
+      - name: Install Node.js dependencies
+        run: npm ci
 
-        - name: Run integration tests
-          run: npm run test:integration
+      - name: Wait for Elasticsearch
+        run: |
+          until curl -s http://elasticsearch:9200/_cluster/health | grep '"status":"green"'; do
+            echo "Waiting for Elasticsearch...";
+            sleep 5;
+          done
 
-        - uses: actions/upload-artifact@v4
-          with:
-            name: Integration Test Reporters (Node ${{ matrix.node }})
-            path: reports/**
+      - name: Run integration tests
+        run: npm run test:integration
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Integration Test Reporters (Node ${{ matrix.node }})
+          path: reports/**
 
   unit-test:
-      name: Run Unit Tests
-      runs-on: ubuntu-latest
-      container: node:16
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
 
-      services:
-        # Label used to access the service container
-        elasticsearch:
-          # Docker Hub image
-          image: elasticsearch:8.13.0
-          env:
-            discovery.type: single-node
-            xpack.security.enabled: false
-            xpack.security.enrollment.enabled: false
-            ES_JAVA_OPTS: "-Xms512m -Xmx512m"
-          ports:
-            - 9200:9200
-          # Set health checks to wait until elastic has started
-          options: >-
-            --health-cmd "curl -f http://localhost:9200/_cluster/health || exit 1"
-            --health-interval 10s
-            --health-timeout 5s
-            --health-retries 5
+    strategy:
+      matrix:
+        node: [20.x, 22.x]
 
-        minio:
-          # Docker Hub image
-          image: minio/minio:edge-cicd
-          env:
-            MINIO_ROOT_USER: minio
-            MINIO_ROOT_PASSWORD: minio123
-          ports:
-            - 9000:9000
-          # Set health checks to wait until elastic has started
-          options: >-
-            --health-cmd "curl -f http://localhost:9000/minio/health/live || exit 1"
-            --health-interval 10s
-            --health-timeout 5s
-            --health-retries 5
-            
-      strategy:
-        matrix:
-          node: [18.x, 20.x]
+    services:
+      # Label used to access the service container
+      elasticsearch:
+        # Docker Hub image
+        image: elasticsearch:8.13.0
+        env:
+          discovery.type: single-node
+          xpack.security.enabled: false
+          xpack.security.enrollment.enabled: false
+          ES_JAVA_OPTS: '-Xms512m -Xmx512m'
+        ports:
+          - 9200:9200
+        # Set health checks to wait until elastic has started
+        options: >-
+          --health-cmd "curl -f http://localhost:9200/_cluster/health || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
-      steps:
-        - name: Check out Git repository
-          uses: actions/checkout@v2
+      minio:
+        # Docker Hub image
+        image: minio/minio:edge-cicd
+        env:
+          MINIO_ROOT_USER: minio
+          MINIO_ROOT_PASSWORD: minio123
+        ports:
+          - 9000:9000
+        # Set health checks to wait until elastic has started
+        options: >-
+          --health-cmd "curl -f http://localhost:9000/minio/health/live || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
-        - name: Set up Node.js
-          uses: actions/setup-node@v1
-          with:
-            node-version: ${{ matrix.node }}
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
 
-        - name: Install Node.js dependencies
-          run: npm ci
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
 
-        - name: Wait for Elasticsearch
-          run: |
-            until curl -s http://elasticsearch:9200/_cluster/health | grep '"status":"green"'; do
-              echo "Waiting for Elasticsearch...";
-              sleep 5;
-            done
+      - name: Install Node.js dependencies
+        run: npm ci
 
-        - name: Run unit tests
-          run: npm run test:unit
+      - name: Wait for Elasticsearch
+        run: |
+          until curl -s http://elasticsearch:9200/_cluster/health | grep '"status":"green"'; do
+            echo "Waiting for Elasticsearch...";
+            sleep 5;
+          done
 
-        - uses: actions/upload-artifact@v4
-          with:
-            name: Unit Test Reporters (Node ${{ matrix.node }})
-            path: reports/**
-          
+      - name: Run unit tests
+        run: npm run test:unit
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Unit Test Reporters (Node ${{ matrix.node }})
+          path: reports/**
+
   security:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - name: Run Snyk to check for vulnerabilities
-      uses: snyk/actions/node@master
-      continue-on-error: true
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - uses: actions/checkout@master
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
   build_image:
     name: Build Image
@@ -190,7 +189,7 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: build Docker image
         run: docker build -t test-build:latest .
