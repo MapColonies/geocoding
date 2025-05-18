@@ -1,18 +1,17 @@
-import config from 'config';
 import { getOtelMixin } from '@map-colonies/telemetry';
 import { ListBucketsCommand, S3Client } from '@aws-sdk/client-s3';
 import { instancePerContainerCachingFactory } from 'tsyringe';
-import { trace, metrics as OtelMetrics } from '@opentelemetry/api';
+import { trace } from '@opentelemetry/api';
 import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
-import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
-import { Metrics } from '@map-colonies/telemetry';
+import { Registry } from 'prom-client';
+import jsLogger, { Logger } from '@map-colonies/js-logger';
 import { ScheduledTask } from 'node-cron';
 import { HEALTHCHECK, ON_SIGNAL, SERVICES, SERVICE_NAME } from './common/constants';
-import { tracing } from './common/tracing';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
 import { elasticClientsFactory, ElasticClients } from './common/elastic';
-import { IApplication } from './common/interfaces';
+import { getTracing } from './common/tracing';
+import { ConfigType, getConfig } from './common/config';
 import { TILE_REPOSITORY_SYMBOL, tileRepositoryFactory } from './control/tile/DAL/tileRepository';
 import { TILE_ROUTER_SYMBOL, tileRouterFactory } from './control/tile/routes/tileRouter';
 import { ITEM_ROUTER_SYMBOL, itemRouterFactory } from './control/item/routes/itemRouter';
@@ -37,29 +36,63 @@ export interface RegisterOptions {
 export const registerExternalValues = async (options?: RegisterOptions): Promise<DependencyContainer> => {
   const cleanupRegistry = new CleanupRegistry();
   try {
-    const loggerConfig = config.get<LoggerOptions>('telemetry.logger');
-    const logger = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, mixin: getOtelMixin() });
-    const cleanupRegistryLogger = logger.child({ subComponent: 'cleanupRegistry' });
-
-    cleanupRegistry.on('itemFailed', (id, error, msg) => cleanupRegistryLogger.error({ msg, itemId: id, err: error }));
-    cleanupRegistry.on('finished', (status) => cleanupRegistryLogger.info({ msg: `cleanup registry finished cleanup`, status }));
-
-    const metrics = new Metrics();
-    cleanupRegistry.register({ func: metrics.stop.bind(metrics), id: SERVICES.METER });
-    metrics.start();
-
-    cleanupRegistry.register({ func: tracing.stop.bind(tracing), id: SERVICES.TRACER });
-    tracing.start();
-    const tracer = trace.getTracer(SERVICE_NAME);
-
-    const applicationConfig: IApplication = config.get<IApplication>('application');
-
     const dependencies: InjectionObject<unknown>[] = [
-      { token: SERVICES.CONFIG, provider: { useValue: config } },
-      { token: SERVICES.LOGGER, provider: { useValue: logger } },
-      { token: SERVICES.TRACER, provider: { useValue: tracer } },
-      { token: SERVICES.METER, provider: { useValue: OtelMetrics.getMeterProvider().getMeter(SERVICE_NAME) } },
-      { token: SERVICES.APPLICATION, provider: { useValue: applicationConfig } },
+      { token: SERVICES.CONFIG, provider: { useValue: getConfig() } },
+      {
+        token: SERVICES.CLEANUP_REGISTRY,
+        provider: { useValue: cleanupRegistry },
+        afterAllInjectionHook(container): void {
+          const logger = container.resolve<Logger>(SERVICES.LOGGER);
+          const cleanupRegistryLogger = logger.child({ subComponent: 'cleanupRegistry' });
+
+          cleanupRegistry.on('itemFailed', (id, error, msg) => cleanupRegistryLogger.error({ msg, itemId: id, err: error }));
+          cleanupRegistry.on('itemCompleted', (id) => cleanupRegistryLogger.info({ itemId: id, msg: 'cleanup finished for item' }));
+          cleanupRegistry.on('finished', (status) => cleanupRegistryLogger.info({ msg: `cleanup registry finished cleanup`, status }));
+        },
+      },
+      {
+        token: SERVICES.LOGGER,
+        provider: {
+          useFactory: instancePerContainerCachingFactory((container) => {
+            const config = container.resolve<ConfigType>(SERVICES.CONFIG);
+            const loggerConfig = config.get('telemetry.logger');
+            const logger = jsLogger({ ...loggerConfig, mixin: getOtelMixin() });
+            return logger;
+          }),
+        },
+      },
+      {
+        token: SERVICES.TRACER,
+        provider: {
+          useFactory: instancePerContainerCachingFactory((container) => {
+            const cleanupRegistry = container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+            cleanupRegistry.register({ id: SERVICES.TRACER, func: getTracing().stop.bind(getTracing()) });
+            const tracer = trace.getTracer(SERVICE_NAME);
+            return tracer;
+          }),
+        },
+      },
+      {
+        token: SERVICES.METRICS,
+        provider: {
+          useFactory: instancePerContainerCachingFactory((container) => {
+            const metricsRegistry = new Registry();
+            const config = container.resolve<ConfigType>(SERVICES.CONFIG);
+            config.initializeMetrics(metricsRegistry);
+            return metricsRegistry;
+          }),
+        },
+      },
+      {
+        token: SERVICES.APPLICATION,
+        provider: {
+          useFactory: instancePerContainerCachingFactory((container) => {
+            const config = container.resolve<ConfigType>(SERVICES.CONFIG);
+            const applicationConfig = config.get('application');
+            return applicationConfig;
+          }),
+        },
+      },
       { token: HEALTHCHECK, provider: { useFactory: healthCheckFactory } },
       {
         token: ON_SIGNAL,
@@ -75,6 +108,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
         provider: { useFactory: instancePerContainerCachingFactory(elasticClientsFactory) },
         postInjectionHook: async (deps: DependencyContainer): Promise<void> => {
           const elasticClients = deps.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
+          const logger = deps.resolve<Logger>(SERVICES.LOGGER);
           try {
             const response = await Promise.all([elasticClients.control.ping(), elasticClients.geotext.ping()]);
             response.forEach((res) => {
@@ -99,6 +133,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
         provider: { useFactory: s3ClientFactory },
         postInjectionHook: async (deps: DependencyContainer): Promise<void> => {
           const s3Client = deps.resolve<S3Client>(SERVICES.S3_CLIENT);
+          const logger = deps.resolve<Logger>(SERVICES.LOGGER);
           try {
             await s3Client.send(new ListBucketsCommand({}));
             logger.info('Connected to S3');
@@ -155,6 +190,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
         token: SERVICES.REDIS,
         provider: { useFactory: instancePerContainerCachingFactory(redisClientFactory) },
         postInjectionHook: async (deps: DependencyContainer): Promise<void> => {
+          const logger = deps.resolve<Logger>(SERVICES.LOGGER);
           try {
             const redis = deps.resolve<RedisClient>(SERVICES.REDIS);
             cleanupRegistry.register({

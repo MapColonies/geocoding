@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Logger } from '@map-colonies/js-logger';
-import { BoundCounter, Meter } from '@opentelemetry/api-metrics';
+import { type Registry, Counter } from 'prom-client';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
@@ -26,14 +26,18 @@ export type GetTilesQueryParams = ConvertCamelToSnakeCase<TileQueryParams>;
 
 @injectable()
 export class TileController {
-  private readonly createdResourceCounter: BoundCounter;
+  private readonly createdResourceCounter: Counter;
 
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(TileManager) private readonly manager: TileManager,
-    @inject(SERVICES.METER) private readonly meter: Meter
+    @inject(SERVICES.METRICS) private readonly metricsRegistry: Registry
   ) {
-    this.createdResourceCounter = this.meter.createCounter('created_tile');
+    this.createdResourceCounter = new Counter({
+      name: 'created_tile',
+      help: 'number of created tiles',
+      registers: [this.metricsRegistry],
+    });
   }
 
   public getTiles: GetTilesHandler = async (req, res, next) => {

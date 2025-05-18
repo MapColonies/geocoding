@@ -1,5 +1,5 @@
 import { Logger } from '@map-colonies/js-logger';
-import { BoundCounter, Meter } from '@opentelemetry/api-metrics';
+import { type Registry, Counter } from 'prom-client';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { Feature } from 'geojson';
@@ -22,14 +22,18 @@ type GetSourcesHandler = RequestHandler<unknown, string[], undefined, undefined>
 
 @injectable()
 export class GeotextSearchController {
-  private readonly createdResourceCounter: BoundCounter;
+  private readonly createdResourceCounter: Counter;
 
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(GeotextSearchManager) private readonly manager: GeotextSearchManager,
-    @inject(SERVICES.METER) private readonly meter: Meter
+    @inject(SERVICES.METRICS) private readonly metricsRegistry: Registry
   ) {
-    this.createdResourceCounter = this.meter.createCounter('created_location');
+    this.createdResourceCounter = new Counter({
+      name: 'created_location',
+      help: 'number of created locations',
+      registers: [this.metricsRegistry],
+    });
   }
 
   public getGeotextSearch: GetGeotextSearchHandler = async (req, res, next) => {

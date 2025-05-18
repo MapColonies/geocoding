@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Logger } from '@map-colonies/js-logger';
-import { BoundCounter, Meter } from '@opentelemetry/api-metrics';
+import { type Registry, Counter } from 'prom-client';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
@@ -15,14 +15,18 @@ export type GetCoordinatesRequestParams = WGS84Coordinate & { target_grid: 'cont
 
 @injectable()
 export class LatLonController {
-  private readonly createdResourceCounter: BoundCounter;
+  private readonly createdResourceCounter: Counter;
 
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(LatLonManager) private readonly manager: LatLonManager,
-    @inject(SERVICES.METER) private readonly meter: Meter
+    @inject(SERVICES.METRICS) private readonly metricsRegistry: Registry
   ) {
-    this.createdResourceCounter = meter.createCounter('created_resource');
+    this.createdResourceCounter = new Counter({
+      name: 'created_resource',
+      help: 'number of created resources',
+      registers: [this.metricsRegistry],
+    });
   }
 
   public getCoordinates: GetCoordinatesHandler = async (req, res, next) => {
