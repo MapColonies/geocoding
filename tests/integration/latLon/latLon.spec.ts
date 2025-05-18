@@ -2,7 +2,6 @@
 import 'jest-openapi';
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
-import { Application } from 'express';
 import { DependencyContainer } from 'tsyringe';
 import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import httpStatusCodes from 'http-status-codes';
@@ -14,10 +13,10 @@ import { LatLonRequestSender } from './helpers/requestSender';
 
 describe('/lookup', function () {
   let requestSender: LatLonRequestSender;
-  let app: { app: Application; container: DependencyContainer };
+  let depContainer: DependencyContainer;
 
   beforeEach(async function () {
-    app = await getApp({
+    const [app, container] = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
@@ -25,13 +24,14 @@ describe('/lookup', function () {
       useChild: true,
     });
 
-    requestSender = new LatLonRequestSender(app.app);
+    depContainer = container;
+    requestSender = new LatLonRequestSender(app);
   });
 
   afterAll(async function () {
-    const cleanupRegistry = app.container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+    const cleanupRegistry = depContainer.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
     await cleanupRegistry.trigger();
-    app.container.reset();
+    depContainer.reset();
 
     jest.clearAllTimers();
   });

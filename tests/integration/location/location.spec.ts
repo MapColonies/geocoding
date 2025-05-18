@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import config from 'config';
 import { DependencyContainer } from 'tsyringe';
-import { Application } from 'express';
 import { Feature } from 'geojson';
 import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import jsLogger from '@map-colonies/js-logger';
@@ -34,10 +33,10 @@ import { expectedResponse, hierarchiesWithAnyWieght } from './utils';
 
 describe('/search/location', function () {
   let requestSender: LocationRequestSender;
-  let app: { app: Application; container: DependencyContainer };
+  let depContainer: DependencyContainer;
 
   beforeEach(async function () {
-    app = await getApp({
+    const [app, container] = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
@@ -48,14 +47,15 @@ describe('/search/location', function () {
       useChild: true,
     });
 
-    requestSender = new LocationRequestSender(app.app);
+    depContainer = container;
+    requestSender = new LocationRequestSender(app);
   });
 
   afterAll(async function () {
-    const cleanupRegistry = app.container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+    const cleanupRegistry = depContainer.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
     await cleanupRegistry.trigger();
     nock.cleanAll();
-    app.container.reset();
+    depContainer.reset();
 
     jest.clearAllTimers();
   });

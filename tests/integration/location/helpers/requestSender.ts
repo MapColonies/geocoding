@@ -1,10 +1,11 @@
+import type { Application } from 'express';
 import * as supertest from 'supertest';
 import { GetGeotextSearchParams } from '../../../../src/location/interfaces';
 
 export class LocationRequestSender {
   private readonly pathPrefix = '/search/location';
 
-  public constructor(private readonly app: Express.Application) {}
+  public constructor(private readonly app: Application) {}
 
   public async getQuery(queryParams?: GetGeotextSearchParams): Promise<supertest.Response> {
     return supertest

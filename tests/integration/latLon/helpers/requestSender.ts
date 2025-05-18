@@ -1,8 +1,9 @@
+import type { Application } from 'express';
 import * as supertest from 'supertest';
 import { GetCoordinatesRequestParams } from '../../../../src/latLon/controllers/latLonController';
 
 export class LatLonRequestSender {
-  public constructor(private readonly app: Express.Application) {}
+  public constructor(private readonly app: Application) {}
 
   public async convertCoordinatesToGrid(queryParams?: GetCoordinatesRequestParams): Promise<supertest.Response> {
     return supertest

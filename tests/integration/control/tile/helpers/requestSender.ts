@@ -1,8 +1,9 @@
+import type { Application } from 'express';
 import * as supertest from 'supertest';
 import { GetTilesQueryParams } from '../../../../../src/control/tile/controllers/tileController';
 
 export class TileRequestSender {
-  public constructor(private readonly app: Express.Application) {}
+  public constructor(private readonly app: Application) {}
 
   public async getTiles(queryParams?: GetTilesQueryParams): Promise<supertest.Response> {
     return supertest

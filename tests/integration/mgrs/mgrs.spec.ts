@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import 'jest-openapi';
 import { DependencyContainer } from 'tsyringe';
-import { Application } from 'express';
 import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
@@ -15,10 +14,10 @@ import { MgrsRequestSender } from './helpers/requestSender';
 
 describe('/search/MGRS', function () {
   let requestSender: MgrsRequestSender;
-  let app: { app: Application; container: DependencyContainer };
+  let depContainer: DependencyContainer;
 
   beforeEach(async function () {
-    app = await getApp({
+    const [app, container] = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
@@ -30,13 +29,14 @@ describe('/search/MGRS', function () {
       useChild: true,
     });
 
-    requestSender = new MgrsRequestSender(app.app);
+    depContainer = container;
+    requestSender = new MgrsRequestSender(app);
   });
 
   afterAll(async function () {
-    const cleanupRegistry = app.container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+    const cleanupRegistry = depContainer.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
     await cleanupRegistry.trigger();
-    app.container.reset();
+    depContainer.reset();
 
     jest.clearAllTimers();
   });

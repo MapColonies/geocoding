@@ -10,7 +10,7 @@ import importDataToElastic from '../../devScripts/importDataToElastic';
 import { cronLoadTileLatLonDataSymbol } from '../../src/latLon/DAL/latLonDAL';
 
 export default async (): Promise<void> => {
-  const app = await getApp({
+  const [app, container] = await getApp({
     override: [
       { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
       { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
@@ -22,7 +22,7 @@ export default async (): Promise<void> => {
     useChild: true,
   });
 
-  const config = app.container.resolve<IConfig>(SERVICES.CONFIG);
+  const config = container.resolve<IConfig>(SERVICES.CONFIG);
 
   await Promise.allSettled([await importDataToS3(config), await importDataToElastic(config)]).then((results) => {
     results.forEach((result) => {
@@ -32,8 +32,8 @@ export default async (): Promise<void> => {
     });
   });
 
-  const cleanupRegistry = app.container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+  const cleanupRegistry = container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
   await cleanupRegistry.trigger();
-  app.container.reset();
+  container.reset();
   return;
 };

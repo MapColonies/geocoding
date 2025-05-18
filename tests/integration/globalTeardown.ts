@@ -13,7 +13,7 @@ import { ElasticClients } from '../../src/common/elastic';
 import { cronLoadTileLatLonDataSymbol } from '../../src/latLon/DAL/latLonDAL';
 
 export default async (): Promise<void> => {
-  const app = await getApp({
+  const [app, container] = await getApp({
     override: [
       { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
       { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
@@ -25,10 +25,10 @@ export default async (): Promise<void> => {
     useChild: true,
   });
 
-  const config = app.container.resolve<IConfig>(SERVICES.CONFIG);
+  const config = container.resolve<IConfig>(SERVICES.CONFIG);
 
-  const s3Client = app.container.resolve<S3Client>(SERVICES.S3_CLIENT);
-  const elasticClients = app.container.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
+  const s3Client = container.resolve<S3Client>(SERVICES.S3_CLIENT);
+  const elasticClients = container.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
 
   const s3Config = config.get<S3Config>(s3ConfigPath);
   const elasticClientsConfig = config.get<ElasticDbClientsConfig>(elasticConfigPath);
@@ -74,10 +74,10 @@ export default async (): Promise<void> => {
     });
   });
 
-  const cleanupRegistry = app.container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+  const cleanupRegistry = container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
   await cleanupRegistry.trigger();
-  app.container.reset();
-  await app.container.dispose();
+  container.reset();
+  await container.dispose();
 
   console.log('Global Teardown completed');
   return;

@@ -2,7 +2,6 @@
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import { DependencyContainer } from 'tsyringe';
-import { Application } from 'express';
 import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import httpStatusCodes from 'http-status-codes';
 import { BBox } from 'geojson';
@@ -19,10 +18,10 @@ import { TileRequestSender } from './helpers/requestSender';
 
 describe('/search/control/tiles', function () {
   let requestSender: TileRequestSender;
-  let app: { app: Application; container: DependencyContainer };
+  let depContainer: DependencyContainer;
 
   beforeEach(async function () {
-    app = await getApp({
+    const [app, container] = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
@@ -33,13 +32,14 @@ describe('/search/control/tiles', function () {
       useChild: true,
     });
 
-    requestSender = new TileRequestSender(app.app);
+    depContainer = container;
+    requestSender = new TileRequestSender(app);
   });
 
   afterAll(async function () {
-    const cleanupRegistry = app.container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+    const cleanupRegistry = depContainer.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
     await cleanupRegistry.trigger();
-    app.container.reset();
+    depContainer.reset();
 
     jest.clearAllTimers();
   });
@@ -520,8 +520,8 @@ describe('/search/control/tiles', function () {
         (requestParams.limit as unknown as string) === ''
           ? "Empty value found for query parameter 'limit'"
           : requestParams.limit < 1
-          ? 'request/query/limit must be >= 1'
-          : 'request/query/limit must be <= 15';
+            ? 'request/query/limit must be >= 1'
+            : 'request/query/limit must be <= 15';
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
       expect(response.body).toEqual({

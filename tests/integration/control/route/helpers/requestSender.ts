@@ -1,8 +1,9 @@
+import type { Application } from 'express';
 import * as supertest from 'supertest';
 import { GetRoutesQueryParams } from '../../../../../src/control/route/controllers/routeController';
 
 export class RouteRequestSender {
-  public constructor(private readonly app: Express.Application) {}
+  public constructor(private readonly app: Application) {}
 
   public async getRoutes(queryParams?: GetRoutesQueryParams): Promise<supertest.Response> {
     return supertest

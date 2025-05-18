@@ -1,16 +1,24 @@
+const { pathsToModuleNameMapper } = require('ts-jest');
+const { compilerOptions } = require('../../../tsconfig.json');
+
 /** @type {import('jest').Config} */
 module.exports = {
   transform: {
-    '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.test.json' }],
+    '^.+\\.ts$': ['@swc/jest'],
   },
   coverageReporters: ['text', 'html'],
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/' }),
   collectCoverage: true,
   collectCoverageFrom: ['<rootDir>/src/**/*.ts', '!*/node_modules/', '!/vendor/**', '!*/common/**', '!**/models/**', '!<rootDir>/src/*'],
   coverageDirectory: '<rootDir>/coverage',
   rootDir: '../../../.',
   testMatch: ['<rootDir>/tests/integration/**/*.spec.ts'],
   setupFiles: ['<rootDir>/tests/configurations/jest.setup.ts'],
-  setupFilesAfterEnv: ['jest-openapi', '<rootDir>/tests/configurations/initJestOpenapi.setup.ts'],
+  setupFilesAfterEnv: [
+    'jest-openapi',
+    '<rootDir>/tests/configurations/initJestOpenapi.setup.ts',
+    '<rootDir>/tests/configurations/jest.setupAfterEnv.js',
+  ],
   globalSetup: '<rootDir>/tests/integration/globalSetup.ts',
   globalTeardown: '<rootDir>/tests/integration/globalTeardown.ts',
   reporters: [
@@ -21,7 +29,6 @@ module.exports = {
     ],
   ],
   moduleDirectories: ['node_modules', 'src'],
-  preset: 'ts-jest',
   testEnvironment: 'node',
   coverageThreshold: {
     global: {
