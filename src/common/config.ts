@@ -1,8 +1,14 @@
 import { type ConfigInstance, config } from '@map-colonies/config';
 import { commonBoilerplateV2, type commonBoilerplateV2Type } from '@map-colonies/schemas';
+import { ElasticDbClientsConfig } from './elastic/interfaces';
+import { S3Config } from './s3';
+import { RedisConfig } from './redis/interfaces';
+import { IApplication } from './interfaces';
 
 // Choose here the type of the config instance and import this type from the entire application
-type ConfigType = ConfigInstance<commonBoilerplateV2Type>;
+type ConfigType = ConfigInstance<
+  commonBoilerplateV2Type & { elastic?: ElasticDbClientsConfig; s3?: S3Config; redis?: RedisConfig; application?: IApplication }
+>;
 
 let configInstance: ConfigType | undefined;
 

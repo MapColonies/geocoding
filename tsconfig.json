@@ -12,12 +12,14 @@
     "resolveJsonModule": true,
     "emitDecoratorMetadata": true,
     "skipLibCheck": true,
+    "typeRoots": ["./src/types", "./node_modules/@types"],
     "baseUrl": ".",
     "paths": {
       "@src/*": ["src/*"],
       "@tests/*": ["tests/*"],
       "@common/*": ["src/common/*"],
-      "@openapi": ["src/openapi"]
+      "@openapi": ["src/openapi"],
+      "npm:mgrs": ["node_modules/mgrs"]
     }
   },
   "include": ["src"],
