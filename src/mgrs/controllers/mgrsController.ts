@@ -26,16 +26,16 @@ export interface GetTileQueryParams {
 
 @injectable()
 export class MgrsController {
-  private readonly createdResourceCounter: Counter;
+  private readonly createdMgrsCounter: Counter;
 
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(MgrsManager) private readonly manager: MgrsManager,
     @inject(SERVICES.METRICS) private readonly metricsRegistry: Registry
   ) {
-    this.createdResourceCounter = new Counter({
-      name: 'created_resource',
-      help: 'number of created resource',
+    this.createdMgrsCounter = new Counter({
+      name: 'created_mgrs',
+      help: 'number of created mgrs',
       registers: [this.metricsRegistry],
     });
   }
