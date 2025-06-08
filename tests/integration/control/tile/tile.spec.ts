@@ -440,12 +440,12 @@ describe('/search/control/tiles', function () {
       }
     );
 
-    test.each<string>(['invalid', '6a6', '06', '-11', '6 ', ' 6', ' ', ' 6 ', ''])(
+    test.each<string>(['invalid', '6a6', '-11', '6 ', ' 6', ' ', ' 6 ', ''])(
       'should return 400 status code and error message when sub_tile value is invalid',
       async (sub_tile) => {
         const response = await requestSender.getTiles({ tile: 'RIT', sub_tile, limit: 5, disable_fuzziness: false });
 
-        const message = sub_tile ? 'request/query/sub_tile must match pattern "^[1-9][0-9]*$"' : "Empty value found for query parameter 'sub_tile'";
+        const message = sub_tile ? 'request/query/sub_tile must match pattern "^[0-9][0-9]*$"' : "Empty value found for query parameter 'sub_tile'";
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toEqual({
