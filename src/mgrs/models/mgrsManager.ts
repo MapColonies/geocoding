@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { IConfig } from 'config';
 import { Logger } from '@map-colonies/js-logger';
 import { BBox, Geometry } from 'geojson';
 import { inject, injectable } from 'tsyringe';
-import * as mgrs from 'npm:mgrs';
+import * as mgrs from 'mgrs';
 import { SERVICES } from '../../common/constants';
 import { GenericGeocodingFeatureResponse, IApplication } from '../../common/interfaces';
 import { GetTileQueryParams } from '../controllers/mgrsController';

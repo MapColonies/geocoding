@@ -1,8 +1,7 @@
-import { IConfig } from 'config';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { BBox } from 'geojson';
-import * as mgrs from 'npm:mgrs';
+import * as mgrs from 'mgrs';
 import { SERVICES } from '../../common/constants';
 import { LatLonDAL, latLonDalSymbol } from '../DAL/latLonDAL';
 import { convertUTMToWgs84, CommonUtils, parseGeo, validateWGS84Coordinate } from '../../common/utils';

@@ -18,8 +18,7 @@
       "@src/*": ["src/*"],
       "@tests/*": ["tests/*"],
       "@common/*": ["src/common/*"],
-      "@openapi": ["src/openapi"],
-      "npm:mgrs": ["node_modules/mgrs"]
+      "@openapi": ["src/openapi"]
     }
   },
   "include": ["src"],
