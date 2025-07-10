@@ -6,12 +6,12 @@ import httpStatusCodes from 'http-status-codes';
 import { Client, estypes } from '@elastic/elasticsearch';
 import { ElasticDbClientsConfig } from '../src/common/elastic/interfaces';
 import { elasticConfigPath } from '../src/common/constants';
-import { IConfig } from '../src/common/interfaces';
+import { ConfigType } from '../src/common/config';
 import controlData from './controlElasticsearchData.json';
 import geotextData from './geotextElasticsearchData.json';
 
-const main = async (config: IConfig): Promise<void> => {
-  const elasticConfig = config.get<ElasticDbClientsConfig>(elasticConfigPath);
+const main = async (config: ConfigType): Promise<void> => {
+  const elasticConfig = config.get(elasticConfigPath)! as ElasticDbClientsConfig;
   const controlClient = new Client({ ...elasticConfig.control });
   const geotextClient = new Client({ ...elasticConfig.geotext });
 

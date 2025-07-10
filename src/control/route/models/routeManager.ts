@@ -1,4 +1,3 @@
-import { IConfig } from 'config';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { estypes } from '@elastic/elasticsearch';
@@ -8,12 +7,13 @@ import { RouteQueryParams } from '../DAL/queries';
 import { formatResponse } from '../../utils';
 import { FeatureCollection, IApplication } from '../../../common/interfaces';
 import { Route } from './route';
+import { ConfigType } from '@src/common/config';
 
 @injectable()
 export class RouteManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(SERVICES.CONFIG) private readonly config: IConfig,
+    @inject(SERVICES.CONFIG) private readonly config: ConfigType,
     @inject(SERVICES.APPLICATION) private readonly application: IApplication,
     @inject(ROUTE_REPOSITORY_SYMBOL) private readonly routeRepository: RouteRepository
   ) {}

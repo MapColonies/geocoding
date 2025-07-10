@@ -4,15 +4,16 @@ import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { SERVICES, siteConfig } from '../constants';
 import { RedisClient } from '../redis';
-import { FeebackApiGeocodingResponse, IConfig } from '../interfaces';
+import { FeebackApiGeocodingResponse } from '../interfaces';
 import { XApi } from './utils';
+import { ConfigType } from '../config';
 
 @injectable()
 export class FeedbackApiMiddlewareManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(SERVICES.REDIS) private readonly redis: RedisClient,
-    @inject(SERVICES.CONFIG) private readonly config: IConfig
+    @inject(SERVICES.CONFIG) private readonly config: ConfigType
   ) {}
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -21,7 +22,7 @@ export class FeedbackApiMiddlewareManager {
     const redisClient = this.redis;
     const logger = this.logger;
 
-    const drSite = this.config.get<string>(siteConfig);
+    const drSite = this.config.get(siteConfig)! as string;
 
     logger.info({ msg: 'saving response to redis' });
     const geocodingResponseDetails: FeebackApiGeocodingResponse = {

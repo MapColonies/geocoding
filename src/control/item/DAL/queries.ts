@@ -34,7 +34,7 @@ export const queryForItems = ({
             },
           },
         },
-        ...(tile ?? ''
+        ...((tile ?? '')
           ? [
               {
                 term: {
@@ -43,7 +43,7 @@ export const queryForItems = ({
               },
             ]
           : []),
-        ...(subTile ?? ''
+        ...((subTile ?? '')
           ? [
               {
                 term: {

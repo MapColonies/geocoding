@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import config from 'config';
 import jsLogger from '@map-colonies/js-logger';
 import { Feature } from 'geojson';
 import { estypes } from '@elastic/elasticsearch';
+import { ConfigType, getConfig } from '../../../src/common/config';
 import { GeotextRepository } from '../../../src/location/DAL/locationRepository';
 import { GeotextSearchManager } from '../../../src/location/models/locationManager';
 import { GenericGeocodingResponse, IApplication } from '../../../src/common/interfaces';
@@ -11,13 +11,21 @@ import { GetGeotextSearchParams } from '../../../src/location/interfaces';
 import { NY_JFK_AIRPORT } from '../../mockObjects/locations';
 import { convertCamelToSnakeCase } from '../../../src/control/utils';
 import { expectedResponse } from '../../integration/location/utils';
+import { BadRequestError } from '../../../src/common/errors';
 
 let geotextSearchManager: GeotextSearchManager;
+let config: ConfigType;
+
 describe('#GeotextSearchManager', () => {
   const extractName = jest.fn();
   const generatePlacetype = jest.fn();
   const extractHierarchy = jest.fn();
   const geotextSearch = jest.fn();
+
+  beforeAll(() => {
+    config = getConfig();
+  });
+
   beforeEach(() => {
     jest.resetAllMocks();
 
@@ -28,7 +36,7 @@ describe('#GeotextSearchManager', () => {
       geotextSearch,
     } as unknown as GeotextRepository;
 
-    geotextSearchManager = new GeotextSearchManager(jsLogger({ enabled: false }), config.get<IApplication>('application'), config, repositry);
+    geotextSearchManager = new GeotextSearchManager(jsLogger({ enabled: false }), config.get('application') as IApplication, config, repositry);
   });
 
   test.each<string[] | undefined>([['<em>JFK</em> <em>International</em> Airport', 'John F Kennedy <em>International</em> Airport'], undefined])(
@@ -216,13 +224,23 @@ describe('#GeotextSearchManager', () => {
     const response = geotextSearchManager.sources();
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    expect(response).toEqual(Object.keys(config.get<IApplication>('application').sources!));
+    expect(response).toEqual(Object.keys((config.get('application') as IApplication).sources!));
   });
+
+  it('should throw BadRequestError when params.source contains invalid source', () => {
+    const params = {
+      source: ['invalidSource'],
+    } as any;
+    const response = geotextSearchManager.search(params);
+
+    expect(response).rejects.toThrow(BadRequestError);
+  });
+
   it('should return regions', () => {
     const response = geotextSearchManager.regions();
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    expect(response).toEqual(Object.keys(config.get<IApplication>('application').regions!));
+    expect(response).toEqual(Object.keys((config.get('application') as IApplication).regions!));
   });
 
   it('should return empty sources array', () => {

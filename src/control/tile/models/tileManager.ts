@@ -11,12 +11,13 @@ import { TileQueryParams } from '../DAL/queries';
 import { FeatureCollection, IApplication } from '../../../common/interfaces';
 import { BadRequestError } from '../../../common/errors';
 import { Tile } from './tile';
+import { ConfigType } from '@src/common/config';
 
 @injectable()
 export class TileManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(SERVICES.CONFIG) private readonly config: IConfig,
+    @inject(SERVICES.CONFIG) private readonly config: ConfigType,
     @inject(SERVICES.APPLICATION) private readonly application: IApplication,
     @inject(TILE_REPOSITORY_SYMBOL) private readonly tileRepository: TileRepository
   ) {}

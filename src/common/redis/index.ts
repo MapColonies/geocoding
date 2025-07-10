@@ -3,7 +3,7 @@ import { Logger } from '@map-colonies/js-logger';
 import { createClient, RedisClientOptions } from 'redis';
 import { DependencyContainer, FactoryFunction } from 'tsyringe';
 import { SERVICES } from '../constants';
-import { IConfig } from '../interfaces';
+import { ConfigType } from '../config';
 import { RedisConfig } from './interfaces';
 
 const createConnectionOptions = (redisConfig: RedisConfig): Partial<RedisClientOptions> => {
@@ -26,8 +26,8 @@ export type RedisClient = ReturnType<typeof createClient>;
 
 export const redisClientFactory: FactoryFunction<RedisClient | undefined> = (container: DependencyContainer): RedisClient | undefined => {
   const logger = container.resolve<Logger>(SERVICES.LOGGER);
-  const config = container.resolve<IConfig>(SERVICES.CONFIG);
-  const dbConfig = config.get<RedisConfig>('db.redis');
+  const config = container.resolve<ConfigType>(SERVICES.CONFIG);
+  const dbConfig = config.get('db.redis')! as RedisConfig;
   const connectionOptions = createConnectionOptions(dbConfig);
   try {
     const redisClient = createClient(connectionOptions)

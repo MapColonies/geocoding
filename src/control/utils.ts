@@ -2,9 +2,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { estypes } from '@elastic/elasticsearch';
 import { bbox } from '@turf/bbox';
-import { CommonRequestParameters, GenericGeocodingResponse, IApplication, IConfig } from '../common/interfaces';
+import { CommonRequestParameters, GenericGeocodingResponse, IApplication } from '../common/interfaces';
 import { elasticConfigPath } from '../common/constants';
 import { ElasticDbClientsConfig } from '../common/elastic/interfaces';
+import { ConfigType } from '@src/common/config';
 import { Item } from '../control/item/models/item';
 import { Tile } from '../control/tile/models/tile';
 import { Route } from '../control/route/models/route';
@@ -103,9 +104,9 @@ export const formatResponse = <T extends Tile | Item | Route>(
 };
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export const additionalControlSearchProperties = (config: IConfig, size: number): Pick<estypes.SearchRequest, 'size' | 'index' | '_source'> => ({
+export const additionalControlSearchProperties = (config: ConfigType, size: number): Pick<estypes.SearchRequest, 'size' | 'index' | '_source'> => ({
   size,
-  index: config.get<ElasticDbClientsConfig>(elasticConfigPath).control.properties.index as string,
+  index: (config.get(elasticConfigPath) as unknown as ElasticDbClientsConfig).control.properties.index as string,
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _source: CONTROL_FIELDS,
 });

@@ -1,7 +1,7 @@
 import { Logger } from '@map-colonies/js-logger';
 import { Client, ClientOptions } from '@elastic/elasticsearch';
 import { DependencyContainer, FactoryFunction } from 'tsyringe';
-import { IConfig } from '../interfaces';
+import { ConfigType } from '../config';
 import { elasticConfigPath, SERVICES } from '../constants';
 import { ElasticDbClientsConfig } from './interfaces';
 
@@ -20,10 +20,10 @@ const initElasticsearchClient = (clientOptions: ClientOptions): ElasticClient =>
 };
 
 export const elasticClientsFactory: FactoryFunction<ElasticClients> = (container: DependencyContainer): ElasticClients => {
-  const config = container.resolve<IConfig>(SERVICES.CONFIG);
+  const config = container.resolve<ConfigType>(SERVICES.CONFIG);
   const logger = container.resolve<Logger>(SERVICES.LOGGER);
 
-  const elasticClientsConfig = config.get<ElasticDbClientsConfig>(elasticConfigPath);
+  const elasticClientsConfig = config.get(elasticConfigPath)! as ElasticDbClientsConfig;
 
   const elasticClients = {} as ElasticClients;
 

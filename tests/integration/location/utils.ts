@@ -11,7 +11,7 @@ const expectedObjectWithScore = (obj: MockLocationQueryFeature, expect: jest.Exp
       ...obj.properties,
       score: expect.any(Number) as number,
     },
-  } as GenericGeocodingResponse<Feature>['features'][number]);
+  }) as GenericGeocodingResponse<Feature>['features'][number];
 
 const expectedGeocodingElasticResponseMetrics = (
   responseParams: Partial<GenericGeocodingResponse<Feature>['geocoding']['response']>,

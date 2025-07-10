@@ -2,11 +2,6 @@ import { estypes } from '@elastic/elasticsearch';
 import { BBox, Feature, FeatureCollection as GeoJSONFeatureCollection, GeoJsonProperties } from 'geojson';
 import { RemoveUnderscore } from './utils';
 
-export interface IConfig {
-  get: <T>(setting: string) => T;
-  has: (setting: string) => boolean;
-}
-
 export interface OpenApiConfig {
   filePath: string;
   basePath: string;

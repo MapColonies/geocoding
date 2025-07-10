@@ -9,12 +9,13 @@ import { GenericGeocodingFeatureResponse, IApplication } from '../../common/inte
 import { GetTileQueryParams } from '../controllers/mgrsController';
 import { BadRequestError } from '../../common/errors';
 import { parseGeo } from '../../common/utils';
+import { ConfigType } from '@src/common/config';
 
 @injectable()
 export class MgrsManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(SERVICES.CONFIG) private readonly config: IConfig,
+    @inject(SERVICES.CONFIG) private readonly config: ConfigType,
     @inject(SERVICES.APPLICATION) private readonly application: IApplication
   ) {}
 

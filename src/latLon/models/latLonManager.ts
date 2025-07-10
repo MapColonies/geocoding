@@ -5,10 +5,11 @@ import { BBox } from 'geojson';
 import * as mgrs from 'npm:mgrs';
 import { SERVICES } from '../../common/constants';
 import { LatLonDAL, latLonDalSymbol } from '../DAL/latLonDAL';
-import { convertUTMToWgs84, convertWgs84ToUTM, parseGeo, validateWGS84Coordinate } from '../../common/utils';
+import { convertUTMToWgs84, CommonUtils, parseGeo, validateWGS84Coordinate } from '../../common/utils';
 import { BadRequestError } from '../../common/errors';
 import { GenericGeocodingFeatureResponse, WGS84Coordinate } from '../../common/interfaces';
 import { convertCamelToSnakeCase } from '../../control/utils';
+import { ConfigType } from '@src/common/config';
 
 const GRID_SIZE = 10000;
 const TILE_DIVISOR = 10;
@@ -21,7 +22,7 @@ export class LatLonManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(latLonDalSymbol) private readonly latLonDAL: LatLonDAL,
-    @inject(SERVICES.CONFIG) private readonly config: IConfig
+    @inject(SERVICES.CONFIG) private readonly config: ConfigType
   ) {}
 
   public async latLonToTile({ lat, lon, targetGrid }: WGS84Coordinate & { targetGrid: string }): Promise<GenericGeocodingFeatureResponse> {
@@ -30,7 +31,7 @@ export class LatLonManager {
       throw new BadRequestError("Invalid lat lon, check 'lat' and 'lon' keys exists and their values are legal");
     }
 
-    const utm = convertWgs84ToUTM({ longitude: lon, latitude: lat });
+    const utm = CommonUtils.convertWgs84ToUTM({ longitude: lon, latitude: lat });
 
     if (typeof utm === 'string') {
       this.logger.error({ msg: 'LatLonManager.latLonToTile: utm is string' });

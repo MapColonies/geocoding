@@ -4,8 +4,9 @@ import { S3Client, S3ClientConfig } from '@aws-sdk/client-s3';
 import { NodeHttpHandler } from '@smithy/node-http-handler';
 import { Logger } from '@map-colonies/js-logger';
 import { DependencyContainer, FactoryFunction } from 'tsyringe';
-import { IConfig } from '../interfaces';
+// import { IConfig } from '../interfaces';
 import { SERVICES } from '../constants';
+import { ConfigType } from '../config';
 
 const createConnectionOptions = (clientOptions: S3ClientConfig): S3ClientConfig => ({
   ...clientOptions,
@@ -24,10 +25,10 @@ const initS3Client = (clientOptions: S3ClientConfig): S3Client => {
 };
 
 export const s3ClientFactory: FactoryFunction<S3Client> = (container: DependencyContainer): S3Client => {
-  const config = container.resolve<IConfig>(SERVICES.CONFIG);
+  const config = container.resolve<ConfigType>(SERVICES.CONFIG);
   const logger = container.resolve<Logger>(SERVICES.LOGGER);
 
-  const s3Config = config.get<S3Config>(s3ConfigPath);
+  const s3Config = config.get(s3ConfigPath)! as S3Config;
 
   const client = initS3Client(s3Config);
   logger.info(`S3 Client is initialized`);

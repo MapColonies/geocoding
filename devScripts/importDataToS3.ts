@@ -3,11 +3,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { CreateBucketCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { S3Config, s3ConfigPath } from '../src/common/s3';
-import { IConfig } from '../src/common/interfaces';
+import { ConfigType } from '../src/common/config';
 import mockDataJson from './latLonConvertions.json';
 
-const main = async (config: IConfig): Promise<void> => {
-  const s3Config = config.get<S3Config>(s3ConfigPath);
+const main = async (config: ConfigType): Promise<void> => {
+  const s3Config = config.get(s3ConfigPath)! as S3Config;
   const s3Client = new S3Client({ ...s3Config });
 
   if (!s3Config.files.latLonConvertionTable) {

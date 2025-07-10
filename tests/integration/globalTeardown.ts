@@ -6,11 +6,11 @@ import { trace } from '@opentelemetry/api';
 import { DeleteBucketCommand, DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getApp } from '../../src/app';
 import { elasticConfigPath, SERVICES } from '../../src/common/constants';
-import { IConfig } from '../../src/common/interfaces';
 import { S3Config, s3ConfigPath } from '../../src/common/s3';
 import { ElasticDbClientsConfig } from '../../src/common/elastic/interfaces';
 import { ElasticClients } from '../../src/common/elastic';
 import { cronLoadTileLatLonDataSymbol } from '../../src/latLon/DAL/latLonDAL';
+import { ConfigType } from '../../src/common/config';
 
 export default async (): Promise<void> => {
   const [app, container] = await getApp({
@@ -25,13 +25,13 @@ export default async (): Promise<void> => {
     useChild: true,
   });
 
-  const config = container.resolve<IConfig>(SERVICES.CONFIG);
+  const config = container.resolve<ConfigType>(SERVICES.CONFIG);
 
   const s3Client = container.resolve<S3Client>(SERVICES.S3_CLIENT);
   const elasticClients = container.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
 
-  const s3Config = config.get<S3Config>(s3ConfigPath);
-  const elasticClientsConfig = config.get<ElasticDbClientsConfig>(elasticConfigPath);
+  const s3Config = config.get(s3ConfigPath)! as S3Config;
+  const elasticClientsConfig = config.get(elasticConfigPath)! as ElasticDbClientsConfig;
 
   const clearS3Data = new Promise<void>((resolve, reject) => {
     void (async (): Promise<void> => {
