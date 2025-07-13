@@ -1,6 +1,6 @@
 import type { Application } from 'express';
 import * as supertest from 'supertest';
-import { GetTileQueryParams } from '../../../../src/mgrs/controllers/mgrsController';
+import { GetTileQueryParams } from '../../../../src/mgrsConversion/controllers/mgrsController';
 
 export class MgrsRequestSender {
   public constructor(private readonly app: Application) {}

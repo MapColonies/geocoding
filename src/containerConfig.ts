@@ -26,7 +26,7 @@ import { RedisClient, redisClientFactory } from './common/redis';
 import { s3ClientFactory } from './common/s3';
 import { S3_REPOSITORY_SYMBOL, s3RepositoryFactory } from './common/s3/s3Repository';
 import { healthCheckFactory } from './common/utils';
-import { MGRS_ROUTER_SYMBOL, mgrsRouterFactory } from './mgrs/routes/mgrsRouter';
+import { MGRS_ROUTER_SYMBOL, mgrsRouterFactory } from './mgrsConversion/routes/mgrsRouter';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];

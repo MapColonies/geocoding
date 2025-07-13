@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import jsLogger from '@map-colonies/js-logger';
-import { MgrsManager } from '../../../src/mgrs/models/mgrsManager';
-import { GetTileQueryParams } from '../../../src/mgrs/controllers/mgrsController';
+import { MgrsManager } from '../../../src/mgrsConversion/models/mgrsManager';
+import { GetTileQueryParams } from '../../../src/mgrsConversion/controllers/mgrsController';
 import { GenericGeocodingFeatureResponse } from '../../../src/common/interfaces';
 import { BadRequestError } from '../../../src/common/errors';
 
