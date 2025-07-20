@@ -99,6 +99,10 @@
       "database": {
         "__name": "REDIS_DATABASE",
         "__format": "number"
+      },
+      "ttl": {
+        "__name": "REDIS_TTL",
+        "__format": "number"
       }
     }
   },
