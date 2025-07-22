@@ -2,8 +2,9 @@ import * as crypto from 'node:crypto';
 import { Request, Response, NextFunction } from 'express';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
-import { redisTtlPath, SERVICES, siteConfig } from '../constants';
+import { redisConfigPath, SERVICES, siteConfig } from '../constants';
 import { RedisClient } from '../redis';
+import { RedisConfig } from '../redis/interfaces';
 import { FeebackApiGeocodingResponse, IConfig } from '../interfaces';
 import { XApi } from './utils';
 
@@ -31,8 +32,8 @@ export class FeedbackApiMiddlewareManager {
       response: JSON.parse('{}') as JSON,
       respondedAt: new Date(),
     };
-    
-    const redisTtl = this.config.get<number>(redisTtlPath)
+
+    const { ttl: redisTtl } = this.config.get<RedisConfig>(redisConfigPath);
 
     const originalJson = res.json;
     const logJson = function (this: Response, body: JSON): Response {
