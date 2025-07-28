@@ -81,7 +81,8 @@
         "key": "",
         "cert": ""
       },
-      "database": 0
+      "database": 0,
+      "ttl": 600
     }
   },
   "application": {

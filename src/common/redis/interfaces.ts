@@ -5,4 +5,5 @@ export type RedisConfig = {
   port: number;
   enableSslAuth: boolean;
   sslPaths: { ca: string; cert: string; key: string };
+  ttl: number;
 } & RedisClientOptions;
