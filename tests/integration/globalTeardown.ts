@@ -6,7 +6,6 @@ import { trace } from '@opentelemetry/api';
 import { DeleteBucketCommand, DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getApp } from '../../src/app';
 import { elasticConfigPath, s3ConfigPath, SERVICES } from '../../src/common/constants';
-// import { S3Config, s3ConfigPath } from '../../src/common/s3';
 import { ElasticDbClientsConfig } from '../../src/common/elastic/interfaces';
 import { ElasticClients } from '../../src/common/elastic';
 import { cronLoadTileLatLonDataSymbol } from '../../src/latLon/DAL/latLonDAL';

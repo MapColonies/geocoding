@@ -19,21 +19,11 @@ const initElasticsearchClient = (clientOptions: ElasticGeotextClientConfig): Ela
   return client;
 };
 
-// function validateElasticConfig(elasticConfig: any): elasticConfig is ElasticDbClientsConfig {
-//   return typeof elasticConfig === 'object' && elasticConfig !== null && 'control' in elasticConfig && 'geotext' in elasticConfig;
-// }
-
 export const elasticClientsFactory: FactoryFunction<ElasticClients> = (container: DependencyContainer): ElasticClients => {
   const config = container.resolve<ConfigType>(SERVICES.CONFIG);
   const logger = container.resolve<Logger>(SERVICES.LOGGER);
 
   const elasticClientsConfig = config.get(elasticConfigPath) as ElasticDbClientsConfig;
-
-  // const rawElasticConfig = config.get(elasticConfigPath);
-  // if (!validateElasticConfig(rawElasticConfig)) {
-  //   throw new Error('Invalid elastic config');
-  // }
-  // const elasticClientsConfig: ElasticDbClientsConfig = rawElasticConfig;
 
   const elasticClients = {} as ElasticClients;
 

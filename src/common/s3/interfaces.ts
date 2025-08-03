@@ -6,14 +6,3 @@ export type BaseS3Config = vectorGeocodingV1Type['db']['s3'];
 export type S3FileType = vectorGeocodingV1Type['db']['s3']['files']['latLonConvertionTable'];
 
 export type S3Config = BaseS3Config & S3ClientConfig;
-
-// export type S3Config = S3ClientConfig & { bucketName: string } & {
-//   files: {
-//     [key: string]:
-//       | {
-//           bucket: string;
-//           fileName: string;
-//         }
-//       | undefined;
-//   };
-// };

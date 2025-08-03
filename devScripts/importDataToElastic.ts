@@ -11,7 +11,6 @@ import controlData from './controlElasticsearchData.json';
 import geotextData from './geotextElasticsearchData.json';
 
 const main = async (config: ConfigType): Promise<void> => {
-  // const elasticConfig = config.get(elasticConfigPath)! as ElasticDbClientsConfig;
   const controlElasticConfig = config.get(`${elasticConfigPath}.control`) as ElasticControlClientConfig;
   const geotextElasticConfig = config.get(`${elasticConfigPath}.geotext`) as ElasticGeotextClientConfig;
   const controlClient = new Client({ ...controlElasticConfig });
