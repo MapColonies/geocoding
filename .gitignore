@@ -113,7 +113,3 @@ reports
 
 # for MacOS Developers
 .DS_Store
-
-# TO BE REMOVED
-test-local.json
-default-local.json
