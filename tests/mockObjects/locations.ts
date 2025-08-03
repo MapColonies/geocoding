@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { Feature } from 'geojson';
+/* eslint-disable no-loss-of-precision */
+import type { Feature } from 'geojson';
 import { GenericGeocodingResponse } from '../../src/common/interfaces';
 import { HierarchySearchHit } from '../../src/location/models/elasticsearchHits';
 

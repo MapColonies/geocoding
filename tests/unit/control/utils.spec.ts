@@ -25,7 +25,7 @@ describe('#convertCamelToSnakeCase', () => {
 describe('#additionalControlSearchProperties', () => {
   it('should return additional control search properties', () => {
     const size = 5;
-    initConfig(true);
+    void initConfig(true);
     const config = getConfig();
     const searchProperties = additionalControlSearchProperties(config, size);
 

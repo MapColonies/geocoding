@@ -1,6 +1,6 @@
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
-import { Feature } from 'geojson';
+import type { Feature } from 'geojson';
 import { ConfigType } from '@src/common/config';
 import { SERVICES, elasticConfigPath } from '../../common/constants';
 import { GEOTEXT_REPOSITORY_SYMBOL, GeotextRepository } from '../DAL/locationRepository';

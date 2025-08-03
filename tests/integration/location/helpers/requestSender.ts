@@ -1,5 +1,5 @@
 import type { Application } from 'express';
-import * as supertest from 'supertest';
+import supertest, { agent } from 'supertest';
 import { GetGeotextSearchParams } from '../../../../src/location/interfaces';
 
 export class LocationRequestSender {
@@ -8,8 +8,7 @@ export class LocationRequestSender {
   public constructor(private readonly app: Application) {}
 
   public async getQuery(queryParams?: GetGeotextSearchParams): Promise<supertest.Response> {
-    return supertest
-      .agent(this.app)
+    return agent(this.app)
       .get(`${this.pathPrefix}/query`)
       .set('Content-Type', 'application/json')
       .set('x-api-key', 'abc123')
@@ -18,8 +17,7 @@ export class LocationRequestSender {
   }
 
   public async getRegions(): Promise<supertest.Response> {
-    return supertest
-      .agent(this.app)
+    return agent(this.app)
       .get(`${this.pathPrefix}/regions`)
       .set('Content-Type', 'application/json')
       .set('x-api-key', 'abc123')
@@ -27,8 +25,7 @@ export class LocationRequestSender {
   }
 
   public async getSources(): Promise<supertest.Response> {
-    return supertest
-      .agent(this.app)
+    return agent(this.app)
       .get(`${this.pathPrefix}/sources`)
       .set('Content-Type', 'application/json')
       .set('x-api-key', 'abc123')

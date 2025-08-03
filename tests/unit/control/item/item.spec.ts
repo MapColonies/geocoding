@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import jsLogger from '@map-colonies/js-logger';
 import { estypes } from '@elastic/elasticsearch';
-import { BBox } from 'geojson';
+import type { BBox } from 'geojson';
 import { ItemQueryParams } from '../../../../src/control/item/DAL/queries';
 import { ItemRepository } from '../../../../src/control/item/DAL/itemRepository';
 import { ItemManager } from '../../../../src/control/item/models/itemManager';

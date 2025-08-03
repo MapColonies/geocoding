@@ -1,13 +1,12 @@
 import type { Application } from 'express';
-import * as supertest from 'supertest';
+import supertest, { agent } from 'supertest';
 import { GetRoutesQueryParams } from '../../../../../src/control/route/controllers/routeController';
 
 export class RouteRequestSender {
   public constructor(private readonly app: Application) {}
 
   public async getRoutes(queryParams?: GetRoutesQueryParams): Promise<supertest.Response> {
-    return supertest
-      .agent(this.app)
+    return agent(this.app)
       .get('/search/control/routes')
       .set('Content-Type', 'application/json')
       .set('x-api-key', 'abc123')

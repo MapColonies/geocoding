@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { BBox, Feature } from 'geojson';
+import type { BBox, Feature } from 'geojson';
 import { GetGeotextSearchParams } from '../../../src/location/interfaces';
 import { GenericGeocodingResponse } from '../../../src/common/interfaces';
 import { MockLocationQueryFeature } from '../../mockObjects/locations';

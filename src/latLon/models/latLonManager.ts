@@ -1,6 +1,6 @@
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
-import { BBox } from 'geojson';
+import type { BBox } from 'geojson';
 import * as mgrs from 'mgrs';
 import { ConfigType } from '@src/common/config';
 import { SERVICES } from '../../common/constants';

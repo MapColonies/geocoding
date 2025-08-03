@@ -2,7 +2,7 @@ import { Logger } from '@map-colonies/js-logger';
 import { type Registry, Counter } from 'prom-client';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
-import { Feature } from 'geojson';
+import type { Feature } from 'geojson';
 import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
 import { GeotextSearchManager } from '../models/locationManager';

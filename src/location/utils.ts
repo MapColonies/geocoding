@@ -1,5 +1,5 @@
 import https from 'https';
-import { Feature, Geometry } from 'geojson';
+import type { Feature, Geometry } from 'geojson';
 import { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import { bbox } from '@turf/bbox';
 import { StatusCodes } from 'http-status-codes';

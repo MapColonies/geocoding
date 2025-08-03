@@ -44,6 +44,7 @@ const generateDisplayName = <T extends Tile | Item | Route>(
 };
 
 export const convertCamelToSnakeCase = (obj: Record<string, unknown>): Record<string, unknown> => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const snakeCaseObj: Record<string, any> = {};
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {

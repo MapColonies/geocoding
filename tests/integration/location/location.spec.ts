@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { DependencyContainer } from 'tsyringe';
-import { Feature } from 'geojson';
+import type { Feature } from 'geojson';
 import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';

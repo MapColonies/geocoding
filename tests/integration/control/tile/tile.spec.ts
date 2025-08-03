@@ -4,7 +4,7 @@ import { trace } from '@opentelemetry/api';
 import { DependencyContainer } from 'tsyringe';
 import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import httpStatusCodes from 'http-status-codes';
-import { BBox } from 'geojson';
+import type { BBox } from 'geojson';
 import { getApp } from '../../../../src/app';
 import { SERVICES } from '../../../../src/common/constants';
 import { GetTilesQueryParams } from '../../../../src/control/tile/controllers/tileController';

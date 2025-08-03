@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { Feature } from 'geojson';
+import type { Feature } from 'geojson';
 import { BaseControlFeatureProperties } from '../../interfaces';
 
 export interface Route extends Feature {

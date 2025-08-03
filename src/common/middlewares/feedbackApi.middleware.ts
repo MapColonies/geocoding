@@ -40,6 +40,7 @@ export class FeedbackApiMiddlewareManager {
     const logJson = function (this: Response, body: JSON): Response {
       geocodingResponseDetails.response = body;
       redisClient
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         .setEx(reqId as string, redisTtl ?? 600, JSON.stringify(geocodingResponseDetails))
         .then(() => {
           logger.info({ msg: `response ${reqId?.toString() ?? ''} saved to redis` });

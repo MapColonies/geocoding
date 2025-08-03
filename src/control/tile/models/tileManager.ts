@@ -2,7 +2,7 @@ import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { estypes } from '@elastic/elasticsearch';
 import * as mgrs from 'mgrs';
-import { BBox } from 'geojson';
+import type { BBox } from 'geojson';
 import { ConfigType } from '@src/common/config';
 import { SERVICES } from '../../../common/constants';
 import { TILE_REPOSITORY_SYMBOL, TileRepository } from '../DAL/tileRepository';

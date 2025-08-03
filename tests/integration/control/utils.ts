@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { BBox } from 'geojson';
+import type { BBox } from 'geojson';
 import { CommonRequestParameters, GenericGeocodingResponse } from '../../../src/common/interfaces';
 import { GetItemsQueryParams } from '../../../src/control/item/controllers/itemController';
 import { Item } from '../../../src/control/item/models/item';

@@ -5,6 +5,7 @@ let mockPost: jest.Mock;
 
 jest.mock('axios', () => ({
   create: () => ({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument
     post: (...args: any[]) => mockPost(...args),
   }),
 }));

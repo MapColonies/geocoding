@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import jsLogger from '@map-colonies/js-logger';
-import { Feature } from 'geojson';
+import type { Feature } from 'geojson';
 import { estypes } from '@elastic/elasticsearch';
 import { ConfigType, getConfig } from '../../../src/common/config';
 import { GeotextRepository } from '../../../src/location/DAL/locationRepository';
@@ -229,7 +229,7 @@ describe('#GeotextSearchManager', () => {
   it('should throw BadRequestError when params.source contains invalid source', async () => {
     const params = {
       source: ['invalidSource'],
-    } as any;
+    } as unknown as ConvertSnakeToCamelCase<GetGeotextSearchParams>;
     const response = geotextSearchManager.search(params);
 
     await expect(response).rejects.toThrow(BadRequestError);

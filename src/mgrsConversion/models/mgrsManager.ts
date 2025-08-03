@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Logger } from '@map-colonies/js-logger';
-import { BBox, Geometry } from 'geojson';
+import type { BBox, Geometry } from 'geojson';
 import { inject, injectable } from 'tsyringe';
 import * as mgrs from 'mgrs';
 import { ConfigType } from '@src/common/config';

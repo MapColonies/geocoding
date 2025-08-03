@@ -6,7 +6,6 @@ import { trace } from '@opentelemetry/api';
 import { DeleteBucketCommand, DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getApp } from '../../src/app';
 import { elasticConfigPath, s3ConfigPath, SERVICES } from '../../src/common/constants';
-import { ElasticDbClientsConfig } from '../../src/common/elastic/interfaces';
 import { ElasticClients } from '../../src/common/elastic';
 import { cronLoadTileLatLonDataSymbol } from '../../src/latLon/DAL/latLonDAL';
 import { ConfigType } from '../../src/common/config';
@@ -45,7 +44,7 @@ export default async (): Promise<void> => {
         resolve();
       } catch (error) {
         console.error(error);
-        reject(error);
+        reject(error instanceof Error ? error : new Error(String(error)));
       }
     })();
   });
@@ -67,7 +66,7 @@ export default async (): Promise<void> => {
         resolve();
       } catch (error) {
         console.error(error);
-        reject(error);
+        reject(error instanceof Error ? error : new Error(String(error)));
       }
     })();
   });

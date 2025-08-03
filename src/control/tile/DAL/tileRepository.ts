@@ -1,6 +1,6 @@
 import { estypes } from '@elastic/elasticsearch';
 import { FactoryFunction } from 'tsyringe';
-import { BBox } from 'geojson';
+import type { BBox } from 'geojson';
 import { ConfigType } from '@src/common/config';
 import { ElasticClient, ElasticClients } from '../../../common/elastic';
 import { Tile } from '../models/tile';

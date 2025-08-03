@@ -1,7 +1,7 @@
 import { Logger } from '@map-colonies/js-logger';
 import { type Registry, Counter } from 'prom-client';
 import { RequestHandler } from 'express';
-import { Feature } from 'geojson';
+import type { Feature } from 'geojson';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';

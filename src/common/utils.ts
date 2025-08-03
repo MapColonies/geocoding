@@ -1,6 +1,7 @@
+// eslint-disable-next-line @typescript-eslint/naming-convention
 import * as Ajv from 'ajv';
 import utm from 'utm-latlng';
-import { BBox, Geometry, Point } from 'geojson';
+import type { BBox, Geometry, Point } from 'geojson';
 import { estypes } from '@elastic/elasticsearch';
 import { ListBucketsCommand, S3Client } from '@aws-sdk/client-s3';
 import { DependencyContainer, FactoryFunction } from 'tsyringe';
@@ -174,8 +175,8 @@ export const validateWGS84Coordinate = (coordinate: { lon: number; lat: number }
   return true;
 };
 
+/* eslint-disable @typescript-eslint/naming-convention */
 export const CommonUtils = {
-  /* eslint-disable @typescript-eslint/naming-convention */
   convertWgs84ToUTM: (
     { longitude, latitude }: { longitude: number; latitude: number },
     utmPrecision = 0
