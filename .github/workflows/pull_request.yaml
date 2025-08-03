@@ -41,7 +41,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [20.x, 22.x]
+        node: [20, 22]
 
     container:
       image: node:${{ matrix.node }}
@@ -113,7 +113,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [20.x, 22.x]
+        node: [20, 22]
 
     container:
       image: node:${{ matrix.node }}
