@@ -7,15 +7,15 @@ import { ConfigType } from '../config';
 import { RedisConfig } from './interfaces';
 
 const createConnectionOptions = (redisConfig: RedisConfig): Partial<RedisClientOptions> => {
-  const { host, port, enableSslAuth, sslPaths, ...clientOptions } = redisConfig;
+  const { host, port, tls, ...clientOptions } = redisConfig;
   clientOptions.socket = { host, port };
-  if (enableSslAuth) {
+  if (tls.enabled) {
     clientOptions.socket = {
       ...clientOptions.socket,
       tls: true,
-      key: sslPaths.key !== '' ? readFileSync(sslPaths.key) : undefined,
-      cert: sslPaths.cert !== '' ? readFileSync(sslPaths.cert) : undefined,
-      ca: sslPaths.ca !== '' ? readFileSync(sslPaths.ca) : undefined,
+      key: tls.key !== '' ? readFileSync(tls.key) : undefined,
+      cert: tls.cert !== '' ? readFileSync(tls.cert) : undefined,
+      ca: tls.ca !== '' ? readFileSync(tls.ca) : undefined,
     };
   }
 

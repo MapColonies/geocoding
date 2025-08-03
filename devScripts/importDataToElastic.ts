@@ -4,25 +4,27 @@
 import crypto from 'node:crypto';
 import httpStatusCodes from 'http-status-codes';
 import { Client, estypes } from '@elastic/elasticsearch';
-import { ElasticDbClientsConfig } from '../src/common/elastic/interfaces';
+import { ElasticControlClientConfig, ElasticGeotextClientConfig } from '../src/common/elastic/interfaces';
 import { elasticConfigPath } from '../src/common/constants';
 import { ConfigType } from '../src/common/config';
 import controlData from './controlElasticsearchData.json';
 import geotextData from './geotextElasticsearchData.json';
 
 const main = async (config: ConfigType): Promise<void> => {
-  const elasticConfig = config.get(elasticConfigPath)! as ElasticDbClientsConfig;
-  const controlClient = new Client({ ...elasticConfig.control });
-  const geotextClient = new Client({ ...elasticConfig.geotext });
+  // const elasticConfig = config.get(elasticConfigPath)! as ElasticDbClientsConfig;
+  const controlElasticConfig = config.get(`${elasticConfigPath}.control`) as ElasticControlClientConfig;
+  const geotextElasticConfig = config.get(`${elasticConfigPath}.geotext`) as ElasticGeotextClientConfig;
+  const controlClient = new Client({ ...controlElasticConfig });
+  const geotextClient = new Client({ ...geotextElasticConfig });
 
   for (const { client, indices } of [
     {
       client: controlClient,
-      indices: [elasticConfig.control.properties.index] as string[],
+      indices: [controlElasticConfig.index] as string[],
     },
     {
       client: geotextClient,
-      indices: Object.values(elasticConfig.geotext.properties.index as { [key: string]: string }),
+      indices: Object.values(geotextElasticConfig.index as { [key: string]: string }),
     },
   ]) {
     for (const index of indices) {
@@ -40,17 +42,17 @@ const main = async (config: ConfigType): Promise<void> => {
   for (const { client, index, key } of [
     {
       client: controlClient,
-      index: elasticConfig.control.properties.index as string,
+      index: controlElasticConfig.index as string,
       key: 'geometry',
     },
     {
       client: geotextClient,
-      index: (elasticConfig.geotext.properties.index as { [key: string]: string }).geotext,
+      index: (geotextElasticConfig.index as { [key: string]: string }).geotext,
       key: 'geo_json',
     },
     {
       client: geotextClient,
-      index: (elasticConfig.geotext.properties.index as { [key: string]: string }).hierarchies,
+      index: (geotextElasticConfig.index as { [key: string]: string }).hierarchies,
       key: 'geo_json',
     },
   ]) {
@@ -70,7 +72,7 @@ const main = async (config: ConfigType): Promise<void> => {
 
   for (const item of controlData) {
     await controlClient.index({
-      index: elasticConfig.control.properties.index as string,
+      index: controlElasticConfig.index as string,
       id: crypto.randomUUID(),
       body: item._source,
     });
@@ -79,7 +81,7 @@ const main = async (config: ConfigType): Promise<void> => {
   for (const item of geotextData) {
     await geotextClient.index({
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-      index: (elasticConfig.geotext.properties.index as { [key: string]: string })[item._index] as string,
+      index: (geotextElasticConfig.index as { [key: string]: string })[item._index] as string,
       id: crypto.randomUUID(),
       body: {
         ...item._source,

@@ -41,9 +41,7 @@
           "password": "changeme"
         },
         "requestTimeout": 60000,
-        "properties": {
-          "index": "control_index"
-        }
+        "index": "control_index"
       },
       "geotext": {
         "node": "http://geotext_elastic:9200",
@@ -52,22 +50,18 @@
           "password": "changeme"
         },
         "requestTimeout": 60000,
-        "properties": {
-          "index": {
-            "geotext": "geotext_index",
-            "placetypes": "placetypes_index",
-            "hierarchies": "hierarchies_index"
-          },
-          "textTermLanguage": "en"
-        }
+        "index": {
+          "geotext": "geotext_index",
+          "placetypes": "placetypes_index",
+          "hierarchies": "hierarchies_index"
+        },
+        "textTermLanguage": "en"
       }
     },
     "s3": {
       "endpoint": "http://s3:9000",
-      "credentials": {
-        "accessKeyId": "accessKeyId",
-        "secretAccessKey": "secretAccessKey"
-      },
+      "accessKeyId": "accessKeyId",
+      "secretAccessKey": "secretAccessKey",
       "forcePathStyle": true,
       "region": "local",
       "files": {
@@ -78,17 +72,17 @@
       }
     },
     "redis": {
-      "host": "REDIS_HOST",
+      "host": "redis",
       "port": 6379,
       "username": "",
       "password": "",
-      "enableSslAuth": false,
-      "sslPaths": {
+      "tls": {
+        "enabled": false,
         "ca": "",
         "key": "",
         "cert": ""
       },
-      "database": 0
+      "dbIndex": 0
     }
   },
   "application": {

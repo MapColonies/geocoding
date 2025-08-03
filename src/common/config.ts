@@ -1,14 +1,8 @@
 import { type ConfigInstance, config } from '@map-colonies/config';
-import { commonBoilerplateV2, type commonBoilerplateV2Type } from '@map-colonies/schemas';
-import { ElasticDbClientsConfig } from './elastic/interfaces';
-import { S3Config } from './s3';
-import { RedisConfig } from './redis/interfaces';
-import { IApplication } from './interfaces';
+import { vectorGeocodingV1, type vectorGeocodingV1Type } from '@map-colonies/schemas';
 
 // Choose here the type of the config instance and import this type from the entire application
-type ConfigType = ConfigInstance<
-  commonBoilerplateV2Type & { elastic?: ElasticDbClientsConfig; s3?: S3Config; redis?: RedisConfig; application?: IApplication }
->;
+type ConfigType = ConfigInstance<vectorGeocodingV1Type>;
 
 let configInstance: ConfigType | undefined;
 
@@ -19,7 +13,7 @@ let configInstance: ConfigType | undefined;
  */
 async function initConfig(offlineMode?: boolean): Promise<void> {
   configInstance = await config({
-    schema: commonBoilerplateV2,
+    schema: vectorGeocodingV1,
     offlineMode,
   });
 }

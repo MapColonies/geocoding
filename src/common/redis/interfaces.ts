@@ -1,8 +1,6 @@
 import { RedisClientOptions } from 'redis';
+import { type vectorGeocodingV1Type } from '@map-colonies/schemas';
 
-export type RedisConfig = {
-  host: string;
-  port: number;
-  enableSslAuth: boolean;
-  sslPaths: { ca: string; cert: string; key: string };
-} & RedisClientOptions;
+export type BaseRedisConfig = vectorGeocodingV1Type['db']['redis'];
+
+export type RedisConfig = BaseRedisConfig & RedisClientOptions;

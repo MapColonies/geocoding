@@ -4,9 +4,8 @@ import path from 'path';
 import { Logger } from '@map-colonies/js-logger';
 import { FactoryFunction } from 'tsyringe';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { SERVICES } from '../constants';
-// import { IConfig } from '../interfaces';
-import { S3Config, s3ConfigPath } from '.';
+import { SERVICES, s3ConfigPath } from '../constants';
+import { S3Config, S3FileType } from './interfaces';
 import { ConfigType } from '../config';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -14,7 +13,7 @@ const createS3Repository = (s3Client: S3Client, config: ConfigType, logger: Logg
   return {
     async downloadFile(key: keyof S3Config['files']): Promise<string> {
       try {
-        const fileData = (config.get(s3ConfigPath)! as S3Config).files[key];
+        const fileData = (config.get(s3ConfigPath) as S3Config).files[key] as S3FileType;
         if (!fileData) {
           throw new Error(`${key} data is missing in the configuration`);
         }

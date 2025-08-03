@@ -2,13 +2,22 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { CreateBucketCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { S3Config, s3ConfigPath } from '../src/common/s3';
+import { S3Config } from '../src/common/s3/interfaces';
 import { ConfigType } from '../src/common/config';
 import mockDataJson from './latLonConvertions.json';
+import { s3ConfigPath } from '../src/common/constants';
 
 const main = async (config: ConfigType): Promise<void> => {
-  const s3Config = config.get(s3ConfigPath)! as S3Config;
-  const s3Client = new S3Client({ ...s3Config });
+  const s3Config = config.get(s3ConfigPath) as S3Config;
+  const { accessKeyId, secretAccessKey, ...clientConfig } = s3Config;
+
+  const s3Client = new S3Client({
+    ...clientConfig,
+    credentials: {
+      accessKeyId,
+      secretAccessKey,
+    },
+  });
 
   if (!s3Config.files.latLonConvertionTable) {
     throw new Error('No latLonConvertionTable file path provided');

@@ -7,13 +7,13 @@ import { GetGeotextSearchParams, TextSearchParams } from '../interfaces';
 import { ConfigType } from '@src/common/config';
 import { convertResult } from '../utils';
 import { GenericGeocodingResponse, IApplication } from '../../common/interfaces';
-import { ElasticDbClientsConfig } from '../../common/elastic/interfaces';
+import { ElasticGeotextClientConfig } from '../../common/elastic/interfaces';
 import { ConvertSnakeToCamelCase } from '../../common/utils';
 import { BadRequestError } from '../../common/errors';
 
 @injectable()
 export class GeotextSearchManager {
-  private readonly elasticConfig: ElasticDbClientsConfig;
+  private readonly elasticConfig: ElasticGeotextClientConfig;
 
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
@@ -21,7 +21,7 @@ export class GeotextSearchManager {
     @inject(SERVICES.CONFIG) private readonly config: ConfigType,
     @inject(GEOTEXT_REPOSITORY_SYMBOL) private readonly geotextRepository: GeotextRepository
   ) {
-    this.elasticConfig = this.config.get(elasticConfigPath)! as ElasticDbClientsConfig;
+    this.elasticConfig = this.config.get(`${elasticConfigPath}.geotext`) as ElasticGeotextClientConfig;
   }
 
   public async search(params: ConvertSnakeToCamelCase<GetGeotextSearchParams>): Promise<GenericGeocodingResponse<Feature>> {
@@ -34,7 +34,7 @@ export class GeotextSearchManager {
       geotext: geotextIndex,
       placetypes: placetypesIndex,
       hierarchies: hierarchiesIndex,
-    } = this.elasticConfig.geotext.properties.index as {
+    } = this.elasticConfig.index as {
       [key: string]: string;
     };
     const hierarchyBoost = this.appConfig.elasticQueryBoosts.hierarchy;
@@ -64,7 +64,7 @@ export class GeotextSearchManager {
     const esResult = await this.geotextRepository.geotextSearch(
       geotextIndex,
       searchParams,
-      this.elasticConfig.geotext.properties.textTermLanguage,
+      this.elasticConfig.textTermLanguage,
       this.appConfig.elasticQueryBoosts,
       { geotextCitiesLayer: this.appConfig.geotextCitiesLayer, roadPlaceTypes: this.appConfig.roadPlaceTypes }
     );
