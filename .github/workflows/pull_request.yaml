@@ -60,7 +60,7 @@ jobs:
           - 9200:9200
         # Set health checks to wait until elastic has started
         options: >-
-          --health-cmd "curl -f http://localhost:9200/_cluster/health || exit 1"
+          --health-cmd "curl -f http://elasticsearch:9200/_cluster/health || exit 1"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -132,7 +132,7 @@ jobs:
           - 9200:9200
         # Set health checks to wait until elastic has started
         options: >-
-          --health-cmd "curl -f http://localhost:9200/_cluster/health || exit 1"
+          --health-cmd "curl -f http://elasticsearch:9200/_cluster/health || exit 1"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
