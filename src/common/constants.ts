@@ -26,3 +26,4 @@ export const HEALTHCHECK = Symbol('healthcheck');
 export const siteConfig = 'application.site';
 export const elasticConfigPath = 'db.elastic';
 export const s3ConfigPath = 'db.s3';
+export const redisConfigPath = 'db.redis';
