@@ -43,6 +43,9 @@ jobs:
       matrix:
         node: [20.x, 22.x]
 
+    container:
+      image: node:${{ matrix.node }}
+
     services:
       # Label used to access the service container
       elasticsearch:
@@ -111,6 +114,9 @@ jobs:
     strategy:
       matrix:
         node: [20.x, 22.x]
+
+    container:
+      image: node:${{ matrix.node }}
 
     services:
       # Label used to access the service container
