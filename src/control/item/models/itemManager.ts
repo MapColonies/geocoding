@@ -1,13 +1,13 @@
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { estypes } from '@elastic/elasticsearch';
+import { ConfigType } from '@src/common/config';
 import { SERVICES } from '../../../common/constants';
 import { ITEM_REPOSITORY_SYMBOL, ItemRepository } from '../DAL/itemRepository';
 import { ItemQueryParams } from '../DAL/queries';
 import { formatResponse } from '../../utils';
 import { FeatureCollection, IApplication } from '../../../common/interfaces';
 import { Item } from './item';
-import { ConfigType } from '@src/common/config';
 
 @injectable()
 export class ItemManager {

@@ -1,13 +1,12 @@
 import { Logger } from '@map-colonies/js-logger';
 import { estypes } from '@elastic/elasticsearch';
 import { FactoryFunction } from 'tsyringe';
-import { ElasticClient } from '../../common/elastic';
+import { ElasticClient, ElasticClients } from '../../common/elastic';
 import { fetchNLPService } from '../utils';
 import { TextSearchParams, TokenResponse } from '../interfaces';
 import { PlaceTypeSearchHit, HierarchySearchHit, TextSearchHit } from '../models/elasticsearchHits';
 import { BadRequestError } from '../../common/errors';
 import { IApplication } from '../../common/interfaces';
-import { ElasticClients } from '../../common/elastic';
 import { queryElastic } from '../../common/elastic/utils';
 import { SERVICES } from '../../common/constants';
 import { hierarchyQuery, placetypeQuery, geotextQuery } from './queries';
@@ -26,7 +25,7 @@ const createGeotextRepository = (client: ElasticClient, logger: Logger) => {
 
       const { tokens, prediction } = response[0];
 
-      if (!tokens || !tokens.length || !prediction || !prediction.length) {
+      if (!tokens?.length || !prediction?.length) {
         const message = 'No tokens or prediction';
         logger.error({ msg: message });
         throw new BadRequestError(message);

@@ -3,6 +3,7 @@ import { inject, injectable } from 'tsyringe';
 import { estypes } from '@elastic/elasticsearch';
 import * as mgrs from 'mgrs';
 import { BBox } from 'geojson';
+import { ConfigType } from '@src/common/config';
 import { SERVICES } from '../../../common/constants';
 import { TILE_REPOSITORY_SYMBOL, TileRepository } from '../DAL/tileRepository';
 import { formatResponse } from '../../utils';
@@ -10,7 +11,6 @@ import { TileQueryParams } from '../DAL/queries';
 import { FeatureCollection, IApplication } from '../../../common/interfaces';
 import { BadRequestError } from '../../../common/errors';
 import { Tile } from './tile';
-import { ConfigType } from '@src/common/config';
 
 @injectable()
 export class TileManager {

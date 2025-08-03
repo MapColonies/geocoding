@@ -39,7 +39,6 @@ export class ServerBuilder {
     @inject(MGRS_ROUTER_SYMBOL) private readonly mgrsRouter: Router
   ) {
     this.serverInstance = express();
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   }
 
   public build(): express.Application {

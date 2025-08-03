@@ -223,23 +223,21 @@ describe('#GeotextSearchManager', () => {
   it('should return sources', () => {
     const response = geotextSearchManager.sources();
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     expect(response).toEqual(Object.keys((config.get('application') as IApplication).sources!));
   });
 
-  it('should throw BadRequestError when params.source contains invalid source', () => {
+  it('should throw BadRequestError when params.source contains invalid source', async () => {
     const params = {
       source: ['invalidSource'],
     } as any;
     const response = geotextSearchManager.search(params);
 
-    expect(response).rejects.toThrow(BadRequestError);
+    await expect(response).rejects.toThrow(BadRequestError);
   });
 
   it('should return regions', () => {
     const response = geotextSearchManager.regions();
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     expect(response).toEqual(Object.keys((config.get('application') as IApplication).regions!));
   });
 

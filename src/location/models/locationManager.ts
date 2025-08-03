@@ -1,10 +1,10 @@
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { Feature } from 'geojson';
+import { ConfigType } from '@src/common/config';
 import { SERVICES, elasticConfigPath } from '../../common/constants';
 import { GEOTEXT_REPOSITORY_SYMBOL, GeotextRepository } from '../DAL/locationRepository';
 import { GetGeotextSearchParams, TextSearchParams } from '../interfaces';
-import { ConfigType } from '@src/common/config';
 import { convertResult } from '../utils';
 import { GenericGeocodingResponse, IApplication } from '../../common/interfaces';
 import { ElasticGeotextClientConfig } from '../../common/elastic/interfaces';
@@ -25,7 +25,7 @@ export class GeotextSearchManager {
   }
 
   public async search(params: ConvertSnakeToCamelCase<GetGeotextSearchParams>): Promise<GenericGeocodingResponse<Feature>> {
-    if (this.appConfig.sources && params.source && params.source.some((source) => !this.appConfig.sources![source])) {
+    if (this.appConfig.sources && params.source?.some((source) => !this.appConfig.sources![source])) {
       throw new BadRequestError(`Invalid source. Available sources are ${Object.keys(this.appConfig.sources).toString()}`);
     }
 

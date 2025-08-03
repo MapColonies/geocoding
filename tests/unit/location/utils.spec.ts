@@ -1,5 +1,5 @@
-import { fetchNLPService } from '../../../src/location/utils';
 import { StatusCodes } from 'http-status-codes';
+import { fetchNLPService } from '../../../src/location/utils';
 
 let mockPost: jest.Mock;
 

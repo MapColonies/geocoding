@@ -2,10 +2,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { estypes } from '@elastic/elasticsearch';
 import { bbox } from '@turf/bbox';
+import { ConfigType } from '@src/common/config';
 import { CommonRequestParameters, GenericGeocodingResponse, IApplication } from '../common/interfaces';
 import { elasticConfigPath } from '../common/constants';
 import { ElasticControlClientConfig } from '../common/elastic/interfaces';
-import { ConfigType } from '@src/common/config';
 import { Item } from '../control/item/models/item';
 import { Tile } from '../control/tile/models/tile';
 import { Route } from '../control/route/models/route';
@@ -103,10 +103,9 @@ export const formatResponse = <T extends Tile | Item | Route>(
   return { ...geoJSONFeatureCollection, bbox: geoJSONFeatureCollection.features.length > 0 ? bbox(geoJSONFeatureCollection) : null };
 };
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export const additionalControlSearchProperties = (config: ConfigType, size: number): Pick<estypes.SearchRequest, 'size' | 'index' | '_source'> => ({
   size,
   index: (config.get(`${elasticConfigPath}.control`) as ElasticControlClientConfig).index as string,
-  // eslint-disable-next-line @typescript-eslint/naming-convention
+
   _source: CONTROL_FIELDS,
 });

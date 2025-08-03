@@ -5,8 +5,8 @@ import { Logger } from '@map-colonies/js-logger';
 import { FactoryFunction } from 'tsyringe';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { SERVICES, s3ConfigPath } from '../constants';
-import { S3Config, S3FileType } from './interfaces';
 import { ConfigType } from '../config';
+import { S3Config, S3FileType } from './interfaces';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const createS3Repository = (s3Client: S3Client, config: ConfigType, logger: Logger) => {

@@ -3,12 +3,12 @@ import { Logger } from '@map-colonies/js-logger';
 import { BBox, Geometry } from 'geojson';
 import { inject, injectable } from 'tsyringe';
 import * as mgrs from 'mgrs';
+import { ConfigType } from '@src/common/config';
 import { SERVICES } from '../../common/constants';
 import { GenericGeocodingFeatureResponse, IApplication } from '../../common/interfaces';
 import { GetTileQueryParams } from '../controllers/mgrsController';
 import { BadRequestError } from '../../common/errors';
 import { parseGeo } from '../../common/utils';
-import { ConfigType } from '@src/common/config';
 
 @injectable()
 export class MgrsManager {

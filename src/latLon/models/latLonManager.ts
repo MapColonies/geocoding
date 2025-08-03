@@ -2,13 +2,13 @@ import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { BBox } from 'geojson';
 import * as mgrs from 'mgrs';
+import { ConfigType } from '@src/common/config';
 import { SERVICES } from '../../common/constants';
 import { LatLonDAL, latLonDalSymbol } from '../DAL/latLonDAL';
 import { convertUTMToWgs84, CommonUtils, parseGeo, validateWGS84Coordinate } from '../../common/utils';
 import { BadRequestError } from '../../common/errors';
 import { GenericGeocodingFeatureResponse, WGS84Coordinate } from '../../common/interfaces';
 import { convertCamelToSnakeCase } from '../../control/utils';
-import { ConfigType } from '@src/common/config';
 
 const GRID_SIZE = 10000;
 const TILE_DIVISOR = 10;

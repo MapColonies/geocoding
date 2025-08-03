@@ -1,13 +1,13 @@
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { estypes } from '@elastic/elasticsearch';
+import { ConfigType } from '@src/common/config';
 import { SERVICES } from '../../../common/constants';
 import { ROUTE_REPOSITORY_SYMBOL, RouteRepository } from '../DAL/routeRepository';
 import { RouteQueryParams } from '../DAL/queries';
 import { formatResponse } from '../../utils';
 import { FeatureCollection, IApplication } from '../../../common/interfaces';
 import { Route } from './route';
-import { ConfigType } from '@src/common/config';
 
 @injectable()
 export class RouteManager {

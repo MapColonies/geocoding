@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { Logger } from '@map-colonies/js-logger';
 import { type Registry, Counter } from 'prom-client';
 import { RequestHandler } from 'express';

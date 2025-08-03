@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/naming-convention */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+
 import { CreateBucketCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { S3Config } from '../src/common/s3/interfaces';
 import { ConfigType } from '../src/common/config';
-import mockDataJson from './latLonConvertions.json';
 import { s3ConfigPath } from '../src/common/constants';
+import mockDataJson from './latLonConvertions.json';
 
 const main = async (config: ConfigType): Promise<void> => {
   const s3Config = config.get(s3ConfigPath) as S3Config;

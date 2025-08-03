@@ -23,7 +23,7 @@ export const elasticClientsFactory: FactoryFunction<ElasticClients> = (container
   const config = container.resolve<ConfigType>(SERVICES.CONFIG);
   const logger = container.resolve<Logger>(SERVICES.LOGGER);
 
-  const elasticClientsConfig = config.get(elasticConfigPath) as ElasticDbClientsConfig;
+  const elasticClientsConfig = config.get(elasticConfigPath);
 
   const elasticClients = {} as ElasticClients;
 

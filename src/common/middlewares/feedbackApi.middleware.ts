@@ -5,9 +5,9 @@ import { inject, injectable } from 'tsyringe';
 import { redisConfigPath, SERVICES, siteConfig } from '../constants';
 import { RedisClient } from '../redis';
 import { FeebackApiGeocodingResponse } from '../interfaces';
-import { XApi } from './utils';
 import { ConfigType } from '../config';
 import { RedisConfig } from '../redis/interfaces';
+import { XApi } from './utils';
 
 @injectable()
 export class FeedbackApiMiddlewareManager {
@@ -23,7 +23,7 @@ export class FeedbackApiMiddlewareManager {
     const redisClient = this.redis;
     const logger = this.logger;
 
-    const drSite = this.config.get(siteConfig)! as string;
+    const drSite = this.config.get(siteConfig);
 
     logger.info({ msg: 'saving response to redis' });
     const geocodingResponseDetails: FeebackApiGeocodingResponse = {

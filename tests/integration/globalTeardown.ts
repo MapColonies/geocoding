@@ -31,7 +31,7 @@ export default async (): Promise<void> => {
   const elasticClients = container.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
 
   const s3Config = config.get(s3ConfigPath) as S3Config;
-  const elasticClientsConfig = config.get(elasticConfigPath) as ElasticDbClientsConfig;
+  const elasticClientsConfig = config.get(elasticConfigPath);
 
   const clearS3Data = new Promise<void>((resolve, reject) => {
     void (async (): Promise<void> => {
