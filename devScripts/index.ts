@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { getConfig } from '../src/common/config';
 import importDataToElastic from './importDataToElastic';
 import importDataToS3 from './importDataToS3';
