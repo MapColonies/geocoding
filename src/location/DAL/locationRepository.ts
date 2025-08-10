@@ -25,6 +25,7 @@ const createGeotextRepository = (client: ElasticClient, logger: Logger) => {
 
       const { tokens, prediction } = response[0];
 
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
       if (!tokens?.length || !prediction?.length) {
         const message = 'No tokens or prediction';
         logger.error({ msg: message });

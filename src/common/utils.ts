@@ -132,7 +132,7 @@ const hasCoordinates = (input: GeoContext): boolean => {
 
 const parseCoordinates = (input: GeoContext): Geometry => {
   const { x, y, zone, radius } = input;
-  const { lon, lat } = x && y && zone ? convertUTMToWgs84(x, y, zone) : (input as Required<Pick<GeoContext, 'lat' | 'lon'>>);
+  const { lon, lat } = x != null && y != null && zone != null ? convertUTMToWgs84(x, y, zone) : (input as Required<Pick<GeoContext, 'lat' | 'lon'>>);
 
   return {
     type: 'Circle',

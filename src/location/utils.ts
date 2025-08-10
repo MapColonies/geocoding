@@ -29,6 +29,7 @@ export const fetchNLPService = async <T>(endpoint: string, requestData: object):
 
   data = res?.data as T[] | undefined;
 
+  // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
   if (res?.status !== StatusCodes.OK || !data || data.length < 1 || !data[0]) {
     throw new InternalServerError(`NLP analyser unexpected response: ${JSON.stringify(data)}`);
   }
@@ -109,7 +110,7 @@ export const convertResult = (
           sub_placetype: feature?.sub_placetype,
           regions: feature?.region.map((region) => ({
             region: region,
-            sub_region_names: feature.sub_region.filter((sub_region) => regionCollection?.[region]?.includes(sub_region)),
+            sub_region_names: feature.sub_region.filter((sub_region) => regionCollection?.[region]?.includes(sub_region) ?? false),
           })),
         },
       };
