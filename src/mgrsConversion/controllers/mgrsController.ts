@@ -1,5 +1,5 @@
 import { Logger } from '@map-colonies/js-logger';
-import { type Registry, Counter } from 'prom-client';
+import { type Registry } from 'prom-client';
 import { RequestHandler } from 'express';
 import type { Feature } from 'geojson';
 import httpStatus from 'http-status-codes';
@@ -25,19 +25,11 @@ export interface GetTileQueryParams {
 
 @injectable()
 export class MgrsController {
-  private readonly createdMgrsCounter: Counter;
-
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(MgrsManager) private readonly manager: MgrsManager,
     @inject(SERVICES.METRICS) private readonly metricsRegistry: Registry
-  ) {
-    this.createdMgrsCounter = new Counter({
-      name: 'created_mgrs',
-      help: 'number of created mgrs',
-      registers: [this.metricsRegistry],
-    });
-  }
+  ) {}
 
   public getTile: GetTilesHandler = (req, res, next) => {
     try {

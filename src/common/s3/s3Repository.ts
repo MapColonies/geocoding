@@ -13,7 +13,7 @@ const createS3Repository = (s3Client: S3Client, config: ConfigType, logger: Logg
   return {
     async downloadFile(key: keyof S3Config['files']): Promise<string> {
       try {
-        const fileData = (config.get(s3ConfigPath) as S3Config).files[key] as S3FileType;
+        const fileData = config.get(s3ConfigPath).files[key] as S3FileType;
         if (!fileData) {
           throw new Error(`${key} data is missing in the configuration`);
         }

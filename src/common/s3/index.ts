@@ -33,7 +33,7 @@ export const s3ClientFactory: FactoryFunction<S3Client> = (container: Dependency
   const config = container.resolve<ConfigType>(SERVICES.CONFIG);
   const logger = container.resolve<Logger>(SERVICES.LOGGER);
 
-  const s3Config = config.get(s3ConfigPath) as S3Config;
+  const s3Config = config.get(s3ConfigPath);
 
   const client = initS3Client(s3Config);
   logger.info(`S3 Client is initialized`);

@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { Logger } from '@map-colonies/js-logger';
 import { createClient, RedisClientOptions } from 'redis';
 import { DependencyContainer, FactoryFunction } from 'tsyringe';
-import { SERVICES } from '../constants';
+import { redisConfigPath, SERVICES } from '../constants';
 import { ConfigType } from '../config';
 import { RedisConfig } from './interfaces';
 
@@ -10,13 +10,17 @@ const createConnectionOptions = (redisConfig: RedisConfig): Partial<RedisClientO
   const { host, port, tls, ...clientOptions } = redisConfig;
   clientOptions.socket = { host, port };
   if (tls.enabled) {
-    clientOptions.socket = {
-      ...clientOptions.socket,
-      tls: true,
-      key: tls.key !== '' ? readFileSync(tls.key) : undefined,
-      cert: tls.cert !== '' ? readFileSync(tls.cert) : undefined,
-      ca: tls.ca !== '' ? readFileSync(tls.ca) : undefined,
-    };
+    try {
+      clientOptions.socket = {
+        ...clientOptions.socket,
+        tls: true,
+        key: readFileSync(tls.key),
+        cert: readFileSync(tls.cert),
+        ca: readFileSync(tls.ca),
+      };
+    } catch (error) {
+      throw new Error(`Failed to load Redis SSL certificates. Ensure the files exist and are accessible. Details: ${(error as Error).message}`);
+    }
   }
 
   return clientOptions;
@@ -27,7 +31,7 @@ export type RedisClient = ReturnType<typeof createClient>;
 export const redisClientFactory: FactoryFunction<RedisClient | undefined> = (container: DependencyContainer): RedisClient | undefined => {
   const logger = container.resolve<Logger>(SERVICES.LOGGER);
   const config = container.resolve<ConfigType>(SERVICES.CONFIG);
-  const dbConfig = config.get('db.redis') as RedisConfig;
+  const dbConfig = config.get(redisConfigPath) as RedisConfig;
   const connectionOptions = createConnectionOptions(dbConfig);
   try {
     const redisClient = createClient(connectionOptions)

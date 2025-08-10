@@ -2,11 +2,10 @@ import * as crypto from 'node:crypto';
 import { Request, Response, NextFunction } from 'express';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
-import { redisConfigPath, SERVICES, siteConfig } from '../constants';
+import { defaultRedisTtl, redisConfigPath, SERVICES, siteConfig } from '../constants';
 import { RedisClient } from '../redis';
 import { FeebackApiGeocodingResponse } from '../interfaces';
 import { ConfigType } from '../config';
-import { RedisConfig } from '../redis/interfaces';
 import { XApi } from './utils';
 
 @injectable()
@@ -34,14 +33,13 @@ export class FeedbackApiMiddlewareManager {
       respondedAt: new Date(),
     };
 
-    const { ttl: redisTtl } = this.config.get(redisConfigPath) as RedisConfig;
+    const { ttl: redisTtl } = this.config.get(redisConfigPath);
 
     const originalJson = res.json;
     const logJson = function (this: Response, body: JSON): Response {
       geocodingResponseDetails.response = body;
       redisClient
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        .setEx(reqId as string, redisTtl ?? 600, JSON.stringify(geocodingResponseDetails))
+        .setEx(reqId as string, redisTtl ?? defaultRedisTtl, JSON.stringify(geocodingResponseDetails))
         .then(() => {
           logger.info({ msg: `response ${reqId?.toString() ?? ''} saved to redis` });
         })

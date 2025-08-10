@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-
 import { CreateBucketCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { S3Config } from '../src/common/s3/interfaces';
 import { ConfigType } from '../src/common/config';

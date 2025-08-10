@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Logger } from '@map-colonies/js-logger';
-import { type Registry, Counter } from 'prom-client';
+import { type Registry } from 'prom-client';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
@@ -17,19 +17,11 @@ export type GetItemsQueryParams = ConvertCamelToSnakeCase<ItemQueryParams>;
 
 @injectable()
 export class ItemController {
-  private readonly createdResourceCounter: Counter;
-
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(ItemManager) private readonly manager: ItemManager,
     @inject(SERVICES.METRICS) private readonly metricsRegistry: Registry
-  ) {
-    this.createdResourceCounter = new Counter({
-      name: 'created_item',
-      help: 'number of created items',
-      registers: [this.metricsRegistry],
-    });
-  }
+  ) {}
 
   public getItems: GetItemsHandler = async (req, res, next) => {
     try {

@@ -69,7 +69,7 @@ describe('/search/location', function () {
   describe('Happy Path', function () {
     it('should return 200 status code and airports', async function () {
       const requestParams: GetGeotextSearchParams = { query: 'airport', limit: 5, disable_fuzziness: true };
-      const tokenTypesUrlScope = nock((config.get('application') as IApplication).services.tokenTypesUrl)
+      const tokenTypesUrlScope = nock(config.get('application').services.tokenTypesUrl)
         .post('', { tokens: requestParams.query.split(' ') })
         .reply(httpStatusCodes.OK, [
           {
