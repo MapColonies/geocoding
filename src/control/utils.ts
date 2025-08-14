@@ -5,7 +5,6 @@ import { bbox } from '@turf/bbox';
 import { ConfigType } from '@src/common/config';
 import { CommonRequestParameters, GenericGeocodingResponse, IApplication } from '../common/interfaces';
 import { elasticConfigPath } from '../common/constants';
-import { ElasticControlClientConfig } from '../common/elastic/interfaces';
 import { Item } from '../control/item/models/item';
 import { Tile } from '../control/tile/models/tile';
 import { Route } from '../control/route/models/route';
@@ -106,7 +105,7 @@ export const formatResponse = <T extends Tile | Item | Route>(
 
 export const additionalControlSearchProperties = (config: ConfigType, size: number): Pick<estypes.SearchRequest, 'size' | 'index' | '_source'> => ({
   size,
-  index: (config.get(`${elasticConfigPath}.control`) as ElasticControlClientConfig).index as string,
+  index: config.get(`${elasticConfigPath}.control`).index as string,
 
   _source: CONTROL_FIELDS,
 });

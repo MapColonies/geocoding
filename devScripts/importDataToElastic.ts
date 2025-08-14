@@ -2,15 +2,14 @@
 import crypto from 'node:crypto';
 import httpStatusCodes from 'http-status-codes';
 import { Client, estypes } from '@elastic/elasticsearch';
-import { ElasticControlClientConfig, ElasticGeotextClientConfig } from '../src/common/elastic/interfaces';
 import { elasticConfigPath } from '../src/common/constants';
 import { ConfigType } from '../src/common/config';
 import controlData from './controlElasticsearchData.json';
 import geotextData from './geotextElasticsearchData.json';
 
 const main = async (config: ConfigType): Promise<void> => {
-  const controlElasticConfig = config.get(`${elasticConfigPath}.control`) as ElasticControlClientConfig;
-  const geotextElasticConfig = config.get(`${elasticConfigPath}.geotext`) as ElasticGeotextClientConfig;
+  const controlElasticConfig = config.get(`${elasticConfigPath}.control`);
+  const geotextElasticConfig = config.get(`${elasticConfigPath}.geotext`);
   const controlClient = new Client({ ...controlElasticConfig });
   const geotextClient = new Client({ ...geotextElasticConfig });
 

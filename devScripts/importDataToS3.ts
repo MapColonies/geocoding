@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { CreateBucketCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { S3Config } from '../src/common/s3/interfaces';
 import { ConfigType } from '../src/common/config';
 import { s3ConfigPath } from '../src/common/constants';
 import mockDataJson from './latLonConvertions.json';
 
 const main = async (config: ConfigType): Promise<void> => {
-  const s3Config = config.get(s3ConfigPath) as S3Config;
+  const s3Config = config.get(s3ConfigPath);
   const { accessKeyId, secretAccessKey, ...clientConfig } = s3Config;
 
   const s3Client = new S3Client({

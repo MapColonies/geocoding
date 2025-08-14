@@ -166,7 +166,9 @@ describe('#TileManager', () => {
         disableFuzziness: false,
       };
 
-      await expect(tileManager.getTiles(queryParams)).rejects.toThrow(new BadRequestError(`Invalid MGRS: ${queryParams.mgrs}`));
+      await expect(tileManager.getTiles(queryParams)).rejects.toThrow(
+        new BadRequestError(`Invalid MGRS: ${queryParams.mgrs}. Error: MGRSPoint bad conversion from ${queryParams.mgrs}`)
+      );
     });
   });
 });

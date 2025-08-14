@@ -416,7 +416,7 @@ describe('/search/control/tiles', function () {
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toEqual({
-          message: `Invalid MGRS: ${mgrs}`,
+          message: expect.stringContaining(`Invalid MGRS: ${mgrs}`) as string,
         });
       }
     );

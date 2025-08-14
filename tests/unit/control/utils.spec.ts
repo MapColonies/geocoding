@@ -3,7 +3,6 @@ import { estypes } from '@elastic/elasticsearch';
 import { initConfig, getConfig } from '../../../src/common/config';
 import { additionalControlSearchProperties, convertCamelToSnakeCase } from '../../../src/control/utils';
 import { elasticConfigPath } from '../../../src/common/constants';
-import { ElasticControlClientConfig } from '../../../src/common/elastic/interfaces';
 import { CONTROL_FIELDS } from '../../../src/control/constants';
 
 describe('#convertCamelToSnakeCase', () => {
@@ -31,7 +30,7 @@ describe('#additionalControlSearchProperties', () => {
 
     expect(searchProperties).toEqual<Pick<estypes.SearchRequest, 'size' | 'index' | '_source'>>({
       size,
-      index: (config.get(`${elasticConfigPath}.control`) as ElasticControlClientConfig).index as string,
+      index: config.get(`${elasticConfigPath}.control`).index as string,
       _source: CONTROL_FIELDS,
     });
   });

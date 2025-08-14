@@ -143,6 +143,7 @@ export const cronLoadTileLatLonDataFactory: FactoryFunction<cron.ScheduledTask> 
   }
 
   /* istanbul ignore next */
+  // eslint-disable-next-line import-x/no-named-as-default-member
   scheduledTask = cron.schedule(cronPattern, () => {
     if (!latLonDAL.getOnGoingUpdate()) {
       logger.info('cronLoadTileLatLonData: starting update');

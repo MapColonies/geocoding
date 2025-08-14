@@ -35,9 +35,8 @@ export class TileManager {
       let bbox: BBox = [0, 0, 0, 0];
       try {
         bbox = mgrs.inverse(tileQueryParams.mgrs);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
-        throw new BadRequestError(`Invalid MGRS: ${tileQueryParams.mgrs}`);
+        throw new BadRequestError(`Invalid MGRS: ${tileQueryParams.mgrs}. Error: ${(error as Error).message}`);
       }
       elasticResponse = await this.tileRepository.getTilesByBbox({ bbox, ...tileQueryParams });
     } else if (tileQueryParams.subTile ?? '') {

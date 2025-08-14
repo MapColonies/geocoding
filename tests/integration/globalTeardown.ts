@@ -9,10 +9,9 @@ import { elasticConfigPath, s3ConfigPath, SERVICES } from '../../src/common/cons
 import { ElasticClients } from '../../src/common/elastic';
 import { cronLoadTileLatLonDataSymbol } from '../../src/latLon/DAL/latLonDAL';
 import { ConfigType } from '../../src/common/config';
-import { S3Config } from '../../src/common/s3/interfaces';
 
 export default async (): Promise<void> => {
-  const [app, container] = await getApp({
+  const [, container] = await getApp({
     override: [
       { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
       { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
@@ -29,7 +28,7 @@ export default async (): Promise<void> => {
   const s3Client = container.resolve<S3Client>(SERVICES.S3_CLIENT);
   const elasticClients = container.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
 
-  const s3Config = config.get(s3ConfigPath) as S3Config;
+  const s3Config = config.get(s3ConfigPath);
   const elasticClientsConfig = config.get(elasticConfigPath);
 
   const clearS3Data = new Promise<void>((resolve, reject) => {

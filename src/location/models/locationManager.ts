@@ -21,7 +21,7 @@ export class GeotextSearchManager {
     @inject(SERVICES.CONFIG) private readonly config: ConfigType,
     @inject(GEOTEXT_REPOSITORY_SYMBOL) private readonly geotextRepository: GeotextRepository
   ) {
-    this.elasticConfig = this.config.get(`${elasticConfigPath}.geotext`) as ElasticGeotextClientConfig;
+    this.elasticConfig = this.config.get(`${elasticConfigPath}.geotext`);
   }
 
   public async search(params: ConvertSnakeToCamelCase<GetGeotextSearchParams>): Promise<GenericGeocodingResponse<Feature>> {

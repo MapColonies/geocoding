@@ -6,8 +6,6 @@ import { IApplication } from '../common/interfaces';
 import { TextSearchParams } from './interfaces';
 import { TextSearchHit } from './models/elasticsearchHits';
 
-const HIERARCHY_OF_INTEREST = 3;
-
 const HIGHLIGHT_XML_REGEX = /<em>|<\/em>/gi;
 
 const untagHighlight = (highlight: string): string => highlight.replace(HIGHLIGHT_XML_REGEX, '');
