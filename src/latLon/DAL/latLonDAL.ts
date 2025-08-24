@@ -100,7 +100,7 @@ export class LatLonDAL {
 
     this.clearLatLonMap();
 
-    const latLonDataPath = await this.latLonRepository.downloadFile('latLonConvertionTable');
+    const latLonDataPath = await this.latLonRepository.downloadFile();
 
     const { items: latLonData } = JSON.parse(await fs.promises.readFile(latLonDataPath, 'utf8')) as { items: LatLon[] };
 

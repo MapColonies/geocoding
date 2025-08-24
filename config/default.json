@@ -64,12 +64,8 @@
       "secretAccessKey": "secretAccessKey",
       "forcePathStyle": true,
       "region": "local",
-      "files": {
-        "latLonConvertionTable": {
           "bucket": "geocoding",
           "fileName": "table.json"
-        }
-      }
     },
     "redis": {
       "host": "redis",

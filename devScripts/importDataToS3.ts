@@ -16,14 +16,8 @@ const main = async (config: ConfigType): Promise<void> => {
     },
   });
 
-  if (!s3Config.files.latLonConvertionTable) {
-    throw new Error('No latLonConvertionTable file path provided');
-  }
-
-  const { bucket: Bucket, fileName: Key } = s3Config.files.latLonConvertionTable;
-
   try {
-    await s3Client.send(new CreateBucketCommand({ Bucket, ACL: 'public-read' }));
+    await s3Client.send(new CreateBucketCommand({ Bucket: s3Config.bucket, ACL: 'public-read' }));
   } catch (error) {
     console.error(error);
   }
@@ -31,8 +25,8 @@ const main = async (config: ConfigType): Promise<void> => {
   try {
     await s3Client.send(
       new PutObjectCommand({
-        Bucket,
-        Key,
+        Bucket: s3Config.bucket,
+        Key: s3Config.fileName,
         Body: Buffer.from(JSON.stringify(mockDataJson), 'utf-8'),
       })
     );

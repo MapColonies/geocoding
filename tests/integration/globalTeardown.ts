@@ -34,12 +34,8 @@ export default async (): Promise<void> => {
   const clearS3Data = new Promise<void>((resolve, reject) => {
     void (async (): Promise<void> => {
       try {
-        if (s3Config.files.latLonConvertionTable !== undefined) {
-          await s3Client.send(
-            new DeleteObjectCommand({ Bucket: s3Config.files.latLonConvertionTable.bucket, Key: s3Config.files.latLonConvertionTable.fileName })
-          );
-          await s3Client.send(new DeleteBucketCommand({ Bucket: s3Config.files.latLonConvertionTable.bucket }));
-        }
+        await s3Client.send(new DeleteObjectCommand({ Bucket: s3Config.bucket, Key: s3Config.fileName }));
+        await s3Client.send(new DeleteBucketCommand({ Bucket: s3Config.bucket }));
         resolve();
       } catch (error) {
         console.error(error);

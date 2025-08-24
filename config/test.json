@@ -31,12 +31,8 @@
       "secretAccessKey": "minio123",
       "region": "local",
       "forcePathStyle": true,
-      "files": {
-        "latLonConvertionTable": {
           "bucket": "geocoding-test",
           "fileName": "table.json"
-        }
-      }
     },
     "redis": {
       "host": "localhost",
