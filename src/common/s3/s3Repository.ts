@@ -13,7 +13,7 @@ const createS3Repository = (s3Client: S3Client, config: ConfigType, logger: Logg
     async downloadFile(): Promise<string> {
       try {
         const bucket = config.get(s3ConfigPath).bucket;
-        const fileName = config.get(s3ConfigPath).fileName as string;
+        const fileName = config.get(s3ConfigPath).fileName;
 
         logger.info(`Downloading ${fileName} file from S3`);
 

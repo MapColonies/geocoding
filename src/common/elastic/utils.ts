@@ -10,6 +10,7 @@ export const queryElastic = async <T>(client: ElasticClient, body: estypes.Searc
     if (!(await client.ping())) {
       throw clientNotAvailableError;
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     throw clientNotAvailableError;
   }

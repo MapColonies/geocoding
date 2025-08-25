@@ -60,6 +60,7 @@ describe('/search/location', function () {
   afterAll(async function () {
     const cleanupRegistry = depContainer.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
     await cleanupRegistry.trigger();
+    // eslint-disable-next-line import-x/no-named-as-default-member
     nock.cleanAll();
     depContainer.reset();
 

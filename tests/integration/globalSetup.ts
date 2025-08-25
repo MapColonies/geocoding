@@ -12,7 +12,7 @@ import { getConfig, initConfig } from '../../src/common/config';
 export default async (): Promise<void> => {
   await initConfig(true);
 
-  const [app, container] = await getApp({
+  const [, container] = await getApp({
     override: [
       { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
       { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
