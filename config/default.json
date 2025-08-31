@@ -64,8 +64,8 @@
       "secretAccessKey": "secretAccessKey",
       "forcePathStyle": true,
       "region": "local",
-          "bucket": "geocoding",
-          "fileName": "table.json"
+      "bucket": "geocoding",
+      "fileName": "table.json"
     },
     "redis": {
       "host": "redis",
