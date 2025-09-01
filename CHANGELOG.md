@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/MapColonies/geocoding/compare/v1.1.1...v2.0.0) (2025-09-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* update to boilerplate mapco 6313 ([#78](https://github.com/MapColonies/geocoding/issues/78))
+
+### Features
+
+* add redis ttl ([#77](https://github.com/MapColonies/geocoding/issues/77)) ([496b8d2](https://github.com/MapColonies/geocoding/commit/496b8d23c68eaf1e529c5b407242b9d2826e9834))
+
+
+### Bug Fixes
+
+* removed mocked config from default config ([#75](https://github.com/MapColonies/geocoding/issues/75)) ([ce35865](https://github.com/MapColonies/geocoding/commit/ce3586596817142a30cc5ea938522db5b21d3f76))
+
+
+### Code Refactoring
+
+* update to boilerplate mapco 6313 ([#78](https://github.com/MapColonies/geocoding/issues/78)) ([82ea5d7](https://github.com/MapColonies/geocoding/commit/82ea5d776844166f1daa9d41ad583f5659ab1e35))
+
 ### [1.1.2](https://github.com/MapColonies/geocoding/compare/v1.1.1...v1.1.2) (2025-05-12)
 
 
