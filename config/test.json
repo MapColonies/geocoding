@@ -31,8 +31,8 @@
       "secretAccessKey": "minio123",
       "region": "local",
       "forcePathStyle": true,
-          "bucket": "geocoding-test",
-          "fileName": "table.json"
+      "bucket": "geocoding-test",
+      "fileName": "table.json"
     },
     "redis": {
       "host": "localhost",
