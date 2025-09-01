@@ -1,11 +1,6 @@
 import { estypes } from '@elastic/elasticsearch';
-import { BBox, Feature, FeatureCollection as GeoJSONFeatureCollection, GeoJsonProperties } from 'geojson';
+import type { BBox, Feature, FeatureCollection as GeoJSONFeatureCollection, GeoJsonProperties } from 'geojson';
 import { RemoveUnderscore } from './utils';
-
-export interface IConfig {
-  get: <T>(setting: string) => T;
-  has: (setting: string) => boolean;
-}
 
 export interface OpenApiConfig {
   filePath: string;
@@ -84,6 +79,7 @@ export interface CommonRequestParameters {
 }
 /* eslint-enable @typescript-eslint/naming-convention */
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface GenericGeocodingResponse<T extends Feature, G = any> extends FeatureCollection<T> {
   geocoding: {
     version: string;

@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { IConfig } from 'config';
 import { Logger } from '@map-colonies/js-logger';
-import { BBox, Geometry } from 'geojson';
+import type { BBox, Geometry } from 'geojson';
 import { inject, injectable } from 'tsyringe';
 import * as mgrs from 'mgrs';
+import { ConfigType } from '@src/common/config';
 import { SERVICES } from '../../common/constants';
 import { GenericGeocodingFeatureResponse, IApplication } from '../../common/interfaces';
 import { GetTileQueryParams } from '../controllers/mgrsController';
@@ -14,7 +14,7 @@ import { parseGeo } from '../../common/utils';
 export class MgrsManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(SERVICES.CONFIG) private readonly config: IConfig,
+    @inject(SERVICES.CONFIG) private readonly config: ConfigType,
     @inject(SERVICES.APPLICATION) private readonly application: IApplication
   ) {}
 

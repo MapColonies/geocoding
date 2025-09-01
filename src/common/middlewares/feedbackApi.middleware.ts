@@ -2,10 +2,10 @@ import * as crypto from 'node:crypto';
 import { Request, Response, NextFunction } from 'express';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
-import { redisConfigPath, SERVICES, siteConfig } from '../constants';
+import { defaultRedisTtl, redisConfigPath, SERVICES, siteConfig } from '../constants';
 import { RedisClient } from '../redis';
-import { RedisConfig } from '../redis/interfaces';
-import { FeebackApiGeocodingResponse, IConfig } from '../interfaces';
+import { FeebackApiGeocodingResponse } from '../interfaces';
+import { ConfigType } from '../config';
 import { XApi } from './utils';
 
 @injectable()
@@ -13,7 +13,7 @@ export class FeedbackApiMiddlewareManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(SERVICES.REDIS) private readonly redis: RedisClient,
-    @inject(SERVICES.CONFIG) private readonly config: IConfig
+    @inject(SERVICES.CONFIG) private readonly config: ConfigType
   ) {}
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -22,7 +22,7 @@ export class FeedbackApiMiddlewareManager {
     const redisClient = this.redis;
     const logger = this.logger;
 
-    const drSite = this.config.get<string>(siteConfig);
+    const drSite = this.config.get(siteConfig);
 
     logger.info({ msg: 'saving response to redis' });
     const geocodingResponseDetails: FeebackApiGeocodingResponse = {
@@ -33,13 +33,13 @@ export class FeedbackApiMiddlewareManager {
       respondedAt: new Date(),
     };
 
-    const { ttl: redisTtl } = this.config.get<RedisConfig>(redisConfigPath);
+    const { ttl: redisTtl } = this.config.get(redisConfigPath);
 
     const originalJson = res.json;
     const logJson = function (this: Response, body: JSON): Response {
       geocodingResponseDetails.response = body;
       redisClient
-        .setEx(reqId as string, redisTtl, JSON.stringify(geocodingResponseDetails))
+        .setEx(reqId as string, redisTtl ?? defaultRedisTtl, JSON.stringify(geocodingResponseDetails))
         .then(() => {
           logger.info({ msg: `response ${reqId?.toString() ?? ''} saved to redis` });
         })

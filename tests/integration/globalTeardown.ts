@@ -5,15 +5,13 @@ import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import { trace } from '@opentelemetry/api';
 import { DeleteBucketCommand, DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getApp } from '../../src/app';
-import { elasticConfigPath, SERVICES } from '../../src/common/constants';
-import { IConfig } from '../../src/common/interfaces';
-import { S3Config, s3ConfigPath } from '../../src/common/s3';
-import { ElasticDbClientsConfig } from '../../src/common/elastic/interfaces';
+import { elasticConfigPath, s3ConfigPath, SERVICES } from '../../src/common/constants';
 import { ElasticClients } from '../../src/common/elastic';
 import { cronLoadTileLatLonDataSymbol } from '../../src/latLon/DAL/latLonDAL';
+import { ConfigType } from '../../src/common/config';
 
 export default async (): Promise<void> => {
-  const app = await getApp({
+  const [, container] = await getApp({
     override: [
       { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
       { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
@@ -25,27 +23,23 @@ export default async (): Promise<void> => {
     useChild: true,
   });
 
-  const config = app.container.resolve<IConfig>(SERVICES.CONFIG);
+  const config = container.resolve<ConfigType>(SERVICES.CONFIG);
 
-  const s3Client = app.container.resolve<S3Client>(SERVICES.S3_CLIENT);
-  const elasticClients = app.container.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
+  const s3Client = container.resolve<S3Client>(SERVICES.S3_CLIENT);
+  const elasticClients = container.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS);
 
-  const s3Config = config.get<S3Config>(s3ConfigPath);
-  const elasticClientsConfig = config.get<ElasticDbClientsConfig>(elasticConfigPath);
+  const s3Config = config.get(s3ConfigPath);
+  const elasticClientsConfig = config.get(elasticConfigPath);
 
   const clearS3Data = new Promise<void>((resolve, reject) => {
     void (async (): Promise<void> => {
       try {
-        if (s3Config.files.latLonConvertionTable !== undefined) {
-          await s3Client.send(
-            new DeleteObjectCommand({ Bucket: s3Config.files.latLonConvertionTable.bucket, Key: s3Config.files.latLonConvertionTable.fileName })
-          );
-          await s3Client.send(new DeleteBucketCommand({ Bucket: s3Config.files.latLonConvertionTable.bucket }));
-        }
+        await s3Client.send(new DeleteObjectCommand({ Bucket: s3Config.bucket, Key: s3Config.fileName }));
+        await s3Client.send(new DeleteBucketCommand({ Bucket: s3Config.bucket }));
         resolve();
       } catch (error) {
         console.error(error);
-        reject(error);
+        reject(error instanceof Error ? error : new Error(String(error)));
       }
     })();
   });
@@ -53,15 +47,21 @@ export default async (): Promise<void> => {
   const clearElasticData = new Promise<void>((resolve, reject) => {
     void (async (): Promise<void> => {
       try {
-        for (const [key, value] of Object.entries(elasticClientsConfig)) {
-          await elasticClients[key as keyof ElasticDbClientsConfig].indices.delete({
-            index: typeof value.properties.index === 'string' ? value.properties.index : Object.values(value.properties.index),
+        const clients = ['control', 'geotext'] as const;
+
+        for (const clientKey of clients) {
+          const { index } = elasticClientsConfig[clientKey];
+          const indices = typeof index === 'string' ? index : Object.values(index);
+
+          await elasticClients[clientKey].indices.delete({
+            index: indices,
           });
         }
+
         resolve();
       } catch (error) {
         console.error(error);
-        reject(error);
+        reject(error instanceof Error ? error : new Error(String(error)));
       }
     })();
   });
@@ -74,10 +74,10 @@ export default async (): Promise<void> => {
     });
   });
 
-  const cleanupRegistry = app.container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+  const cleanupRegistry = container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
   await cleanupRegistry.trigger();
-  app.container.reset();
-  await app.container.dispose();
+  container.reset();
+  await container.dispose();
 
   console.log('Global Teardown completed');
   return;

@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { Logger } from '@map-colonies/js-logger';
-import { BoundCounter, Meter } from '@opentelemetry/api-metrics';
+import { type Registry } from 'prom-client';
 import { RequestHandler } from 'express';
-import { Feature } from 'geojson';
+import type { Feature } from 'geojson';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
@@ -26,15 +25,11 @@ export interface GetTileQueryParams {
 
 @injectable()
 export class MgrsController {
-  private readonly createdResourceCounter: BoundCounter;
-
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(MgrsManager) private readonly manager: MgrsManager,
-    @inject(SERVICES.METER) private readonly meter: Meter
-  ) {
-    this.createdResourceCounter = meter.createCounter('created_resource');
-  }
+    @inject(SERVICES.METRICS) private readonly metricsRegistry: Registry
+  ) {}
 
   public getTile: GetTilesHandler = (req, res, next) => {
     try {

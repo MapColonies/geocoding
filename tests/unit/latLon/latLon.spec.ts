@@ -5,7 +5,7 @@ import { LatLonDAL } from '../../../src/latLon/DAL/latLonDAL';
 import { GenericGeocodingFeatureResponse, WGS84Coordinate } from '../../../src/common/interfaces';
 import { convertCamelToSnakeCase } from '../../../src/control/utils';
 import { BadRequestError } from '../../../src/common/errors';
-import * as CommonUtils from '../../../src/common/utils';
+import { CommonUtils } from '../../../src/common/utils';
 
 type QueryParams = WGS84Coordinate & { targetGrid: 'control' | 'MGRS' };
 

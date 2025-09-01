@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Logger } from '@map-colonies/js-logger';
-import { BoundCounter, Meter } from '@opentelemetry/api-metrics';
+import { type Registry, Counter } from 'prom-client';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
@@ -17,14 +17,18 @@ export type GetRoutesQueryParams = ConvertCamelToSnakeCase<RouteQueryParams>;
 
 @injectable()
 export class RouteController {
-  private readonly createdResourceCounter: BoundCounter;
+  private readonly createdResourceCounter: Counter;
 
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(RouteManager) private readonly manager: RouteManager,
-    @inject(SERVICES.METER) private readonly meter: Meter
+    @inject(SERVICES.METRICS) private readonly metricsRegistry: Registry
   ) {
-    this.createdResourceCounter = this.meter.createCounter('created_route');
+    this.createdResourceCounter = new Counter({
+      name: 'created_route',
+      help: 'number of created routes',
+      registers: [this.metricsRegistry],
+    });
   }
 
   public getRoutes: GetRoutesHandler = async (req, res, next) => {

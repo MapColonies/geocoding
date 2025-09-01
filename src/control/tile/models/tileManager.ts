@@ -1,9 +1,9 @@
-import { IConfig } from 'config';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { estypes } from '@elastic/elasticsearch';
 import * as mgrs from 'mgrs';
-import { BBox } from 'geojson';
+import type { BBox } from 'geojson';
+import { ConfigType } from '@src/common/config';
 import { SERVICES } from '../../../common/constants';
 import { TILE_REPOSITORY_SYMBOL, TileRepository } from '../DAL/tileRepository';
 import { formatResponse } from '../../utils';
@@ -16,7 +16,7 @@ import { Tile } from './tile';
 export class TileManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(SERVICES.CONFIG) private readonly config: IConfig,
+    @inject(SERVICES.CONFIG) private readonly config: ConfigType,
     @inject(SERVICES.APPLICATION) private readonly application: IApplication,
     @inject(TILE_REPOSITORY_SYMBOL) private readonly tileRepository: TileRepository
   ) {}
@@ -36,7 +36,7 @@ export class TileManager {
       try {
         bbox = mgrs.inverse(tileQueryParams.mgrs);
       } catch (error) {
-        throw new BadRequestError(`Invalid MGRS: ${tileQueryParams.mgrs}`);
+        throw new BadRequestError(`Invalid MGRS: ${tileQueryParams.mgrs}. Error: ${(error as Error).message}`);
       }
       elasticResponse = await this.tileRepository.getTilesByBbox({ bbox, ...tileQueryParams });
     } else if (tileQueryParams.subTile ?? '') {

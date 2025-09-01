@@ -11,7 +11,7 @@ export const SERVICES = {
   LOGGER: Symbol('Logger'),
   CONFIG: Symbol('Config'),
   TRACER: Symbol('Tracer'),
-  METER: Symbol('Meter'),
+  METRICS: Symbol('Metrics'),
   APPLICATION: Symbol('Application'),
   ELASTIC_CLIENTS: Symbol('ElasticClients'),
   REDIS: Symbol('Redis'),
@@ -25,4 +25,7 @@ export const HEALTHCHECK = Symbol('healthcheck');
 
 export const siteConfig = 'application.site';
 export const elasticConfigPath = 'db.elastic';
+export const s3ConfigPath = 'db.s3';
 export const redisConfigPath = 'db.redis';
+
+export const defaultRedisTtl = 600;

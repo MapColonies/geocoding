@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import jsLogger from '@map-colonies/js-logger';
 import { estypes } from '@elastic/elasticsearch';
-import { BBox } from 'geojson';
+import type { BBox } from 'geojson';
 import { RouteQueryParams } from '../../../../src/control/route/DAL/queries';
 import { RouteRepository } from '../../../../src/control/route/DAL/routeRepository';
 import { RouteManager } from '../../../../src/control/route/models/routeManager';

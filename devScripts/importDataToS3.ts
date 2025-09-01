@@ -1,23 +1,23 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/naming-convention */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { CreateBucketCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { S3Config, s3ConfigPath } from '../src/common/s3';
-import { IConfig } from '../src/common/interfaces';
+import { ConfigType } from '../src/common/config';
+import { s3ConfigPath } from '../src/common/constants';
 import mockDataJson from './latLonConvertions.json';
 
-const main = async (config: IConfig): Promise<void> => {
-  const s3Config = config.get<S3Config>(s3ConfigPath);
-  const s3Client = new S3Client({ ...s3Config });
+const main = async (config: ConfigType): Promise<void> => {
+  const s3Config = config.get(s3ConfigPath);
+  const { accessKeyId, secretAccessKey, ...clientConfig } = s3Config;
 
-  if (!s3Config.files.latLonConvertionTable) {
-    throw new Error('No latLonConvertionTable file path provided');
-  }
-
-  const { bucket: Bucket, fileName: Key } = s3Config.files.latLonConvertionTable;
+  const s3Client = new S3Client({
+    ...clientConfig,
+    credentials: {
+      accessKeyId,
+      secretAccessKey,
+    },
+  });
 
   try {
-    await s3Client.send(new CreateBucketCommand({ Bucket, ACL: 'public-read' }));
+    await s3Client.send(new CreateBucketCommand({ Bucket: s3Config.bucket, ACL: 'public-read' }));
   } catch (error) {
     console.error(error);
   }
@@ -25,8 +25,8 @@ const main = async (config: IConfig): Promise<void> => {
   try {
     await s3Client.send(
       new PutObjectCommand({
-        Bucket,
-        Key,
+        Bucket: s3Config.bucket,
+        Key: s3Config.fileName,
         Body: Buffer.from(JSON.stringify(mockDataJson), 'utf-8'),
       })
     );

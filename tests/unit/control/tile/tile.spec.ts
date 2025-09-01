@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import jsLogger from '@map-colonies/js-logger';
-import { BBox } from 'geojson';
+import type { BBox } from 'geojson';
 import { estypes } from '@elastic/elasticsearch';
 import { TileQueryParams } from '../../../../src/control/tile/DAL/queries';
 import { TileRepository } from '../../../../src/control/tile/DAL/tileRepository';
@@ -166,7 +166,9 @@ describe('#TileManager', () => {
         disableFuzziness: false,
       };
 
-      await expect(tileManager.getTiles(queryParams)).rejects.toThrow(new BadRequestError(`Invalid MGRS: ${queryParams.mgrs}`));
+      await expect(tileManager.getTiles(queryParams)).rejects.toThrow(
+        new BadRequestError(`Invalid MGRS: ${queryParams.mgrs}. Error: MGRSPoint bad conversion from ${queryParams.mgrs}`)
+      );
     });
   });
 });

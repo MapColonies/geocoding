@@ -1,12 +1,12 @@
-import * as supertest from 'supertest';
+import type { Application } from 'express';
+import supertest, { agent } from 'supertest';
 import { GetTilesQueryParams } from '../../../../../src/control/tile/controllers/tileController';
 
 export class TileRequestSender {
-  public constructor(private readonly app: Express.Application) {}
+  public constructor(private readonly app: Application) {}
 
   public async getTiles(queryParams?: GetTilesQueryParams): Promise<supertest.Response> {
-    return supertest
-      .agent(this.app)
+    return agent(this.app)
       .get('/search/control/tiles')
       .set('Content-Type', 'application/json')
       .set('x-api-key', 'abc123')

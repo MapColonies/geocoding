@@ -1,18 +1,17 @@
 import { estypes } from '@elastic/elasticsearch';
 import { FactoryFunction } from 'tsyringe';
-import { BBox } from 'geojson';
+import type { BBox } from 'geojson';
+import { ConfigType } from '@src/common/config';
 import { ElasticClient, ElasticClients } from '../../../common/elastic';
 import { Tile } from '../models/tile';
 import { queryElastic } from '../../../common/elastic/utils';
-import { IConfig } from '../../../common/interfaces';
 import { SERVICES } from '../../../common/constants';
 import { additionalControlSearchProperties } from '../../utils';
 import { queryForTiles, queryForSubTiles, TileQueryParams, queryForTilesByBbox } from './queries';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-const createTileRepository = (client: ElasticClient, config: IConfig) => {
+const createTileRepository = (client: ElasticClient, config: ConfigType) => {
   return {
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     async getTiles(tileQueryParams: TileQueryParams & Required<Pick<TileQueryParams, 'tile'>>): Promise<estypes.SearchResponse<Tile>> {
       const response = await queryElastic<Tile>(client, {
         ...additionalControlSearchProperties(config, tileQueryParams.limit),
@@ -43,7 +42,10 @@ const createTileRepository = (client: ElasticClient, config: IConfig) => {
 export type TileRepository = ReturnType<typeof createTileRepository>;
 
 export const tileRepositoryFactory: FactoryFunction<TileRepository> = (depContainer) => {
-  return createTileRepository(depContainer.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS).control, depContainer.resolve<IConfig>(SERVICES.CONFIG));
+  return createTileRepository(
+    depContainer.resolve<ElasticClients>(SERVICES.ELASTIC_CLIENTS).control,
+    depContainer.resolve<ConfigType>(SERVICES.CONFIG)
+  );
 };
 
 export const TILE_REPOSITORY_SYMBOL = Symbol('TILE_REPOSITORY_SYMBOL');

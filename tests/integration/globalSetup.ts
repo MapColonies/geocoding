@@ -4,13 +4,15 @@ import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import { trace } from '@opentelemetry/api';
 import { getApp } from '../../src/app';
 import { SERVICES } from '../../src/common/constants';
-import { IConfig } from '../../src/common/interfaces';
 import importDataToS3 from '../../devScripts/importDataToS3';
 import importDataToElastic from '../../devScripts/importDataToElastic';
 import { cronLoadTileLatLonDataSymbol } from '../../src/latLon/DAL/latLonDAL';
+import { getConfig, initConfig } from '../../src/common/config';
 
 export default async (): Promise<void> => {
-  const app = await getApp({
+  await initConfig(true);
+
+  const [, container] = await getApp({
     override: [
       { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
       { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
@@ -22,7 +24,7 @@ export default async (): Promise<void> => {
     useChild: true,
   });
 
-  const config = app.container.resolve<IConfig>(SERVICES.CONFIG);
+  const config = getConfig();
 
   await Promise.allSettled([await importDataToS3(config), await importDataToElastic(config)]).then((results) => {
     results.forEach((result) => {
@@ -32,8 +34,8 @@ export default async (): Promise<void> => {
     });
   });
 
-  const cleanupRegistry = app.container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+  const cleanupRegistry = container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
   await cleanupRegistry.trigger();
-  app.container.reset();
+  container.reset();
   return;
 };

@@ -2,21 +2,25 @@ import { readFileSync } from 'fs';
 import { Logger } from '@map-colonies/js-logger';
 import { createClient, RedisClientOptions } from 'redis';
 import { DependencyContainer, FactoryFunction } from 'tsyringe';
-import { SERVICES } from '../constants';
-import { IConfig } from '../interfaces';
+import { redisConfigPath, SERVICES } from '../constants';
+import { ConfigType } from '../config';
 import { RedisConfig } from './interfaces';
 
 const createConnectionOptions = (redisConfig: RedisConfig): Partial<RedisClientOptions> => {
-  const { host, port, enableSslAuth, sslPaths, ...clientOptions } = redisConfig;
+  const { host, port, tls, ...clientOptions } = redisConfig;
   clientOptions.socket = { host, port };
-  if (enableSslAuth) {
-    clientOptions.socket = {
-      ...clientOptions.socket,
-      tls: true,
-      key: sslPaths.key !== '' ? readFileSync(sslPaths.key) : undefined,
-      cert: sslPaths.cert !== '' ? readFileSync(sslPaths.cert) : undefined,
-      ca: sslPaths.ca !== '' ? readFileSync(sslPaths.ca) : undefined,
-    };
+  if (tls.enabled) {
+    try {
+      clientOptions.socket = {
+        ...clientOptions.socket,
+        tls: true,
+        key: readFileSync(tls.key),
+        cert: readFileSync(tls.cert),
+        ca: readFileSync(tls.ca),
+      };
+    } catch (error) {
+      throw new Error(`Failed to load Redis SSL certificates. Ensure the files exist and are accessible. Details: ${(error as Error).message}`);
+    }
   }
 
   return clientOptions;
@@ -26,8 +30,8 @@ export type RedisClient = ReturnType<typeof createClient>;
 
 export const redisClientFactory: FactoryFunction<RedisClient | undefined> = (container: DependencyContainer): RedisClient | undefined => {
   const logger = container.resolve<Logger>(SERVICES.LOGGER);
-  const config = container.resolve<IConfig>(SERVICES.CONFIG);
-  const dbConfig = config.get<RedisConfig>('db.redis');
+  const config = container.resolve<ConfigType>(SERVICES.CONFIG);
+  const dbConfig = config.get(redisConfigPath);
   const connectionOptions = createConnectionOptions(dbConfig);
   try {
     const redisClient = createClient(connectionOptions)

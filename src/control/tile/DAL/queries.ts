@@ -1,5 +1,5 @@
 import { estypes } from '@elastic/elasticsearch';
-import { BBox } from 'geojson';
+import type { BBox } from 'geojson';
 import { CommonRequestParameters } from '../../../common/interfaces';
 import { ELASTIC_KEYWORDS } from '../../constants';
 import { ConvertSnakeToCamelCase, geoContextQuery, parseGeo, RequireKeys } from '../../../common/utils';

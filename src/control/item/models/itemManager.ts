@@ -1,7 +1,7 @@
-import { IConfig } from 'config';
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { estypes } from '@elastic/elasticsearch';
+import { ConfigType } from '@src/common/config';
 import { SERVICES } from '../../../common/constants';
 import { ITEM_REPOSITORY_SYMBOL, ItemRepository } from '../DAL/itemRepository';
 import { ItemQueryParams } from '../DAL/queries';
@@ -13,7 +13,7 @@ import { Item } from './item';
 export class ItemManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(SERVICES.CONFIG) private readonly config: IConfig,
+    @inject(SERVICES.CONFIG) private readonly config: ConfigType,
     @inject(SERVICES.APPLICATION) private readonly application: IApplication,
     @inject(ITEM_REPOSITORY_SYMBOL) private readonly itemRepository: ItemRepository
   ) {}

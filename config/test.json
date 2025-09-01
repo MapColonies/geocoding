@@ -8,9 +8,7 @@
           "password": "changeme"
         },
         "requestTimeout": 60000,
-        "properties": {
-          "index": "control_gil_v5_test"
-        }
+        "index": "control_gil_v5_test"
       },
       "geotext": {
         "node": "http://elasticsearch:9200",
@@ -19,43 +17,35 @@
           "password": "changeme"
         },
         "requestTimeout": 60000,
-        "properties": {
-          "index": {
-            "geotext": "geotext_index_test",
-            "placetypes": "placetypes_index_test",
-            "hierarchies": "hierarchies_index_test"
-          },
-          "textTermLanguage": "en"
-        }
+        "index": {
+          "geotext": "geotext_index_test",
+          "placetypes": "placetypes_index_test",
+          "hierarchies": "hierarchies_index_test"
+        },
+        "textTermLanguage": "en"
       }
     },
     "s3": {
       "endpoint": "http://minio:9000",
-      "credentials": {
-        "accessKeyId": "minio",
-        "secretAccessKey": "minio123"
-      },
+      "accessKeyId": "minio",
+      "secretAccessKey": "minio123",
       "region": "local",
       "forcePathStyle": true,
-      "files": {
-        "latLonConvertionTable": {
-          "bucket": "geocoding-test",
-          "fileName": "table.json"
-        }
-      }
+      "bucket": "geocoding-test",
+      "fileName": "table.json"
     },
     "redis": {
       "host": "localhost",
       "port": 6379,
       "username": "",
       "password": "",
-      "enableSslAuth": false,
-      "sslPaths": {
+      "tls": {
+        "enabled": false,
         "ca": "",
         "key": "",
         "cert": ""
       },
-      "database": 1
+      "dbIndex": 1
     }
   },
   "application": {

@@ -1,4 +1,4 @@
-import { GeoJSON, Geometry } from 'geojson';
+import type { GeoJSON, Geometry } from 'geojson';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 export interface TextSearchHit {

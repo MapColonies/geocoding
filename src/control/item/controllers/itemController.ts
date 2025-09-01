@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Logger } from '@map-colonies/js-logger';
-import { BoundCounter, Meter } from '@opentelemetry/api-metrics';
+import { type Registry } from 'prom-client';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
@@ -17,15 +17,11 @@ export type GetItemsQueryParams = ConvertCamelToSnakeCase<ItemQueryParams>;
 
 @injectable()
 export class ItemController {
-  private readonly createdResourceCounter: BoundCounter;
-
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(ItemManager) private readonly manager: ItemManager,
-    @inject(SERVICES.METER) private readonly meter: Meter
-  ) {
-    this.createdResourceCounter = this.meter.createCounter('created_item');
-  }
+    @inject(SERVICES.METRICS) private readonly metricsRegistry: Registry
+  ) {}
 
   public getItems: GetItemsHandler = async (req, res, next) => {
     try {

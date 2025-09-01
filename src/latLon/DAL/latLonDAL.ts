@@ -100,7 +100,7 @@ export class LatLonDAL {
 
     this.clearLatLonMap();
 
-    const latLonDataPath = await this.latLonRepository.downloadFile('latLonConvertionTable');
+    const latLonDataPath = await this.latLonRepository.downloadFile();
 
     const { items: latLonData } = JSON.parse(await fs.promises.readFile(latLonDataPath, 'utf8')) as { items: LatLon[] };
 
@@ -143,6 +143,7 @@ export const cronLoadTileLatLonDataFactory: FactoryFunction<cron.ScheduledTask> 
   }
 
   /* istanbul ignore next */
+  // eslint-disable-next-line import-x/no-named-as-default-member
   scheduledTask = cron.schedule(cronPattern, () => {
     if (!latLonDAL.getOnGoingUpdate()) {
       logger.info('cronLoadTileLatLonData: starting update');

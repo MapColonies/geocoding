@@ -1,11 +1,25 @@
-import config from 'config';
+import { config } from '@map-colonies/config';
+import { vectorGeocodingV1 } from '@map-colonies/schemas';
 import importDataToElastic from './importDataToElastic';
 import importDataToS3 from './importDataToS3';
+import { ConfigType } from '../src/common/config';
 
-importDataToElastic(config)
-  .then(() => console.log('Success import data to elastic'))
-  .catch(console.error);
+async function main() {
+  const configInstance: ConfigType = await config({
+    schema: vectorGeocodingV1,
+    offlineMode: true,
+  });
 
-importDataToS3(config)
-  .then(() => console.log('Success import data to s3'))
-  .catch(console.error);
+  importDataToElastic(configInstance)
+    .then(() => console.log('Success import data to elastic'))
+    .catch(console.error);
+
+  importDataToS3(configInstance)
+    .then(() => console.log('Success import data to s3'))
+    .catch(console.error);
+}
+
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

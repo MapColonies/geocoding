@@ -2,7 +2,6 @@
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import { CleanupRegistry } from '@map-colonies/cleanup-registry';
-import { Application } from 'express';
 import { DependencyContainer } from 'tsyringe';
 import httpStatusCodes from 'http-status-codes';
 import { getApp } from '../../../../src/app';
@@ -18,10 +17,10 @@ import { ItemRequestSender } from './helpers/requestSender';
 
 describe('/search/control/items', function () {
   let requestSender: ItemRequestSender;
-  let app: { app: Application; container: DependencyContainer };
+  let depContainer: DependencyContainer;
 
   beforeEach(async function () {
-    app = await getApp({
+    const [app, container] = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
@@ -31,14 +30,14 @@ describe('/search/control/items', function () {
       ],
       useChild: true,
     });
-
-    requestSender = new ItemRequestSender(app.app);
+    depContainer = container;
+    requestSender = new ItemRequestSender(app);
   });
 
   afterAll(async function () {
-    const cleanupRegistry = app.container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+    const cleanupRegistry = depContainer.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
     await cleanupRegistry.trigger();
-    app.container.reset();
+    depContainer.reset();
 
     jest.clearAllTimers();
   });
@@ -388,8 +387,8 @@ describe('/search/control/items', function () {
         (requestParams.limit as unknown as string) === ''
           ? "Empty value found for query parameter 'limit'"
           : requestParams.limit < 1
-          ? 'request/query/limit must be >= 1'
-          : 'request/query/limit must be <= 15';
+            ? 'request/query/limit must be >= 1'
+            : 'request/query/limit must be <= 15';
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
       expect(response.body).toEqual({

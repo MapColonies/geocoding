@@ -1,12 +1,12 @@
+// eslint-disable-next-line @typescript-eslint/naming-convention
 import * as Ajv from 'ajv';
 import utm from 'utm-latlng';
-import { BBox, Geometry, Point } from 'geojson';
+import type { BBox, Geometry, Point } from 'geojson';
 import { estypes } from '@elastic/elasticsearch';
 import { ListBucketsCommand, S3Client } from '@aws-sdk/client-s3';
 import { DependencyContainer, FactoryFunction } from 'tsyringe';
 import { Logger } from '@map-colonies/js-logger';
 import { ELASTIC_KEYWORDS } from '../control/constants';
-import { TimeoutError } from './errors';
 import { RedisClient } from './redis';
 import { GeoContext, GeoContextMode, WGS84Coordinate } from './interfaces';
 import { SERVICES } from './constants';
@@ -132,7 +132,7 @@ const hasCoordinates = (input: GeoContext): boolean => {
 
 const parseCoordinates = (input: GeoContext): Geometry => {
   const { x, y, zone, radius } = input;
-  const { lon, lat } = x && y && zone ? convertUTMToWgs84(x, y, zone) : (input as Required<Pick<GeoContext, 'lat' | 'lon'>>);
+  const { lon, lat } = x != null && y != null && zone != null ? convertUTMToWgs84(x, y, zone) : (input as Required<Pick<GeoContext, 'lat' | 'lon'>>);
 
   return {
     type: 'Circle',
@@ -176,26 +176,28 @@ export const validateWGS84Coordinate = (coordinate: { lon: number; lat: number }
 };
 
 /* eslint-disable @typescript-eslint/naming-convention */
-export const convertWgs84ToUTM = (
-  { longitude, latitude }: { longitude: number; latitude: number },
-  utmPrecision = 0
-):
-  | string
-  | {
+export const CommonUtils = {
+  convertWgs84ToUTM: (
+    { longitude, latitude }: { longitude: number; latitude: number },
+    utmPrecision = 0
+  ):
+    | string
+    | {
+        Easting: number;
+        Northing: number;
+        ZoneNumber: number;
+      } => {
+    //@ts-expect-error: utm has problem with types. Need to ignore ts error here
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    const UTMcoordinates = new utm().convertLatLngToUtm(latitude, longitude, utmPrecision) as {
       Easting: number;
       Northing: number;
       ZoneNumber: number;
-    } => {
-  //@ts-expect-error: utm has problem with types. Need to ignore ts error here
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  const UTMcoordinates = new utm().convertLatLngToUtm(latitude, longitude, utmPrecision) as {
-    Easting: number;
-    Northing: number;
-    ZoneNumber: number;
-    ZoneLetter: string;
-  };
+      ZoneLetter: string;
+    };
 
-  return UTMcoordinates;
+    return UTMcoordinates;
+  },
 };
 /* eslint-enable @typescript-eslint/naming-convention */
 

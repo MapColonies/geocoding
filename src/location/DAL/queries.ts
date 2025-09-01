@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
+
 import WKT, { GeoJSONPolygon } from 'wellknown';
 import { estypes } from '@elastic/elasticsearch';
 import { QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
@@ -164,6 +166,7 @@ export const geotextQuery = (
     });
 
   hierarchies.forEach((hierarchy) => {
+    // eslint-disable-next-line import-x/no-named-as-default-member
     const hierarchyShape = typeof hierarchy.geo_json === 'string' ? WKT.parse(hierarchy.geo_json) : hierarchy.geo_json;
     esQuery.query?.function_score?.functions?.push({
       weight: hierarchy.weight,

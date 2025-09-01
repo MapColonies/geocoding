@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { BBox, Feature } from 'geojson';
+import type { BBox, Feature } from 'geojson';
 import { GetGeotextSearchParams } from '../../../src/location/interfaces';
 import { GenericGeocodingResponse } from '../../../src/common/interfaces';
 import { MockLocationQueryFeature } from '../../mockObjects/locations';
@@ -11,7 +11,7 @@ const expectedObjectWithScore = (obj: MockLocationQueryFeature, expect: jest.Exp
       ...obj.properties,
       score: expect.any(Number) as number,
     },
-  } as GenericGeocodingResponse<Feature>['features'][number]);
+  }) as GenericGeocodingResponse<Feature>['features'][number];
 
 const expectedGeocodingElasticResponseMetrics = (
   responseParams: Partial<GenericGeocodingResponse<Feature>['geocoding']['response']>,
