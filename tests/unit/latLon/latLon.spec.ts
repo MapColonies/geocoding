@@ -3,7 +3,7 @@ import jsLogger from '@map-colonies/js-logger';
 import { LatLonManager } from '../../../src/latLon/models/latLonManager';
 import { LatLonDAL } from '../../../src/latLon/DAL/latLonDAL';
 import { GenericGeocodingFeatureResponse, WGS84Coordinate } from '../../../src/common/interfaces';
-import { convertCamelToSnakeCase } from '../../../src/control/utils';
+import { convertCamelToSnakeCase } from '../../../src/common/utils';
 import { BadRequestError } from '../../../src/common/errors';
 import { CommonUtils } from '../../../src/common/utils';
 

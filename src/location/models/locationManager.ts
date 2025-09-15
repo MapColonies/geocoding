@@ -4,7 +4,7 @@ import type { Feature } from 'geojson';
 import { ConfigType } from '@src/common/config';
 import { SERVICES, elasticConfigPath } from '../../common/constants';
 import { GEOTEXT_REPOSITORY_SYMBOL, GeotextRepository } from '../DAL/locationRepository';
-import { GetGeotextSearchParams, TextSearchParams } from '../interfaces';
+import { GetGeotextSearchByCoordinatesParams, GetGeotextSearchParams, TextSearchParams } from '../interfaces';
 import { convertResult } from '../utils';
 import { GenericGeocodingResponse, IApplication } from '../../common/interfaces';
 import { ElasticGeotextClientConfig } from '../../common/elastic/interfaces';
@@ -69,7 +69,7 @@ export class GeotextSearchManager {
       { geotextCitiesLayer: this.appConfig.geotextCitiesLayer, roadPlaceTypes: this.appConfig.roadPlaceTypes }
     );
 
-    return convertResult(searchParams, esResult, {
+    return convertResult(params, searchParams, esResult, {
       sources: this.appConfig.sources,
       regionCollection: this.appConfig.regions,
       nameKeys: this.appConfig.nameTranslationsKeys,
@@ -79,6 +79,26 @@ export class GeotextSearchManager {
         placeType: placeTypeMatchLatencyMs,
         hierarchies: hierarchiesMatchLatencyMs,
         nlpAnalyser: nlpAnalyserLatency,
+      },
+    });
+  }
+
+  public async searchByCoordinates(params: GetGeotextSearchByCoordinatesParams): Promise<GenericGeocodingResponse<Feature>> {
+    const { geotext: geotextIndex } = this.elasticConfig.index as {
+      [key: string]: string;
+    };
+    const esResult = await this.geotextRepository.geotextSearchByCoordinates(geotextIndex, params);
+
+    return convertResult(params, undefined, esResult, {
+      sources: this.appConfig.sources,
+      regionCollection: this.appConfig.regions,
+      nameKeys: this.appConfig.nameTranslationsKeys,
+      mainLanguageRegex: this.appConfig.mainLanguageRegex,
+      externalResourcesLatency: {
+        query: esResult.took,
+        placeType: undefined,
+        hierarchies: undefined,
+        nlpAnalyser: undefined,
       },
     });
   }

@@ -6,10 +6,9 @@ import { ConfigType, getConfig } from '../../../src/common/config';
 import { GeotextRepository } from '../../../src/location/DAL/locationRepository';
 import { GeotextSearchManager } from '../../../src/location/models/locationManager';
 import { GenericGeocodingResponse, IApplication } from '../../../src/common/interfaces';
-import { ConvertSnakeToCamelCase } from '../../../src/common/utils';
-import { GetGeotextSearchParams } from '../../../src/location/interfaces';
+import { ConvertSnakeToCamelCase, convertCamelToSnakeCase } from '../../../src/common/utils';
+import { GetGeotextSearchByCoordinatesParams, GetGeotextSearchParams } from '../../../src/location/interfaces';
 import { NY_JFK_AIRPORT } from '../../mockObjects/locations';
-import { convertCamelToSnakeCase } from '../../../src/control/utils';
 import { expectedResponse } from '../../integration/location/utils';
 import { BadRequestError } from '../../../src/common/errors';
 
@@ -21,6 +20,7 @@ describe('#GeotextSearchManager', () => {
   const generatePlacetype = jest.fn();
   const extractHierarchy = jest.fn();
   const geotextSearch = jest.fn();
+  const geotextSearchByCoordinates = jest.fn();
 
   beforeAll(() => {
     config = getConfig();
@@ -34,6 +34,7 @@ describe('#GeotextSearchManager', () => {
       generatePlacetype,
       extractHierarchy,
       geotextSearch,
+      geotextSearchByCoordinates,
     } as unknown as GeotextRepository;
 
     geotextSearchManager = new GeotextSearchManager(jsLogger({ enabled: false }), config.get('application') as IApplication, config, repositry);
@@ -263,5 +264,80 @@ describe('#GeotextSearchManager', () => {
 
     const response = geotextSearchManager.regions();
     expect(response).toEqual(Object.keys({}));
+  });
+
+  it('should return location by coordinates', async () => {
+    geotextSearchByCoordinates.mockResolvedValueOnce(<estypes.SearchResponse>{
+      took: 2,
+      timed_out: false,
+      _shards: { total: 1, successful: 1, skipped: 0, failed: 0 },
+      hits: {
+        total: { value: 1, relation: 'eq' },
+        max_score: 1.2880917,
+        hits: [
+          {
+            _index: expect.any(String) as string,
+            _id: expect.any(String) as string,
+            _score: 1.2880917,
+            _source: {
+              source: null,
+              layer_name: NY_JFK_AIRPORT.properties.matches[0].layer,
+              source_id: NY_JFK_AIRPORT.properties.matches[0].source_id,
+              placetype: NY_JFK_AIRPORT.properties.placetype,
+              sub_placetype: NY_JFK_AIRPORT.properties.sub_placetype,
+              geo_json: NY_JFK_AIRPORT.geometry,
+              region: [(NY_JFK_AIRPORT.properties.regions as { region: string }[])[0].region],
+              sub_region: (NY_JFK_AIRPORT.properties.regions as { sub_region_names: string[] }[])[0].sub_region_names,
+              name: NY_JFK_AIRPORT.properties.names.default[0],
+              text: NY_JFK_AIRPORT.properties.names.en,
+              translated_text: NY_JFK_AIRPORT.properties.names.fr,
+            },
+            highlight: undefined,
+          },
+        ],
+      },
+    });
+
+    const query: ConvertSnakeToCamelCase<GetGeotextSearchByCoordinatesParams> = {
+      lat: 33.943812358024545,
+      lon: -118.41349424301336,
+      limit: 1,
+      relation: 'intersects',
+    };
+
+    const response = await geotextSearchManager.searchByCoordinates(query);
+
+    expect(response).toEqual<GenericGeocodingResponse<Feature>>(
+      expectedResponse(
+        {
+          ...(convertCamelToSnakeCase(query as unknown as Record<string, unknown>) as unknown as GetGeotextSearchParams),
+          geo_context: undefined,
+          geo_context_mode: undefined,
+          region: undefined,
+          source: undefined,
+        },
+        {},
+        [
+          {
+            ...NY_JFK_AIRPORT,
+            properties: {
+              ...NY_JFK_AIRPORT.properties,
+              matches: [
+                {
+                  ...NY_JFK_AIRPORT.properties.matches[0],
+                  source: null as never,
+                },
+              ],
+              names: {
+                ...NY_JFK_AIRPORT.properties.names,
+                display: expect.stringContaining('JFK') as string,
+              },
+            },
+          },
+        ],
+        expect,
+        true
+      )
+    );
   });
 });

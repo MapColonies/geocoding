@@ -57,11 +57,11 @@ const generateDisplayNameFromHighlight = (
 
 export const generateDisplayName = (
   highlight: SearchHit['highlight'],
-  params: TextSearchParams,
+  params: TextSearchParams | undefined,
   feature: TextSearchHit,
   sources?: IApplication['sources']
 ): string => {
-  return `${highlight ? generateDisplayNameFromHighlight(highlight, params.query.split(' ').length, params.name) : feature.name}, ${
+  return `${highlight && params ? generateDisplayNameFromHighlight(highlight, params.query.split(' ').length, params.name) : feature.name}, ${
     feature.placetype
   }, ${feature.sub_placetype}, ${feature.region[0]}, ${feature.sub_region[0] ? feature.sub_region[0] + ', ' : ''}${
     /* istanbul ignore next */

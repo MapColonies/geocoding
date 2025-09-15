@@ -4,8 +4,7 @@
 
 import WKT, { GeoJSONPolygon } from 'wellknown';
 import { estypes } from '@elastic/elasticsearch';
-import { QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
-import { TextSearchParams } from '../interfaces';
+import { GetGeotextSearchByCoordinatesParams, TextSearchParams } from '../interfaces';
 import { GeoContextMode, IApplication } from '../../common/interfaces';
 import { BadRequestError } from '../../common/errors';
 import { geoContextQuery } from '../../common/utils';
@@ -64,7 +63,7 @@ export const geotextQuery = (
     const geoContextQueryFilter = geoContextQuery(geoContext, GeoContextMode.FILTER, GEOJSON_FIELD).filter![0];
 
     if (geoContextMode === GeoContextMode.FILTER) {
-      (esQuery.query?.function_score?.query?.bool?.filter as QueryDslQueryContainer[]).push(geoContextQueryFilter);
+      (esQuery.query?.function_score?.query?.bool?.filter as estypes.QueryDslQueryContainer[]).push(geoContextQueryFilter);
     } else {
       esQuery.query?.function_score?.functions?.push({
         weight: boosts.viewbox,
@@ -74,7 +73,7 @@ export const geotextQuery = (
   }
 
   if (!name && subPlaceTypes?.length) {
-    (esQuery.query?.function_score?.query?.bool?.must as QueryDslQueryContainer[]).push(
+    (esQuery.query?.function_score?.query?.bool?.must as estypes.QueryDslQueryContainer[]).push(
       ...[
         {
           terms: {
@@ -89,7 +88,7 @@ export const geotextQuery = (
       ]
     );
   } else {
-    (esQuery.query?.function_score?.query?.bool?.must as QueryDslQueryContainer[]).push({
+    (esQuery.query?.function_score?.query?.bool?.must as estypes.QueryDslQueryContainer[]).push({
       match: {
         [TEXT_FIELD]: {
           query,
@@ -100,14 +99,14 @@ export const geotextQuery = (
   }
 
   source?.length &&
-    (esQuery.query?.function_score?.query?.bool?.filter as QueryDslQueryContainer[]).push({
+    (esQuery.query?.function_score?.query?.bool?.filter as estypes.QueryDslQueryContainer[]).push({
       terms: {
         [SOURCE_FIELD]: source,
       },
     });
 
   region?.length &&
-    (esQuery.query?.function_score?.query?.bool?.filter as QueryDslQueryContainer[]).push({
+    (esQuery.query?.function_score?.query?.bool?.filter as estypes.QueryDslQueryContainer[]).push({
       terms: {
         [REGION_FIELD]: region,
       },
@@ -155,7 +154,7 @@ export const geotextQuery = (
 
   geotextLayerName?.roadPlaceTypes !== undefined &&
     !placeTypes?.some((pt) => geotextLayerName.roadPlaceTypes!.includes(pt)) &&
-    (esQuery.query?.function_score?.query?.bool?.filter as QueryDslQueryContainer[]).push({
+    (esQuery.query?.function_score?.query?.bool?.filter as estypes.QueryDslQueryContainer[]).push({
       bool: {
         must_not: {
           terms: {
@@ -235,3 +234,39 @@ export const hierarchyQuery = (query: string, disableFuzziness: boolean): estype
     },
   },
 });
+
+export const searchByCoordinatesQuery = ({ lat, lon, limit, source, relation }: GetGeotextSearchByCoordinatesParams): estypes.SearchRequest => {
+  const esQuery: estypes.SearchRequest = {
+    query: {
+      function_score: {
+        query: {
+          bool: {
+            filter: [
+              {
+                geo_shape: {
+                  [GEOJSON_FIELD]: {
+                    shape: {
+                      type: 'point',
+                      coordinates: [lon, lat],
+                    },
+                    relation,
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+    },
+    size: limit,
+  };
+
+  source?.length &&
+    (esQuery.query?.function_score?.query?.bool?.filter as estypes.QueryDslQueryContainer[]).push({
+      terms: {
+        [SOURCE_FIELD]: source,
+      },
+    });
+
+  return esQuery;
+};

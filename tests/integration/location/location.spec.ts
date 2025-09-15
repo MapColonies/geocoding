@@ -11,7 +11,7 @@ import { ConfigType, getConfig } from '../../../src/common/config';
 import { SERVICES } from '../../../src/common/constants';
 import { S3_REPOSITORY_SYMBOL } from '../../../src/common/s3/s3Repository';
 import { cronLoadTileLatLonDataSymbol } from '../../../src/latLon/DAL/latLonDAL';
-import { GetGeotextSearchParams } from '../../../src/location/interfaces';
+import { GetGeotextSearchByCoordinatesParams, GetGeotextSearchParams } from '../../../src/location/interfaces';
 import { GenericGeocodingResponse, GeoContext, GeoContextMode } from '../../../src/common/interfaces';
 import {
   OSM_LA_PORT,
@@ -704,5 +704,57 @@ describe('/search/location', function () {
         }
       }
     );
+  });
+
+  describe('Coordinates Search', function () {
+    it('should return 200 status code JFK airport by coordinates search', async function () {
+      const requestParams: GetGeotextSearchByCoordinatesParams = {
+        lat: 40.64798302807037,
+        lon: -73.78416849444676,
+        limit: 5,
+        relation: 'intersects',
+      };
+
+      const response = await requestSender.getLocationByCoordinates(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      // expect(response).toSatisfyApiSpec();
+      expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
+        expectedResponse(
+          requestParams,
+          {},
+          [
+            {
+              ...NY_JFK_AIRPORT,
+              properties: {
+                ...NY_JFK_AIRPORT.properties,
+                names: {
+                  ...NY_JFK_AIRPORT.properties.names,
+                  display: NY_JFK_AIRPORT_DISPLAY_NAMES[0],
+                },
+              },
+            },
+          ],
+          expect,
+          true
+        )
+      );
+    });
+
+    it('should return 200 status code and OSM LA port by coordinates search', async function () {
+      const requestParams: GetGeotextSearchByCoordinatesParams = {
+        lon: -118.26484875656129,
+        lat: 33.7396332812141,
+        source: ['osm'],
+        limit: 5,
+        relation: 'intersects',
+      };
+
+      const response = await requestSender.getLocationByCoordinates(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      // expect(response).toSatisfyApiSpec();
+      expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(expectedResponse(requestParams, {}, [OSM_LA_PORT], expect, true));
+    });
   });
 });

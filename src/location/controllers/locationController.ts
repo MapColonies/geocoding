@@ -6,7 +6,7 @@ import type { Feature } from 'geojson';
 import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
 import { GeotextSearchManager } from '../models/locationManager';
-import { GetGeotextSearchParams } from '../interfaces';
+import { GetGeotextSearchByCoordinatesParams, GetGeotextSearchParams } from '../interfaces';
 import { GenericGeocodingResponse } from '../../common/interfaces';
 
 type GetGeotextSearchHandler = RequestHandler<
@@ -14,6 +14,13 @@ type GetGeotextSearchHandler = RequestHandler<
   GenericGeocodingResponse<Feature> | { message: string; error: string },
   undefined,
   GetGeotextSearchParams
+>;
+
+type GetGeotextSearchByCoordinatesHandler = RequestHandler<
+  unknown,
+  GenericGeocodingResponse<Feature> | { message: string; error: string },
+  undefined,
+  GetGeotextSearchByCoordinatesParams
 >;
 
 type GetRegionshHandler = RequestHandler<unknown, string[], undefined, undefined>;
@@ -52,6 +59,25 @@ export class GeotextSearchController {
       return res.status(httpStatus.OK).json(response);
     } catch (error: unknown) {
       this.logger.error({ msg: 'Error in getGeotextSearch', error });
+      next(error);
+    }
+  };
+
+  public getGeotextSearchByCoordinates: GetGeotextSearchByCoordinatesHandler = async (req, res, next) => {
+    try {
+      const { lat, lon, limit, source, relation } = req.query;
+
+      const response = await this.manager.searchByCoordinates({
+        lat,
+        lon,
+        limit,
+        source: source?.map((s) => s.toLowerCase()),
+        relation,
+      });
+
+      return res.status(httpStatus.OK).json(response);
+    } catch (error) {
+      this.logger.error({ msg: 'Error in getGeotextSearchByCoordinates', error });
       next(error);
     }
   };
