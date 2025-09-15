@@ -235,7 +235,7 @@ paths:
           description: Sub tile number
           schema:
             type: string
-            pattern: ^[1-9][0-9]*$
+            pattern: ^[0-9][0-9]*$
         - name: mgrs
           description: 1 meters MGRS Tile
           example: 18SUJ2338907395
@@ -290,7 +290,7 @@ paths:
           description: The sub tile the item in it (required if tile is defined)
           schema:
             type: string
-            pattern: ^[1-9][0-9]*$
+            pattern: ^[0-9][0-9]*$
           example: '66'
         - $ref: '#/components/parameters/geo_context'
         - $ref: '#/components/parameters/geo_context_mode'
