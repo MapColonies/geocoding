@@ -76,7 +76,7 @@ export const convertResult = (
         hierarchies_latency_ms: externalResourcesLatency.hierarchies,
         ...(extraParams
           ? {
-              name: 'name' in extraParams ? extraParams.name : undefined,
+              ...(extraParams.name && extraParams.name.trim() !== '' ? { name: extraParams.name } : {}),
               place_types: 'placeTypes' in extraParams ? extraParams.placeTypes : undefined,
               sub_place_types: 'subPlaceTypes' in extraParams ? extraParams.subPlaceTypes : undefined,
               hierarchies: 'hierarchies' in extraParams && extraParams.hierarchies.length ? extraParams.hierarchies : undefined,
