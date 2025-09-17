@@ -1,6 +1,6 @@
 import type { Application } from 'express';
 import supertest, { agent } from 'supertest';
-import { GetGeotextSearchParams } from '../../../../src/location/interfaces';
+import { GetGeotextSearchByCoordinatesParams, GetGeotextSearchParams } from '../../../../src/location/interfaces';
 
 export class LocationRequestSender {
   private readonly pathPrefix = '/search/location';
@@ -30,5 +30,14 @@ export class LocationRequestSender {
       .set('Content-Type', 'application/json')
       .set('x-api-key', 'abc123')
       .set('x-user-id', 'abc123');
+  }
+
+  public async getLocationByCoordinates(queryParams: GetGeotextSearchByCoordinatesParams): Promise<supertest.Response> {
+    return agent(this.app)
+      .get(`${this.pathPrefix}/coordinates`)
+      .set('Content-Type', 'application/json')
+      .set('x-api-key', 'abc123')
+      .set('x-user-id', 'abc123')
+      .query(queryParams);
   }
 }

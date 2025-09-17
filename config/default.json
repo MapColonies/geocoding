@@ -35,7 +35,7 @@
   "db": {
     "elastic": {
       "control": {
-        "node": "http://control_elastic:9200",
+        "node": "http://localhost:9200",
         "auth": {
           "username": "elastic",
           "password": "changeme"
@@ -44,7 +44,7 @@
         "index": "control_index"
       },
       "geotext": {
-        "node": "http://geotext_elastic:9200",
+        "node": "http://localhost:9200",
         "auth": {
           "username": "elastic",
           "password": "changeme"
@@ -59,9 +59,9 @@
       }
     },
     "s3": {
-      "endpoint": "http://s3:9000",
-      "accessKeyId": "accessKeyId",
-      "secretAccessKey": "secretAccessKey",
+      "endpoint": "http://localhost:9000",
+      "accessKeyId": "myappuser",
+      "secretAccessKey": "myappsecret",
       "forcePathStyle": true,
       "region": "local",
       "bucket": "geocoding",
@@ -85,7 +85,7 @@
   "application": {
     "site": "local",
     "services": {
-      "tokenTypesUrl": "http://NLP_ANALYSES"
+      "tokenTypesUrl": "http://localhost:5000"
     },
     "cronLoadTileLatLonDataPattern": "0 * * * *",
     "elasticQueryBoosts": {

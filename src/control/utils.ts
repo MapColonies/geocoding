@@ -86,7 +86,7 @@ export const formatResponse = <T extends Tile | Item | Route>(
                 },
               ],
               names: {
-                default: [generatedDisplayName.at(LAST_ELEMENT_INDEX)],
+                default: generatedDisplayName.length > 0 ? [generatedDisplayName[generatedDisplayName.length - 1]] : [],
                 display: generatedDisplayName.join(' '),
               },
               score,

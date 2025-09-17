@@ -6,7 +6,8 @@ import { StatusCodes } from 'http-status-codes';
 import axios, { AxiosError, AxiosResponse as Response } from 'axios';
 import { InternalServerError } from '../common/errors';
 import { GenericGeocodingResponse, IApplication } from '../common/interfaces';
-import { TextSearchParams } from './interfaces';
+import { convertCamelToSnakeCase, ConvertSnakeToCamelCase } from '../common/utils';
+import { GetGeotextSearchByCoordinatesParams, GetGeotextSearchParams, TextSearchParams } from './interfaces';
 import { TextSearchHit } from './models/elasticsearchHits';
 import { generateDisplayName } from './parsing';
 
@@ -39,7 +40,8 @@ export const fetchNLPService = async <T>(endpoint: string, requestData: object):
 
 /* eslint-disable @typescript-eslint/naming-convention */
 export const convertResult = (
-  params: TextSearchParams,
+  inputParams: ConvertSnakeToCamelCase<GetGeotextSearchParams> | GetGeotextSearchByCoordinatesParams,
+  extraParams: TextSearchParams | undefined,
   results: SearchResponse<TextSearchHit>,
   {
     sources,
@@ -54,9 +56,9 @@ export const convertResult = (
     mainLanguageRegex: IApplication['mainLanguageRegex'];
     externalResourcesLatency: {
       query: number;
-      nlpAnalyser: number;
-      placeType: number;
-      hierarchies: number;
+      nlpAnalyser?: number;
+      placeType?: number;
+      hierarchies?: number;
     };
   }
 ): GenericGeocodingResponse<Feature> => {
@@ -64,15 +66,7 @@ export const convertResult = (
     type: 'FeatureCollection',
     geocoding: {
       version: process.env.npm_package_version as string,
-      query: {
-        query: params.query,
-        region: params.region,
-        source: params.source,
-        geo_context: params.geoContext,
-        geo_context_mode: params.geoContextMode,
-        disable_fuzziness: params.disableFuzziness,
-        limit: params.limit,
-      },
+      query: convertCamelToSnakeCase(inputParams as object as Record<string, unknown>),
       response: {
         results_count: results.hits.hits.length,
         max_score: results.hits.max_score ?? 0,
@@ -80,10 +74,14 @@ export const convertResult = (
         nlp_anlyser_latency_ms: externalResourcesLatency.nlpAnalyser,
         place_type_latency_ms: externalResourcesLatency.placeType,
         hierarchies_latency_ms: externalResourcesLatency.hierarchies,
-        name: params.name ?? undefined,
-        place_types: params.placeTypes,
-        sub_place_types: params.subPlaceTypes,
-        hierarchies: params.hierarchies.length ? params.hierarchies : undefined,
+        ...(extraParams
+          ? {
+              ...(extraParams.name && extraParams.name.trim() !== '' ? { name: extraParams.name } : {}),
+              place_types: 'placeTypes' in extraParams ? extraParams.placeTypes : undefined,
+              sub_place_types: 'subPlaceTypes' in extraParams ? extraParams.subPlaceTypes : undefined,
+              hierarchies: 'hierarchies' in extraParams && extraParams.hierarchies.length ? extraParams.hierarchies : undefined,
+            }
+          : {}),
       },
     },
     features: results.hits.hits.map(({ _source: feature, _score: score, highlight }): GenericGeocodingResponse<Feature>['features'][number] => {
@@ -104,7 +102,7 @@ export const convertResult = (
             [nameKeys[0]]: new RegExp(mainLanguageRegex).test(feature!.text[0]) ? allNames.shift() : allNames.pop(),
             [nameKeys[1]]: allNames.pop(),
             ['default']: [feature!.name],
-            display: generateDisplayName(highlight, params, feature!, sources),
+            display: generateDisplayName(highlight, extraParams, feature!, sources),
           },
           placetype: feature?.placetype, // TODO: check if to remove this
           sub_placetype: feature?.sub_placetype,

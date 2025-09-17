@@ -3,13 +3,13 @@ import { estypes } from '@elastic/elasticsearch';
 import { FactoryFunction } from 'tsyringe';
 import { ElasticClient, ElasticClients } from '../../common/elastic';
 import { fetchNLPService } from '../utils';
-import { TextSearchParams, TokenResponse } from '../interfaces';
+import { GetGeotextSearchByCoordinatesParams, TextSearchParams, TokenResponse } from '../interfaces';
 import { PlaceTypeSearchHit, HierarchySearchHit, TextSearchHit } from '../models/elasticsearchHits';
 import { BadRequestError } from '../../common/errors';
 import { IApplication } from '../../common/interfaces';
 import { queryElastic } from '../../common/elastic/utils';
 import { SERVICES } from '../../common/constants';
-import { hierarchyQuery, placetypeQuery, geotextQuery } from './queries';
+import { hierarchyQuery, placetypeQuery, geotextQuery, searchByCoordinatesQuery } from './queries';
 
 const FIND_QUOTES = /["']/g;
 
@@ -105,6 +105,15 @@ const createGeotextRepository = (client: ElasticClient, logger: Logger) => {
         index,
         ...geotextQuery(params, textLanguage, elasticQueryBoosts, geotextLayerName),
       });
+      return response;
+    },
+
+    async geotextSearchByCoordinates(index: string, params: GetGeotextSearchByCoordinatesParams): Promise<estypes.SearchResponse<TextSearchHit>> {
+      const response = await queryElastic<TextSearchHit>(client, {
+        index,
+        ...searchByCoordinatesQuery(params),
+      });
+
       return response;
     },
   };
