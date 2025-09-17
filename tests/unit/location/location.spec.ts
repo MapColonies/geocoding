@@ -109,7 +109,6 @@ describe('#GeotextSearchManager', () => {
             place_types: ['transportation'],
             sub_place_types: ['airport'],
             hierarchies: undefined,
-            name: '',
           },
           [
             {
@@ -196,7 +195,6 @@ describe('#GeotextSearchManager', () => {
           place_types: ['transportation'],
           sub_place_types: ['airport'],
           hierarchies: undefined,
-          name: '',
         },
         [
           {
