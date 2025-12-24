@@ -35,7 +35,7 @@
       "fileName": "table.json"
     },
     "redis": {
-      "host": "localhost",
+      "host": "http://redis:6379",
       "port": 6379,
       "username": "",
       "password": "",
