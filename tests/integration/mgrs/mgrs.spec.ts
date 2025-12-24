@@ -5,6 +5,8 @@ import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
+import { IConfig } from 'config';
+import { RedisClient } from '@src/common/redis';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { S3_REPOSITORY_SYMBOL } from '../../../src/common/s3/s3Repository';
@@ -87,6 +89,22 @@ describe('/search/MGRS', function () {
           },
           score: 1,
         },
+      });
+    });
+
+    describe('Redis uses prefix key', () => {
+      it('should return 200 status code and add key to Redis with prefix', async function () {
+        const config = depContainer.resolve<IConfig>(SERVICES.CONFIG);
+        const prefix = config.get<string | undefined>('redis.prefix');
+        const redisConnection = depContainer.resolve<RedisClient>(SERVICES.REDIS);
+
+        const response = await requestSender.getTile({ tile: '18SUJ2339007393' });
+
+        const keys = prefix !== undefined ? await redisConnection.keys(prefix + '*') : await redisConnection.keys('*');
+
+        expect(keys.length).toBeGreaterThanOrEqual(1);
+
+        expect(response.status).toBe(httpStatusCodes.OK);
       });
     });
   });

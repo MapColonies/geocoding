@@ -79,7 +79,8 @@
         "cert": ""
       },
       "dbIndex": 0,
-      "ttl": 600
+      "ttl": 600,
+      "prefix": "geocoding"
     }
   },
   "application": {
