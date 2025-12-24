@@ -5,8 +5,10 @@ import { trace } from '@opentelemetry/api';
 import { DependencyContainer } from 'tsyringe';
 import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import httpStatusCodes from 'http-status-codes';
+import { IConfig } from 'config';
+import { RedisClient } from '@src/common/redis';
 import { getApp } from '../../../src/app';
-import { SERVICES } from '../../../src/common/constants';
+import { redisConfigPath, SERVICES } from '../../../src/common/constants';
 import { LatLonDAL } from '../../../src/latLon/DAL/latLonDAL';
 import { GenericGeocodingFeatureResponse } from '../../../src/common/interfaces';
 import { LatLonRequestSender } from './helpers/requestSender';
@@ -137,6 +139,48 @@ describe('/lookup', function () {
           mgrs: '33UUU6099626777',
           score: 1,
         },
+      });
+    });
+
+    describe('Redis uses prefix key', () => {
+      it('should return 200 status code and add key to Redis with prefix', async function () {
+        const realConfig = depContainer.resolve<IConfig>(SERVICES.CONFIG);
+        const prefix = 'test-prefix-latlon';
+
+        const configWithPrefix: IConfig = {
+          ...realConfig,
+          get<T>(key: string): T {
+            if (key === redisConfigPath) {
+              const realRedisConfig = realConfig.get<RedisClient>(redisConfigPath);
+              return { ...realRedisConfig, prefix } as T;
+            }
+            return realConfig.get<T>(key);
+          },
+        };
+
+        const mockRegisterOptions = {
+          override: [
+            { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
+            { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
+            { token: SERVICES.CONFIG, provider: { useValue: configWithPrefix } },
+          ],
+          useChild: true,
+        };
+
+        const [mockApp, localContainer] = await getApp(mockRegisterOptions);
+        const localRequestSender = new LatLonRequestSender(mockApp);
+
+        const redisConnection = localContainer.resolve<RedisClient>(SERVICES.REDIS);
+
+        const response = await localRequestSender.convertCoordinatesToGrid({
+          lat: 52.57326537485767,
+          lon: 12.948781146422107,
+          target_grid: 'MGRS',
+        });
+
+        const keys = await redisConnection.keys(prefix + '*');
+        expect(keys.length).toBeGreaterThanOrEqual(1);
+        expect(response.status).toBe(httpStatusCodes.OK);
       });
     });
   });
