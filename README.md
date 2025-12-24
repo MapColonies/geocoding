@@ -41,8 +41,9 @@ Almost all of our routes consists of the same common query parameters: `geo_cont
 | disable_fuzziness | Boolean  | false | Fuzziness is on by default. If you want exact match, you may set `disable_fuzziness: true`. |
 > [!IMPORTANT]
 > We also have Feedback API. Each request is sent back with x-req-id which is the identifier of the request. We kindly ask our users to provide us with a request to Feedback API which contains x-api-key and clicked response. It enables us to research the request and response to be more accurate.
-> Feedback API source code is built in a different repository at <TODO: ADD LINK TO FEEDBACK API REPO>.
+> Feedback API source code is built in a different repository at [feedback-api](https://github.com/MapColonies/feedback-api).
 > Geocoding API inserts the request and response to Redis before the response is sent.
+Speaking of Redis, in the redis config you can add a `prefix` flag, if you'd like to add keys with prefixes to redis.
 
 ## Installation
 Setup Elasticsearch and S3 provider (For local environment, Minio as a personal recommendation).

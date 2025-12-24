@@ -37,7 +37,7 @@ export class FeedbackApiMiddlewareManager {
     const { ttl: redisTtl } = this.config.get(redisConfigPath);
 
     const originalJson = res.json;
-    const fullRequestId = prefix != undefined ? `${prefix}:${reqId as string}` : (reqId as string);
+    const fullRequestId = prefix !== undefined ? `${prefix}:${reqId as string}` : (reqId as string);
     const logJson = function (this: Response, body: JSON): Response {
       geocodingResponseDetails.response = body;
       redisClient
