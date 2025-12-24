@@ -78,10 +78,12 @@ jobs:
           --health-retries 5
 
       redis:
-        # Docker Hub image
-        image: redis
+        image: redis:7.2.3
+        env:
+          ALLOW_EMPTY_PASSWORD: yes
+        ports:
+          - 6379:6379
 
-        # Set health checks to wait until redis has started
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
