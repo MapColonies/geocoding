@@ -560,6 +560,8 @@ describe('/search/location', function () {
         const keys = await redisConnection.keys(prefix + '*');
         expect(keys.length).toBeGreaterThanOrEqual(1);
         expect(response.status).toBe(httpStatusCodes.OK);
+
+        await localContainer.dispose();
       });
     });
   });
