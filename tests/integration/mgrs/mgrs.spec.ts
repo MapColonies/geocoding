@@ -2,32 +2,21 @@
 import 'jest-openapi';
 import { DependencyContainer } from 'tsyringe';
 import { CleanupRegistry } from '@map-colonies/cleanup-registry';
-import jsLogger from '@map-colonies/js-logger';
-import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
+import { IConfig } from 'config';
+import { RedisClient } from '@src/common/redis';
 import { getApp } from '../../../src/app';
-import { SERVICES } from '../../../src/common/constants';
-import { S3_REPOSITORY_SYMBOL } from '../../../src/common/s3/s3Repository';
-import { cronLoadTileLatLonDataSymbol } from '../../../src/latLon/DAL/latLonDAL';
+import { redisConfigPath, SERVICES } from '../../../src/common/constants';
 import { GenericGeocodingFeatureResponse } from '../../../src/common/interfaces';
 import { MgrsRequestSender } from './helpers/requestSender';
+import { getBaseRegisterOptions } from './helpers';
 
 describe('/search/MGRS', function () {
   let requestSender: MgrsRequestSender;
   let depContainer: DependencyContainer;
 
   beforeEach(async function () {
-    const [app, container] = await getApp({
-      override: [
-        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
-        { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
-        { token: S3_REPOSITORY_SYMBOL, provider: { useValue: {} } },
-        { token: SERVICES.S3_CLIENT, provider: { useValue: {} } },
-        { token: cronLoadTileLatLonDataSymbol, provider: { useValue: {} } },
-        { token: SERVICES.ELASTIC_CLIENTS, provider: { useValue: {} } },
-      ],
-      useChild: true,
-    });
+    const [app, container] = await getApp(getBaseRegisterOptions());
 
     depContainer = container;
     requestSender = new MgrsRequestSender(app);
@@ -87,6 +76,44 @@ describe('/search/MGRS', function () {
           },
           score: 1,
         },
+      });
+    });
+
+    describe('Redis uses prefix key', () => {
+      it('should return 200 status code and add key to Redis with prefix', async function () {
+        const realConfig = depContainer.resolve<IConfig>(SERVICES.CONFIG);
+        const prefix = 'test-prefix-mgrs';
+
+        const configWithPrefix: IConfig = {
+          ...realConfig,
+          get<T>(key: string): T {
+            if (key === redisConfigPath) {
+              const realRedisConfig = realConfig.get<RedisClient>(redisConfigPath);
+              return { ...realRedisConfig, prefix } as T;
+            }
+            return realConfig.get<T>(key);
+          },
+        };
+
+        const mockRegisterOptions = getBaseRegisterOptions([
+          {
+            token: SERVICES.CONFIG,
+            provider: { useValue: configWithPrefix },
+          },
+        ]);
+
+        const [mockApp, localContainer] = await getApp(mockRegisterOptions);
+        const localRequestSender = new MgrsRequestSender(mockApp);
+
+        const redisConnection = localContainer.resolve<RedisClient>(SERVICES.REDIS);
+
+        const response = await localRequestSender.getTile({ tile: '18SUJ2339007393' });
+
+        const keys = await redisConnection.keys(prefix + '*');
+        expect(keys.length).toBeGreaterThanOrEqual(1);
+        expect(response.status).toBe(httpStatusCodes.OK);
+
+        await localContainer.dispose();
       });
     });
   });

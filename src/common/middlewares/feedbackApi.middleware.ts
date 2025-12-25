@@ -21,6 +21,7 @@ export class FeedbackApiMiddlewareManager {
     const reqId = res.getHeader(XApi.REQUEST);
     const redisClient = this.redis;
     const logger = this.logger;
+    const prefix = this.config.get(redisConfigPath).prefix;
 
     const drSite = this.config.get(siteConfig);
 
@@ -36,10 +37,11 @@ export class FeedbackApiMiddlewareManager {
     const { ttl: redisTtl } = this.config.get(redisConfigPath);
 
     const originalJson = res.json;
+    const fullRequestId = prefix !== undefined ? `${prefix}:${reqId as string}` : (reqId as string);
     const logJson = function (this: Response, body: JSON): Response {
       geocodingResponseDetails.response = body;
       redisClient
-        .setEx(reqId as string, redisTtl ?? defaultRedisTtl, JSON.stringify(geocodingResponseDetails))
+        .setEx(fullRequestId, redisTtl ?? defaultRedisTtl, JSON.stringify(geocodingResponseDetails))
         .then(() => {
           logger.info({ msg: `response ${reqId?.toString() ?? ''} saved to redis` });
         })

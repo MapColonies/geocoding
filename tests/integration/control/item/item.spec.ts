@@ -1,35 +1,26 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import jsLogger from '@map-colonies/js-logger';
-import { trace } from '@opentelemetry/api';
 import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import { DependencyContainer } from 'tsyringe';
 import httpStatusCodes from 'http-status-codes';
+import { IConfig } from 'config';
+import { RedisClient } from '@src/common/redis';
 import { getApp } from '../../../../src/app';
-import { SERVICES } from '../../../../src/common/constants';
+import { redisConfigPath, SERVICES } from '../../../../src/common/constants';
 import { GetItemsQueryParams } from '../../../../src/control/item/controllers/itemController';
 import { Item } from '../../../../src/control/item/models/item';
 import { CommonRequestParameters, GenericGeocodingResponse, GeoContext, GeoContextMode } from '../../../../src/common/interfaces';
-import { cronLoadTileLatLonDataSymbol } from '../../../../src/latLon/DAL/latLonDAL';
-import { S3_REPOSITORY_SYMBOL } from '../../../../src/common/s3/s3Repository';
 import { expectedResponse } from '../utils';
 import { ITEM_1234, ITEM_1235, ITEM_1236 } from '../../../mockObjects/items';
 import { ItemRequestSender } from './helpers/requestSender';
+import { getBaseRegisterOptions } from './helpers';
 
 describe('/search/control/items', function () {
   let requestSender: ItemRequestSender;
   let depContainer: DependencyContainer;
 
   beforeEach(async function () {
-    const [app, container] = await getApp({
-      override: [
-        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
-        { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
-        { token: S3_REPOSITORY_SYMBOL, provider: { useValue: {} } },
-        { token: SERVICES.S3_CLIENT, provider: { useValue: {} } },
-        { token: cronLoadTileLatLonDataSymbol, provider: { useValue: {} } },
-      ],
-      useChild: true,
-    });
+    const [app, container] = await getApp(getBaseRegisterOptions());
+
     depContainer = container;
     requestSender = new ItemRequestSender(app);
   });
@@ -245,7 +236,47 @@ describe('/search/control/items', function () {
         expectedResponse(requestParams, [ITEM_1234, ITEM_1235], expect)
       );
     });
+
+    describe('Redis uses prefix key', () => {
+      it('should return 200 status code and add key to Redis with prefix', async function () {
+        const realConfig = depContainer.resolve<IConfig>(SERVICES.CONFIG);
+        const prefix = 'test-prefix-item';
+
+        const configWithPrefix: IConfig = {
+          ...realConfig,
+          get<T>(key: string): T {
+            if (key === redisConfigPath) {
+              const realRedisConfig = realConfig.get<RedisClient>(redisConfigPath);
+              return { ...realRedisConfig, prefix } as T;
+            }
+            return realConfig.get<T>(key);
+          },
+        };
+
+        const mockRegisterOptions = getBaseRegisterOptions([
+          {
+            token: SERVICES.CONFIG,
+            provider: { useValue: configWithPrefix },
+          },
+        ]);
+
+        const [mockApp, localContainer] = await getApp(mockRegisterOptions);
+        const localRequestSender = new ItemRequestSender(mockApp);
+
+        const redisConnection = localContainer.resolve<RedisClient>(SERVICES.REDIS);
+
+        const requestParams: GetItemsQueryParams = { command_name: '123', limit: 5, disable_fuzziness: false };
+        const response = await localRequestSender.getItems(requestParams);
+
+        const keys = await redisConnection.keys(prefix + '*');
+        expect(keys.length).toBeGreaterThanOrEqual(1);
+        expect(response.status).toBe(httpStatusCodes.OK);
+
+        await localContainer.dispose();
+      });
+    });
   });
+
   describe('Bad Path', function () {
     // All requests with status code of 400
     it("should return 400 status code and error message when item's command_name", async function () {
