@@ -543,11 +543,12 @@ describe('/search/location', function () {
           },
         };
 
-        const mockRegisterOptions = getBaseRegisterOptions();
-        mockRegisterOptions.override.push({
-          token: SERVICES.CONFIG,
-          provider: { useValue: configWithPrefix },
-        });
+        const mockRegisterOptions = getBaseRegisterOptions([
+          {
+            token: SERVICES.CONFIG,
+            provider: { useValue: configWithPrefix },
+          },
+        ]);
 
         const [mockApp, localContainer] = await getApp(mockRegisterOptions);
         const localRequestSender = new LocationRequestSender(mockApp);

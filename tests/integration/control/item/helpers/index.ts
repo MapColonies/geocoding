@@ -4,8 +4,9 @@ import { SERVICES } from '@src/common/constants';
 import { S3_REPOSITORY_SYMBOL } from '@src/common/s3/s3Repository';
 import { cronLoadTileLatLonDataSymbol } from '@src/latLon/DAL/latLonDAL';
 import { RegisterOptions } from '@src/containerConfig';
+import { InjectionObject } from '@src/common/dependencyRegistration';
 
-export const getBaseRegisterOptions = (): Required<RegisterOptions> => {
+export const getBaseRegisterOptions = (options: InjectionObject<unknown>[] = []): Required<RegisterOptions> => {
   return {
     override: [
       { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
@@ -13,6 +14,7 @@ export const getBaseRegisterOptions = (): Required<RegisterOptions> => {
       { token: S3_REPOSITORY_SYMBOL, provider: { useValue: {} } },
       { token: SERVICES.S3_CLIENT, provider: { useValue: {} } },
       { token: cronLoadTileLatLonDataSymbol, provider: { useValue: {} } },
+      ...options,
     ],
     useChild: true,
   };
