@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/MapColonies/geocoding/compare/v2.0.0...v2.1.0) (2025-12-25)
+
+
+### Features
+
+* added prefix option to redis ([#88](https://github.com/MapColonies/geocoding/issues/88)) ([0ca7111](https://github.com/MapColonies/geocoding/commit/0ca7111f5c4c4ea03e146a1cf827abcc4a90d182))
+
+
+### Bug Fixes
+
+* changed sub_tile regex ([#76](https://github.com/MapColonies/geocoding/issues/76)) ([8a066ee](https://github.com/MapColonies/geocoding/commit/8a066eeb3b2160821d807ca6e1257945c1a07d07))
+
 ## [2.0.0](https://github.com/MapColonies/geocoding/compare/v1.1.1...v2.0.0) (2025-09-01)
 
 
