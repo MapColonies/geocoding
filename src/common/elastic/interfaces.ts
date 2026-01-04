@@ -1,7 +1,7 @@
 import { ClientOptions } from '@elastic/elasticsearch';
-import { type vectorGeocodingV1Type } from '@map-colonies/schemas';
+import { type vectorGeocodingV2Type } from '@map-colonies/schemas';
 
-export type ElasticDbClientsConfig = vectorGeocodingV1Type['db']['elastic'];
+export type ElasticDbClientsConfig = vectorGeocodingV2Type['db']['elastic'];
 
 export type ElasticControlClientConfig = ElasticDbClientsConfig['control'] & ClientOptions;
 

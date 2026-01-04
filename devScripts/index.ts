@@ -1,12 +1,12 @@
 import { config } from '@map-colonies/config';
-import { vectorGeocodingV1 } from '@map-colonies/schemas';
+import { vectorGeocodingV2 } from '@map-colonies/schemas';
 import importDataToElastic from './importDataToElastic';
 import importDataToS3 from './importDataToS3';
 import { ConfigType } from '../src/common/config';
 
 async function main() {
   const configInstance: ConfigType = await config({
-    schema: vectorGeocodingV1,
+    schema: vectorGeocodingV2,
     offlineMode: true,
   });
 
