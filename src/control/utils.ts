@@ -105,7 +105,7 @@ export const formatResponse = <T extends Tile | Item | Route>(
 
 export const additionalControlSearchProperties = (config: ConfigType, size: number): Pick<estypes.SearchRequest, 'size' | 'index' | '_source'> => ({
   size,
-  index: config.get(`${elasticConfigPath}.control`).index as string,
+  index: config.get(`${elasticConfigPath}.control`).index,
 
   _source: CONTROL_FIELDS,
 });

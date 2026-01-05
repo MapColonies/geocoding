@@ -38,7 +38,7 @@ const main = async (config: ConfigType): Promise<void> => {
   for (const { client, index, key } of [
     {
       client: controlClient,
-      index: controlElasticConfig.index as string,
+      index: controlElasticConfig.index,
       key: 'geometry',
     },
     {
@@ -68,7 +68,7 @@ const main = async (config: ConfigType): Promise<void> => {
 
   for (const item of controlData) {
     await controlClient.index({
-      index: controlElasticConfig.index as string,
+      index: controlElasticConfig.index,
       id: crypto.randomUUID(),
       body: item._source,
     });
