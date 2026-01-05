@@ -30,7 +30,7 @@ describe('#additionalControlSearchProperties', () => {
 
     expect(searchProperties).toEqual<Pick<estypes.SearchRequest, 'size' | 'index' | '_source'>>({
       size,
-      index: config.get(`${elasticConfigPath}.control`).index as string,
+      index: config.get(`${elasticConfigPath}.control`).index,
       _source: CONTROL_FIELDS,
     });
   });

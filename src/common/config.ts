@@ -1,8 +1,8 @@
 import { type ConfigInstance, config } from '@map-colonies/config';
-import { vectorGeocodingV1, type vectorGeocodingV1Type } from '@map-colonies/schemas';
+import { vectorGeocodingV2, type vectorGeocodingV2Type } from '@map-colonies/schemas';
 
 // Choose here the type of the config instance and import this type from the entire application
-type ConfigType = ConfigInstance<vectorGeocodingV1Type>;
+type ConfigType = ConfigInstance<vectorGeocodingV2Type>;
 
 let configInstance: ConfigType | undefined;
 
@@ -13,7 +13,7 @@ let configInstance: ConfigType | undefined;
  */
 async function initConfig(offlineMode?: boolean): Promise<void> {
   configInstance = await config({
-    schema: vectorGeocodingV1,
+    schema: vectorGeocodingV2,
     offlineMode,
   });
 }
