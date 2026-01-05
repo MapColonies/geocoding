@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0](https://github.com/MapColonies/geocoding/compare/v2.1.0...v2.2.0) (2026-01-05)
+
+
+### Features
+
+* updated schema ([#89](https://github.com/MapColonies/geocoding/issues/89)) ([3f2f388](https://github.com/MapColonies/geocoding/commit/3f2f3883211c30e0acf92014eaf2e827ec95407a))
+
 ## [2.1.0](https://github.com/MapColonies/geocoding/compare/v2.0.0...v2.1.0) (2025-12-25)
 
 
