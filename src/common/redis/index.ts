@@ -14,9 +14,9 @@ const createConnectionOptions = (redisConfig: RedisConfig): Partial<RedisClientO
       clientOptions.socket = {
         ...clientOptions.socket,
         tls: true,
-        key: readFileSync(tls.key),
-        cert: readFileSync(tls.cert),
-        ca: readFileSync(tls.ca),
+        key: tls.key ? readFileSync(tls.key) : undefined,
+        cert: tls.cert ? readFileSync(tls.cert) : undefined,
+        ca: tls.ca ? readFileSync(tls.ca) : undefined,
       };
     } catch (error) {
       throw new Error(`Failed to load Redis SSL certificates. Ensure the files exist and are accessible. Details: ${(error as Error).message}`);

@@ -193,16 +193,16 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
           const logger = deps.resolve<Logger>(SERVICES.LOGGER);
           try {
             const redis = deps.resolve<RedisClient>(SERVICES.REDIS);
-            cleanupRegistry.register({
-              func: async (): Promise<void> => {
-                await redis.quit();
-                return Promise.resolve();
-              },
-              id: SERVICES.REDIS,
-            });
+
             await redis.connect();
+
+            cleanupRegistry.register({
+              id: SERVICES.REDIS,
+              func: redis.quit.bind(redis),
+            });
           } catch (error) {
             logger.error({ msg: 'Connection to redis failed', error });
+            throw error;
           }
         },
       },
