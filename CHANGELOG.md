@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.1](https://github.com/MapColonies/geocoding/compare/v2.2.0...v2.2.1) (2026-02-11)
+
+
+### Bug Fixes
+
+* await redis connection before register cleanup ([#91](https://github.com/MapColonies/geocoding/issues/91)) ([531610a](https://github.com/MapColonies/geocoding/commit/531610aef4d376a15b68dd0a5724bfa142bd9f7a))
+
 ## [2.2.0](https://github.com/MapColonies/geocoding/compare/v2.1.0...v2.2.0) (2026-01-05)
 
 
