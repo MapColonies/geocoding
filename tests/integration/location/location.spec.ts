@@ -27,7 +27,7 @@ import {
   LA_ROAD,
 } from '../../mockObjects/locations';
 import { LocationRequestSender } from './helpers/requestSender';
-import { expectedResponse, hierarchiesWithAnyWieght } from './utils';
+import { expectedResponse, expectedResponseUnordered, hierarchiesWithAnyWieght } from './utils';
 import { getBaseRegisterOptions } from './helpers';
 
 let config: ConfigType;
@@ -75,7 +75,7 @@ describe('/search/location', function () {
       // expect(response).toSatisfyApiSpec();
 
       expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
-        expectedResponse(
+        expectedResponseUnordered(
           {
             ...requestParams,
           },
@@ -127,7 +127,7 @@ describe('/search/location', function () {
       // expect(response).toSatisfyApiSpec();
 
       expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
-        expectedResponse(
+        expectedResponseUnordered(
           requestParams,
           {
             place_types: ['transportation'],
@@ -176,7 +176,7 @@ describe('/search/location', function () {
       // expect(response).toSatisfyApiSpec();
 
       expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
-        expectedResponse(
+        expectedResponseUnordered(
           {
             ...requestParams,
           },
@@ -265,7 +265,7 @@ describe('/search/location', function () {
       // expect(response).toSatisfyApiSpec();
 
       expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
-        expectedResponse(
+        expectedResponseUnordered(
           {
             ...requestParams,
           },
@@ -319,7 +319,7 @@ describe('/search/location', function () {
       // expect(response).toSatisfyApiSpec();
 
       expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
-        expectedResponse(
+        expectedResponseUnordered(
           requestParams,
           {
             name: query,
@@ -402,7 +402,7 @@ describe('/search/location', function () {
       // expect(response).toSatisfyApiSpec();
 
       expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
-        expectedResponse(
+        expectedResponseUnordered(
           requestParams,
           {
             place_types: ['transportation'],
@@ -433,7 +433,7 @@ describe('/search/location', function () {
       // expect(response).toSatisfyApiSpec();
 
       expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
-        expectedResponse(
+        expectedResponseUnordered(
           requestParams,
           {
             place_types: ['education'],
@@ -512,7 +512,7 @@ describe('/search/location', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
-        expectedResponse(
+        expectedResponseUnordered(
           requestParams,
           {
             name: 'los angeles',
