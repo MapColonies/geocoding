@@ -245,6 +245,8 @@ describe('/search/location', function () {
             },
           },
           NY_POLICE_AIRPORT,
+          OSM_LA_PORT,
+          GOOGLE_LA_PORT,
         ],
       },
     ])('it should test airports response with hierrarchy in %s', async ({ query, hierarchies, returnedFeatures }) => {
