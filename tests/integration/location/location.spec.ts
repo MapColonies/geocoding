@@ -90,7 +90,7 @@ describe('/search/location', function () {
                 ...NY_JFK_AIRPORT.properties,
                 names: {
                   ...NY_JFK_AIRPORT.properties.names,
-                  display: NY_JFK_AIRPORT_DISPLAY_NAMES[0],
+                  display: NY_JFK_AIRPORT_DISPLAY_NAMES[1],
                 },
               },
             },
@@ -140,7 +140,7 @@ describe('/search/location', function () {
                 ...NY_JFK_AIRPORT.properties,
                 names: {
                   ...NY_JFK_AIRPORT.properties.names,
-                  display: NY_JFK_AIRPORT_DISPLAY_NAMES[0],
+                  display: NY_JFK_AIRPORT_DISPLAY_NAMES[1],
                 },
               },
             },
@@ -191,7 +191,7 @@ describe('/search/location', function () {
                 ...NY_JFK_AIRPORT.properties,
                 names: {
                   ...NY_JFK_AIRPORT.properties.names,
-                  display: NY_JFK_AIRPORT_DISPLAY_NAMES[0],
+                  display: NY_JFK_AIRPORT_DISPLAY_NAMES[1],
                 },
               },
             },
@@ -221,7 +221,7 @@ describe('/search/location', function () {
               ...NY_JFK_AIRPORT.properties,
               names: {
                 ...NY_JFK_AIRPORT.properties.names,
-                display: NY_JFK_AIRPORT_DISPLAY_NAMES[0],
+                display: NY_JFK_AIRPORT_DISPLAY_NAMES[1],
               },
             },
           },
@@ -240,7 +240,7 @@ describe('/search/location', function () {
               ...NY_JFK_AIRPORT.properties,
               names: {
                 ...NY_JFK_AIRPORT.properties.names,
-                display: NY_JFK_AIRPORT_DISPLAY_NAMES[0],
+                display: NY_JFK_AIRPORT_DISPLAY_NAMES[1],
               },
             },
           },
