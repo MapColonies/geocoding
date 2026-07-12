@@ -27,7 +27,7 @@ import {
   LA_ROAD,
 } from '../../mockObjects/locations';
 import { LocationRequestSender } from './helpers/requestSender';
-import { expectedResponse, hierarchiesWithAnyWieght } from './utils';
+import { expectedResponse, expectedResponseUnordered, hierarchiesWithAnyWieght } from './utils';
 import { getBaseRegisterOptions } from './helpers';
 
 let config: ConfigType;
@@ -75,7 +75,7 @@ describe('/search/location', function () {
       // expect(response).toSatisfyApiSpec();
 
       expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
-        expectedResponse(
+        expectedResponseUnordered(
           {
             ...requestParams,
           },
@@ -90,7 +90,7 @@ describe('/search/location', function () {
                 ...NY_JFK_AIRPORT.properties,
                 names: {
                   ...NY_JFK_AIRPORT.properties.names,
-                  display: NY_JFK_AIRPORT_DISPLAY_NAMES[0],
+                  display: NY_JFK_AIRPORT_DISPLAY_NAMES[1],
                 },
               },
             },
@@ -127,7 +127,7 @@ describe('/search/location', function () {
       // expect(response).toSatisfyApiSpec();
 
       expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
-        expectedResponse(
+        expectedResponseUnordered(
           requestParams,
           {
             place_types: ['transportation'],
@@ -140,7 +140,7 @@ describe('/search/location', function () {
                 ...NY_JFK_AIRPORT.properties,
                 names: {
                   ...NY_JFK_AIRPORT.properties.names,
-                  display: NY_JFK_AIRPORT_DISPLAY_NAMES[0],
+                  display: NY_JFK_AIRPORT_DISPLAY_NAMES[1],
                 },
               },
             },
@@ -176,7 +176,7 @@ describe('/search/location', function () {
       // expect(response).toSatisfyApiSpec();
 
       expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
-        expectedResponse(
+        expectedResponseUnordered(
           {
             ...requestParams,
           },
@@ -191,7 +191,7 @@ describe('/search/location', function () {
                 ...NY_JFK_AIRPORT.properties,
                 names: {
                   ...NY_JFK_AIRPORT.properties.names,
-                  display: NY_JFK_AIRPORT_DISPLAY_NAMES[0],
+                  display: NY_JFK_AIRPORT_DISPLAY_NAMES[1],
                 },
               },
             },
@@ -221,7 +221,7 @@ describe('/search/location', function () {
               ...NY_JFK_AIRPORT.properties,
               names: {
                 ...NY_JFK_AIRPORT.properties.names,
-                display: NY_JFK_AIRPORT_DISPLAY_NAMES[0],
+                display: NY_JFK_AIRPORT_DISPLAY_NAMES[1],
               },
             },
           },
@@ -240,11 +240,13 @@ describe('/search/location', function () {
               ...NY_JFK_AIRPORT.properties,
               names: {
                 ...NY_JFK_AIRPORT.properties.names,
-                display: NY_JFK_AIRPORT_DISPLAY_NAMES[0],
+                display: NY_JFK_AIRPORT_DISPLAY_NAMES[1],
               },
             },
           },
           NY_POLICE_AIRPORT,
+          OSM_LA_PORT,
+          GOOGLE_LA_PORT,
         ],
       },
     ])('it should test airports response with hierrarchy in %s', async ({ query, hierarchies, returnedFeatures }) => {
@@ -265,7 +267,7 @@ describe('/search/location', function () {
       // expect(response).toSatisfyApiSpec();
 
       expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
-        expectedResponse(
+        expectedResponseUnordered(
           {
             ...requestParams,
           },
@@ -319,7 +321,7 @@ describe('/search/location', function () {
       // expect(response).toSatisfyApiSpec();
 
       expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
-        expectedResponse(
+        expectedResponseUnordered(
           requestParams,
           {
             name: query,
@@ -402,7 +404,7 @@ describe('/search/location', function () {
       // expect(response).toSatisfyApiSpec();
 
       expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
-        expectedResponse(
+        expectedResponseUnordered(
           requestParams,
           {
             place_types: ['transportation'],
@@ -433,7 +435,7 @@ describe('/search/location', function () {
       // expect(response).toSatisfyApiSpec();
 
       expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
-        expectedResponse(
+        expectedResponseUnordered(
           requestParams,
           {
             place_types: ['education'],
@@ -512,7 +514,7 @@ describe('/search/location', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
       expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
-        expectedResponse(
+        expectedResponseUnordered(
           requestParams,
           {
             name: 'los angeles',

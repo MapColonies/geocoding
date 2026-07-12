@@ -73,31 +73,31 @@ export const geotextQuery = (
     }
   }
 
-  if (!name && subPlaceTypes?.length) {
-    (esQuery.query?.function_score?.query?.bool?.must as QueryDslQueryContainer[]).push(
-      ...[
-        {
-          terms: {
-            [SUB_PLACETYPE_FIELD]: subPlaceTypes,
-          },
-        },
-        {
-          term: {
-            text_language: textLanguage,
-          },
-        },
-      ]
-    );
-  } else {
-    (esQuery.query?.function_score?.query?.bool?.must as QueryDslQueryContainer[]).push({
+  const interpretations: QueryDslQueryContainer[] = [
+    {
       match: {
         [TEXT_FIELD]: {
           query,
           fuzziness: disableFuzziness ? undefined : 'AUTO:3,4',
         },
       },
+    },
+  ];
+
+  if (subPlaceTypes?.length) {
+    interpretations.push({
+      bool: {
+        must: [{ terms: { [SUB_PLACETYPE_FIELD]: subPlaceTypes } }, { term: { text_language: textLanguage } }],
+      },
     });
   }
+
+  (esQuery.query?.function_score?.query?.bool?.must as QueryDslQueryContainer[]).push({
+    bool: {
+      should: interpretations,
+      minimum_should_match: 1,
+    },
+  });
 
   source?.length &&
     (esQuery.query?.function_score?.query?.bool?.filter as QueryDslQueryContainer[]).push({

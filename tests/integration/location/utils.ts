@@ -44,6 +44,19 @@ export const expectedResponse = (
   bbox: expect.any(Array) as BBox,
 });
 
+export const expectedResponseUnordered = (
+  requestParams: GetGeotextSearchParams,
+  responseParams: Partial<GenericGeocodingResponse<Feature>['geocoding']['response']>,
+  arr: MockLocationQueryFeature[],
+  expect: jest.Expect
+): GenericGeocodingResponse<Feature> => {
+  const response = expectedResponse(requestParams, responseParams, arr, expect);
+  return {
+    ...response,
+    features: expect.arrayContaining(response.features) as GenericGeocodingResponse<Feature>['features'],
+  };
+};
+
 export const hierarchiesWithAnyWieght = (
   hierarchies: GenericGeocodingResponse<Feature>['geocoding']['response']['hierarchies'],
   expect: jest.Expect
