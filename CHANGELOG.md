@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.3.0](https://github.com/MapColonies/geocoding/compare/v2.2.1...v2.3.0) (2026-07-12)
+
+
+### Features
+
+* search for placetyped and non placetyped ([#93](https://github.com/MapColonies/geocoding/issues/93)) ([a9de5fb](https://github.com/MapColonies/geocoding/commit/a9de5fb0c1acc827fc3f7cfeeb60f4e3222d357a))
+
 ## [2.2.1](https://github.com/MapColonies/geocoding/compare/v2.2.0...v2.2.1) (2026-02-11)
 
 
