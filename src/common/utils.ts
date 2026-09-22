@@ -231,7 +231,7 @@ export const healthCheckFactory: FactoryFunction<void> = (container: DependencyC
     })
     .catch((error: Error) => {
       logger.error({
-        message: `Healthcheck failed for S3.`,
+        msg: `Healthcheck failed for S3.`,
         error,
       });
     });
@@ -243,7 +243,7 @@ export const healthCheckFactory: FactoryFunction<void> = (container: DependencyC
     })
     .catch((error: Error) => {
       logger.error({
-        message: `Healthcheck failed for Redis.`,
+        msg: `Healthcheck failed for Redis.`,
         error,
       });
     });

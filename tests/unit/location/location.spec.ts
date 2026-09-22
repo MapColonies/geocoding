@@ -3,8 +3,10 @@ import jsLogger from '@map-colonies/js-logger';
 import type { Feature } from 'geojson';
 import { estypes } from '@elastic/elasticsearch';
 import { ConfigType, getConfig } from '../../../src/common/config';
-import { GeotextRepository } from '../../../src/location/DAL/locationRepository';
+import { GeotextRepository, GEOTEXT_REPOSITORY_SYMBOL } from '../../../src/location/DAL/locationRepository';
 import { GeotextSearchManager } from '../../../src/location/models/locationManager';
+import { registerDependencies } from '../../../src/common/dependencyRegistration';
+import { SERVICES } from '../../../src/common/constants';
 import { GenericGeocodingResponse, IApplication } from '../../../src/common/interfaces';
 import { ConvertSnakeToCamelCase } from '../../../src/common/utils';
 import { GetGeotextSearchParams } from '../../../src/location/interfaces';
@@ -21,22 +23,36 @@ describe('#GeotextSearchManager', () => {
   const generatePlacetype = jest.fn();
   const extractHierarchy = jest.fn();
   const geotextSearch = jest.fn();
+  const repositry: GeotextRepository = {
+    extractName,
+    generatePlacetype,
+    extractHierarchy,
+    geotextSearch,
+  };
+
+  const buildManager = async (application: Partial<IApplication>): Promise<GeotextSearchManager> => {
+    const container = await registerDependencies(
+      [
+        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
+        { token: SERVICES.APPLICATION, provider: { useValue: application } },
+        { token: SERVICES.CONFIG, provider: { useValue: config } },
+        { token: GEOTEXT_REPOSITORY_SYMBOL, provider: { useValue: repositry } },
+      ],
+      [],
+      true
+    );
+
+    return container.resolve(GeotextSearchManager);
+  };
 
   beforeAll(() => {
     config = getConfig();
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.resetAllMocks();
 
-    const repositry = {
-      extractName,
-      generatePlacetype,
-      extractHierarchy,
-      geotextSearch,
-    } as unknown as GeotextRepository;
-
-    geotextSearchManager = new GeotextSearchManager(jsLogger({ enabled: false }), config.get('application') as IApplication, config, repositry);
+    geotextSearchManager = await buildManager(config.get('application') as IApplication);
   });
 
   test.each<string[] | undefined>([['<em>JFK</em> <em>International</em> Airport', 'John F Kennedy <em>International</em> Airport'], undefined])(
@@ -98,7 +114,7 @@ describe('#GeotextSearchManager', () => {
       expect(response).toEqual<GenericGeocodingResponse<Feature>>(
         expectedResponse(
           {
-            ...(convertCamelToSnakeCase(query as unknown as Record<string, unknown>) as unknown as GetGeotextSearchParams),
+            ...convertCamelToSnakeCase(query),
             geo_context: undefined,
             geo_context_mode: undefined,
             region: undefined,
@@ -185,7 +201,7 @@ describe('#GeotextSearchManager', () => {
     expect(response).toEqual<GenericGeocodingResponse<Feature>>(
       expectedResponse(
         {
-          ...(convertCamelToSnakeCase(query as unknown as Record<string, unknown>) as unknown as GetGeotextSearchParams),
+          ...convertCamelToSnakeCase(query),
           geo_context: undefined,
           geo_context_mode: undefined,
           region: undefined,
@@ -227,9 +243,12 @@ describe('#GeotextSearchManager', () => {
   });
 
   it('should throw BadRequestError when params.source contains invalid source', async () => {
-    const params = {
+    const params: ConvertSnakeToCamelCase<GetGeotextSearchParams> = {
+      query: 'airport',
+      disableFuzziness: false,
+      limit: 1,
       source: ['invalidSource'],
-    } as unknown as ConvertSnakeToCamelCase<GetGeotextSearchParams>;
+    };
     const response = geotextSearchManager.search(params);
 
     await expect(response).rejects.toThrow(BadRequestError);
@@ -241,25 +260,15 @@ describe('#GeotextSearchManager', () => {
     expect(response).toEqual(Object.keys((config.get('application') as IApplication).regions!));
   });
 
-  it('should return empty sources array', () => {
-    geotextSearchManager = new GeotextSearchManager(
-      jsLogger({ enabled: false }),
-      {} as unknown as IApplication,
-      config,
-      {} as unknown as GeotextRepository
-    );
+  it('should return empty sources array', async () => {
+    geotextSearchManager = await buildManager({});
 
     const response = geotextSearchManager.sources();
     expect(response).toEqual(Object.keys({}));
   });
 
-  it('should return empty regions array', () => {
-    geotextSearchManager = new GeotextSearchManager(
-      jsLogger({ enabled: false }),
-      {} as unknown as IApplication,
-      config,
-      {} as unknown as GeotextRepository
-    );
+  it('should return empty regions array', async () => {
+    geotextSearchManager = await buildManager({});
 
     const response = geotextSearchManager.regions();
     expect(response).toEqual(Object.keys({}));

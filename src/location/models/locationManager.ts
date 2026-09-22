@@ -10,6 +10,8 @@ import { GenericGeocodingResponse, IApplication } from '../../common/interfaces'
 import { ElasticGeotextClientConfig } from '../../common/elastic/interfaces';
 import { ConvertSnakeToCamelCase } from '../../common/utils';
 import { BadRequestError } from '../../common/errors';
+import { CommonSpanAttributes, withSpan } from '../../common/tracing';
+import { LocationSpanName, LocationAttributes } from '../tracing';
 
 @injectable()
 export class GeotextSearchManager {
@@ -25,62 +27,80 @@ export class GeotextSearchManager {
   }
 
   public async search(params: ConvertSnakeToCamelCase<GetGeotextSearchParams>): Promise<GenericGeocodingResponse<Feature>> {
-    if (this.appConfig.sources && (params.source?.some((source) => !this.appConfig.sources![source]) ?? false)) {
-      throw new BadRequestError(`Invalid source. Available sources are ${Object.keys(this.appConfig.sources).toString()}`);
-    }
-
-    const extractNameEndpoint = this.appConfig.services.tokenTypesUrl;
-    const {
-      geotext: geotextIndex,
-      placetypes: placetypesIndex,
-      hierarchies: hierarchiesIndex,
-    } = this.elasticConfig.index as {
-      [key: string]: string;
-    };
-    const hierarchyBoost = this.appConfig.elasticQueryBoosts.hierarchy;
-
-    const [query, ...hierarchyQuery] = params.query.split(',');
-
-    const promises = Promise.all([
-      this.geotextRepository.extractName(extractNameEndpoint, query),
-      this.geotextRepository.generatePlacetype(placetypesIndex, query, params.disableFuzziness),
-      this.geotextRepository.extractHierarchy(hierarchiesIndex, hierarchyQuery.join(','), hierarchyBoost, params.disableFuzziness),
-    ]);
-
-    const [
-      { name, latency: nlpAnalyserLatency },
-      { placeTypes, subPlaceTypes, matchLatencyMs: placeTypeMatchLatencyMs },
-      { hierarchies, matchLatencyMs: hierarchiesMatchLatencyMs },
-    ] = await promises;
-
-    const searchParams: TextSearchParams = {
-      ...params,
-      name,
-      placeTypes,
-      subPlaceTypes,
-      hierarchies,
-    };
-
-    const esResult = await this.geotextRepository.geotextSearch(
-      geotextIndex,
-      searchParams,
-      this.elasticConfig.textTermLanguage,
-      this.appConfig.elasticQueryBoosts,
-      { geotextCitiesLayer: this.appConfig.geotextCitiesLayer, roadPlaceTypes: this.appConfig.roadPlaceTypes }
-    );
-
-    return convertResult(searchParams, esResult, {
-      sources: this.appConfig.sources,
-      regionCollection: this.appConfig.regions,
-      nameKeys: this.appConfig.nameTranslationsKeys,
-      mainLanguageRegex: this.appConfig.mainLanguageRegex,
-      externalResourcesLatency: {
-        query: esResult.took,
-        placeType: placeTypeMatchLatencyMs,
-        hierarchies: hierarchiesMatchLatencyMs,
-        nlpAnalyser: nlpAnalyserLatency,
+    return withSpan(
+      LocationSpanName.MANAGER_SEARCH,
+      {
+        attributes: {
+          [LocationAttributes.QUERY]: params.query,
+          [LocationAttributes.DISABLE_FUZZINESS]: params.disableFuzziness,
+          ...(params.source ? { [LocationAttributes.SOURCES]: params.source } : {}),
+        },
       },
-    });
+      async (span) => {
+        if (this.appConfig.sources && (params.source?.some((source) => !this.appConfig.sources![source]) ?? false)) {
+          throw new BadRequestError(`Invalid source. Available sources are ${Object.keys(this.appConfig.sources).toString()}`);
+        }
+
+        const extractNameEndpoint = this.appConfig.services.tokenTypesUrl;
+        const {
+          geotext: geotextIndex,
+          placetypes: placetypesIndex,
+          hierarchies: hierarchiesIndex,
+        } = this.elasticConfig.index as {
+          [key: string]: string;
+        };
+        const hierarchyBoost = this.appConfig.elasticQueryBoosts.hierarchy;
+
+        const [query, ...hierarchyQuery] = params.query.split(',');
+
+        const promises = Promise.all([
+          this.geotextRepository.extractName(extractNameEndpoint, query),
+          this.geotextRepository.generatePlacetype(placetypesIndex, query, params.disableFuzziness),
+          this.geotextRepository.extractHierarchy(hierarchiesIndex, hierarchyQuery.join(','), hierarchyBoost, params.disableFuzziness),
+        ]);
+
+        const [
+          { name, latency: nlpAnalyserLatency },
+          { placeTypes, subPlaceTypes, matchLatencyMs: placeTypeMatchLatencyMs },
+          { hierarchies, matchLatencyMs: hierarchiesMatchLatencyMs },
+        ] = await promises;
+
+        const searchParams: TextSearchParams = {
+          ...params,
+          name,
+          placeTypes,
+          subPlaceTypes,
+          hierarchies,
+        };
+
+        const esResult = await this.geotextRepository.geotextSearch(
+          geotextIndex,
+          searchParams,
+          this.elasticConfig.textTermLanguage,
+          this.appConfig.elasticQueryBoosts,
+          { geotextCitiesLayer: this.appConfig.geotextCitiesLayer, roadPlaceTypes: this.appConfig.roadPlaceTypes }
+        );
+
+        span?.setAttributes({
+          [LocationAttributes.QUERY_NAME]: name,
+          [LocationAttributes.PLACE_TYPES]: placeTypes,
+          [CommonSpanAttributes.RESULT_COUNT]: esResult.hits.hits.length,
+        });
+
+        return convertResult(searchParams, esResult, {
+          sources: this.appConfig.sources,
+          regionCollection: this.appConfig.regions,
+          nameKeys: this.appConfig.nameTranslationsKeys,
+          mainLanguageRegex: this.appConfig.mainLanguageRegex,
+          externalResourcesLatency: {
+            query: esResult.took,
+            placeType: placeTypeMatchLatencyMs,
+            hierarchies: hierarchiesMatchLatencyMs,
+            nlpAnalyser: nlpAnalyserLatency,
+          },
+        });
+      }
+    );
   }
 
   public regions(): string[] {
