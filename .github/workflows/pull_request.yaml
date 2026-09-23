@@ -96,17 +96,12 @@ jobs:
           --health-retries 5
 
       minio:
-        image: minio/minio:edge-cicd
+        image: bitnamilegacy/minio:2025.7.23-debian-12-r5
         env:
           MINIO_ROOT_USER: minio
           MINIO_ROOT_PASSWORD: minio123
         ports:
           - 9000:9000
-        options: >-
-          --health-cmd "curl -f http://localhost:9000/minio/health/live || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
       redis:
         image: redis
@@ -131,6 +126,13 @@ jobs:
         run: |
           until curl -s http://elasticsearch:9200/_cluster/health | grep '"status":"green"'; do
             echo "Waiting for Elasticsearch...";
+            sleep 5;
+          done
+
+      - name: Wait for MinIO
+        run: |
+          until curl -sf http://minio:9000/minio/health/live; do
+            echo "Waiting for MinIO...";
             sleep 5;
           done
 
