@@ -75,6 +75,49 @@ jobs:
     strategy:
       matrix:
         node: [24.x]
+
+    container:
+      image: node:${{ matrix.node }}
+
+    services:
+      elasticsearch:
+        image: elasticsearch:8.13.0
+        env:
+          discovery.type: single-node
+          xpack.security.enabled: false
+          xpack.security.enrollment.enabled: false
+          ES_JAVA_OPTS: '-Xms512m -Xmx512m'
+        ports:
+          - 9200:9200
+        options: >-
+          --health-cmd "curl -f http://localhost:9200/_cluster/health || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      minio:
+        image: minio/minio:edge-cicd
+        env:
+          MINIO_ROOT_USER: minio
+          MINIO_ROOT_PASSWORD: minio123
+        ports:
+          - 9000:9000
+        options: >-
+          --health-cmd "curl -f http://localhost:9000/minio/health/live || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v7
@@ -83,6 +126,13 @@ jobs:
         uses: MapColonies/shared-workflows/actions/init-npm@init-npm-v1
         with:
           node-version: ${{ matrix.node }}
+
+      - name: Wait for Elasticsearch
+        run: |
+          until curl -s http://elasticsearch:9200/_cluster/health | grep '"status":"green"'; do
+            echo "Waiting for Elasticsearch...";
+            sleep 5;
+          done
 
       - name: Run tests
         run: npm run test

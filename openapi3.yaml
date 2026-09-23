@@ -12,8 +12,14 @@ info:
     url: https://opensource.org/licenses/MIT
 tags:
   - name: Location Name Based Search
+    description: Free-text geocoding search over multiple united sources of geodata.
   - name: Control
+    description: Queries over control objects - tiles, sub-tiles, items and routes.
   - name: Convertions
+    description: Coordinate conversions between WGS84, MGRS, UTM and control tiles.
+security:
+  - x-api-key: []
+  - token: []
 paths:
   /search/query:
     get:
@@ -1103,7 +1109,3 @@ components:
       type: apiKey
       name: token
       in: query
-    x-user-id:
-      type: apiKey
-      name: x-user-id
-      in: header
