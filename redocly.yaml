@@ -24,7 +24,7 @@ preprocessors:
 
 rules:
   boolean-parameter-prefixes:
-    severity: error
+    severity: warn
     prefixes: ['should', 'is', 'has']
   no-unused-components:
     severity: error

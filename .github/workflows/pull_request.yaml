@@ -1,52 +1,86 @@
 name: pull_request
 
-on: [pull_request, workflow_dispatch]
+on: pull_request
+
+permissions:
+  contents: read
+  pull-requests: read
 
 jobs:
   eslint:
-    name: Run eslint
+    name: Run TS Project eslint
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node: [20.x, 22.x]
+        node: [24.x]
 
     steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v4
+      - name: Check out TS Project Git repository
+        uses: actions/checkout@v7
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Init Nodejs
+        uses: MapColonies/shared-workflows/actions/init-npm@init-npm-v1
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run linters
-        uses: wearerequired/lint-action@v2
+      - name: Run TS Project linters
+        uses: wearerequired/lint-action@v3
         with:
-          github_token: ${{ secrets.github_token }}
-          # Enable linters
           eslint: true
           prettier: true
           eslint_extensions: ts
+          tsc: true
 
-  integration-test:
-    name: Run Integration Tests
+  openapi-lint:
+    name: Run OpenAPI lint Check
     runs-on: ubuntu-latest
 
+    steps:
+      - name: Check out TS Project Git repository
+        uses: actions/checkout@v7
+
+      - name: Init Nodejs
+        uses: MapColonies/shared-workflows/actions/init-npm@init-npm-v1
+
+      - name: OpenAPI Lint Checks
+        run: npx @redocly/cli lint --format=github-actions openapi3.yaml
+
+  helm-lint:
+    name: Run Helm lint Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out TS Project Git repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Helm Lint Checks
+        uses: MapColonies/shared-workflows/actions/helm-lint@helm-lint-v1
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+  tests:
+    name: Run Tests
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [20, 22]
+        node: [24]
 
     container:
       image: node:${{ matrix.node }}
 
     services:
-      # Label used to access the service container
       elasticsearch:
-        # Docker Hub image
         image: elasticsearch:8.13.0
         env:
           discovery.type: single-node
@@ -55,7 +89,6 @@ jobs:
           ES_JAVA_OPTS: '-Xms512m -Xmx512m'
         ports:
           - 9200:9200
-        # Set health checks to wait until elastic has started
         options: >-
           --health-cmd "curl -f http://localhost:9200/_cluster/health || exit 1"
           --health-interval 10s
@@ -63,19 +96,12 @@ jobs:
           --health-retries 5
 
       minio:
-        # Docker Hub image
-        image: minio/minio:edge-cicd
+        image: bitnamilegacy/minio:2025.7.23-debian-12-r5
         env:
           MINIO_ROOT_USER: minio
           MINIO_ROOT_PASSWORD: minio123
         ports:
           - 9000:9000
-        # Set health checks to wait until elastic has started
-        options: >-
-          --health-cmd "curl -f http://localhost:9000/minio/health/live || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
       redis:
         image: redis
@@ -89,15 +115,12 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Init Nodejs
+        uses: MapColonies/shared-workflows/actions/init-npm@init-npm-v1
         with:
           node-version: ${{ matrix.node }}
-
-      - name: Install Node.js dependencies
-        run: npm ci
 
       - name: Wait for Elasticsearch
         run: |
@@ -106,103 +129,23 @@ jobs:
             sleep 5;
           done
 
-      - name: Run integration tests
-        run: npm run test:integration
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Integration Test Reporters (Node ${{ matrix.node }})
-          path: reports/**
-
-  unit-test:
-    name: Run Unit Tests
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node: [20, 22]
-
-    container:
-      image: node:${{ matrix.node }}
-
-    services:
-      # Label used to access the service container
-      elasticsearch:
-        # Docker Hub image
-        image: elasticsearch:8.13.0
-        env:
-          discovery.type: single-node
-          xpack.security.enabled: false
-          xpack.security.enrollment.enabled: false
-          ES_JAVA_OPTS: '-Xms512m -Xmx512m'
-        ports:
-          - 9200:9200
-        # Set health checks to wait until elastic has started
-        options: >-
-          --health-cmd "curl -f http://localhost:9200/_cluster/health || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      minio:
-        # Docker Hub image
-        image: minio/minio:edge-cicd
-        env:
-          MINIO_ROOT_USER: minio
-          MINIO_ROOT_PASSWORD: minio123
-        ports:
-          - 9000:9000
-        # Set health checks to wait until elastic has started
-        options: >-
-          --health-cmd "curl -f http://localhost:9000/minio/health/live || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: Install Node.js dependencies
-        run: npm ci
-
-      - name: Wait for Elasticsearch
+      - name: Wait for MinIO
         run: |
-          until curl -s http://elasticsearch:9200/_cluster/health | grep '"status":"green"'; do
-            echo "Waiting for Elasticsearch...";
+          until curl -sf http://minio:9000/minio/health/live; do
+            echo "Waiting for MinIO...";
             sleep 5;
           done
 
-      - name: Run unit tests
-        run: npm run test:unit
+      - name: Run tests
+        run: npm run test
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
-          name: Unit Test Reporters (Node ${{ matrix.node }})
+          name: Test Reporters Node-${{ matrix.node }}
           path: reports/**
 
-  security:
+  build_docker_image:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@master
-        continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
-  build_image:
-    name: Build Image
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v4
-
-      - name: build Docker image
-        run: docker build -t test-build:latest .
+      - name: Build and Push Docker image
+        uses: docker/build-push-action@v7

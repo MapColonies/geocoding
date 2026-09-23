@@ -3,8 +3,9 @@ import { inject, injectable } from 'tsyringe';
 import { estypes } from '@elastic/elasticsearch';
 import * as mgrs from 'mgrs';
 import type { BBox } from 'geojson';
-import { ConfigType } from '@src/common/config';
 import { SERVICES } from '../../../common/constants';
+import { CommonSpanAttributes, withSpan } from '../../../common/tracing';
+import { ControlSpanName, ControlAttributes } from '../../tracing';
 import { TILE_REPOSITORY_SYMBOL, TileRepository } from '../DAL/tileRepository';
 import { formatResponse } from '../../utils';
 import { TileQueryParams } from '../DAL/queries';
@@ -16,35 +17,49 @@ import { Tile } from './tile';
 export class TileManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(SERVICES.CONFIG) private readonly config: ConfigType,
     @inject(SERVICES.APPLICATION) private readonly application: IApplication,
     @inject(TILE_REPOSITORY_SYMBOL) private readonly tileRepository: TileRepository
   ) {}
 
   public async getTiles(tileQueryParams: TileQueryParams): Promise<FeatureCollection<Tile>> {
-    if (
-      (tileQueryParams.tile === undefined && tileQueryParams.mgrs === undefined) ||
-      (tileQueryParams.tile !== undefined && tileQueryParams.mgrs !== undefined)
-    ) {
-      throw new BadRequestError("/control/tiles: only one of 'tile' or 'mgrs' query parameter must be defined");
-    }
+    return withSpan(
+      ControlSpanName.TILE_MANAGER_GET_TILES,
+      {
+        attributes: {
+          [ControlAttributes.LIMIT]: tileQueryParams.limit,
+          ...(tileQueryParams.tile !== undefined ? { [ControlAttributes.TILE]: tileQueryParams.tile } : {}),
+          ...(tileQueryParams.subTile !== undefined ? { [ControlAttributes.SUB_TILE]: tileQueryParams.subTile } : {}),
+          ...(tileQueryParams.mgrs !== undefined ? { [ControlAttributes.MGRS]: tileQueryParams.mgrs } : {}),
+        },
+      },
+      async (span) => {
+        if (
+          (tileQueryParams.tile === undefined && tileQueryParams.mgrs === undefined) ||
+          (tileQueryParams.tile !== undefined && tileQueryParams.mgrs !== undefined)
+        ) {
+          throw new BadRequestError("/control/tiles: only one of 'tile' or 'mgrs' query parameter must be defined");
+        }
 
-    let elasticResponse: estypes.SearchResponse<Tile> | undefined = undefined;
+        let elasticResponse: estypes.SearchResponse<Tile> | undefined = undefined;
 
-    if (tileQueryParams.mgrs !== undefined) {
-      let bbox: BBox = [0, 0, 0, 0];
-      try {
-        bbox = mgrs.inverse(tileQueryParams.mgrs);
-      } catch (error) {
-        throw new BadRequestError(`Invalid MGRS: ${tileQueryParams.mgrs}. Error: ${(error as Error).message}`);
+        if (tileQueryParams.mgrs !== undefined) {
+          let bbox: BBox = [0, 0, 0, 0];
+          try {
+            bbox = mgrs.inverse(tileQueryParams.mgrs);
+          } catch (error) {
+            throw new BadRequestError(`Invalid MGRS: ${tileQueryParams.mgrs}. Error: ${(error as Error).message}`);
+          }
+          elasticResponse = await this.tileRepository.getTilesByBbox({ bbox, ...tileQueryParams });
+        } else if (tileQueryParams.subTile ?? '') {
+          elasticResponse = await this.tileRepository.getSubTiles(tileQueryParams as Required<TileQueryParams>);
+        } else {
+          elasticResponse = await this.tileRepository.getTiles(tileQueryParams as TileQueryParams & Required<Pick<TileQueryParams, 'tile'>>);
+        }
+
+        span?.setAttribute(CommonSpanAttributes.RESULT_COUNT, elasticResponse.hits.hits.length);
+
+        return formatResponse(elasticResponse, tileQueryParams, this.application.controlObjectDisplayNamePrefixes);
       }
-      elasticResponse = await this.tileRepository.getTilesByBbox({ bbox, ...tileQueryParams });
-    } else if (tileQueryParams.subTile ?? '') {
-      elasticResponse = await this.tileRepository.getSubTiles(tileQueryParams as Required<TileQueryParams>);
-    } else {
-      elasticResponse = await this.tileRepository.getTiles(tileQueryParams as TileQueryParams & Required<Pick<TileQueryParams, 'tile'>>);
-    }
-
-    return formatResponse(elasticResponse, tileQueryParams, this.application.controlObjectDisplayNamePrefixes);
+    );
   }
 }
