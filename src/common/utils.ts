@@ -8,7 +8,7 @@ import { DependencyContainer, FactoryFunction } from 'tsyringe';
 import { Logger } from '@map-colonies/js-logger';
 import { ELASTIC_KEYWORDS } from '../control/constants';
 import { RedisClient } from './redis';
-import { GeoContext, GeoContextMode, WGS84Coordinate } from './interfaces';
+import { GenericGeocodingFeatureResponse, GeoContext, GeoContextMode, WGS84Coordinate } from './interfaces';
 import { SERVICES } from './constants';
 import { ElasticClients } from './elastic';
 import { BadRequestError } from './errors';
@@ -291,3 +291,16 @@ export const geoContextQuery = (
     ],
   };
 };
+
+export const singleMatch = (layer: string, source: string): GenericGeocodingFeatureResponse['properties']['matches'] => [
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  { layer, source, source_id: [] },
+];
+
+export const singleResultGeocoding = <T>(query: T): GenericGeocodingFeatureResponse['geocoding'] => ({
+  version: process.env.npm_package_version as string,
+  query,
+  /* eslint-disable @typescript-eslint/naming-convention */
+  response: { max_score: 1, results_count: 1, match_latency_ms: 0 },
+  /* eslint-enable @typescript-eslint/naming-convention */
+});

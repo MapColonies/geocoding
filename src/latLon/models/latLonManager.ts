@@ -6,7 +6,7 @@ import { SERVICES } from '../../common/constants';
 import { LatLonDAL, latLonDalSymbol } from '../DAL/latLonDAL';
 import { withSpan, withSpanSync } from '../../common/tracing';
 import { LatLonSpanName, LatLonAttributes } from '../tracing';
-import { convertUTMToWgs84, CommonUtils, parseGeo, validateWGS84Coordinate } from '../../common/utils';
+import { CommonUtils, convertUTMToWgs84, parseGeo, singleMatch, singleResultGeocoding, validateWGS84Coordinate } from '../../common/utils';
 import { BadRequestError } from '../../common/errors';
 import { GenericGeocodingFeatureResponse, WGS84Coordinate } from '../../common/interfaces';
 import { convertCamelToSnakeCase } from '../../control/utils';
@@ -85,19 +85,11 @@ export class LatLonManager {
 
         return {
           type: 'Feature',
-          geocoding: {
-            version: process.env.npm_package_version as string,
-            query: {
-              lat,
-              lon,
-              ...convertCamelToSnakeCase({ targetGrid }),
-            },
-            response: convertCamelToSnakeCase({
-              maxScore: 1,
-              resultsCount: 1,
-              matchLatencyMs: 0,
-            }) as GenericGeocodingFeatureResponse['geocoding']['response'],
-          },
+          geocoding: singleResultGeocoding({
+            lat,
+            lon,
+            ...convertCamelToSnakeCase({ targetGrid }),
+          }),
           bbox,
           geometry: parseGeo({
             bbox,
@@ -106,14 +98,7 @@ export class LatLonManager {
             coordinates: [lon, lat],
           },
           properties: {
-            matches: [
-              {
-                layer: 'convertionTable',
-                source: 'mapcolonies',
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                source_id: [],
-              },
-            ],
+            matches: singleMatch('convertionTable', 'mapcolonies'),
             names: {
               default: [tileCoordinateData.tile_name],
               display: tileCoordinateData.tile_name,
@@ -162,33 +147,18 @@ export class LatLonManager {
 
         return {
           type: 'Feature',
-          geocoding: {
-            version: process.env.npm_package_version as string,
-            query: {
-              lat,
-              lon,
-              ...convertCamelToSnakeCase({ targetGrid }),
-            },
-            response: convertCamelToSnakeCase({
-              maxScore: 1,
-              resultsCount: 1,
-              matchLatencyMs: 0,
-            }) as GenericGeocodingFeatureResponse['geocoding']['response'],
-          },
+          geocoding: singleResultGeocoding({
+            lat,
+            lon,
+            ...convertCamelToSnakeCase({ targetGrid }),
+          }),
           bbox: mgrs.inverse(mgrsStr),
           geometry: {
             type: 'Point',
             coordinates: [lon, lat],
           },
           properties: {
-            matches: [
-              {
-                layer: 'MGRS',
-                source: 'npm/MGRS',
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                source_id: [],
-              },
-            ],
+            matches: singleMatch('MGRS', 'npm/MGRS'),
             names: {
               default: [mgrsStr],
               display: mgrsStr,
