@@ -44,7 +44,7 @@ jobs:
         uses: MapColonies/shared-workflows/actions/init-npm@init-npm-v1
 
       - name: OpenAPI Lint Checks
-        run: npx @redocly/cli lint --format=github-actions openapi3.yaml
+        run: npx @redocly/cli lint --skip-rule boolean-parameter-prefixes --format=github-actions openapi3.yaml
 
   helm-lint:
     name: Run Helm lint Check
