@@ -8,7 +8,7 @@ import { elasticConfigPath } from '../common/constants';
 import { Item } from '../control/item/models/item';
 import { Tile } from '../control/tile/models/tile';
 import { Route } from '../control/route/models/route';
-import { ConvertSnakeToCamelCase } from '../common/utils';
+import { ConvertCamelToSnakeCase, ConvertSnakeToCamelCase } from '../common/utils';
 import { CONTROL_FIELDS } from './constants';
 
 const LAST_ELEMENT_INDEX = -1;
@@ -42,7 +42,7 @@ const generateDisplayName = <T extends Tile | Item | Route>(
   return name;
 };
 
-export const convertCamelToSnakeCase = (obj: Record<string, unknown>): Record<string, unknown> => {
+export const convertCamelToSnakeCase = <T extends object>(obj: T): ConvertCamelToSnakeCase<T> => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const snakeCaseObj: Record<string, any> = {};
   for (const key in obj) {
@@ -51,7 +51,7 @@ export const convertCamelToSnakeCase = (obj: Record<string, unknown>): Record<st
       snakeCaseObj[snakeCaseKey] = obj[key];
     }
   }
-  return snakeCaseObj;
+  return snakeCaseObj as ConvertCamelToSnakeCase<T>;
 };
 
 export const formatResponse = <T extends Tile | Item | Route>(
@@ -63,7 +63,7 @@ export const formatResponse = <T extends Tile | Item | Route>(
     type: 'FeatureCollection',
     geocoding: {
       version: process.env.npm_package_version as string,
-      query: convertCamelToSnakeCase(requestParams as Record<string, unknown>),
+      query: convertCamelToSnakeCase(requestParams),
       response: {
         results_count: elasticResponse.hits.hits.length,
         max_score: elasticResponse.hits.max_score ?? 0,

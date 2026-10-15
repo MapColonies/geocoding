@@ -1,14 +1,18 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import jsLogger from '@map-colonies/js-logger';
 import { MgrsManager } from '../../../src/mgrsConversion/models/mgrsManager';
+import { registerDependencies } from '../../../src/common/dependencyRegistration';
+import { SERVICES } from '../../../src/common/constants';
 import { GetTileQueryParams } from '../../../src/mgrsConversion/controllers/mgrsController';
 import { GenericGeocodingFeatureResponse } from '../../../src/common/interfaces';
 import { BadRequestError } from '../../../src/common/errors';
 
 let mgrsManager: MgrsManager;
 describe('#MgrsManager', () => {
-  beforeEach(() => {
-    mgrsManager = new MgrsManager(jsLogger({ enabled: false }), {} as never, {} as never);
+  beforeEach(async () => {
+    const container = await registerDependencies([{ token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } }], [], true);
+
+    mgrsManager = container.resolve(MgrsManager);
   });
 
   describe('happy path', () => {

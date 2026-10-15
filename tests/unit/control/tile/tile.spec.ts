@@ -3,9 +3,11 @@ import jsLogger from '@map-colonies/js-logger';
 import type { BBox } from 'geojson';
 import { estypes } from '@elastic/elasticsearch';
 import { TileQueryParams } from '../../../../src/control/tile/DAL/queries';
-import { TileRepository } from '../../../../src/control/tile/DAL/tileRepository';
+import { TileRepository, TILE_REPOSITORY_SYMBOL } from '../../../../src/control/tile/DAL/tileRepository';
 import { TileManager } from '../../../../src/control/tile/models/tileManager';
-import { GenericGeocodingResponse, IApplication } from '../../../../src/common/interfaces';
+import { registerDependencies } from '../../../../src/common/dependencyRegistration';
+import { SERVICES } from '../../../../src/common/constants';
+import { GenericGeocodingResponse } from '../../../../src/common/interfaces';
 import { Tile } from '../../../../src/control/tile/models/tile';
 import { RIC_TILE, SUB_TILE_66 } from '../../../mockObjects/tiles';
 import { convertCamelToSnakeCase } from '../../../../src/control/utils';
@@ -18,23 +20,26 @@ describe('#TileManager', () => {
   const getSubTiles = jest.fn();
   const getTilesByBbox = jest.fn();
   const controlObjectDisplayNamePrefixes = { TILE: 'Tile', SUB_TILE: 'Sub Tile' };
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.resetAllMocks();
 
-    const repository = {
+    const repository: TileRepository = {
       getTiles,
       getSubTiles,
       getTilesByBbox,
-    } as unknown as TileRepository;
+    };
 
-    tileManager = new TileManager(
-      jsLogger({ enabled: false }),
-      {} as never,
-      {
-        controlObjectDisplayNamePrefixes,
-      } as unknown as IApplication,
-      repository
+    const container = await registerDependencies(
+      [
+        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
+        { token: SERVICES.APPLICATION, provider: { useValue: { controlObjectDisplayNamePrefixes } } },
+        { token: TILE_REPOSITORY_SYMBOL, provider: { useValue: repository } },
+      ],
+      [],
+      true
     );
+
+    tileManager = container.resolve(TileManager);
   });
 
   test.each<{
@@ -115,7 +120,7 @@ describe('#TileManager', () => {
       type: 'FeatureCollection',
       geocoding: {
         version: process.env.npm_package_version as string,
-        query: convertCamelToSnakeCase(queryParams as unknown as Record<string, unknown>),
+        query: convertCamelToSnakeCase(queryParams),
         response: {
           results_count: 1,
           max_score: expect.any(Number) as number,

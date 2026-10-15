@@ -6,17 +6,33 @@ import { ElasticClients, ElasticClient } from '../../../common/elastic';
 import { queryElastic } from '../../../common/elastic/utils';
 import { Item } from '../models/item';
 import { SERVICES } from '../../../common/constants';
+import { CommonSpanAttributes, withSpan } from '../../../common/tracing';
 import { additionalControlSearchProperties } from '../../utils';
+import { ControlSpanName, ControlAttributes } from '../../tracing';
 import { ItemQueryParams, queryForItems } from './queries';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const createItemRepository = (client: ElasticClient, config: ConfigType, logger: Logger) => {
   return {
     async getItems(itemQueryParams: ItemQueryParams, size: number): Promise<estypes.SearchResponse<Item>> {
-      logger.info('Querying items from elastic');
-      const response = await queryElastic<Item>(client, { ...additionalControlSearchProperties(config, size), ...queryForItems(itemQueryParams) });
+      return withSpan(
+        ControlSpanName.ITEM_REPOSITORY_GET_ITEMS,
+        { attributes: { [ControlAttributes.COMMAND_NAME]: itemQueryParams.commandName, [ControlAttributes.LIMIT]: size } },
+        async (span) => {
+          logger.info('Querying items from elastic');
+          const response = await queryElastic<Item>(client, {
+            ...additionalControlSearchProperties(config, size),
+            ...queryForItems(itemQueryParams),
+          });
 
-      return response;
+          span?.setAttributes({
+            [CommonSpanAttributes.RESULT_COUNT]: response.hits.hits.length,
+            [CommonSpanAttributes.MATCH_LATENCY_MS]: response.took,
+          });
+
+          return response;
+        }
+      );
     },
   };
 };

@@ -6,49 +6,55 @@ import { FactoryFunction } from 'tsyringe';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { SERVICES, s3ConfigPath } from '../constants';
 import { ConfigType } from '../config';
+import { withSpan } from '../tracing';
+import { S3SpanName, S3Attributes } from './tracing';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const createS3Repository = (s3Client: S3Client, config: ConfigType, logger: Logger) => {
   return {
     async downloadFile(): Promise<string> {
-      try {
-        const bucket = config.get(s3ConfigPath).bucket;
-        const fileName = config.get(s3ConfigPath).fileName;
-
-        logger.info(`Downloading ${fileName} file from S3`);
-
-        const command = new GetObjectCommand({
-          Bucket: bucket,
-          Key: fileName,
-        });
-
-        const { Body } = await s3Client.send(command);
-
-        const filePath = path.join(__dirname, 'downloads', fileName);
-
+      return withSpan(S3SpanName.REPOSITORY_DOWNLOAD_FILE, {}, async (span) => {
         try {
-          await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
-        } catch {
-          //folder already exists
+          const bucket = config.get(s3ConfigPath).bucket;
+          const fileName = config.get(s3ConfigPath).fileName;
+
+          span?.setAttributes({ [S3Attributes.BUCKET]: bucket, [S3Attributes.FILE_NAME]: fileName });
+
+          logger.info(`Downloading ${fileName} file from S3`);
+
+          const command = new GetObjectCommand({
+            Bucket: bucket,
+            Key: fileName,
+          });
+
+          const { Body } = await s3Client.send(command);
+
+          const filePath = path.join(__dirname, 'downloads', fileName);
+
+          try {
+            await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
+          } catch {
+            //folder already exists
+          }
+
+          await new Promise<void>((resolve, reject) => {
+            (Body as NodeJS.ReadableStream)
+              .pipe(fs.createWriteStream(filePath))
+              .on('error', (err: Error) => {
+                reject(err);
+              })
+              .on('close', () => {
+                logger.info('table.json file was downloaded successfully');
+                resolve();
+              });
+          });
+
+          return filePath;
+        } catch (error) {
+          logger.error({ msg: `Error while downloading ${__filename}'s data from S3.`, error });
+          throw error;
         }
-
-        await new Promise<void>((resolve, reject) => {
-          (Body as NodeJS.ReadableStream)
-            .pipe(fs.createWriteStream(filePath))
-            .on('error', (err: Error) => {
-              reject(err);
-            })
-            .on('close', () => {
-              logger.info('table.json file was downloaded successfully');
-              resolve();
-            });
-        });
-
-        return filePath;
-      } catch (error) {
-        logger.error({ msg: `Error while downloading ${__filename}'s data from S3.`, error });
-        throw error;
-      }
+      });
     },
   };
 };

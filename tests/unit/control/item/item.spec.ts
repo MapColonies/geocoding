@@ -3,9 +3,11 @@ import jsLogger from '@map-colonies/js-logger';
 import { estypes } from '@elastic/elasticsearch';
 import type { BBox } from 'geojson';
 import { ItemQueryParams } from '../../../../src/control/item/DAL/queries';
-import { ItemRepository } from '../../../../src/control/item/DAL/itemRepository';
+import { ItemRepository, ITEM_REPOSITORY_SYMBOL } from '../../../../src/control/item/DAL/itemRepository';
 import { ItemManager } from '../../../../src/control/item/models/itemManager';
-import { GenericGeocodingResponse, IApplication } from '../../../../src/common/interfaces';
+import { registerDependencies } from '../../../../src/common/dependencyRegistration';
+import { SERVICES } from '../../../../src/common/constants';
+import { GenericGeocodingResponse } from '../../../../src/common/interfaces';
 import { Item } from '../../../../src/control/item/models/item';
 import { convertCamelToSnakeCase } from '../../../../src/control/utils';
 import { ITEM_1234 } from '../../../mockObjects/items';
@@ -15,21 +17,24 @@ let itemManager: ItemManager;
 describe('#ItemManager', () => {
   const getItems = jest.fn();
   const controlObjectDisplayNamePrefixes = { ITEM: 'Item' };
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.resetAllMocks();
 
-    const repository = {
+    const repository: ItemRepository = {
       getItems,
-    } as unknown as ItemRepository;
+    };
 
-    itemManager = new ItemManager(
-      jsLogger({ enabled: false }),
-      {} as never,
-      {
-        controlObjectDisplayNamePrefixes,
-      } as unknown as IApplication,
-      repository
+    const container = await registerDependencies(
+      [
+        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
+        { token: SERVICES.APPLICATION, provider: { useValue: { controlObjectDisplayNamePrefixes } } },
+        { token: ITEM_REPOSITORY_SYMBOL, provider: { useValue: repository } },
+      ],
+      [],
+      true
     );
+
+    itemManager = container.resolve(ItemManager);
   });
 
   test.each<{
@@ -81,7 +86,7 @@ describe('#ItemManager', () => {
       type: 'FeatureCollection',
       geocoding: {
         version: process.env.npm_package_version as string,
-        query: convertCamelToSnakeCase(queryParams as unknown as Record<string, unknown>),
+        query: convertCamelToSnakeCase(queryParams),
         response: {
           results_count: 1,
           max_score: expect.any(Number) as number,
