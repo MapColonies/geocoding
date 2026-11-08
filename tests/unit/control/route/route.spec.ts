@@ -3,9 +3,11 @@ import jsLogger from '@map-colonies/js-logger';
 import { estypes } from '@elastic/elasticsearch';
 import type { BBox } from 'geojson';
 import { RouteQueryParams } from '../../../../src/control/route/DAL/queries';
-import { RouteRepository } from '../../../../src/control/route/DAL/routeRepository';
+import { RouteRepository, ROUTE_REPOSITORY_SYMBOL } from '../../../../src/control/route/DAL/routeRepository';
 import { RouteManager } from '../../../../src/control/route/models/routeManager';
-import { GenericGeocodingResponse, IApplication } from '../../../../src/common/interfaces';
+import { registerDependencies } from '../../../../src/common/dependencyRegistration';
+import { SERVICES } from '../../../../src/common/constants';
+import { GenericGeocodingResponse } from '../../../../src/common/interfaces';
 import { Route } from '../../../../src/control/route/models/route';
 import { convertCamelToSnakeCase } from '../../../../src/control/utils';
 import { CONTROL_POINT_OLIMPIADE_111, ROUTE_VIA_CAMILLUCCIA_A } from '../../../mockObjects/routes';
@@ -16,22 +18,25 @@ describe('#RouteManager', () => {
   const getRoutes = jest.fn();
   const getControlPointInRoute = jest.fn();
   const controlObjectDisplayNamePrefixes = { ROUTE: 'Route', CONTROL_POINT: 'Control Point' };
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.resetAllMocks();
 
-    const repository = {
+    const repository: RouteRepository = {
       getRoutes,
       getControlPointInRoute,
-    } as unknown as RouteRepository;
+    };
 
-    routeManager = new RouteManager(
-      jsLogger({ enabled: false }),
-      {} as never,
-      {
-        controlObjectDisplayNamePrefixes,
-      } as unknown as IApplication,
-      repository
+    const container = await registerDependencies(
+      [
+        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
+        { token: SERVICES.APPLICATION, provider: { useValue: { controlObjectDisplayNamePrefixes } } },
+        { token: ROUTE_REPOSITORY_SYMBOL, provider: { useValue: repository } },
+      ],
+      [],
+      true
     );
+
+    routeManager = container.resolve(RouteManager);
   });
 
   test.each<{
@@ -99,7 +104,7 @@ describe('#RouteManager', () => {
       type: 'FeatureCollection',
       geocoding: {
         version: process.env.npm_package_version as string,
-        query: convertCamelToSnakeCase(queryParams as unknown as Record<string, unknown>),
+        query: convertCamelToSnakeCase(queryParams),
         response: {
           results_count: 1,
           max_score: expect.any(Number) as number,

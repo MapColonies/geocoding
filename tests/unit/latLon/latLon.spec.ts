@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import jsLogger from '@map-colonies/js-logger';
 import { LatLonManager } from '../../../src/latLon/models/latLonManager';
-import { LatLonDAL } from '../../../src/latLon/DAL/latLonDAL';
+import { LatLonDAL, latLonDalSymbol } from '../../../src/latLon/DAL/latLonDAL';
+import { registerDependencies } from '../../../src/common/dependencyRegistration';
+import { SERVICES } from '../../../src/common/constants';
 import { GenericGeocodingFeatureResponse, WGS84Coordinate } from '../../../src/common/interfaces';
 import { convertCamelToSnakeCase } from '../../../src/control/utils';
 import { BadRequestError } from '../../../src/common/errors';
@@ -12,10 +14,20 @@ type QueryParams = WGS84Coordinate & { targetGrid: 'control' | 'MGRS' };
 let latLonManager: LatLonManager;
 describe('#LatLonManager', () => {
   const latLonToTile = jest.fn();
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.resetAllMocks();
-    const repositry = { latLonToTile } as unknown as LatLonDAL;
-    latLonManager = new LatLonManager(jsLogger({ enabled: false }), repositry, {} as never);
+    const repositry: Pick<LatLonDAL, 'latLonToTile'> = { latLonToTile };
+
+    const container = await registerDependencies(
+      [
+        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
+        { token: latLonDalSymbol, provider: { useValue: repositry } },
+      ],
+      [],
+      true
+    );
+
+    latLonManager = container.resolve(LatLonManager);
   });
 
   describe('happy path', () => {
@@ -46,7 +58,7 @@ describe('#LatLonManager', () => {
         type: 'Feature',
         geocoding: {
           version: process.env.npm_package_version as string,
-          query: convertCamelToSnakeCase(queryParams as unknown as Record<string, unknown>),
+          query: convertCamelToSnakeCase(queryParams),
           response: {
             max_score: 1,
             results_count: 1,
@@ -97,7 +109,7 @@ describe('#LatLonManager', () => {
         type: 'Feature',
         geocoding: {
           version: process.env.npm_package_version as string,
-          query: convertCamelToSnakeCase(queryParams as unknown as Record<string, unknown>),
+          query: convertCamelToSnakeCase(queryParams),
           response: {
             max_score: 1,
             results_count: 1,

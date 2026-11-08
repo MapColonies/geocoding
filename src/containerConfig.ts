@@ -64,12 +64,12 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
       {
         token: SERVICES.TRACER,
         provider: {
-          useFactory: instancePerContainerCachingFactory((container) => {
-            const cleanupRegistry = container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
-            cleanupRegistry.register({ id: SERVICES.TRACER, func: getTracing().stop.bind(getTracing()) });
-            const tracer = trace.getTracer(SERVICE_NAME);
-            return tracer;
-          }),
+          useFactory: instancePerContainerCachingFactory(() => trace.getTracer(SERVICE_NAME)),
+        },
+        postInjectionHook: async (container: DependencyContainer): Promise<void> => {
+          const cleanupRegistry = container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+          cleanupRegistry.register({ id: SERVICES.TRACER, func: getTracing().stop.bind(getTracing()) });
+          return Promise.resolve();
         },
       },
       {

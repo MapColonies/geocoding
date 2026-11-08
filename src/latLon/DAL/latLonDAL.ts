@@ -8,6 +8,8 @@ import { SERVICES } from '../../common/constants';
 import { LatLon as ILatLon } from '../models/latLon';
 import { ConvertCamelToSnakeCase } from '../../common/utils';
 import { S3_REPOSITORY_SYMBOL, S3Repository } from '../../common/s3/s3Repository';
+import { withSpan } from '../../common/tracing';
+import { LatLonSpanName, LatLonAttributes } from '../tracing';
 
 type LatLon = ConvertCamelToSnakeCase<ILatLon>;
 let scheduledTask: cron.ScheduledTask | null = null;
@@ -53,41 +55,55 @@ export class LatLonDAL {
   /* istanbul ignore end */
 
   public async init(): Promise<void> {
-    try {
-      const dataLoadPromise = new Promise((resolve, reject) => {
-        this.dataLoadError = false;
-        this.dataLoad = { resolve, reject };
-      })
-        .then(() => (this.dataLoad = undefined))
-        .catch(() => {
-          this.dataLoad = undefined;
-          this.dataLoadError = true;
-        });
-      this.dataLoad = { ...this.dataLoad, promise: dataLoadPromise };
+    return withSpan(LatLonSpanName.DAL_INIT, {}, async () => {
+      try {
+        const dataLoadPromise = new Promise((resolve, reject) => {
+          this.dataLoadError = false;
+          this.dataLoad = { resolve, reject };
+        })
+          .then(() => (this.dataLoad = undefined))
+          .catch(() => {
+            this.dataLoad = undefined;
+            this.dataLoadError = true;
+          });
+        this.dataLoad = { ...this.dataLoad, promise: dataLoadPromise };
 
-      this.onGoingUpdate = true;
+        this.onGoingUpdate = true;
 
-      this.logger.debug('Initializing latLonData');
+        this.logger.debug('Initializing latLonData');
 
-      await this.loadLatLonData();
-      this.dataLoad.resolve?.('finished loading data');
+        await this.loadLatLonData();
+        this.dataLoad.resolve?.('finished loading data');
 
-      this.logger.debug('latLonData initialized');
-    } catch (error) {
-      this.logger.error({ msg: `Failed to initialize latLon data.`, error });
-      this.dataLoadError = true;
-    } finally {
-      this.onGoingUpdate = false;
-      this.dataLoad = undefined;
-    }
+        this.logger.debug('latLonData initialized');
+      } catch (error) {
+        this.logger.error({ msg: `Failed to initialize latLon data.`, error });
+        this.dataLoadError = true;
+      } finally {
+        this.onGoingUpdate = false;
+        this.dataLoad = undefined;
+      }
+    });
   }
 
   public async latLonToTile({ x, y, zone }: { x: number; y: number; zone: number }): Promise<LatLon | undefined> {
-    if (this.getIsDataLoadError()) {
-      throw new InternalServerError('Lat-lon to tile data currently not available');
-    }
-    await this.dataLoad?.promise;
-    return this.latLonMap.get(`${x},${y},${zone}`);
+    return withSpan(
+      LatLonSpanName.DAL_TO_TILE,
+      {
+        attributes: {
+          [LatLonAttributes.UTM_X]: x,
+          [LatLonAttributes.UTM_Y]: y,
+          [LatLonAttributes.UTM_ZONE]: zone,
+        },
+      },
+      async () => {
+        if (this.getIsDataLoadError()) {
+          throw new InternalServerError('Lat-lon to tile data currently not available');
+        }
+        await this.dataLoad?.promise;
+        return this.latLonMap.get(`${x},${y},${zone}`);
+      }
+    );
   }
 
   private clearLatLonMap(): void {
@@ -96,24 +112,28 @@ export class LatLonDAL {
   }
 
   private async loadLatLonData(): Promise<void> {
-    this.logger.debug('Loading latLon data');
+    return withSpan(LatLonSpanName.DAL_LOAD_DATA, {}, async (span) => {
+      this.logger.debug('Loading latLon data');
 
-    this.clearLatLonMap();
+      this.clearLatLonMap();
 
-    const latLonDataPath = await this.latLonRepository.downloadFile();
+      const latLonDataPath = await this.latLonRepository.downloadFile();
 
-    const { items: latLonData } = JSON.parse(await fs.promises.readFile(latLonDataPath, 'utf8')) as { items: LatLon[] };
+      const { items: latLonData } = JSON.parse(await fs.promises.readFile(latLonDataPath, 'utf8')) as { items: LatLon[] };
 
-    latLonData.forEach((latLon) => {
-      this.latLonMap.set(`${latLon.min_x},${latLon.min_y},${latLon.zone}`, latLon);
+      latLonData.forEach((latLon) => {
+        this.latLonMap.set(`${latLon.min_x},${latLon.min_y},${latLon.zone}`, latLon);
+      });
+
+      span?.setAttribute(LatLonAttributes.ENTRIES_COUNT, this.latLonMap.size);
+
+      try {
+        await fs.promises.unlink(latLonDataPath);
+      } catch (error) {
+        this.logger.error({ msg: `Failed to delete latLonData file ${latLonDataPath}.`, error });
+      }
+      this.logger.info('loadLatLonData: update completed');
     });
-
-    try {
-      await fs.promises.unlink(latLonDataPath);
-    } catch (error) {
-      this.logger.error({ msg: `Failed to delete latLonData file ${latLonDataPath}.`, error });
-    }
-    this.logger.info('loadLatLonData: update completed');
   }
 }
 
