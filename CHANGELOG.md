@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.3.1](https://github.com/MapColonies/geocoding/compare/v2.3.0...v2.3.1) (2026-11-08)
+
+
+### Features
+
+* add tracing (MAPCO-6323) ([#95](https://github.com/MapColonies/geocoding/issues/95)) ([2830da0](https://github.com/MapColonies/geocoding/commit/2830da063b4b5ab0d6645371a25d3e2332de120a))
+
 ## [2.3.0](https://github.com/MapColonies/geocoding/compare/v2.2.1...v2.3.0) (2026-07-12)
 
 
