@@ -20,6 +20,7 @@ import { GEOTEXT_SEARCH_ROUTER_SYMBOL } from './location/routes/locationRouter';
 import { cronLoadTileLatLonDataSymbol } from './latLon/DAL/latLonDAL';
 import { FeedbackApiMiddlewareManager } from './common/middlewares/feedbackApi.middleware';
 import { MGRS_ROUTER_SYMBOL } from './mgrsConversion/routes/mgrsRouter';
+import { SMART_QUERY_ROUTER_SYMBOL } from './smartQuery/routes/smartQueryRouter';
 
 @injectable()
 export class ServerBuilder {
@@ -36,7 +37,8 @@ export class ServerBuilder {
     @inject(GEOTEXT_SEARCH_ROUTER_SYMBOL) private readonly geotextRouter: Router,
     @inject(cronLoadTileLatLonDataSymbol) private readonly cronLoadTileLatLonData: void,
     @inject(FeedbackApiMiddlewareManager) private readonly feedbackApiMiddleware: FeedbackApiMiddlewareManager,
-    @inject(MGRS_ROUTER_SYMBOL) private readonly mgrsRouter: Router
+    @inject(MGRS_ROUTER_SYMBOL) private readonly mgrsRouter: Router,
+    @inject(SMART_QUERY_ROUTER_SYMBOL) private readonly smartQueryRouter: Router
   ) {
     this.serverInstance = express();
   }
@@ -67,6 +69,9 @@ export class ServerBuilder {
     router.use('/location', this.geotextRouter);
     router.use('/control', this.buildControlRoutes());
     router.use('/MGRS', this.mgrsRouter);
+    // Mounted last, and only under /search - the app also mounts latLonRouter at the root, so
+    // mounting here at '/' first would create a stray GET /query.
+    router.use('/', this.smartQueryRouter);
 
     this.serverInstance.use('/search', router);
     this.serverInstance.use('/lookup', this.latLonRouter);

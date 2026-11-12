@@ -696,6 +696,38 @@ describe('/search/location', function () {
       tokenTypesUrlScope.done();
     });
 
+    it('should answer a query made only of separators without resolving a place', async function () {
+      // minLength 3 lets this through the validator; it must not reach Elasticsearch as a place
+      const requestParams: GetGeotextSearchParams = { query: '...', limit: 5, disable_fuzziness: true };
+      const tokenTypesUrlScope = nock(config.get('application').services.tokenTypesUrl)
+        .post('', { tokens: ['', ''] })
+        .reply(httpStatusCodes.OK, [{ tokens: ['', ''], prediction: ['essence', 'essence'] }]);
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      expect(response.body).not.toHaveProperty('geocoding.response.place');
+
+      tokenTypesUrlScope.done();
+    });
+
+    it('should keep both placetypes when the query names two of them', async function () {
+      const requestParams: GetGeotextSearchParams = { query: 'airport port', limit: 5, disable_fuzziness: true };
+      const tokenTypesUrlScope = nock(config.get('application').services.tokenTypesUrl)
+        .post('', { tokens: ['airport', 'port'] })
+        .reply(httpStatusCodes.OK, [{ tokens: ['airport', 'port'], prediction: ['essence', 'essence'] }]);
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      // both words are real placetypes the user typed, so neither is dropped as a fuzzy accident
+      expect((response.body as GenericGeocodingResponse<Feature>).geocoding.response.sub_place_types).toEqual(
+        expect.arrayContaining(['airport', 'port'])
+      );
+
+      tokenTypesUrlScope.done();
+    });
+
     it('should return 200 and for query "road los angeles" return LA Road', async function () {
       const requestParams: GetGeotextSearchParams = { query: 'road los angeles', limit: 1, disable_fuzziness: true };
       const tokenTypesUrlScope = nock(config.get('application').services.tokenTypesUrl)
