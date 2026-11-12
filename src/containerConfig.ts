@@ -27,6 +27,8 @@ import { s3ClientFactory } from './common/s3';
 import { S3_REPOSITORY_SYMBOL, s3RepositoryFactory } from './common/s3/s3Repository';
 import { healthCheckFactory } from './common/utils';
 import { MGRS_ROUTER_SYMBOL, mgrsRouterFactory } from './mgrsConversion/routes/mgrsRouter';
+import { SMART_QUERY_REPOSITORY_SYMBOL, smartQueryRepositoryFactory } from './smartQuery/DAL/smartQueryRepository';
+import { SMART_QUERY_ROUTER_SYMBOL, smartQueryRouterFactory } from './smartQuery/routes/smartQueryRouter';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -167,6 +169,8 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
       { token: GEOTEXT_REPOSITORY_SYMBOL, provider: { useFactory: geotextRepositoryFactory } },
       { token: GEOTEXT_SEARCH_ROUTER_SYMBOL, provider: { useFactory: geotextSearchRouterFactory } },
       { token: MGRS_ROUTER_SYMBOL, provider: { useFactory: mgrsRouterFactory } },
+      { token: SMART_QUERY_REPOSITORY_SYMBOL, provider: { useFactory: smartQueryRepositoryFactory } },
+      { token: SMART_QUERY_ROUTER_SYMBOL, provider: { useFactory: smartQueryRouterFactory } },
       { token: latLonDalSymbol, provider: { useFactory: latLonSignletonFactory } },
       {
         token: cronLoadTileLatLonDataSymbol,

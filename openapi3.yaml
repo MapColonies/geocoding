@@ -11,6 +11,8 @@ info:
     name: MIT
     url: https://opensource.org/licenses/MIT
 tags:
+  - name: Smart Query
+    description: One route for any query, dispatched to the backends that can answer it.
   - name: Location Name Based Search
     description: Free-text geocoding search over multiple united sources of geodata.
   - name: Control
@@ -24,10 +26,26 @@ paths:
   /search/query:
     get:
       operationId: GetSmartQuery
+      tags:
+        - Smart Query
       summary: Search anything
       description: >-
-        This is for general queries. the services will make a sophisticated
-        guess.
+        One route for every kind of query. The service classifies the text,
+        asks only the backends that could answer it, and returns a single
+        ranked list that may mix places, control tiles, control items and
+        control routes.
+
+
+        A valid MGRS string, a tile name, a tile with a sub tile, or digits are
+        recognised by pattern and answered from the control grid alone. Free
+        text is genuinely ambiguous between a control object's command name and
+        a place name, so both backends are queried and the results are fused
+        with Reciprocal Rank Fusion - raw scores from the two indices are not
+        comparable. `geocoding.response.intents` reports how the query was read.
+
+
+        If one backend fails while another succeeds the response is still 200,
+        and `geocoding.response.partial_failures` names what was lost.
       parameters:
         - $ref: '#/components/parameters/token'
         - $ref: '#/components/parameters/xApiKey'
@@ -860,6 +878,55 @@ components:
                   type: integer
                   minimum: 0
                   maximum: 5000
+                intents:
+                  description: >-
+                    How /search/query read the text, strongest first. The
+                    confidence is a prior over which backend was worth asking,
+                    not a relevance score.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      kind:
+                        type: string
+                        enum:
+                          - MGRS
+                          - TILE
+                          - SUB_TILE
+                          - CONTROL_NAME
+                          - PLACE
+                      confidence:
+                        type: number
+                      reason:
+                        type: string
+                sources_queried:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - control
+                      - places
+                      - mgrs
+                partial_failures:
+                  description: Backends that failed while at least one other succeeded.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      source:
+                        type: string
+                      message:
+                        type: string
+                merge_strategy:
+                  type: string
+                  enum:
+                    - rrf
+                control_max_score:
+                  description: Raw Elasticsearch score of the top control hit, for diagnostics only.
+                  type: number
+                places_max_score:
+                  description: Raw Elasticsearch score of the top places hit, for diagnostics only.
+                  type: number
         bbox:
           $ref: '#/components/schemas/BoundingBox'
         features:
