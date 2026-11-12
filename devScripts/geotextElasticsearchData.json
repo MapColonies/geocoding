@@ -828,5 +828,178 @@
       "sub_placetype": "school",
       "sub_placetype_keyword": "school"
     }
+  },
+  {
+    "_index": "hierarchies",
+    "_source": {
+      "geo_json": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [34.74, 32.14],
+            [34.84, 32.14],
+            [34.84, 32.03],
+            [34.74, 32.03],
+            [34.74, 32.14]
+          ]
+        ]
+      },
+      "hierarchy": "city",
+      "placetype": "city",
+      "region": "ISRAEL",
+      "text": "תל אביב"
+    }
+  },
+  {
+    "_index": "geotext",
+    "_source": {
+      "source": "osm",
+      "layer_name": "osm_schools",
+      "ingestion_timestamp": "2024-07-17 00:00:00",
+      "timestamp": "11/12/2023 00:00:00",
+      "source_id": ["{d791d799d791d79020d79cd7aa20d79f}"],
+      "sensitivity": "non-sensitive",
+      "placetype": "education",
+      "sub_placetype": "school",
+      "wkt": null,
+      "geo_json": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [34.78, 32.08],
+            [34.79, 32.08],
+            [34.79, 32.07],
+            [34.78, 32.07],
+            [34.78, 32.08]
+          ]
+        ]
+      },
+      "centroid": {
+        "type": "Point",
+        "coordinates": [34.785, 32.075]
+      },
+      "geometry_type": "Polygon",
+      "geometry_hash": "d791d799d791d79020d79cd7aa20d79f",
+      "region": ["ISRAEL"],
+      "sub_region": ["Tel Aviv"],
+      "name": "בית ספר תיכון תל אביב",
+      "text": ["בית ספר תיכון תל אביב"],
+      "translated_text": [],
+      "text_language": "he"
+    }
+  },
+  {
+    "_index": "geotext",
+    "_source": {
+      "source": "osm",
+      "layer_name": "osm_ports",
+      "ingestion_timestamp": "2024-07-17 00:00:00",
+      "timestamp": "11/12/2023 00:00:00",
+      "source_id": ["{d791d799d791d79020d79cd7aa20d79c}"],
+      "sensitivity": "non-sensitive",
+      "placetype": "transportation",
+      "sub_placetype": "port",
+      "wkt": null,
+      "geo_json": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [34.77, 32.1],
+            [34.78, 32.1],
+            [34.78, 32.09],
+            [34.77, 32.09],
+            [34.77, 32.1]
+          ]
+        ]
+      },
+      "centroid": {
+        "type": "Point",
+        "coordinates": [34.775000000000006, 32.095]
+      },
+      "geometry_type": "Polygon",
+      "geometry_hash": "d791d799d791d79020d79cd7aa20d79c",
+      "region": ["ISRAEL"],
+      "sub_region": ["Tel Aviv"],
+      "name": "נמל תל אביב",
+      "text": ["נמל תל אביב"],
+      "translated_text": [],
+      "text_language": "he"
+    }
+  },
+  {
+    "_index": "geotext",
+    "_source": {
+      "source": "osm",
+      "layer_name": "osm_schools",
+      "ingestion_timestamp": "2024-07-17 00:00:00",
+      "timestamp": "11/12/2023 00:00:00",
+      "source_id": ["{d794d7a4d799d79720d7a8d7a4d7a120}"],
+      "sensitivity": "non-sensitive",
+      "placetype": "education",
+      "sub_placetype": "school",
+      "wkt": null,
+      "geo_json": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [34.98, 32.8],
+            [34.99, 32.8],
+            [34.99, 32.79],
+            [34.98, 32.79],
+            [34.98, 32.8]
+          ]
+        ]
+      },
+      "centroid": {
+        "type": "Point",
+        "coordinates": [34.985, 32.795]
+      },
+      "geometry_type": "Polygon",
+      "geometry_hash": "d794d7a4d799d79720d7a8d7a4d7a120",
+      "region": ["ISRAEL"],
+      "sub_region": ["Haifa"],
+      "name": "בית ספר חיפה",
+      "text": ["בית ספר חיפה"],
+      "translated_text": [],
+      "text_language": "he"
+    }
+  },
+  {
+    "_index": "geotext",
+    "_source": {
+      "source": "osm",
+      "layer_name": "osm_schools",
+      "ingestion_timestamp": "2024-07-17 00:00:00",
+      "timestamp": "11/12/2023 00:00:00",
+      "source_id": ["{d79dd799d6bed7aad79120d7a1d7b4d7}"],
+      "sensitivity": "non-sensitive",
+      "placetype": "education",
+      "sub_placetype": "school",
+      "wkt": null,
+      "geo_json": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [34.74, 32.04],
+            [34.75, 32.04],
+            [34.75, 32.03],
+            [34.74, 32.03],
+            [34.74, 32.04]
+          ]
+        ]
+      },
+      "centroid": {
+        "type": "Point",
+        "coordinates": [34.745000000000005, 32.035]
+      },
+      "geometry_type": "Polygon",
+      "geometry_hash": "d79dd799d6bed7aad79120d7a1d7b4d7",
+      "region": ["ISRAEL"],
+      "sub_region": ["Tel Aviv"],
+      "name": "בי״ס בת־ים",
+      "text": ["בי״ס בת־ים"],
+      "translated_text": [],
+      "text_language": "he"
+    }
   }
 ]

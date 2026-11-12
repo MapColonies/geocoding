@@ -10,11 +10,11 @@ import { getApp } from '../../../src/app';
 import { ConfigType, getConfig } from '../../../src/common/config';
 import { redisConfigPath, SERVICES } from '../../../src/common/constants';
 import { GetGeotextSearchParams } from '../../../src/location/interfaces';
+import { NLP_UNAVAILABLE_LATENCY } from '../../../src/location/DAL/locationRepository';
 import { GenericGeocodingResponse, GeoContext, GeoContextMode } from '../../../src/common/interfaces';
 import {
-  OSM_LA_PORT,
-  GOOGLE_LA_PORT,
   LA_AIRPORT,
+  GOOGLE_LA_PORT,
   NY_JFK_AIRPORT,
   NY_POLICE_AIRPORT,
   NY_HIERRARCHY,
@@ -27,7 +27,7 @@ import {
   LA_ROAD,
 } from '../../mockObjects/locations';
 import { LocationRequestSender } from './helpers/requestSender';
-import { expectedResponse, expectedResponseUnordered, hierarchiesWithAnyWieght } from './utils';
+import { expectedResponse, expectedResponseUnordered, hierarchiesWithAnyWieght, resolvedPlace } from './utils';
 import { getBaseRegisterOptions } from './helpers';
 
 let config: ConfigType;
@@ -208,12 +208,16 @@ describe('/search/location', function () {
     test.each<
       Pick<GetGeotextSearchParams, 'query'> & {
         hierarchies: GenericGeocodingResponse<Feature>['geocoding']['response']['hierarchies'];
+        place: Record<string, unknown>;
         returnedFeatures: MockLocationQueryFeature[];
       }
     >([
+      // Before the place became a real filter, both of these returned the *same* features -
+      // a search for New York airports listed Los Angeles ones. That is what is fixed here.
       {
         query: 'new york',
         hierarchies: hierarchiesWithAnyWieght([NY_HIERRARCHY], expect),
+        place: resolvedPlace('new york', 'filter', 0.917),
         returnedFeatures: [
           {
             ...NY_JFK_AIRPORT,
@@ -226,30 +230,17 @@ describe('/search/location', function () {
             },
           },
           NY_POLICE_AIRPORT,
-          LA_AIRPORT,
         ],
       },
       {
         query: 'los angeles',
         hierarchies: hierarchiesWithAnyWieght([LA_HIERRARCHY], expect),
-        returnedFeatures: [
-          LA_AIRPORT,
-          {
-            ...NY_JFK_AIRPORT,
-            properties: {
-              ...NY_JFK_AIRPORT.properties,
-              names: {
-                ...NY_JFK_AIRPORT.properties.names,
-                display: NY_JFK_AIRPORT_DISPLAY_NAMES[1],
-              },
-            },
-          },
-          NY_POLICE_AIRPORT,
-          OSM_LA_PORT,
-          GOOGLE_LA_PORT,
-        ],
+        place: resolvedPlace('los angeles', 'filter', 0.917),
+        // The two LA ports are gone for a second reason: `port` is no longer accepted as a
+        // placetype for the query "airport" - three edits apart, it was a fuzzy accident.
+        returnedFeatures: [LA_AIRPORT],
       },
-    ])('it should test airports response with hierrarchy in %s', async ({ query, hierarchies, returnedFeatures }) => {
+    ])('it should test airports response with hierrarchy in %s', async ({ query, hierarchies, place, returnedFeatures }) => {
       const requestParams: GetGeotextSearchParams = { query: `airport, ${query}`, limit: 5, disable_fuzziness: true };
 
       const tokenTypesUrlScope = nock(config.get('application').services.tokenTypesUrl)
@@ -275,6 +266,7 @@ describe('/search/location', function () {
             place_types: ['transportation'],
             sub_place_types: ['airport'],
             hierarchies,
+            place,
           },
           returnedFeatures,
           expect
@@ -288,53 +280,65 @@ describe('/search/location', function () {
       Pick<GetGeotextSearchParams, 'query'> & {
         place_types: GenericGeocodingResponse<Feature>['geocoding']['response']['place_types'];
         sub_place_types: GenericGeocodingResponse<Feature>['geocoding']['response']['sub_place_types'];
+        place: Record<string, unknown>;
+        hierarchies: GenericGeocodingResponse<Feature>['geocoding']['response']['hierarchies'];
         returnedFeatures: MockLocationQueryFeature[];
       }
     >([
       {
         query: 'new york',
-        returnedFeatures: [NY_JFK_AIRPORT, NY_POLICE_AIRPORT, LA_AIRPORT, OSM_LA_PORT, GOOGLE_LA_PORT],
+        // The place is resolved without a comma now, so the Los Angeles features are excluded.
+        returnedFeatures: [NY_JFK_AIRPORT, NY_POLICE_AIRPORT],
         place_types: ['transportation'],
         sub_place_types: ['airport'],
+        place: resolvedPlace('new york', 'filter', 0.867),
+        hierarchies: hierarchiesWithAnyWieght([NY_HIERRARCHY], expect),
       },
       {
         query: 'los angeles',
         place_types: ['transportation'],
         sub_place_types: ['airport'],
-        returnedFeatures: [LA_AIRPORT, OSM_LA_PORT, GOOGLE_LA_PORT, NY_JFK_AIRPORT, NY_POLICE_AIRPORT],
+        place: resolvedPlace('los angeles', 'filter', 0.867),
+        hierarchies: hierarchiesWithAnyWieght([LA_HIERRARCHY], expect),
+        returnedFeatures: [LA_AIRPORT],
       },
-    ])('it should test airports response with NLP Analyzer in %s', async ({ query, place_types, sub_place_types, returnedFeatures }) => {
-      const requestParams: GetGeotextSearchParams = { query: `airport ${query}`, limit: 5, disable_fuzziness: false };
+    ])(
+      'it should test airports response with NLP Analyzer in %s',
+      async ({ query, place_types, sub_place_types, place, hierarchies, returnedFeatures }) => {
+        const requestParams: GetGeotextSearchParams = { query: `airport ${query}`, limit: 5, disable_fuzziness: false };
 
-      const tokenTypesUrlScope = nock(config.get('application').services.tokenTypesUrl)
-        .post('', { tokens: requestParams.query.split(' ') })
-        .reply(httpStatusCodes.OK, [
-          {
-            tokens: requestParams.query.split(' '),
-            prediction: ['essence', 'name', 'name'],
-          },
-        ]);
+        const tokenTypesUrlScope = nock(config.get('application').services.tokenTypesUrl)
+          .post('', { tokens: requestParams.query.split(' ') })
+          .reply(httpStatusCodes.OK, [
+            {
+              tokens: requestParams.query.split(' '),
+              prediction: ['essence', 'name', 'name'],
+            },
+          ]);
 
-      const response = await requestSender.getQuery(requestParams);
+        const response = await requestSender.getQuery(requestParams);
 
-      expect(response.status).toBe(httpStatusCodes.OK);
-      // expect(response).toSatisfyApiSpec();
+        expect(response.status).toBe(httpStatusCodes.OK);
+        // expect(response).toSatisfyApiSpec();
 
-      expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
-        expectedResponseUnordered(
-          requestParams,
-          {
-            name: query,
-            place_types,
-            sub_place_types,
-          },
-          returnedFeatures,
-          expect
-        )
-      );
+        expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
+          expectedResponseUnordered(
+            requestParams,
+            {
+              name: query,
+              place_types,
+              sub_place_types,
+              place,
+              hierarchies,
+            },
+            returnedFeatures,
+            expect
+          )
+        );
 
-      tokenTypesUrlScope.done();
-    });
+        tokenTypesUrlScope.done();
+      }
+    );
 
     it('should return 200 status code and chiang mai city before chiang mai hotel', async function () {
       const requestParams: GetGeotextSearchParams = {
@@ -490,11 +494,204 @@ describe('/search/location', function () {
             name: 'los angeles',
             place_types: [],
             sub_place_types: [],
+            place: resolvedPlace('los angeles', 'filter', 0.917),
+            hierarchies: hierarchiesWithAnyWieght([LA_HIERRARCHY], expect),
           },
           [LA_AIRPORT],
           expect
         )
       );
+
+      tokenTypesUrlScope.done();
+    });
+
+    // The analyser is a RoBERTa token classifier, so it returns SentencePiece sub-word pieces,
+    // not words. The piece lists below are the measured output of xlm-roberta-base.
+    // Before sub-word aggregation this produced name: "\u2581los \u2581angel es".
+    it('should rebuild a whole name from the sub-word pieces the analyser returns', async function () {
+      const requestParams: GetGeotextSearchParams = { query: 'los angeles', limit: 1, disable_fuzziness: true };
+      const tokenTypesUrlScope = nock(config.get('application').services.tokenTypesUrl)
+        .post('', { tokens: requestParams.query.split(' ') })
+        .reply(httpStatusCodes.OK, [
+          {
+            tokens: ['\u2581los', '\u2581angel', 'es'],
+            prediction: ['name', 'name', 'name'],
+          },
+        ]);
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      expect(response.body).toHaveProperty('geocoding.response.name', 'los angeles');
+      expect(response.body).toEqual<GenericGeocodingResponse<Feature>>(
+        expectedResponse(
+          requestParams,
+          {
+            name: 'los angeles',
+            place_types: [],
+            sub_place_types: [],
+            place: resolvedPlace('los angeles', 'filter', 0.917),
+            hierarchies: hierarchiesWithAnyWieght([LA_HIERRARCHY], expect),
+          },
+          [LA_AIRPORT],
+          expect
+        )
+      );
+
+      tokenTypesUrlScope.done();
+    });
+
+    it('should take only the contiguous run of name pieces, never a fragment', async function () {
+      // 'airport los angeles' -> ['\u2581airport', '\u2581los', '\u2581angel', 'es'].
+      // A label on the trailing piece alone used to yield name: "es".
+      const requestParams: GetGeotextSearchParams = { query: 'airport los angeles', limit: 1, disable_fuzziness: true };
+      const tokenTypesUrlScope = nock(config.get('application').services.tokenTypesUrl)
+        .post('', { tokens: requestParams.query.split(' ') })
+        .reply(httpStatusCodes.OK, [
+          {
+            tokens: ['\u2581airport', '\u2581los', '\u2581angel', 'es'],
+            prediction: ['essence', 'name', 'name', 'name'],
+          },
+        ]);
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      expect(response.body).toHaveProperty('geocoding.response.name', 'los angeles');
+
+      tokenTypesUrlScope.done();
+    });
+
+    it('should drop the name hint when the analyser tokens do not reconstruct the query', async function () {
+      const requestParams: GetGeotextSearchParams = { query: 'los angeles', limit: 1, disable_fuzziness: true };
+      const tokenTypesUrlScope = nock(config.get('application').services.tokenTypesUrl)
+        .post('', { tokens: requestParams.query.split(' ') })
+        .reply(httpStatusCodes.OK, [
+          {
+            // a tokeniser that silently swallowed characters
+            tokens: ['\u2581los', '\u2581ang'],
+            prediction: ['name', 'name'],
+          },
+        ]);
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      expect(response.body).toHaveProperty('geocoding.response.name', '');
+
+      tokenTypesUrlScope.done();
+    });
+
+    it('should drop the name hint when tokens and predictions are misaligned', async function () {
+      const requestParams: GetGeotextSearchParams = { query: 'los angeles', limit: 1, disable_fuzziness: true };
+      const tokenTypesUrlScope = nock(config.get('application').services.tokenTypesUrl)
+        .post('', { tokens: requestParams.query.split(' ') })
+        .reply(httpStatusCodes.OK, [
+          {
+            tokens: ['\u2581los', '\u2581angel', 'es'],
+            prediction: ['name', 'name'],
+          },
+        ]);
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      expect(response.body).toHaveProperty('geocoding.response.name', '');
+
+      tokenTypesUrlScope.done();
+    });
+
+    it('should fall back to the legacy hierarchy lookup when the text after the comma resolves to nothing', async function () {
+      // Keeps the new behaviour a strict superset of the old comma handling.
+      const requestParams: GetGeotextSearchParams = { query: 'airport, nowherecity', limit: 5, disable_fuzziness: true };
+      const tokenTypesUrlScope = nock(config.get('application').services.tokenTypesUrl)
+        .post('', { tokens: ['airport'] })
+        .reply(httpStatusCodes.OK, [{ tokens: ['airport'], prediction: ['essence'] }]);
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      expect(response.body).not.toHaveProperty('geocoding.response.place');
+      // No spatial constraint was applied, so airports from every city come back
+      expect((response.body as GenericGeocodingResponse<Feature>).features.length).toBeGreaterThan(1);
+
+      tokenTypesUrlScope.done();
+    });
+
+    it('should boost rather than filter when only the fuzzy clause matched the gazetteer', async function () {
+      // "los angelos" reaches "Los Angeles" through the fuzzy clause only, which caps exactness
+      // at 0.5 and puts the confidence in the boost band.
+      const requestParams: GetGeotextSearchParams = { query: 'los angelos', limit: 5, disable_fuzziness: false };
+      const tokenTypesUrlScope = nock(config.get('application').services.tokenTypesUrl)
+        .post('', { tokens: ['los', 'angelos'] })
+        .reply(httpStatusCodes.OK, [{ tokens: ['los', 'angelos'], prediction: ['name', 'name'] }]);
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      expect(response.body).toHaveProperty('geocoding.response.place.mode', 'boost');
+      expect(response.body).toHaveProperty('geocoding.response.place.confidence', 0.617);
+
+      tokenTypesUrlScope.done();
+    });
+
+    it('should keep a second, non overlapping place as a boost only hierarchy', async function () {
+      const requestParams: GetGeotextSearchParams = { query: 'new york los angeles', limit: 5, disable_fuzziness: true };
+      const tokenTypesUrlScope = nock(config.get('application').services.tokenTypesUrl)
+        .post('', { tokens: ['new', 'york', 'los', 'angeles'] })
+        .reply(httpStatusCodes.OK, [{ tokens: ['new', 'york', 'los', 'angeles'], prediction: ['name', 'name', 'name', 'name'] }]);
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      // the later span wins and filters; the earlier one survives as a weight
+      expect(response.body).toHaveProperty('geocoding.response.place.text', 'los angeles');
+      const { hierarchies } = (response.body as GenericGeocodingResponse<Feature>).geocoding.response;
+      expect((hierarchies as { text: string }[]).map((h) => h.text)).toEqual(['Los Angeles', 'New York']);
+
+      tokenTypesUrlScope.done();
+    });
+
+    // Hebrew. The repository had no Hebrew characters at all before this, so the RTL path was
+    // never exercised against real data.
+    it('should resolve a Hebrew place name without a comma and filter by its polygon', async function () {
+      const requestParams: GetGeotextSearchParams = { query: 'תל אביב', limit: 5, disable_fuzziness: true };
+      const tokenTypesUrlScope = nock(config.get('application').services.tokenTypesUrl)
+        .post('', { tokens: ['תל', 'אביב'] })
+        .reply(httpStatusCodes.OK, [{ tokens: ['\u2581תל', '\u2581אביב'], prediction: ['name', 'name'] }]);
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      expect(response.body).toHaveProperty('geocoding.response.name', 'תל אביב');
+      expect(response.body).toHaveProperty('geocoding.response.place.text', 'תל אביב');
+      expect(response.body).toHaveProperty('geocoding.response.place.mode', 'filter');
+      expect(response.body).toHaveProperty('geocoding.response.place.confidence', 0.917);
+
+      const names = (response.body as GenericGeocodingResponse<Feature>).features.map((f) => f.properties.names.default[0]);
+      expect(names).toContain('נמל תל אביב');
+      expect(names).not.toContain('בית ספר חיפה');
+
+      tokenTypesUrlScope.done();
+    });
+
+    it('should exclude a feature outside the resolved Hebrew polygon', async function () {
+      // Both schools match the residual text "בית ספר"; only the Tel Aviv one is inside the polygon.
+      const requestParams: GetGeotextSearchParams = { query: 'בית ספר תל אביב', limit: 5, disable_fuzziness: true };
+      const tokenTypesUrlScope = nock(config.get('application').services.tokenTypesUrl)
+        .post('', { tokens: ['בית', 'ספר', 'תל', 'אביב'] })
+        .reply(httpStatusCodes.OK, [
+          { tokens: ['\u2581בית', '\u2581ספר', '\u2581תל', '\u2581אביב'], prediction: ['essence', 'essence', 'name', 'name'] },
+        ]);
+
+      const response = await requestSender.getQuery(requestParams);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      expect(response.body).toHaveProperty('geocoding.response.place.confidence', 0.842);
+
+      const names = (response.body as GenericGeocodingResponse<Feature>).features.map((f) => f.properties.names.default[0]);
+      expect(names).toContain('בית ספר תיכון תל אביב');
+      expect(names).not.toContain('בית ספר חיפה');
 
       tokenTypesUrlScope.done();
     });
@@ -520,6 +717,8 @@ describe('/search/location', function () {
             name: 'los angeles',
             place_types: ['road'],
             sub_place_types: ['road'],
+            place: resolvedPlace('los angeles', 'filter', 0.867),
+            hierarchies: hierarchiesWithAnyWieght([LA_HIERRARCHY], expect),
           },
           [LA_ROAD],
           expect
@@ -617,7 +816,10 @@ describe('/search/location', function () {
 
   describe('Sad Path', function () {
     // All requests with status code 4XX-5XX
-    it('should return 500 status code when the NLP Analyzer service is down due to network error', async function () {
+    // The NLP analyser supplies a ranking hint, not a requirement. Elasticsearch holds the data,
+    // so an analyser outage must degrade the ranking, never fail the search. A latency of -1 is
+    // the signal that the hint was unavailable.
+    it('should still answer the search when the NLP Analyzer is down due to network error', async function () {
       const errorMessage = 'NLP Analyzer service is down';
       const requestParams: GetGeotextSearchParams = { query: 'airport', limit: 5, disable_fuzziness: true };
 
@@ -629,9 +831,10 @@ describe('/search/location', function () {
 
       const response = await requestSender.getQuery(requestParams);
 
-      expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
-      expect(response.body).toHaveProperty('message', `NLP analyser is not available - ${errorMessage}`);
-      // expect(response).toSatisfyApiSpec();
+      expect(response.status).toBe(httpStatusCodes.OK);
+      expect(response.body).toHaveProperty('geocoding.response.nlp_anlyser_latency_ms', NLP_UNAVAILABLE_LATENCY);
+      expect(response.body).toHaveProperty('geocoding.response.name', '');
+      expect((response.body as GenericGeocodingResponse<Feature>).features.length).toBeGreaterThan(0);
 
       nockScope.done();
     });
@@ -640,7 +843,7 @@ describe('/search/location', function () {
       { code: httpStatusCodes.OK, body: [] },
       { code: httpStatusCodes.OK, body: undefined },
       { code: httpStatusCodes.NO_CONTENT, body: { message: 'bad request' } },
-    ])('should return 500 status code when the NLP Analyzer service not responding as expected', async function ({ code, body }) {
+    ])('should still answer the search when the NLP Analyzer responds unexpectedly', async function ({ code, body }) {
       const requestParams: GetGeotextSearchParams = { query: 'airport', limit: 5, disable_fuzziness: false };
 
       const nockScope = nock(config.get('application').services.tokenTypesUrl)
@@ -650,11 +853,10 @@ describe('/search/location', function () {
 
       const response = await requestSender.getQuery(requestParams);
 
-      expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
-
-      expect(response.body).toHaveProperty('message', expect.stringContaining('NLP analyser unexpected response:'));
-
-      // expect(response).toSatisfyApiSpec();
+      expect(response.status).toBe(httpStatusCodes.OK);
+      expect(response.body).toHaveProperty('geocoding.response.nlp_anlyser_latency_ms', NLP_UNAVAILABLE_LATENCY);
+      expect(response.body).toHaveProperty('geocoding.response.name', '');
+      expect((response.body as GenericGeocodingResponse<Feature>).features.length).toBeGreaterThan(0);
 
       nockScope.done();
     });

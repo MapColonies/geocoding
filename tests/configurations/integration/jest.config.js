@@ -9,7 +9,18 @@ module.exports = {
   coverageReporters: ['text', 'html'],
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/' }),
   collectCoverage: true,
-  collectCoverageFrom: ['<rootDir>/src/**/*.ts', '!*/node_modules/', '!/vendor/**', '!*/common/**', '!**/models/**', '!<rootDir>/src/*'],
+  // `placeResolution` is pure logic covered by the unit suite, for the same reason `models` is
+  // excluded here - the two configs are complementary, not overlapping.
+  collectCoverageFrom: [
+    '<rootDir>/src/**/*.ts',
+    '!*/node_modules/',
+    '!/vendor/**',
+    '!*/common/**',
+    '!**/models/**',
+    '!**/placeResolution/**',
+    '!**/constants.ts',
+    '!<rootDir>/src/*',
+  ],
   coverageDirectory: '<rootDir>/coverage',
   rootDir: '../../../.',
   testMatch: ['<rootDir>/tests/integration/**/*.spec.ts'],

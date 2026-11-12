@@ -9,6 +9,10 @@ import { GenericGeocodingResponse, IApplication } from '../common/interfaces';
 import { TextSearchParams } from './interfaces';
 import { TextSearchHit } from './models/elasticsearchHits';
 import { generateDisplayName } from './parsing';
+import type { ResolvedPlace } from './placeResolution/types';
+
+/** Decimal places reported for the place-resolution confidence. */
+const PLACE_CONFIDENCE_PRECISION = 3;
 
 const axiosInstance = axios.create({
   httpsAgent: new https.Agent({ rejectUnauthorized: false }),
@@ -46,12 +50,14 @@ export const convertResult = (
     regionCollection,
     nameKeys,
     mainLanguageRegex,
+    place,
     externalResourcesLatency,
   }: {
     sources?: IApplication['sources'];
     regionCollection?: IApplication['regions'];
     nameKeys: IApplication['nameTranslationsKeys'];
     mainLanguageRegex: IApplication['mainLanguageRegex'];
+    place?: ResolvedPlace & { fallbackApplied: boolean };
     externalResourcesLatency: {
       query: number;
       nlpAnalyser: number;
@@ -84,6 +90,16 @@ export const convertResult = (
         place_types: params.placeTypes,
         sub_place_types: params.subPlaceTypes,
         hierarchies: params.hierarchies.length ? params.hierarchies : undefined,
+        // Makes the filter-versus-boost decision observable in production rather than silent.
+        place: place
+          ? {
+              text: place.span.text,
+              hierarchy: place.hit.hierarchy,
+              confidence: Number(place.confidence.toFixed(PLACE_CONFIDENCE_PRECISION)),
+              mode: place.mode,
+              fallback_applied: place.fallbackApplied,
+            }
+          : undefined,
       },
     },
     features: results.hits.hits.map(({ _source: feature, _score: score, highlight }): GenericGeocodingResponse<Feature>['features'][number] => {
