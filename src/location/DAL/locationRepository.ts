@@ -11,12 +11,20 @@ import { queryElastic } from '../../common/elastic/utils';
 import { SERVICES } from '../../common/constants';
 import { CommonSpanAttributes, withSpan } from '../../common/tracing';
 import { LocationSpanName, LocationAttributes } from '../tracing';
-import { hierarchyQuery, placetypeQuery, geotextQuery } from './queries';
+import { isPlausiblePlacetype } from '../placeResolution/score';
+import type { CandidateHit } from '../placeResolution/score';
+import { aggregateSubwords, longestContiguousName, reconstructs } from '../placeResolution/subwords';
+import { tokenize } from '../placeResolution/tokenize';
+import type { CandidateSpan } from '../placeResolution/types';
+import { hierarchyQuery, placetypeQuery, geotextQuery, placeCandidatesQuery } from './queries';
 
 const FIND_QUOTES = /["']/g;
 
 const FIND_SPECIAL = /[`!@#$%^&*()_\-+=|\\/,.<>:[\]{}\n\t\r\s;؛]+/g;
 const cleanQuery = (query: string): string[] => query.replace(FIND_QUOTES, '').split(FIND_SPECIAL);
+
+/** Reported as `nlp_anlyser_latency_ms` when the analyser could not be reached - the signal to alert on. */
+const NLP_UNAVAILABLE_LATENCY = -1;
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const createGeotextRepository = (client: ElasticClient, logger: Logger) => {
@@ -27,8 +35,18 @@ const createGeotextRepository = (client: ElasticClient, logger: Logger) => {
         { attributes: { [LocationAttributes.QUERY]: query, [LocationAttributes.NLP_ENDPOINT]: endpoint } },
         async (span) => {
           const tokensRaw = cleanQuery(query);
-          const { data: response, latency } = await fetchNLPService<Partial<TokenResponse>>(endpoint, { tokens: tokensRaw });
 
+          let nlpResponse: { data: Partial<TokenResponse>[]; latency: number };
+          try {
+            nlpResponse = await fetchNLPService<Partial<TokenResponse>>(endpoint, { tokens: tokensRaw });
+          } catch (error: unknown) {
+            // The name is a ranking hint, not a requirement - a missing analyser must not fail the search.
+            logger.warn({ msg: 'extractName: NLP analyser unavailable, continuing without a name hint', error });
+            span?.setAttribute(LocationAttributes.QUERY_NAME, '');
+            return { name: '', latency: NLP_UNAVAILABLE_LATENCY };
+          }
+
+          const { data: response, latency } = nlpResponse;
           const { tokens, prediction } = response[0];
 
           // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
@@ -38,8 +56,27 @@ const createGeotextRepository = (client: ElasticClient, logger: Logger) => {
             throw new BadRequestError(message);
           }
 
-          const nameTokens = tokens.filter((_, index) => prediction[index] === 'name');
-          const name = nameTokens.join(' ');
+          // The analyser is a RoBERTa token classifier, so it returns SentencePiece pieces rather
+          // than words. Reading labels against the raw pieces yields fragments - "ווה" for פתח תקווה.
+          const aggregated = aggregateSubwords(tokens, prediction);
+
+          if (!aggregated) {
+            logger.warn({
+              msg: 'extractName: NLP analyser returned misaligned tokens and predictions, ignoring the name hint',
+              tokenCount: tokens.length,
+              predictionCount: prediction.length,
+            });
+            span?.setAttribute(LocationAttributes.QUERY_NAME, '');
+            return { name: '', latency };
+          }
+
+          if (!reconstructs(aggregated.words, tokensRaw)) {
+            logger.warn({ msg: 'extractName: NLP analyser tokens do not reconstruct the query, ignoring the name hint', sent: tokensRaw });
+            span?.setAttribute(LocationAttributes.QUERY_NAME, '');
+            return { name: '', latency };
+          }
+
+          const name = longestContiguousName(aggregated.words, aggregated.labels);
 
           span?.setAttribute(LocationAttributes.QUERY_NAME, name);
 
@@ -72,14 +109,19 @@ const createGeotextRepository = (client: ElasticClient, logger: Logger) => {
             took: matchLatencyMs,
           } = await queryElastic<PlaceTypeSearchHit>(client, { index, ...placetypeQuery(query, disableFuzziness) });
 
+          // An Elasticsearch _score has no absolute scale, so a score floor cannot tell a real
+          // placetype from a fuzzy accident. Compare the placetype to the words actually typed.
+          const queryTokens = tokenize(query).map((token) => token.normalized);
+          const accepted = hits.filter((hit) => isPlausiblePlacetype(hit._source!.sub_placetype_keyword, queryTokens));
+
           const SCORE_DIFFERENCE_THRESHOLD = 0.5;
           const MIN_HITS_FOR_DIFFERENCE_CHECK = 2;
 
-          if (hits.length == MIN_HITS_FOR_DIFFERENCE_CHECK && hits[0]._score! - hits[1]._score! > SCORE_DIFFERENCE_THRESHOLD) {
-            hits.pop();
+          if (accepted.length == MIN_HITS_FOR_DIFFERENCE_CHECK && accepted[0]._score! - accepted[1]._score! > SCORE_DIFFERENCE_THRESHOLD) {
+            accepted.pop();
           }
 
-          const [placeTypes, subPlaceTypes] = hits.reduce<[string[], string[]]>(
+          const [placeTypes, subPlaceTypes] = accepted.reduce<[string[], string[]]>(
             ([placeTypes, subPlaceTypes], hit) => [placeTypes.concat(hit._source!.placetype), subPlaceTypes.concat(hit._source!.sub_placetype)],
             [[], []]
           );
@@ -95,6 +137,57 @@ const createGeotextRepository = (client: ElasticClient, logger: Logger) => {
             subPlaceTypes,
             matchLatencyMs,
           };
+        }
+      );
+    },
+
+    /**
+     * Asks the gazetteer about every candidate span in one request.
+     *
+     * I/O only: the clause names come back on each hit and the caller grades them. Elasticsearch
+     * reports `matched_queries` either as a list of names or, when scores are requested, as a
+     * name-to-score object, so both shapes are accepted.
+     */
+    async findPlaceCandidates(
+      index: string,
+      spans: CandidateSpan[],
+      disableFuzziness: boolean
+    ): Promise<{ candidates: CandidateHit[]; matchLatencyMs: number }> {
+      return withSpan(
+        LocationSpanName.REPOSITORY_FIND_PLACE_CANDIDATES,
+        {
+          attributes: {
+            [LocationAttributes.DISABLE_FUZZINESS]: disableFuzziness,
+            [LocationAttributes.PLACE_SPANS_COUNT]: spans.length,
+            [CommonSpanAttributes.ELASTIC_INDEX]: index,
+          },
+        },
+        async (span) => {
+          if (spans.length === 0) {
+            return { candidates: [], matchLatencyMs: 0 };
+          }
+
+          const {
+            hits: { hits },
+            took: matchLatencyMs,
+          } = await queryElastic<HierarchySearchHit>(client, { index, ...placeCandidatesQuery(spans, disableFuzziness) });
+
+          const candidates = hits.map((hit) => {
+            const matched = hit.matched_queries as string[] | Record<string, number> | undefined;
+
+            return {
+              hit: hit._source!,
+              score: hit._score ?? 0,
+              matchedQueries: Array.isArray(matched) ? matched : Object.keys(matched ?? {}),
+            };
+          });
+
+          span?.setAttributes({
+            [LocationAttributes.PLACE_CANDIDATES_COUNT]: candidates.length,
+            [CommonSpanAttributes.MATCH_LATENCY_MS]: matchLatencyMs,
+          });
+
+          return { candidates, matchLatencyMs };
         }
       );
     },
@@ -183,3 +276,5 @@ export const geotextRepositoryFactory: FactoryFunction<GeotextRepository> = (dep
 };
 
 export const GEOTEXT_REPOSITORY_SYMBOL = Symbol('GEOTEXT_REPOSITORY_SYMBOL');
+
+export { NLP_UNAVAILABLE_LATENCY };

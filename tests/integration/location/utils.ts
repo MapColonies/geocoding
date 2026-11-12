@@ -57,6 +57,17 @@ export const expectedResponseUnordered = (
   };
 };
 
+/**
+ * The `geocoding.response.place` block for a query whose place resolved.
+ * Confidence is pinned deliberately: these numbers are the specification of the scoring formula.
+ */
+export const resolvedPlace = (
+  text: string,
+  mode: 'filter' | 'boost',
+  confidence: number,
+  { hierarchy = 'city', fallbackApplied = false } = {}
+): Record<string, unknown> => ({ text, hierarchy, confidence, mode, fallback_applied: fallbackApplied });
+
 export const hierarchiesWithAnyWieght = (
   hierarchies: GenericGeocodingResponse<Feature>['geocoding']['response']['hierarchies'],
   expect: jest.Expect

@@ -71,7 +71,8 @@
     },
     "regions": {
       "USA": ["New York", "Los Angeles"],
-      "FRANCE": ["Paris"]
+      "FRANCE": ["Paris"],
+      "ISRAEL": ["Tel Aviv", "Haifa"]
     },
     "nameTranslationsKeys": ["en", "fr"],
     "mainLanguageRegex": "[a-zA-Z]"

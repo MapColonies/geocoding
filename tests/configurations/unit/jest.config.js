@@ -19,6 +19,7 @@ module.exports = {
     '!**/DAL/**',
     '!**/routes/**',
     '!**/redis/**',
+    '!**/constants.ts',
     '!<rootDir>/src/*',
   ],
   coverageDirectory: '<rootDir>/coverage',
